@@ -1,0 +1,8 @@
+/* styles/globals.css */
+.input-custom,
+.btn-custom {
+  height: 40px;  /* Altura uniforme */
+  padding: 10px; /* Espaciado interno */
+  font-size: 14px; /* Tamaño del texto */
+  border-radius: 5px; /* Bordes redondeados */
+}

@@ -1,4 +1,5 @@
 import supabase from "../lib/supabase";
+import PreIntake from "./pre-intake/page";
 
 export default function Home() {
   console.log(supabase);
@@ -27,6 +28,7 @@ export default function Home() {
             </ul>
           </div>
         </div>
+
       </main>
 
       <footer className="bg-gray-800 text-white text-center p-4">
