@@ -5,14 +5,53 @@ export default async function ClientsPage() {
   let clients = [];
 
   try {
-    const { data, error } = await supabase.from("Clients").select("*");
+    // Fetch data from all three tables
+    const { data: preIntakeData, error: preIntakeError } = await supabase
+      .from("Pre Intake")
+      .select("*");
 
-    if (error) {
-      console.error("Error fetching data:", error.message);
-    } else {
-      console.log("Connection successful.");
-      clients = data;
+    const { data: fullIntakeData, error: fullIntakeError } = await supabase
+      .from("Full Intake")
+      .select("*");
+
+    const { data: youthIntakeData, error: youthIntakeError } = await supabase
+      .from("Youth Intake")
+      .select("*");
+
+    // Check for errors in any of the queries
+    if (preIntakeError) {
+      console.error("Error fetching Pre Intake data:", preIntakeError.message);
     }
+    if (fullIntakeError) {
+      console.error(
+        "Error fetching Full Intake data:",
+        fullIntakeError.message
+      );
+    }
+    if (youthIntakeError) {
+      console.error(
+        "Error fetching Youth Intake data:",
+        youthIntakeError.message
+      );
+    }
+
+    // Combine all the data into one array, with an added intake phase field
+    if (!preIntakeError) {
+      preIntakeData.forEach((client) => (client.intakePhase = "Pre Intake"));
+      clients = [...clients, ...preIntakeData];
+    }
+    if (!fullIntakeError) {
+      fullIntakeData.forEach((client) => (client.intakePhase = "Full Intake"));
+      clients = [...clients, ...fullIntakeData];
+    }
+    if (!youthIntakeError) {
+      youthIntakeData.forEach(
+        (client) => (client.intakePhase = "Youth Intake")
+      );
+      clients = [...clients, ...youthIntakeData];
+    }
+
+    // console.log("Fetched clients:", clients); // Verify the data
   } catch (err) {
     console.error("Unexpected error:", err);
   }
@@ -28,17 +67,42 @@ export default async function ClientsPage() {
             <ul className="divide-y divide-gray-200">
               {clients.map((client) => (
                 <li
-                  key={client.client_id}
+                  key={
+                    client.pre_intake_id ||
+                    client.full_intake_id ||
+                    client.youth_intake_id
+                  }
                   className="py-4 flex justify-between items-center"
                 >
                   <div className="text-left">
                     <ul className="text-sm font-medium text-gray-900">
-                      <Link href={`clients/${client.client_id}`}>
-                        {client.firstName} {client.lastName}
+                      <Link
+                        href={`clients/${
+                          client.pre_intake_id ||
+                          client.full_intake_id ||
+                          client.youth_intake_id
+                        }`}
+                      >
+                        {client.intakePhase === "Full Intake" &&
+                        client.firstName &&
+                        client.lastName
+                          ? `${client.firstName} ${client.lastName}`
+                          : client.intakePhase === "Pre Intake" &&
+                            client.firstName &&
+                            client.lastName
+                          ? `${client.firstName} ${client.lastName}`
+                          : client.intakePhase === "Youth Intake" &&
+                            client.firstName &&
+                            client.lastName
+                          ? `${client.firstName} ${client.lastName}`
+                          : "Name not available"}
                       </Link>
                     </ul>
                     <p className="text-sm text-gray-500">
-                      Client ID: {client.client_id}
+                      Client ID:{" "}
+                      {client.pre_intake_id ||
+                        client.full_intake_id ||
+                        client.youth_intake_id}
                     </p>
                     <p className="text-sm text-gray-500">
                       {client.phoneNumber}
@@ -49,14 +113,19 @@ export default async function ClientsPage() {
                       {client.city}, {client.province}
                     </p>
                     <p className="text-sm text-gray-500">
-                      {new Date(client.dateOfBirth).toLocaleDateString(
-                        "en-US",
-                        {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        }
-                      )}
+                      {client.dateOfBirth
+                        ? new Date(client.dateOfBirth).toLocaleDateString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            }
+                          )
+                        : "Date not available"}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Intake Phase: {client.intakePhase}
                     </p>
                   </div>
                 </li>
