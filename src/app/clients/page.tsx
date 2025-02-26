@@ -1,11 +1,11 @@
-// app/clients/page.js (Server Component)
-import supabase from "../../../lib/supabase"; // Correct the import path here
-import ClientsList from "../../../components/client-list"; // Client-side Component
+import supabase from "../lib/supabase";
+import ClientsList from "../../../components/client-list";
 
 export default async function ClientsPage() {
-  // Server-side fetch to get initial data
-  const { data, error, count } = await fetchClientsData(1); // Fetch first page (for SSR)
+  // Fetch the initial data
+  const { data, error, count } = await fetchClientsData(1);
 
+  // Log error if any
   if (error) {
     console.error("Error fetching data:", error.message);
   }
@@ -18,11 +18,12 @@ export default async function ClientsPage() {
             List of Clients
           </h1>
 
-          {/* Pass the initial data and total count to the client-side component */}
+          {/* Pass initial data and count to the client-side component */}
           <ClientsList initialClients={data} totalCount={count} />
         </div>
       </main>
 
+      {/* Footer Component */}
       <footer className="bg-gray-800 text-white text-center p-4">
         <p>&copy; 2025 My Next.js App</p>
       </footer>
@@ -30,7 +31,7 @@ export default async function ClientsPage() {
   );
 }
 
-// Function to fetch data (this could be an API call or direct DB query)
+// Fetch clients data (could be from an API or direct DB query)
 async function fetchClientsData(page) {
   try {
     const { data, error, count } = await supabase
@@ -42,7 +43,7 @@ async function fetchClientsData(page) {
 
     return { data, count };
   } catch (err) {
-    console.error("Error fetching data:", err);
+    console.error("Error fetching data:", err.message);
     return { data: [], count: 0 };
   }
 }

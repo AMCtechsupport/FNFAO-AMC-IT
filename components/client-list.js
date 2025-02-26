@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import supabase from "../lib/supabase";
+import supabase from "../src/app/lib/supabase";
 import Link from "next/link";
 
 export default function ClientsList({ initialClients, totalCount }) {
@@ -116,10 +116,9 @@ export default function ClientsList({ initialClients, totalCount }) {
             {clients.map((client) => (
               <li
                 key={client.client_id}
-                className="py-4 border-b-2 border-gray-600" // Add dark gray border for separation
+                className="py-4 border-b-2 border-gray-600"
               >
                 <div className="text-left p-4 border-2 border-gray-700 rounded-lg mb-4 shadow-sm bg-white">
-                  {/* Full Name, Bolded and Larger */}
                   <ul className="text-lg font-bold text-gray-900">
                     <Link href={`clients/${client.client_id}`}>
                       {client.firstName} {client.middleName} {client.lastName}
