@@ -96,11 +96,18 @@ export default function ClientsList({ initialClients, totalCount }) {
 
       {/* Date Picker for Date of Birth */}
       <div className="mb-4">
+        <label
+          htmlFor="dateOfBirth"
+          className="text-left block text-sm font-semibold text-gray-300"
+        >
+          Filter by Date of Birth
+        </label>
         <input
+          id="dateOfBirth"
           type="date"
           value={dateOfBirth}
           onChange={handleDateOfBirthChange}
-          className="p-2 border rounded-md w-full"
+          className="p-2 border rounded-md w-full mt-2"
         />
       </div>
 
