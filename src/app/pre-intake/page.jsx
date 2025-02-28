@@ -6,7 +6,11 @@ import { Formik, Form, Field, ErrorMessage, FieldArray  } from "formik";
 import { Button, Container, Row, Col } from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import {insertPreIntake} from "../actions/pre-intakeActions"
+import supabase from "../../lib/supabase";  // Ajusta según la estructura de carpetas
+
+// import supabase from "@/lib/supabase";
+
+// import { insertPreIntake } from "../actions/pre-intakeActions";
 
 
 export default function PreIntake() {
@@ -38,51 +42,53 @@ function PreIntakeForm() {
                 province: "",
                 postalCode: "",
                 email: "",
-                emergencyContactName: "",
+                emergencyContactFirstName: "",
+                emergencyContactLastName: "",
                 emergencyContactNumber: "",
                 referredBy: "",
                 relationshipToChildren: "",
-                otherAdultsInvolved: 'no',
-                otherAdultsInvolvedExplained:"",
-                firstNationMembership:"",
-                treatyNumber:"",
-                otherFirstnation:"",
-                ninePersonalHealthNumber:"",
-                sixPersonalHealthNumber:"",
-                onReserve:"",
-                transitionFromReserve:"",
-                previousFNFAOClient:"",
-                seekingAdvocacy:"",
-                cfsAgency:"",
-                cfsAgentFullName:"",
-                cfsAgentNumber:"",
-                cfsAgentEmail:"",
+                otherAdultsInvolved:'no',
+                otherAdultsInvolvedExplained: "",
+                firstNationMembership: "",
+                treatyNumber: "",
+                otherFirstnation: "",
+                ninePersonalHealthNumber: "",
+                sixPersonalHealthNumber: "",
+                onReserve: "",
+                transitionFromReserve: "",
+                previousFNFAOClient: "",
+                seekingAdvocacy: "",
+                cfsAgency: "",
+                cfsAgentFullName: "",
+                cfsAgentNumber: "",
+                cfsAgentEmail: "",
+                statusCFSFile: "",
                 visitsChild:'no',
-                visitsChildFrequency:"",
-                casePlanCopy:"",
-                casePlanCopyDescribe:"",
-                involvedCFSReason:"",
+                visitsChildFrequency: "",
+                casePlanCopy:'yes',
+                casePlanCopyDescribe: "",
+                involvedCFSReason: "",
                 prenatalSupport:'no',
-                prenatalSupportSpecified:"",
-                housingSupport:"",
-                housingSupportSpecified:"",
-                addictionsSupport:"",
-                addictionsSupportSpecified:"",
-                youthSupport:"",
-                youthSupportSpecified:"",
-                custodySupport:"",
-                custodySupportSpecified:"",
-                criminalCharges:"",
-                criminalChargesSpecified:"",
-                activeWarrant:"",
-                activeWarrantSpecified:"",
-                activeInvestigation:"",
-                activeInvestigationExplained:"",
-                activeOrders:"",
-                activeOrdersExplained:"",
-                currentLawyer:"",
-                legalAssistance:"",
-                legalAssistanceSpecified:"",
+                prenatalSupportSpecified: "",
+                housingSupport:'no',
+                housingSupportSpecified: "",
+                addictionsSupport:'no',
+                addictionsSupportSpecified: "",
+                youthSupport:'no',
+                youthSupportSpecified: "",
+                custodySupport:'no',
+                custodySupportSpecified: "",
+                criminalCharges:'no',
+                criminalChargesSpecified: "",
+                activeWarrant:'no',
+                activeWarrantSpecified: "",
+                activeInvestigation:'no',
+                activeInvestigationExplained: "",
+                activeOrders:'no',
+                activeOrdersExplained: "",
+                currentLawyer:'yes',
+                legalAssistance:'no',
+                legalAssistanceSpecified: "",
                 children: []
 
             }}
@@ -161,8 +167,12 @@ function PreIntakeForm() {
                     errors.email = "Invalid email format";
                 }
 
-                if (!values.emergencyContactName) {
-                    errors.emergencyContactName = "Please provide an emergency contact name.";
+                if (!values.emergencyContactFirstName) {
+                    errors.emergencyContactFirstName = "Please provide an emergency contact first name.";
+                }
+
+                if (!values.emergencyContactLastName) {
+                    errors.emergencyContactLastName = "Please provide an emergency contact last name.";
                 }
 
                 if (!values.emergencyContactNumber) {
@@ -173,7 +183,7 @@ function PreIntakeForm() {
                     errors.relationshipToChildren = "Please provide a relationship with the child(ren).";
                 }
 
-                if (values.otherAdultsInvolved === "yes" && !values.otherAdultsInvolvedExplained.trim()) {
+                if (values.otherAdultsInvolved === true && !values.otherAdultsInvolvedExplained.trim()) {
                     errors.otherAdultsInvolvedExplained = "Please specify the other involved adult(s)";
                 }
 
@@ -181,19 +191,109 @@ function PreIntakeForm() {
                 return errors;
             }}
             onSubmit={async (values, { resetForm }) => {
-                console.log(values);
-
                 try {
-                    await insertPreIntake(values);
-                    setMessage("pre-intake successfully added");
+                    const convertedValues = {};
+
+                    // Loop through all fields in the 'values' object
+                    // to convert them from "yes/no" to true/false
+                    for (let key in values) {
+                        if (values[key] === "yes") {
+                            convertedValues[key] = true;
+                        } else if (values[key] === "no") {
+                            convertedValues[key] = false;
+                        } else {
+                            convertedValues[key] = values[key];
+                        }
+                    }
+
+                    console.log("Converted values:", convertedValues);
+
+                    // Get the current date in ISO 8601 format
+                    const currentDate = new Date().toISOString();
+
+                    // Extract 'children' from convertedValues and keep the rest as client data
+                    const { children, emergencyContactFirstName, emergencyContactLastName, emergencyContactNumber, ...clientData  } = convertedValues;
+
+                    // Add date fields before inserting
+                    clientData.createdAt = currentDate;
+                    clientData.dateModified = currentDate;
+
+                    console.log("Client data to insert:", clientData);
+
+
+                    // Insert client data into the 'Clients' table
+                    const { data: client, error: clientError } = await supabase
+                        .from('Clients')
+                        .insert([clientData])
+                        .select(); // Retrieve inserted data to get the client ID
+
+                    if (clientError) {
+                        console.error("❌ Error inserting client:");
+                        console.error("Message:", clientError.message || "No message");
+                        console.error("Details:", clientError.details || "No details");
+                        console.error("Code:", clientError.code || "No code")
+                        throw clientError;
+                    }
+
+                    console.log("Client inserted successfully:", client);
+
+                    // Get the inserted client's ID
+                    const clientId = client[0]?.client_id;
+                    if (!clientId) throw new Error("Failed to retrieve client ID.");
+
+                    // If there are children, insert them into the 'Children' table
+                    if (children && children.length > 0) {
+                        const childrenData = children.map(child => ({
+                            ...child,
+                            client_id: clientId, // Associate each child with the client
+                        }));
+
+                        const { error: childrenError } = await supabase
+                            .from('Childs')
+                            .insert(childrenData);
+
+                        if (childrenError) {
+                            console.error("Error inserting children:", childrenError);
+                            throw childrenError;
+                        }
+
+                        console.log("Children inserted successfully:", childrenData);
+                    }
+
+                    if (emergencyContactFirstName && emergencyContactLastName && emergencyContactNumber) {
+                        const emergencyContactData = {
+                            firstName: emergencyContactFirstName,
+                            lastName: emergencyContactLastName,
+                            phoneNumber: emergencyContactNumber,
+                            note: "",
+                            client_id: clientId // Associate emergency contact with the cliente
+                        };
+
+                        const { error: emergencyContactError } = await supabase
+                            .from('Emergency Contacts') // Asegúrate de que el nombre de la tabla es correcto
+                            .insert([emergencyContactData]);
+
+                        if (emergencyContactError) {
+                            console.error("❌ Error inserting emergency contact:");
+                            console.error("Message:", emergencyContactError.message || "No message");
+                            console.error("Details:", emergencyContactError.details || "No details");
+                            console.error("Code:", emergencyContactError.code || "No code");
+                            throw emergencyContactError;
+                        }
+
+                        console.log("✅ Emergency contact inserted successfully:", emergencyContactData);
+                    }
+
+                    // Reset form and show success message
                     setFormSent(true);
                     resetForm();
                     setTimeout(() => setFormSent(false), 3000);
-                } catch (error){
-                    setMessage ("Error:" + error.message);
-                }
 
+                } catch (error) {
+                    console.error("General error:", error);
+                }
             }}
+
         >
             {({ values, errors }) => (
                 <Form className={styles.form}>
@@ -300,7 +400,11 @@ function PreIntakeForm() {
                     <Row className={styles.group}>
                         <h6>Emergency Contact</h6>
                         <Col>
-                            <InputField name="emergencyContactName" label="Full Name:" placeholder="" error={errors.emergencyContactName} />
+                            <InputField name="emergencyContactFirstName" label="First Name:" placeholder="" error={errors.emergencyContactFirstName} />
+                        </Col>
+
+                        <Col>
+                            <InputField name="emergencyContactLastName" label="Last Name:" placeholder="" error={errors.emergencyContactLastName} />
                         </Col>
 
                         <Col>
@@ -318,14 +422,14 @@ function PreIntakeForm() {
                         <h4 className="text-dark">About You</h4>
                         <Col md={4}>
                             <div>
-                                <label htmlFor="relationshipToChildren">What is your relationshipToChildren to the child(ren)?</label>
+                                <label htmlFor="relationshipToChildren">What is your relationship to the child(ren)?</label>
                                 <Field as="select" name="relationshipToChildren" className={styles.select}>
                                     <option value="">Select an option</option>
                                     <option value="parent">Parent</option>
-                                    <option value="guardian">Grandparend</option>
-                                    <option value="guardian">Child-in-Care</option>
-                                    <option value="guardian">Foster Parent</option>
-                                    <option value="guardian">Family Member</option>
+                                    <option value="grandparend">Grandparend</option>
+                                    <option value="childInCare<">Child-in-Care</option>
+                                    <option value="fosterParent">Foster Parent</option>
+                                    <option value="familyMembe">Family Member</option>
                                     <option value="guardian">Guardian</option>
                                     <option value="other">Other</option>
                                 </Field>
@@ -342,7 +446,7 @@ function PreIntakeForm() {
                                     <label className="form-check-label">Yes</label>
                                 </div>
                                 <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="otherAdultsInvolved" value="no" />
+                                    <Field  className="form-check-input" type="radio" name="otherAdultsInvolved" value="no"  />
                                     <label className="form-check-label">No</label>
                                 </div>
                                 <ErrorMessage name="otherAdultsInvolved" component="div" className={styles.errorText} />
@@ -446,34 +550,45 @@ function PreIntakeForm() {
                             {({ push, remove }) => (
                                 <div>
                                     {values.children.map((child, index) => (
-                                        <div key={index} className="border rounded p-2 mb-1 bg-light" >
+                                        <div key={index} className={`${styles.bglightgrey} border rounded p-2 mb-3`} >
                                             <Row className="align-items-center">
-                                                <Col md={4}>
-                                                    <InputField name={`children.${index}.childFullName`} label="Full Name:" />
+                                                <Col md={3}>
+                                                    <InputField name={`children.${index}.firstName`} label="First Name:" />
                                                 </Col>
-                                                <Col md={2}>
+                                                <Col md={3}>
+                                                    <InputField name={`children.${index}.middleName`} label="Middle Name:" />
+                                                </Col>
+                                                <Col md={6}>
+                                                    <InputField name={`children.${index}.lastName`} label="Last Name:" />
+                                                </Col>
+                                            </Row>
+                                            <Row>
+                                                <Col md={3}>
                                                     <div>
-                                                        <label htmlFor={`children.${index}.childDateOfBirth`}>Date of Birth:</label>
-                                                        <Field type="date" id={`children.${index}.childDateOfBirth`} name={`children.${index}.childDateOfBirth`} />
+                                                        <label htmlFor={`children.${index}.birthDate`}>Date of Birth:</label>
+                                                        <Field type="date" id={`children.${index}.birthDate`} name={`children.${index}.birthDate`} />
                                                         <ErrorMessage
-                                                            name={`children.${index}.childDateOfBirth`}
-                                                            component={() => <p className={styles.errorText}>{errors.children?.[index]?.childDateOfBirth}</p>}
+                                                            name={`children.${index}.birthDate`}
+                                                            component={() => <p className={styles.errorText}>{errors.children?.[index]?.birthDate}</p>}
                                                         />
                                                     </div>
                                                 </Col>
-                                                <Col md={3}>
+                                                <Col md={6}>
                                                     <FirstNationSelect name={`children.${index}.childNation`} label="First Nation Membership:" error={errors.childNation}/>
                                                 </Col>
-                                                <Col md={2}>
+                                                <Col md={3}>
                                                     <InputField name={`children.${index}.childPlaced`} label="Place of Stay:" />
                                                 </Col>
-                                                <Col md={1} className="d-flex align-items-end">
-                                                    <Button className="w-100 h-100" variant="danger" type="button" onClick={() => remove(index)}>Delete</Button>
+                                            </Row>
+                                            <Row>
+                                                <Col md={9}></Col>
+                                                <Col md={3} className="d-flex align-items-end mt-2">
+                                                    <Button className="w-100 btn btn-danger"  type="button" onClick={() => remove(index)}>Delete</Button>
                                                 </Col>
                                             </Row>
                                         </div>
                                     ))}
-                                    <Button type="button" onClick={() => push({ childFullName: "", childDateOfBirth: "", childNation: "", childPlaced: "" })}>
+                                    <Button className="btn-dark" type="button" onClick={() => push({ firstName: "", middleName: "", lastName: "", birthDate: "", childNation: "", childPlaced: "" })}>
                                         + Add Child
                                     </Button>
                                 </div>
@@ -486,10 +601,10 @@ function PreIntakeForm() {
                     <Row>
                         <h4 className="text-dark">Agency Information</h4>
                         <Col>
-                            <InputField name="cfsAgency:" label="CFS Agency Name:" placeholder="" error={errors.cfsAgency} />
+                            <InputField name="cfsAgency" label="CFS Agency Name:" placeholder="" error={errors.cfsAgency} />
                         </Col>
                         <Col>
-                            <InputField name="cfsAgentFullName:" label="Agency Worker’s Full Name:" placeholder="" error={errors.cfsAgentFullName} />
+                            <InputField name="cfsAgentFullName" label="Agency Worker’s Full Name:" placeholder="" error={errors.cfsAgentFullName} />
                         </Col>
                         <Col md={4}>
                             <div>
@@ -511,8 +626,8 @@ function PreIntakeForm() {
                         </Col>
                         <Col  md={4}>
                             <div>
-                                <label htmlFor="cfs_Status">CFS File Status:</label>
-                                <Field as="select" name="cfs_Status:" className={styles.select}>
+                                <label htmlFor="statusCFSFile">CFS File Status:</label>
+                                <Field as="select" name="statusCFSFile" className={styles.select}>
                                     <option value="">Select an option</option>
                                     <option value="temporary">Temporary</option>
                                     <option value="Permanent">Permanent</option>

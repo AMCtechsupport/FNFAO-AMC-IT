@@ -120,3 +120,26 @@
     text-align: center;
     text-transform: uppercase;
   }
+
+  /* Backgroud color for children pre-intake */
+  .bglightgrey {
+    background-color: #dfdce7;
+  }
+
+  .customDeleteButton {
+    background-color: rgb(98, 0, 255);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.customAddButton {
+    background-color: green;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}

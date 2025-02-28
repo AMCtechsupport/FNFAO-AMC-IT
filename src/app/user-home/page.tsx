@@ -6,7 +6,7 @@ export default function UserHome({ children }) {
       {/* Header */}
       <header className="bg-blue-600 text-white p-4">
         <div className="container mx-auto flex justify-between items-center">
-          <img src="/logoFNFAO" alt="logo" />
+          <img src="/logoFNFAO.svg" alt="logo" />
 
           <h1 className="text-xl font-bold">User Dashboard</h1>
           <div className="space-x-4"></div>
