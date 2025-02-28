@@ -77,7 +77,9 @@ export default function ClientsList({ initialClients, totalCount }) {
   };
 
   const handlePageChange = (page) => {
-    setCurrentPage(page);
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
   };
 
   const handleClientsPerPageChange = (event) => {
@@ -175,21 +177,25 @@ export default function ClientsList({ initialClients, totalCount }) {
           </div>
 
           {/* Pagination Controls */}
-          <div className="mt-4 flex justify-between">
+          <div className="mt-4 flex justify-between items-center space-x-4">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="px-4 py-2 bg-gray-500 text-white rounded-md disabled:opacity-50"
+              className="px-4 py-2 bg-black text-white rounded-md disabled:bg-gray-700 disabled:opacity-50 hover:bg-gray-800"
             >
               Previous
             </button>
+
+            {/* Current Page Indicator */}
             <span className="self-center text-gray-700">
               Page {currentPage} of {totalPages}
             </span>
+
+            {/* Next Button */}
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-gray-500 text-white rounded-md disabled:opacity-50"
+              className="px-4 py-2 bg-black text-white rounded-md disabled:bg-gray-700 disabled:opacity-50 hover:bg-gray-800"
             >
               Next
             </button>
