@@ -13,7 +13,7 @@ export default async function ClientsPage() {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-between">
       <main className="flex-grow flex items-center justify-center text-center p-8">
-        <div className="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full">
+        <div className="bg-gray-200 p-6 rounded-lg shadow-lg max-w-2xl w-full">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
             List of Clients
           </h1>
