@@ -38,8 +38,8 @@ export default function ClientsList({ initialClients, totalCount }) {
         }
       }
 
-      // dateOfBirth condition if provided
-      if (isValidDate(dateOfBirthQuery)) {
+      // Handle Date of Birth search query (only if provided)
+      if (dateOfBirthQuery) {
         query = query.eq("dateOfBirth", dateOfBirthQuery);
       }
 
@@ -54,12 +54,6 @@ export default function ClientsList({ initialClients, totalCount }) {
     } catch (err) {
       console.error("Unexpected error:", err);
     }
-  };
-
-  // Function to validate if a date is in YYYY-MM-DD format
-  const isValidDate = (dateString) => {
-    const regex = /^\d{4}-\d{2}-\d{2}$/; // YYYY-MM-DD format
-    return regex.test(dateString);
   };
 
   useEffect(() => {
@@ -77,7 +71,9 @@ export default function ClientsList({ initialClients, totalCount }) {
   };
 
   const handlePageChange = (page) => {
-    setCurrentPage(page);
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
   };
 
   const handleClientsPerPageChange = (event) => {
@@ -98,14 +94,20 @@ export default function ClientsList({ initialClients, totalCount }) {
         />
       </div>
 
-      {/* Search Bar for dateOfBirth */}
+      {/* Date Picker for Date of Birth */}
       <div className="mb-4">
+        <label
+          htmlFor="dateOfBirth"
+          className="text-left block text-sm font-semibold text-gray-300"
+        >
+          Filter by Date of Birth
+        </label>
         <input
-          type="text"
-          placeholder="Search by Date of Birth (YYYY-MM-DD)"
+          id="dateOfBirth"
+          type="date"
           value={dateOfBirth}
           onChange={handleDateOfBirthChange}
-          className="p-2 border rounded-md w-full"
+          className="p-2 border rounded-md w-full mt-2"
         />
       </div>
 
@@ -175,21 +177,25 @@ export default function ClientsList({ initialClients, totalCount }) {
           </div>
 
           {/* Pagination Controls */}
-          <div className="mt-4 flex justify-between">
+          <div className="mt-4 flex justify-between items-center space-x-4">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="px-4 py-2 bg-gray-500 text-white rounded-md disabled:opacity-50"
+              className="px-4 py-2 bg-black text-black rounded-md disabled:bg-gray-700 disabled:opacity-50 hover:bg-gray-800"
             >
               Previous
             </button>
+
+            {/* Current Page Indicator */}
             <span className="self-center text-gray-700">
               Page {currentPage} of {totalPages}
             </span>
+
+            {/* Next Button */}
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-gray-500 text-white rounded-md disabled:opacity-50"
+              className="px-4 py-2 bg-black text-black rounded-md disabled:bg-gray-700 disabled:opacity-50 hover:bg-gray-800"
             >
               Next
             </button>
