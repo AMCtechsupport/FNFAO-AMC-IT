@@ -38,8 +38,8 @@ export default function ClientsList({ initialClients, totalCount }) {
         }
       }
 
-      // dateOfBirth condition if provided
-      if (isValidDate(dateOfBirthQuery)) {
+      // Handle Date of Birth search query (only if provided)
+      if (dateOfBirthQuery) {
         query = query.eq("dateOfBirth", dateOfBirthQuery);
       }
 
@@ -54,12 +54,6 @@ export default function ClientsList({ initialClients, totalCount }) {
     } catch (err) {
       console.error("Unexpected error:", err);
     }
-  };
-
-  // Function to validate if a date is in YYYY-MM-DD format
-  const isValidDate = (dateString) => {
-    const regex = /^\d{4}-\d{2}-\d{2}$/; // YYYY-MM-DD format
-    return regex.test(dateString);
   };
 
   useEffect(() => {
@@ -100,11 +94,10 @@ export default function ClientsList({ initialClients, totalCount }) {
         />
       </div>
 
-      {/* Search Bar for dateOfBirth */}
+      {/* Date Picker for Date of Birth */}
       <div className="mb-4">
         <input
-          type="text"
-          placeholder="Search by Date of Birth (YYYY-MM-DD)"
+          type="date"
           value={dateOfBirth}
           onChange={handleDateOfBirthChange}
           className="p-2 border rounded-md w-full"
@@ -181,7 +174,7 @@ export default function ClientsList({ initialClients, totalCount }) {
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="px-4 py-2 bg-black text-white rounded-md disabled:bg-gray-700 disabled:opacity-50 hover:bg-gray-800"
+              className="px-4 py-2 bg-black text-black rounded-md disabled:bg-gray-700 disabled:opacity-50 hover:bg-gray-800"
             >
               Previous
             </button>
@@ -195,7 +188,7 @@ export default function ClientsList({ initialClients, totalCount }) {
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-black text-white rounded-md disabled:bg-gray-700 disabled:opacity-50 hover:bg-gray-800"
+              className="px-4 py-2 bg-black text-black rounded-md disabled:bg-gray-700 disabled:opacity-50 hover:bg-gray-800"
             >
               Next
             </button>
