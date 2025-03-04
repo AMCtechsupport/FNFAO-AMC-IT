@@ -6,19 +6,20 @@ import { Formik, Form, Field, ErrorMessage, FieldArray  } from "formik";
 import { Button, Container, Row, Col } from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import supabase from "../../lib/supabase";  // Ajusta según la estructura de carpetas
+import InputField from "@/components/InputField";
+import ReferredBySelect from "@/components/ReferredBySelect";
+import ProvincesSelect from "@/components/ProvincesSelect";
+import RelationshipToChildrenSelect from "@/components/RelationshipToChildrenSelect";
+import StatusCFSFileSelect from "@/components/StatusCFSFileSelect";
+import FirstNationSelect from "@/components/FirstNationSelect";
 
-// import supabase from "@/lib/supabase";
-
-// import { insertPreIntake } from "../actions/pre-intakeActions";
-
+import supabase from "../../lib/supabase";
 
 export default function PreIntake() {
     return (
         <UserHome>
             <div className={styles.preIntakeContainer}>
                 <div className={styles.container}>
-                    {/* <h2 className={styles.centeredTitle}>PRE-INTAKE FORM</h2> */}
                     <PreIntakeForm />
                 </div>
             </div>
@@ -89,6 +90,8 @@ function PreIntakeForm() {
                 currentLawyer:'yes',
                 legalAssistance:'no',
                 legalAssistanceSpecified: "",
+                unableToAssistExplained: "",
+                referForSupport : "",
                 children: []
 
             }}
@@ -124,7 +127,7 @@ function PreIntakeForm() {
                     }
 
                      // Month validation
-                    const birthMonth = birthDate.getMonth() + 1; // Los meses empiezan desde 0 (enero es 0, diciembre es 11)
+                    const birthMonth = birthDate.getMonth() + 1;
                     if (birthMonth < 1 || birthMonth > 12) {
                         errors.dateOfBirth = "Birth month must be between 01 and 12";
                     }
@@ -187,6 +190,9 @@ function PreIntakeForm() {
                     errors.otherAdultsInvolvedExplained = "Please specify the other involved adult(s)";
                 }
 
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.cfsAgentEmail)) {
+                    errors.cfsAgentEmail = "Invalid email format";
+                }
 
                 return errors;
             }}
@@ -211,7 +217,8 @@ function PreIntakeForm() {
                     // Get the current date in ISO 8601 format
                     const currentDate = new Date().toISOString();
 
-                    // Extract 'children' from convertedValues and keep the rest as client data
+                    // Extract 'children', 'emergencyContactFirstName', 'emergencyContactLastName' and 'emergencyContactNumber'
+                    // from convertedValues and keep the rest as client data
                     const { children, emergencyContactFirstName, emergencyContactLastName, emergencyContactNumber, ...clientData  } = convertedValues;
 
                     // Add date fields before inserting
@@ -219,7 +226,6 @@ function PreIntakeForm() {
                     clientData.dateModified = currentDate;
 
                     console.log("Client data to insert:", clientData);
-
 
                     // Insert client data into the 'Clients' table
                     const { data: client, error: clientError } = await supabase
@@ -260,6 +266,7 @@ function PreIntakeForm() {
                         console.log("Children inserted successfully:", childrenData);
                     }
 
+                    // Insert emergency contact into  the 'Emergency Contact' table
                     if (emergencyContactFirstName && emergencyContactLastName && emergencyContactNumber) {
                         const emergencyContactData = {
                             firstName: emergencyContactFirstName,
@@ -270,7 +277,7 @@ function PreIntakeForm() {
                         };
 
                         const { error: emergencyContactError } = await supabase
-                            .from('Emergency Contacts') // Asegúrate de que el nombre de la tabla es correcto
+                            .from('Emergency Contacts')
                             .insert([emergencyContactData]);
 
                         if (emergencyContactError) {
@@ -299,23 +306,10 @@ function PreIntakeForm() {
                 <Form className={styles.form}>
                     <h2 className={styles.centeredTitle}>PRE-INTAKE FORM</h2>
                     <Row>
-                    <h4 className="text-dark">General Information</h4>
-                        <Col>
-                        </Col>
-
+                        <h4 className="text-dark">General Information</h4>
+                        <Col md={8} />
                         <Col  md={4}>
-                            <div>
-                                <label htmlFor="referredBy">How did the client learn about FNFAO?</label>
-                                <Field as="select" name="referredBy" className={styles.select}>
-                                    <option value="">Select an option</option>
-                                    <option value="family_friend">By family/friend</option>
-                                    <option value="online">Online (social media, web etc.)</option>
-                                    <option value="referral">Third-Party Referral</option>
-                                    <option value="walk_in">Walk-in</option>
-                                    <option value="fnfao_management">By FNFAO Management</option>
-                                    <option value="first_nation_chief">By Their First Nation/Chief</option>
-                                </Field>
-                            </div>
+                            <ReferredBySelect name="referredBy" label="How did the client learn about FNFAO?" error={errors.referredBy}/>
                         </Col>
                     </Row>
 
@@ -338,7 +332,6 @@ function PreIntakeForm() {
                                 <ErrorMessage name="dateOfBirth" component={() => <p className={styles.errorText}>{errors.dateOfBirth}</p>} />
                             </div>
                         </Col>
-
                     </Row>
 
                     <Row >
@@ -351,25 +344,7 @@ function PreIntakeForm() {
                         </Col>
 
                         <Col md={4}>
-                            <div>
-                                <label htmlFor="province">Province:</label>
-                                <Field as="select" name="province" className={styles.select}>
-                                    <option value="">Select a province</option>
-                                    <option value="alberta">Alberta</option>
-                                    <option value="british_columbia">British Columbia</option>
-                                    <option value="manitoba">Manitoba</option>
-                                    <option value="new_brunswick">New Brunswick</option>
-                                    <option value="newfoundland_and_labrador">Newfoundland and Labrador</option>
-                                    <option value="northwest_territories">Northwest Territories</option>
-                                    <option value="nova_scotia">Nova Scotia</option>
-                                    <option value="nunavut">Nunavut</option>
-                                    <option value="ontario">Ontario</option>
-                                    <option value="prince_edward_island">Prince Edward Island</option>
-                                    <option value="quebec">Quebec</option>
-                                    <option value="saskatchewan">Saskatchewan</option>
-                                    <option value="yukon">Yukon</option>
-                                </Field>
-                            </div>
+                            <ProvincesSelect name="province" label="Province:" error={errors.province}/>
                         </Col>
 
                         <Col md={2}>
@@ -393,8 +368,6 @@ function PreIntakeForm() {
                                 <ErrorMessage name="email" component={() => <p className={styles.errorText}>{errors.email}</p>} />
                             </div>
                         </Col>
-
-
                     </Row>
 
                     <Row className={styles.group}>
@@ -416,24 +389,11 @@ function PreIntakeForm() {
                         </Col>
                     </Row>
 
-
                     {/* About you */}
                     <Row>
                         <h4 className="text-dark">About You</h4>
                         <Col md={4}>
-                            <div>
-                                <label htmlFor="relationshipToChildren">What is your relationship to the child(ren)?</label>
-                                <Field as="select" name="relationshipToChildren" className={styles.select}>
-                                    <option value="">Select an option</option>
-                                    <option value="parent">Parent</option>
-                                    <option value="grandparend">Grandparend</option>
-                                    <option value="childInCare<">Child-in-Care</option>
-                                    <option value="fosterParent">Foster Parent</option>
-                                    <option value="familyMembe">Family Member</option>
-                                    <option value="guardian">Guardian</option>
-                                    <option value="other">Other</option>
-                                </Field>
-                            </div>
+                            <RelationshipToChildrenSelect name="relationshipToChildren" label="What is your relationship to the child(ren)?" error={errors.relationshipToChildren} />
                         </Col>
                     </Row>
 
@@ -466,10 +426,9 @@ function PreIntakeForm() {
                     <Row>
                         <Col md={4}>
                             <FirstNationSelect name="firstNationMembership" label="First Nation Membership:" error={errors.firstNationMembership}/>
-                           </Col>
+                        </Col>
                         <Col md={4}>
                             <InputField name="treatyNumber" label="Treaty Number:" placeholder="" error={errors.treatyNumber} />
-
                         </Col>
                         <Col md={4}>
                             <FirstNationSelect name="otherFirstnation" label="Other First Nation:" error={errors.otherFirstnation}/>
@@ -478,12 +437,12 @@ function PreIntakeForm() {
 
                     <Row className={styles.group}>
                         <Col md={4}>
-                            <label>Personal Health Identification Numbers</label>
-                            <Field type="number" id="ninePersonalHealthNumber" placeholder="000 000 000" name="ninePersonalHealthNumber" />
+                            <label>Personal Health Identification Numbers (9-Digit):</label>
+                            <Field type="number" id="ninePersonalHealthNumber" placeholder="000000000" name="ninePersonalHealthNumber" />
                             <ErrorMessage name="ninePersonalHealthNumber" component={() => <p className={styles.errorText}>{errors.ninePersonalHealthNumber}</p>} />
                         </Col>
                         <Col md={2}>
-                            <label>6-Digit:</label>
+                            <label>(6-Digit):</label>
                             <Field type="number" id="sixPersonalHealthNumber" placeholder="000000" name="sixPersonalHealthNumber" />
                             <ErrorMessage name="sixPersonalHealthNumber" component={() => <p className={styles.errorText}>{errors.sixPersonalHealthNumber}</p>} />
                         </Col>
@@ -545,7 +504,6 @@ function PreIntakeForm() {
                     {/* About your children */}
                     <Row>
                         <h4 className="text-dark">About Your Children</h4>
-
                         <FieldArray name="children">
                             {({ push, remove }) => (
                                 <div>
@@ -594,7 +552,6 @@ function PreIntakeForm() {
                                 </div>
                             )}
                         </FieldArray>
-
                     </Row>
 
                     {/* Agency information */}
@@ -613,7 +570,6 @@ function PreIntakeForm() {
                                 <ErrorMessage name="cfsAgentNumber" component={() => <p className={styles.errorText}>{errors.cfsAgentNumber}</p>} />
                             </div>
                         </Col>
-
                     </Row>
 
                     <Row>
@@ -625,15 +581,7 @@ function PreIntakeForm() {
                             </div>
                         </Col>
                         <Col  md={4}>
-                            <div>
-                                <label htmlFor="statusCFSFile">CFS File Status:</label>
-                                <Field as="select" name="statusCFSFile" className={styles.select}>
-                                    <option value="">Select an option</option>
-                                    <option value="temporary">Temporary</option>
-                                    <option value="Permanent">Permanent</option>
-                                    <option value="place_safety">Place of Safety</option>
-                                </Field>
-                            </div>
+                            <StatusCFSFileSelect name="statusCFSFile" label="CFS File Status:"  error={errors.statusCFSFile}/>
                         </Col>
                     </Row>
                     <Row className={styles.group}>
@@ -813,7 +761,6 @@ function PreIntakeForm() {
                             </div>
                         </Col>
                         {values.custodySupport === "yes" && (
-
                             <Col md={8}>
                                 <label>If yes, specify (e.g. ex-spouse not honouring custody arrangement for access/visitation, grandparent access, child support, etc:)</label>
                                 <Field as="textarea" name="custodySupportSpecified" className={styles.textarea} />
@@ -838,7 +785,6 @@ function PreIntakeForm() {
                             </div>
                         </Col>
                         {values.criminalCharges === "yes" && (
-
                             <Col md={8}>
                                 <label>If yes, please specify why: </label>
                                 <Field as="textarea" name="criminalChargesSpecified" className={styles.textarea} />
@@ -863,7 +809,6 @@ function PreIntakeForm() {
                             </div>
                         </Col>
                         {values.activeWarrant === "yes" && (
-
                             <Col md={8}>
                                 <label>If yes, please specify why: </label>
                                 <Field as="textarea" name="activeWarrantSpecified" className={styles.textarea} />
@@ -888,7 +833,6 @@ function PreIntakeForm() {
                             </div>
                         </Col>
                         {values.activeInvestigation === "yes" && (
-
                             <Col md={3}>
                                 <label>If yes, start date: </label>
                                 <Field type="date" id="activeInvestigationExplained" name="activeInvestigationExplained" />
@@ -913,7 +857,6 @@ function PreIntakeForm() {
                             </div>
                         </Col>
                         {values.activeOrders === "yes" && (
-
                             <Col md={8}>
                                 <label>If yes, against who or against you?</label>
                                 <Field as="textarea" name="activeOrdersExplained" className={styles.textarea} />
@@ -963,7 +906,21 @@ function PreIntakeForm() {
                             </>
                         )}
                     </Row>
-
+                    <Row>
+                        <h4 className="text-dark">Staff Only Section</h4>
+                        <Col>
+                            <label>If we are unable to assist, please list why (Example: they do not fit FNFAO’s mandate, etc.):</label>
+                            <Field as="textarea" name="unableToAssistExplained" className={styles.textarea} />
+                            <ErrorMessage name="unableToAssistExplained" component="div" className={styles.errorText} />
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <label>If we are unable to assist, please identify where you are referring them to for support:</label>
+                            <Field as="textarea" name="referForSupport" className={styles.textarea} />
+                            <ErrorMessage name="referForSupport" component="div" className={styles.errorText} />
+                        </Col>
+                    </Row>
 
 
                     <button type="submit" className={styles.submitButton}>Send Pre-Intake</button>
@@ -971,94 +928,5 @@ function PreIntakeForm() {
                 </Form>
             )}
         </Formik>
-
     );
-}
-
-function InputField({ name, label, placeholder, error }) {
-    return (
-        <div>
-            <label htmlFor={name}>{label}</label>
-            <Field  type="text" id={name} name={name} placeholder={placeholder} />
-            <ErrorMessage name={name} component={() => <p className={styles.errorText}>{error}</p>} />
-        </div>
-    );
-}
-
-function FirstNationSelect({name, label, error }){
-    return(
-        <div>
-            <label htmlFor="province">{label}:</label>
-            <Field as="select" name={name} className={styles.select}>
-                <option value="">Select a first nation</option>
-                <option value="barren_lands">Barren Lands First Nation (Brochet)</option>
-                <option value="berens_river">Berens River First Nation</option>
-                <option value="birdtail_sioux">Birdtail Sioux Dakota Nation</option>
-                <option value="black_river">Black River First Nation</option>
-                <option value="bloodvein">Bloodvein First Nation</option>
-                <option value="brokenhead">Brokenhead Ojibway Nation</option>
-                <option value="buffalo_point">Buffalo Point First Nation</option>
-                <option value="bunibonibee">Bunibonibee Cree Nation</option>
-                <option value="canupawakpa">Canupawakpa Dakota Nation</option>
-                <option value="chemawawin">Chemawawin Cree Nation</option>
-                <option value="cross_lake">Cross Lake (Pimicikamak) First Nation</option>
-                <option value="dakota_plains">Dakota Plains Wahpeton Nation</option>
-                <option value="dakota_tipi">Dakota Tipi First Nation</option>
-                <option value="dauphin_river">Dauphin River First Nation</option>
-                <option value="ebb_and_flow">Ebb and Flow First Nation</option>
-                <option value="fisher_river">Fisher River Cree Nation</option>
-                <option value="fox_lake">Fox Lake Cree Nation</option>
-                <option value="gamblers">Gambler's First Nation</option>
-                <option value="garden_hill">Garden Hill First Nation</option>
-                <option value="gods_lake">God's Lake First Nation</option>
-                <option value="hollow_water">Hollow Water First Nation</option>
-                <option value="keeseekoowenin">Keeseekoowenin Ojibway Nation</option>
-                <option value="kinonjeoshtegon">Kinonjeoshtegon First Nation (Jackhead)</option>
-                <option value="lake_manitoba">Lake Manitoba Treaty 2 First Nation (Dog Creek)</option>
-                <option value="lake_st_martin">Lake St. Martin First Nation</option>
-                <option value="little_grand_rapids">Little Grand Rapids First Nation</option>
-                <option value="little_saskatchewan">Little Saskatchewan First Nation</option>
-                <option value="long_plain">Long Plain First Nation</option>
-                <option value="manto_sipi">Manto Sipi Cree Nation (God's River)</option>
-                <option value="marcel_colomb">Marcel Colomb First Nation (Black Sturgeon)</option>
-                <option value="misipawistik">Misipawistik Cree Nation (Grand Rapids)</option>
-                <option value="mosakahiken">Mosakahiken Cree Nation (Moose Lake)</option>
-                <option value="nisichawayasihk">Nisichawayasihk Cree Nation (Nelson House)</option>
-                <option value="northlands_denesuline">Northlands Denesuline First Nation (Lac Brochet)</option>
-                <option value="norway_house">Norway House Cree Nation</option>
-                <option value="o_chi_chak_ko_sipi">O-Chi-Chak-Ko-Sipi First Nation (Crane River)</option>
-                <option value="opaskwayak">Opaskwayak Cree Nation</option>
-                <option value="o_pipon_na_piwin">O-Pipon-Na-Piwin Cree Nation (South Indian Lake)</option>
-                <option value="pauingassi">Pauingassi First Nation</option>
-                <option value="peguis">Peguis First Nation</option>
-                <option value="pinaymootang">Pinaymootang First Nation (Fairford)</option>
-                <option value="pine_creek">Pine Creek First Nation</option>
-                <option value="poplar_river">Poplar River First Nation</option>
-                <option value="pukatawagan">Pukatawagan Cree Nation (Mathias Colomb)</option>
-                <option value="red_sucker_lake">Red Sucker Lake First Nation</option>
-                <option value="rolling_river">Rolling River First Nation</option>
-                <option value="roseau_river">Roseau River Anishinabe First Nation</option>
-                <option value="sagkeeng">Sagkeeng First Nation</option>
-                <option value="sandy_bay">Sandy Bay First Nation</option>
-                <option value="sapotaweyak">Sapotaweyak Cree Nation (Pelican Rapids)</option>
-                <option value="sayisi_dene">Sayisi Dene First Nation (Tadoule Lake)</option>
-                <option value="shamattawa">Shamattawa First Nation</option>
-                <option value="sioux_valley">Sioux Valley First Nation</option>
-                <option value="skownan">Skownan First Nation</option>
-                <option value="st_theresa_point">St. Theresa Point First Nation</option>
-                <option value="swan_lake">Swan Lake First Nation</option>
-                <option value="tataskweyak">Tataskweyak Cree Nation</option>
-                <option value="tootinaowaziibeeng">Tootinaowaziibeeng Treaty Reserve (Valley River)</option>
-                <option value="war_lake">War Lake First Nation</option>
-                <option value="wasagamack">Wasagamack First Nation</option>
-                <option value="waywayseecappo">Waywayseecappo First Nation</option>
-                <option value="wuskwi_sipihk">Wuskwi Sipihk First Nation (Swampy Cree)</option>
-                <option value="york_factory">York Factory First Nation</option>
-                <option value="non_status">Non-Status</option>
-                <option value="metis">Metis</option>
-                <option value="na">N/A</option>
-                <option value="other">Other</option>
-            </Field>
-        </div>
-    )
 }
