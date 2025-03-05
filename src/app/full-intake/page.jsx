@@ -2,11 +2,6 @@
 import React, { useState } from "react";
 import UserHome from "../user-home/page";
 import styles from "./fullIntake.module.css";
-
-import {Tabs, TabList, Tab, TabPanel} from 'react-tabs';
-import 'react-tabs/style/react-tabs.css'
-
-
 import { Formik, Form, Field, ErrorMessage, FieldArray  } from "formik";
 import { Button, Container, Row, Col } from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -19,6 +14,9 @@ import StatusCFSFileSelect from "@/components/StatusCFSFileSelect";
 import FirstNationSelect from "@/components/FirstNationSelect";
 
 import supabase from "../../lib/supabase";
+
+import {Tabs, TabList, Tab, TabPanel} from 'react-tabs';
+import 'react-tabs/style/react-tabs.css'
 
 
 export default function FullIntake() {
@@ -35,7 +33,7 @@ export default function FullIntake() {
 
 function FullIntakeForm(){
     return(
-        <>
+        <div>
             <Formik
                 initialValues={{
                     firstName: "",
@@ -210,7 +208,7 @@ function FullIntakeForm(){
 
             >
             {({ values, errors }) => (
-                <Form className="form">
+                <Form className={styles.form}>
                     <h2 className={styles.centeredTitle}>FULL-INTAKE FORM</h2>
                     <Row >
                         <Col md={3}>
@@ -295,6 +293,6 @@ function FullIntakeForm(){
                 <TabPanel>Tab panel 7   </TabPanel>
             </Tabs>
 
-        </>
+        </div>
     );
 }

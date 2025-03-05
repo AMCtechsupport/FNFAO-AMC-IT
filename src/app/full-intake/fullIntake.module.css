@@ -1,14 +1,14 @@
-/* .fullIntakeContainer {
+.fullIntakeContainer {
     background: #E8E8E8;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  } */
+}
 
-/* .container {
+.container {
     min-height: 100vh;
     display: flex;
     align-items: flex-start;
     justify-content: center;
-  } */
+  }
 
   .centeredTitle {
     text-align: center;
@@ -144,5 +144,5 @@
 }
 
 .customTab{
-    margin: 30px;
+    margin: 10px;
 }
