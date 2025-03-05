@@ -6,9 +6,10 @@ import styles from "./fullIntake.module.css";
 import {Tabs, TabList, Tab, TabPanel} from 'react-tabs';
 import 'react-tabs/style/react-tabs.css'
 
-import supabase from "../../lib/supabase";
+
 import { Formik, Form, Field, ErrorMessage, FieldArray  } from "formik";
 import { Button, Container, Row, Col } from "react-bootstrap";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 import InputField from "@/components/InputField";
 import ReferredBySelect from "@/components/ReferredBySelect";
@@ -16,6 +17,9 @@ import ProvincesSelect from "@/components/ProvincesSelect";
 import RelationshipToChildrenSelect from "@/components/RelationshipToChildrenSelect";
 import StatusCFSFileSelect from "@/components/StatusCFSFileSelect";
 import FirstNationSelect from "@/components/FirstNationSelect";
+
+import supabase from "../../lib/supabase";
+
 
 export default function FullIntake() {
     return (
@@ -32,7 +36,6 @@ export default function FullIntake() {
 function FullIntakeForm(){
     return(
         <>
-
             <Formik
                 initialValues={{
                     firstName: "",
@@ -207,7 +210,7 @@ function FullIntakeForm(){
 
             >
             {({ values, errors }) => (
-                <Form className={styles.form}>
+                <Form className="form">
                     <h2 className={styles.centeredTitle}>FULL-INTAKE FORM</h2>
                     <Row >
                         <Col md={3}>
@@ -271,7 +274,7 @@ function FullIntakeForm(){
             </Formik>
 
 
-            <Tabs>
+            <Tabs className={styles.customTab}>
                 <TabList>
                     <Tab href="/generalInfo" onClick={() => console.log("Tab 1 clicked!")}>General Information</Tab>
                     <Tab href="/cfs" onClick={() => console.log("Tab 2 clicked!")}>CFS</Tab>
