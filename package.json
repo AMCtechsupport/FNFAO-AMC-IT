@@ -17,7 +17,8 @@
     "pgloader": "^1.0.0",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.9",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-tabs": "^6.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

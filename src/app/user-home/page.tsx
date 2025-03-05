@@ -36,12 +36,12 @@ export default function UserHome({ children }) {
             >
               Settings
             </a>
-            <a
-              href="#"
+            <Link
+              href="/full-intake"
               className="block text-gray-700 hover:bg-blue-100 p-2 rounded"
             >
-              Messages
-            </a>
+              Full-Intake
+            </Link>
             <Link
               href="/pre-intake"
               className="block text-gray-700 hover:bg-blue-100 p-2 rounded"

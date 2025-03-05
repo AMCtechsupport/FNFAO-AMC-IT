@@ -907,7 +907,7 @@ function PreIntakeForm() {
                         )}
                     </Row>
                     <Row>
-                        <h4 className="text-dark">Staff Only Section</h4>
+                        <h4 className="text-dark">Staff Only</h4>
                         <Col>
                             <label>If we are unable to assist, please list why (Example: they do not fit FNFAO’s mandate, etc.):</label>
                             <Field as="textarea" name="unableToAssistExplained" className={styles.textarea} />
