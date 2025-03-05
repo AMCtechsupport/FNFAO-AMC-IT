@@ -11,10 +11,14 @@
   "dependencies": {
     "@clerk/nextjs": "^6.10.6",
     "@supabase/supabase-js": "^2.48.1",
+    "bootstrap": "^5.3.3",
+    "formik": "^2.4.6",
     "next": "15.1.6",
-    "pgloader": "^1.1.6",
+    "pgloader": "^1.0.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-bootstrap": "^2.10.9",
+    "react-dom": "^19.0.0",
+    "react-tabs": "^6.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
