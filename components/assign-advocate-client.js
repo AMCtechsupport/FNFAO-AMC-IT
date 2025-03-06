@@ -231,7 +231,7 @@ export default function AssignAdvocate() {
 
         {/* Display search results for advocates */}
         {advocates.length > 0 && (
-          <div className="mt-4 border-2 rounded-lg p-1 max-h-48 overflow-y-auto bg-gray-200">
+          <div className="mt-4 border-2 rounded-lg p-4 max-h-48 overflow-y-auto bg-gray-200">
             <ul>
               {advocates.map((advocate) => (
                 <li
