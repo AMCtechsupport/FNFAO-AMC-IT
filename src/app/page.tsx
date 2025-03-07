@@ -1,4 +1,8 @@
+import supabase from "./lib/supabase";
+import PreIntake from "./pre-intake/page";
+
 export default function Home() {
+  console.log(supabase);
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-between">
       <main className="flex-grow flex items-center justify-center text-center p-8">
@@ -24,6 +28,7 @@ export default function Home() {
             </ul>
           </div>
         </div>
+
       </main>
 
       <footer className="bg-gray-800 text-white text-center p-4">

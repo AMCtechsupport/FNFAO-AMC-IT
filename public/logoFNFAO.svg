@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="77.486092mm"
+   height="23.611801mm"
+   viewBox="0 0 77.486092 23.611801"
+   version="1.1"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <g
+     id="layer1"
+     transform="translate(-66.410418,-136.78958)">
+    <g
+       id="g39"
+       transform="matrix(0.12841375,0,0,0.12841375,51.998425,65.25797)">
+      <g
+         transform="matrix(0.54546539,0,0,-0.58352723,84.957649,765.56698)"
+         fill="#000000"
+         stroke="none"
+         id="g3-0-5"
+         style="fill:#ffffff;fill-opacity:1">
+        <path
+           d="m 50,227 c 0,-96 4,-137 13,-144 6,-6 45,-18 86,-28 71,-17 77,-17 145,0 114,29 106,17 106,166 0,100 -3,131 -14,135 -7,3 -48,-4 -90,-15 -68,-18 -80,-19 -115,-6 -22,7 -60,17 -85,20 -46,7 -46,7 -46,-128 z m 127,63 c 45,-12 60,-11 110,2 31,9 61,14 65,12 4,-3 8,-45 8,-94 0,-90 1.22674,-87.70655 -31.29359,-100.01354 C 254.3345,92.070224 204.35675,74.168367 103,123 c -20.544326,9.89784 -13,38 -13,92 0,82 5,99 24,92 6,-2 34,-10 63,-17 z"
+           id="path1-14-3"
+           style="fill:#ffffff;fill-opacity:1" />
+        <path
+           d="M 186.88079,212.55983 C 224.6523,201.7501 243.97083,204.49922 313,224 c 25,6 37,29 19,39 -19.14231,14.35673 -63.74383,-32.01995 -157,-7 -29.45348,8 -48.60864,28.7665 -61.81393,5.97293 -13.205287,-22.79357 43.44049,-38.97832 73.69472,-49.4131 z"
+           id="path2-6-2"
+           style="fill:#ffffff;fill-opacity:1" />
+        <path
+           d="m 112,174 c 10,-54 228,-52 228,2 0,13 -7,15 -37,8 C 257,174 223.1482,168.26638 171.1482,179.26638 143.89527,186.83974 115.36045,200.1738 112,174 Z"
+           id="path3-0-5"
+           style="fill:#ffffff;fill-opacity:1" />
+      </g>
+      <g
+         id="g38"
+         transform="translate(196.83329,145.73234)">
+        <text
+           xml:space="preserve"
+           style="font-size:120px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke-width:9.87277"
+           x="129.89616"
+           y="455.52652"
+           id="text1-7-67"
+           transform="scale(0.89024777,1.1232828)"><tspan
+             id="tspan1-1-7"
+             x="129.89616"
+             y="455.52652"
+             style="font-size:120px;fill:#ffffff;fill-opacity:1;stroke-width:9.87277"><tspan
+   style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:120px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#ffffff;fill-opacity:1;stroke-width:9.87277"
+   id="tspan2-7-22">FNFAO</tspan> <tspan
+   style="font-size:120px;fill:#ffffff;fill-opacity:1;stroke-width:9.87277"
+   id="tspan3-77-9" /></tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:75.3283px;line-height:0.9;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:start;letter-spacing:0.33px;word-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;white-space:pre;inline-size:358.212;display:inline;fill:#ffffff;fill-opacity:1"
+           x="1375.7646"
+           y="832.5271"
+           id="text5-7-41"
+           transform="matrix(1.0793275,0,0,1.0449849,-1366.1059,-291.70121)"><tspan
+             x="1375.7646"
+             y="832.5271"
+             id="tspan4"><tspan
+               style="font-family:'Century Gothic';-inkscape-font-specification:'Century Gothic Bold'"
+               id="tspan3">Database</tspan></tspan></text>
+      </g>
+    </g>
+  </g>
+</svg>
