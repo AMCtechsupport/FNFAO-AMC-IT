@@ -10,7 +10,7 @@ const RelationshipToChildrenSelect = ({name, label, error }) => {
             <Field as="select" name={name} className={styles.select}>
                 <option value="">Select an option</option>
                 <option value="parent">Parent</option>
-                <option value="grandparend">Grandparend</option>
+                <option value="grandparend">Grandparent</option>
                 <option value="childInCare<">Child-in-Care</option>
                 <option value="fosterParent">Foster Parent</option>
                 <option value="familyMembe">Family Member</option>
