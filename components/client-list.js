@@ -141,6 +141,12 @@ export default function ClientsList({ initialClients, totalCount }) {
                     {client.email}
                   </p>
                   <p className="text-sm text-gray-700">
+                    <span className="font-semibold">
+                      First Nation Membership:{" "}
+                    </span>
+                    {client.firstNationMembership}
+                  </p>
+                  <p className="text-sm text-gray-700">
                     <span className="font-semibold">Address: </span>
                     {client.address}
                   </p>
