@@ -24,7 +24,8 @@ export default function ClientsList({ initialClients, totalCount }) {
       let query = supabase
         .from("Clients")
         .select("*", { count: "exact" })
-        .range((page - 1) * clientsPerPage, page * clientsPerPage - 1);
+        .range((page - 1) * clientsPerPage, page * clientsPerPage - 1)
+        .order("createdAt", { ascending: false });
 
       if (searchQuery) {
         const isNumeric = !isNaN(searchQuery);
@@ -118,9 +119,9 @@ export default function ClientsList({ initialClients, totalCount }) {
             {clients.map((client) => (
               <li
                 key={client.client_id}
-                className="py-4 border-b-2 border-gray-600"
+                className="py-2 border-b-2 border-gray-600"
               >
-                <div className="text-left p-4 border-2 border-gray-700 rounded-lg mb-4 shadow-sm bg-white">
+                <div className="text-left p-2 border-2 border-gray-700 rounded-lg mb-4 shadow-sm bg-white">
                   <ul className="text-lg font-bold text-gray-900">
                     <Link href={`clients/${client.client_id}`}>
                       {client.firstName} {client.middleName} {client.lastName}
@@ -181,7 +182,7 @@ export default function ClientsList({ initialClients, totalCount }) {
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="px-4 py-2 bg-black text-black rounded-md disabled:bg-gray-700 disabled:opacity-50 hover:bg-gray-800"
+              className="px-4 py-2 text-black rounded-md disabled:bg-gray-700 disabled:opacity-50 hover:bg-gray-800"
             >
               Previous
             </button>
@@ -195,7 +196,7 @@ export default function ClientsList({ initialClients, totalCount }) {
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-black text-black rounded-md disabled:bg-gray-700 disabled:opacity-50 hover:bg-gray-800"
+              className="px-4 py-2 text-black rounded-md disabled:bg-gray-700 disabled:opacity-50 hover:bg-gray-800"
             >
               Next
             </button>
