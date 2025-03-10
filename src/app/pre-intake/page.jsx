@@ -315,19 +315,19 @@ function PreIntakeForm() {
 
                     <Row >
                         <Col md={3}>
-                            <InputField name="firstName" label="First Name: *" placeholder="John" error={errors.firstName} />
+                            <InputField name="firstName" label="First Name:" placeholder="John" error={errors.firstName} />
                         </Col>
 
                         <Col md={3}>
                             <InputField name="middleName" label="Middle Name:" error={errors.middleName} />
                         </Col>
                         <Col md={3}>
-                             <InputField name="lastName" label="Last Name: *" placeholder="Connor" error={errors.lastName} />
+                             <InputField name="lastName" label="Last Name:" placeholder="Connor" error={errors.lastName} />
                         </Col>
 
                         <Col md={3}>
                             <div>
-                                <label htmlFor="dateOfBirth">Birth Date: *</label>
+                                <label htmlFor="dateOfBirth">Birth Date:</label>
                                 <Field type="date" id="dateOfBirth" name="dateOfBirth" />
                                 <ErrorMessage name="dateOfBirth" component={() => <p className={styles.errorText}>{errors.dateOfBirth}</p>} />
                             </div>
@@ -581,7 +581,7 @@ function PreIntakeForm() {
                             </div>
                         </Col>
                         <Col  md={4}>
-                            <StatusCFSFileSelect name="statusCFSFile" label="CFS File Status"  error={errors.statusCFSFile}/>
+                            <StatusCFSFileSelect name="statusCFSFile" label="CFS File Status:"  error={errors.statusCFSFile}/>
                         </Col>
                     </Row>
                     <Row className={styles.group}>
@@ -820,7 +820,7 @@ function PreIntakeForm() {
                     <Row className={styles.group}>
                         <Col md={4}>
                             <div>
-                                <label>Are you currently under child abuse investigation? *</label>
+                                <label>Are you currently under child abuse investigation?</label>
                                 <div className="form-check form-check-inline">
                                     <Field  className="form-check-input" type="radio" name="activeInvestigation" value="yes" />
                                     <label className="form-check-label">Yes</label>
@@ -844,7 +844,7 @@ function PreIntakeForm() {
                     <Row className={styles.group}>
                         <Col md={4}>
                             <div>
-                                <label>Any active No Contact Orders or Protection Orders? </label>
+                                <label>Any active No Contact Orders or Protection Orders?</label>
                                 <div className="form-check form-check-inline">
                                     <Field  className="form-check-input" type="radio" name="activeOrders" value="yes" />
                                     <label className="form-check-label">Yes</label>
@@ -923,7 +923,7 @@ function PreIntakeForm() {
                     </Row>
 
 
-                    <button type="submit" className={styles.submitButton}>Submit Pre-Intake</button>
+                    <button type="submit" className={styles.submitButton}>Send Pre-Intake</button>
                     {formSent && <p className={styles.successfulText}>Pre-intake sent successfully</p>}
                 </Form>
             )}
