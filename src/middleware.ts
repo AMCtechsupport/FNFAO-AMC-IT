@@ -7,10 +7,11 @@ const isProtectedRoute = createRouteMatcher([
   "/clients(.*)",
   "/pre-intake(.*)",
   "/manager-dash(.*)",
+  "/admin(.*)",
 ]);
 
 // Define the route that needs admin role protection
-const isAdminRoute = createRouteMatcher(["/manager-dash(.*)"]);
+const isAdminRoute = createRouteMatcher(["/manager-dash(.*)", "/admin(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {
