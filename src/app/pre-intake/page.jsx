@@ -48,7 +48,7 @@ function PreIntakeForm() {
                 emergencyContactNumber: "",
                 referredBy: "",
                 relationshipToChildren: "",
-                otherAdultsInvolved:'no',
+                otherAdultsInvolved: "",
                 otherAdultsInvolvedExplained: "",
                 firstNationMembership: "",
                 treatyNumber: "",
@@ -59,40 +59,37 @@ function PreIntakeForm() {
                 transitionFromReserve: "",
                 previousFNFAOClient: "",
                 seekingAdvocacy: "",
-                cfsAgency: "",
-                cfsAgentFullName: "",
-                cfsAgentNumber: "",
-                cfsAgentEmail: "",
-                statusCFSFile: "",
-                visitsChild:'no',
+
+                visitsChild: "",
                 visitsChildFrequency: "",
-                casePlanCopy:'yes',
+                casePlanCopy: "",
                 casePlanCopyDescribe: "",
                 involvedCFSReason: "",
-                prenatalSupport:'no',
+                prenatalSupport: "",
                 prenatalSupportSpecified: "",
-                housingSupport:'no',
+                housingSupport: "",
                 housingSupportSpecified: "",
-                addictionsSupport:'no',
+                addictionsSupport: "",
                 addictionsSupportSpecified: "",
-                youthSupport:'no',
+                youthSupport: "",
                 youthSupportSpecified: "",
-                custodySupport:'no',
+                custodySupport: "",
                 custodySupportSpecified: "",
-                criminalCharges:'no',
+                criminalCharges: "",
                 criminalChargesSpecified: "",
-                activeWarrant:'no',
+                activeWarrant: "",
                 activeWarrantSpecified: "",
-                activeInvestigation:'no',
+                activeInvestigation: "",
                 activeInvestigationExplained: "",
-                activeOrders:'no',
+                activeOrders: "",
                 activeOrdersExplained: "",
-                currentLawyer:'yes',
-                legalAssistance:'no',
+                currentLawyer: "",
+                legalAssistance: "",
                 legalAssistanceSpecified: "",
                 unableToAssistExplained: "",
                 referForSupport : "",
                 children: []
+
 
             }}
             validate={(values) => {
@@ -190,9 +187,9 @@ function PreIntakeForm() {
                     errors.otherAdultsInvolvedExplained = "Please specify the other involved adult(s)";
                 }
 
-                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.cfsAgentEmail)) {
-                    errors.cfsAgentEmail = "Invalid email format";
-                }
+                // if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.cfsAgentEmail)) {
+                //     errors.cfsAgentEmail = "Invalid email format";
+                // }
 
                 return errors;
             }}
@@ -207,6 +204,8 @@ function PreIntakeForm() {
                             convertedValues[key] = true;
                         } else if (values[key] === "no") {
                             convertedValues[key] = false;
+                        } else if (values[key] === "" || values[key] === undefined || values[key] === null) {
+                            convertedValues[key] = null;  // Assigns null if nothing is selected
                         } else {
                             convertedValues[key] = values[key];
                         }
@@ -315,19 +314,19 @@ function PreIntakeForm() {
 
                     <Row >
                         <Col md={3}>
-                            <InputField name="firstName" label="First Name:" placeholder="John" error={errors.firstName} />
+                            <InputField name="firstName" label="First Name:*" placeholder="John" error={errors.firstName} />
                         </Col>
 
                         <Col md={3}>
                             <InputField name="middleName" label="Middle Name:" error={errors.middleName} />
                         </Col>
                         <Col md={3}>
-                             <InputField name="lastName" label="Last Name:" placeholder="Connor" error={errors.lastName} />
+                             <InputField name="lastName" label="Last Name:*" placeholder="Connor" error={errors.lastName} />
                         </Col>
 
                         <Col md={3}>
                             <div>
-                                <label htmlFor="dateOfBirth">Birth Date:</label>
+                                <label htmlFor="dateOfBirth">Birth Date:*</label>
                                 <Field type="date" id="dateOfBirth" name="dateOfBirth" />
                                 <ErrorMessage name="dateOfBirth" component={() => <p className={styles.errorText}>{errors.dateOfBirth}</p>} />
                             </div>
@@ -520,7 +519,7 @@ function PreIntakeForm() {
                                                     <InputField name={`children.${index}.lastName`} label="Last Name:" />
                                                 </Col>
                                             </Row>
-                                            <Row>
+                                            <Row className="mb-4">
                                                 <Col md={3}>
                                                     <div>
                                                         <label htmlFor={`children.${index}.birthDate`}>Date of Birth:</label>
@@ -538,6 +537,44 @@ function PreIntakeForm() {
                                                     <InputField name={`children.${index}.childPlaced`} label="Place of Stay:" />
                                                 </Col>
                                             </Row>
+
+                                            {/* Agency information */}
+                                            <div className="bg-light border border-light p-3 rounded">
+                                                <Row className="mt-2">
+                                                    <h5 className="text-dark">Agency Information</h5>
+                                                    <Col md={4}>
+                                                        <InputField name={`children.${index}.childCfsAgency`} label="CFS Agency Name:" />
+                                                    </Col>
+                                                    <Col md={4}>
+                                                        <InputField name={`children.${index}.childCfsAgentFullName`} label="Agency Worker’s Full Name:" />
+                                                    </Col>
+                                                    <Col md={4}>
+                                                        <div>
+                                                            <label htmlFor={`children.${index}.childCfsAgentNumber`}>Phone Number:</label>
+                                                            <Field type="number" id={`children.${index}.childCfsAgentNumber`} name={`children.${index}.childCfsAgentNumber`} />
+                                                            <ErrorMessage
+                                                                name={`children.${index}.childCfsAgentNumber`}
+                                                                component={() => <p className={styles.errorText}>{errors.children?.[index]?.childCfsAgentNumber}</p>} />
+                                                        </div>
+                                                    </Col>
+                                                </Row>
+                                                <Row>
+                                                    <Col md={4}>
+                                                        <div>
+                                                            <label htmlFor={`children.${index}.childCfsAgentEmail`}>Email:</label>
+                                                            <Field type="email" id={`children.${index}.childCfsAgentEmail`} name={`children.${index}.childCfsAgentEmail`} />
+                                                            <ErrorMessage
+                                                                name={`children.${index}.childCfsAgentEmail`}
+                                                                component={() => <p className={styles.errorText}>{errors.children?.[index]?.childCfsAgentEmail}</p>} />
+                                                        </div>
+                                                    </Col>
+                                                    <Col  md={4}>
+                                                        <StatusCFSFileSelect name={`children.${index}.childStatusCfsFile`} label="CFS File Status"  error={errors.children?.[index]?.childStatusCfsFile}/>
+                                                    </Col>
+                                                </Row>
+                                            </div>
+                                            {/* END Agency information */}
+
                                             <Row>
                                                 <Col md={9}></Col>
                                                 <Col md={3} className="d-flex align-items-end mt-2">
@@ -546,7 +583,20 @@ function PreIntakeForm() {
                                             </Row>
                                         </div>
                                     ))}
-                                    <Button className="btn-dark" type="button" onClick={() => push({ firstName: "", middleName: "", lastName: "", birthDate: "", childNation: "", childPlaced: "" })}>
+                                    <Button className="btn-dark" type="button" onClick={() =>
+                                        push({
+                                            firstName: "",
+                                            middleName: "",
+                                            lastName: "",
+                                            birthDate: "",
+                                            childNation: "",
+                                            childPlaced: "",
+                                            childCfsAgency:"",
+                                            childCfsAgentFullName:"",
+                                            childCfsAgentNumber:"",
+                                            childCfsAgentEmail:"",
+                                            childStatusCfsFile:""
+                                        })}>
                                         + Add Child
                                     </Button>
                                 </div>
@@ -555,7 +605,7 @@ function PreIntakeForm() {
                     </Row>
 
                     {/* Agency information */}
-                    <Row>
+                    {/* <Row>
                         <h4 className="text-dark">Agency Information</h4>
                         <Col>
                             <InputField name="cfsAgency" label="CFS Agency Name:" placeholder="" error={errors.cfsAgency} />
@@ -570,6 +620,7 @@ function PreIntakeForm() {
                                 <ErrorMessage name="cfsAgentNumber" component={() => <p className={styles.errorText}>{errors.cfsAgentNumber}</p>} />
                             </div>
                         </Col>
+
                     </Row>
 
                     <Row>
@@ -583,7 +634,7 @@ function PreIntakeForm() {
                         <Col  md={4}>
                             <StatusCFSFileSelect name="statusCFSFile" label="CFS File Status:"  error={errors.statusCFSFile}/>
                         </Col>
-                    </Row>
+                    </Row> */}
                     <Row className={styles.group}>
                         <Col md={4}>
                             <div>
@@ -772,7 +823,7 @@ function PreIntakeForm() {
                     <Row className={styles.group}>
                         <Col md={4}>
                             <div>
-                                <label>Do you have any criminal charges (past, active or pending)?</label>
+                                <label>Do you have any criminal charges (past, active or pending)? *</label>
                                 <div className="form-check form-check-inline">
                                     <Field  className="form-check-input" type="radio" name="criminalCharges" value="yes" />
                                     <label className="form-check-label">Yes</label>
@@ -820,7 +871,7 @@ function PreIntakeForm() {
                     <Row className={styles.group}>
                         <Col md={4}>
                             <div>
-                                <label>Are you currently under child abuse investigation?</label>
+                                <label>Are you currently under child abuse investigation? *</label>
                                 <div className="form-check form-check-inline">
                                     <Field  className="form-check-input" type="radio" name="activeInvestigation" value="yes" />
                                     <label className="form-check-label">Yes</label>
@@ -923,7 +974,7 @@ function PreIntakeForm() {
                     </Row>
 
 
-                    <button type="submit" className={styles.submitButton}>Send Pre-Intake</button>
+                    <button type="submit" className={styles.submitButton}>Submit Pre-Intake</button>
                     {formSent && <p className={styles.successfulText}>Pre-intake sent successfully</p>}
                 </Form>
             )}
