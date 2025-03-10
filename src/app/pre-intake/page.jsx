@@ -557,7 +557,7 @@ function PreIntakeForm() {
             <Col md={4}>
               <FirstNationSelect
                 name="firstNationMembership"
-                label="First Nation Membership:"
+                label="First Nation Membership"
                 error={errors.firstNationMembership}
               />
             </Col>
@@ -572,7 +572,7 @@ function PreIntakeForm() {
             <Col md={4}>
               <FirstNationSelect
                 name="otherFirstnation"
-                label="Other First Nation:"
+                label="Other First Nation"
                 error={errors.otherFirstnation}
               />
             </Col>
@@ -775,7 +775,7 @@ function PreIntakeForm() {
                         <Col md={6}>
                           <FirstNationSelect
                             name={`children.${index}.childNation`}
-                            label="First Nation Membership:"
+                            label="First Nation Membership"
                             error={errors.childNation}
                           />
                         </Col>
