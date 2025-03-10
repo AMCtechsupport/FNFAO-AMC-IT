@@ -1,8 +1,14 @@
 import { fetchClientsAndAdvocates } from "../lib/assign-advocate";
 import AssignAdvocate from "../../../components/assign-advocate-client";
 import AssignClientSelector from "../../../components/assigned-client-selector";
+import { createClerkSupabaseClientSsr } from "../ssr/clerk-user";
+import { auth } from "@clerk/nextjs/server";
 
 export default async function AssignPage() {
+  // Retrieve the Clerk authentication token and the user's info
+  const { userId } = await auth();
+  const supabase = await createClerkSupabaseClientSsr();
+
   // Fetch clients and advocates from the external function
   const { clientsData, advocatesData } = await fetchClientsAndAdvocates();
 
