@@ -267,31 +267,36 @@ function FullIntakeForm(){
                         </Col>
                     </Row>
 
+                    <Row>
+                        <Tabs className={styles.customTab}>
+                            <TabList >
+                                <Tab href="/generalInfo" onClick={() => console.log("Tab 1 clicked!")}>General Information</Tab>
+                                <Tab href="/cfs" onClick={() => console.log("Tab 2 clicked!")}>CFS</Tab>
+                                <Tab href="/childrenInfo" onClick={() => console.log("Tab 3 clicked!")}>Children Information</Tab>
+                                <Tab href="/community" onClick={() => console.log("Tab 4 clicked!")}>Community Housing</Tab>
+                                <Tab href="/employment" onClick={() => console.log("Tab 5 clicked!")}>Employment</Tab>
+                                <Tab href="/caseNotes" onClick={() => console.log("Tab 6 clicked!")}>Case Notes</Tab>
+                                <Tab href="/legalNotes" onClick={() => console.log("Tab 7 clicked!")}>Legal Notes</Tab>
+                            </TabList>
+                            <TabPanel>Tab panel 1
+
+                            </TabPanel>
+                            <TabPanel>Tab panel 2   </TabPanel>
+                            <TabPanel>Tab panel 3   </TabPanel>
+                            <TabPanel>Tab panel 4   </TabPanel>
+                            <TabPanel>Tab panel 5   </TabPanel>
+                            <TabPanel>Tab panel 6   </TabPanel>
+                            <TabPanel>Tab panel 7   </TabPanel>
+                        </Tabs>
+
+                    </Row>
+
                 </Form>
             )}
             </Formik>
 
 
-            <Tabs className={styles.customTab}>
-                <TabList>
-                    <Tab href="/generalInfo" onClick={() => console.log("Tab 1 clicked!")}>General Information</Tab>
-                    <Tab href="/cfs" onClick={() => console.log("Tab 2 clicked!")}>CFS</Tab>
-                    <Tab href="/childrenInfo" onClick={() => console.log("Tab 3 clicked!")}>Children Information</Tab>
-                    <Tab href="/community" onClick={() => console.log("Tab 4 clicked!")}>Community Housing</Tab>
-                    <Tab href="/employment" onClick={() => console.log("Tab 5 clicked!")}>Employment</Tab>
-                    <Tab href="/caseNotes" onClick={() => console.log("Tab 6 clicked!")}>Case Notes</Tab>
-                    <Tab href="/legalNotes" onClick={() => console.log("Tab 7 clicked!")}>Legal Notes</Tab>
-                </TabList>
-                <TabPanel>Tab panel 1
 
-                </TabPanel>
-                <TabPanel>Tab panel 2   </TabPanel>
-                <TabPanel>Tab panel 3   </TabPanel>
-                <TabPanel>Tab panel 4   </TabPanel>
-                <TabPanel>Tab panel 5   </TabPanel>
-                <TabPanel>Tab panel 6   </TabPanel>
-                <TabPanel>Tab panel 7   </TabPanel>
-            </Tabs>
 
         </div>
     );

@@ -425,13 +425,13 @@ function PreIntakeForm() {
 
                     <Row>
                         <Col md={4}>
-                            <FirstNationSelect name="firstNationMembership" label="First Nation Membership:" error={errors.firstNationMembership}/>
+                            <FirstNationSelect name="firstNationMembership" label="First Nation Membership" error={errors.firstNationMembership}/>
                         </Col>
                         <Col md={4}>
                             <InputField name="treatyNumber" label="Treaty Number:" placeholder="" error={errors.treatyNumber} />
                         </Col>
                         <Col md={4}>
-                            <FirstNationSelect name="otherFirstnation" label="Other First Nation:" error={errors.otherFirstnation}/>
+                            <FirstNationSelect name="otherFirstnation" label="Other First Nation" error={errors.otherFirstnation}/>
                         </Col>
                     </Row>
 
@@ -532,7 +532,7 @@ function PreIntakeForm() {
                                                     </div>
                                                 </Col>
                                                 <Col md={6}>
-                                                    <FirstNationSelect name={`children.${index}.childNation`} label="First Nation Membership:" error={errors.childNation}/>
+                                                    <FirstNationSelect name={`children.${index}.childNation`} label="First Nation Membership" error={errors.childNation}/>
                                                 </Col>
                                                 <Col md={3}>
                                                     <InputField name={`children.${index}.childPlaced`} label="Place of Stay:" />
