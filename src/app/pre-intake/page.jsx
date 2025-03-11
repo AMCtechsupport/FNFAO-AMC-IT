@@ -30,6 +30,12 @@ export default function PreIntake() {
 function PreIntakeForm() {
     const [formSent, setFormSent] = useState(false);
 
+    const validateRadio = (value) => {
+        if (!value) {
+          return "Please select an option"; // Error message if there is no selection
+        }
+    };
+
     return (
         <Formik
             initialValues={{
@@ -59,7 +65,6 @@ function PreIntakeForm() {
                 transitionFromReserve: "",
                 previousFNFAOClient: "",
                 seekingAdvocacy: "",
-
                 visitsChild: "",
                 visitsChildFrequency: "",
                 casePlanCopy: "",
@@ -117,6 +122,12 @@ function PreIntakeForm() {
                     const birthDate = new Date(values.dateOfBirth);
                     const currentYear = new Date().getFullYear();
                     const birthYear = birthDate.getFullYear();
+                    const today = new Date();
+
+                    // Verify that the date of birth is not in the future
+                    if (birthDate > today) {
+                        errors.dateOfBirth = "Birth date cannot be in the future";
+                    }
 
                     // Year validation
                     if (birthYear > currentYear) {
@@ -136,60 +147,40 @@ function PreIntakeForm() {
                     }
                 }
 
-                if (!values.phoneNumber) {
-                    errors.phoneNumber = "Please enter a phone number";
-                }
-
                 const addressRegex = /^[a-zA-Z0-9\s,.-]*$/;
-                if (!values.address) {
-                    errors.address = "Please enter an address";
-                } else if (!addressRegex.test(values.address)) {
+                if (!addressRegex.test(values.address)) {
                     errors.address = "The address contains invalid characters";
                 }
 
-                if (!values.city) {
-                    errors.city = "Please enter a city";
-                } else if (!/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.city)) {
+                if (values.city && !/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.city)) {
                     errors.city = "The city can only contain letters and spaces";
-                }
-
-                if (!values.province) {
-                    errors.province = "Please select a province";
                 }
 
                 if (values.postalCode && !/^[A-Z]\d[A-Z] \d[A-Z]\d$/.test(values.postalCode)) {
                     errors.postalCode = "Invalid postal code format (e.g., A1A 1A1)";
                 }
 
-                if (!values.email) {
-                    errors.email = "Please enter an email";
-                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
+                if (values.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
                     errors.email = "Invalid email format";
                 }
 
-                if (!values.emergencyContactFirstName) {
-                    errors.emergencyContactFirstName = "Please provide an emergency contact first name.";
+                if (values.emergencyContactFirstName && !/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.emergencyContactFirstName)) {
+                    errors.emergencyContactFirstName = "The emergency contact name can only contain letters and spaces";
                 }
 
-                if (!values.emergencyContactLastName) {
-                    errors.emergencyContactLastName = "Please provide an emergency contact last name.";
+                if (values.emergencyContactLastName && !/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.emergencyContactLastName)) {
+                    errors.emergencyContactLastName = "The emergency contact last name can only contain letters and spaces";
                 }
 
-                if (!values.emergencyContactNumber) {
-                    errors.emergencyContactNumber = "Please provide an emergency contact phone.";
+                // Validation for 9 digits (only if the user enters something)
+                if (values.ninePersonalHealthNumber && !/^\d{9}$/.test(values.ninePersonalHealthNumber)) {
+                    errors.ninePersonalHealthNumber = "Must be exactly 9 digits";
                 }
 
-                if (!values.relationshipToChildren) {
-                    errors.relationshipToChildren = "Please provide a relationship with the child(ren).";
+                // Validation for 6 digits (only if the user enters something)
+                if (values.sixPersonalHealthNumber && !/^\d{6}$/.test(values.sixPersonalHealthNumber)) {
+                    errors.sixPersonalHealthNumber = "Must be exactly 6 digits";
                 }
-
-                if (values.otherAdultsInvolved === true && !values.otherAdultsInvolvedExplained.trim()) {
-                    errors.otherAdultsInvolvedExplained = "Please specify the other involved adult(s)";
-                }
-
-                // if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.cfsAgentEmail)) {
-                //     errors.cfsAgentEmail = "Invalid email format";
-                // }
 
                 return errors;
             }}
@@ -293,7 +284,7 @@ function PreIntakeForm() {
                     // Reset form and show success message
                     setFormSent(true);
                     resetForm();
-                    setTimeout(() => setFormSent(false), 3000);
+                    setTimeout(() => setFormSent(false), 5000);
 
                 } catch (error) {
                     console.error("General error:", error);
@@ -369,6 +360,7 @@ function PreIntakeForm() {
                         </Col>
                     </Row>
 
+                    {/* Emrgency contact */}
                     <Row className={styles.group}>
                         <h6>Emergency Contact</h6>
                         <Col>
@@ -604,37 +596,6 @@ function PreIntakeForm() {
                         </FieldArray>
                     </Row>
 
-                    {/* Agency information */}
-                    {/* <Row>
-                        <h4 className="text-dark">Agency Information</h4>
-                        <Col>
-                            <InputField name="cfsAgency" label="CFS Agency Name:" placeholder="" error={errors.cfsAgency} />
-                        </Col>
-                        <Col>
-                            <InputField name="cfsAgentFullName" label="Agency Worker’s Full Name:" placeholder="" error={errors.cfsAgentFullName} />
-                        </Col>
-                        <Col md={4}>
-                            <div>
-                                <label htmlFor="cfsAgentNumber">Phone Number:</label>
-                                <Field type="number" id="cfsAgentNumber" name="cfsAgentNumber" />
-                                <ErrorMessage name="cfsAgentNumber" component={() => <p className={styles.errorText}>{errors.cfsAgentNumber}</p>} />
-                            </div>
-                        </Col>
-
-                    </Row>
-
-                    <Row>
-                        <Col md={4}>
-                            <div>
-                                <label htmlFor="cfsAgentEmail">Email:</label>
-                                <Field type="email" id="cfsAgentEmail" name="cfsAgentEmail" />
-                                <ErrorMessage name="cfsAgentEmail" component={() => <p className={styles.errorText}>{errors.cfsAgentEmail}</p>} />
-                            </div>
-                        </Col>
-                        <Col  md={4}>
-                            <StatusCFSFileSelect name="statusCFSFile" label="CFS File Status:"  error={errors.statusCFSFile}/>
-                        </Col>
-                    </Row> */}
                     <Row className={styles.group}>
                         <Col md={4}>
                             <div>
@@ -825,11 +786,11 @@ function PreIntakeForm() {
                             <div>
                                 <label>Do you have any criminal charges (past, active or pending)? *</label>
                                 <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="criminalCharges" value="yes" />
+                                    <Field  className="form-check-input" type="radio" name="criminalCharges" value="yes" validate={validateRadio} />
                                     <label className="form-check-label">Yes</label>
                                 </div>
                                 <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="criminalCharges" value="no" />
+                                    <Field  className="form-check-input" type="radio" name="criminalCharges" value="no" validate={validateRadio} />
                                     <label className="form-check-label">No</label>
                                 </div>
                                 <ErrorMessage name="criminalCharges" component="div" className={styles.errorText} />
@@ -847,13 +808,13 @@ function PreIntakeForm() {
                     <Row className={styles.group}>
                         <Col md={4}>
                             <div>
-                                <label>Do you currently have an active arrest warrant?</label>
+                                <label>Do you currently have an active arrest warrant? *</label>
                                 <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="activeWarrant" value="yes" />
+                                    <Field  className="form-check-input" type="radio" name="activeWarrant" value="yes" validate={validateRadio}/>
                                     <label className="form-check-label">Yes</label>
                                 </div>
                                 <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="activeWarrant" value="no" />
+                                    <Field  className="form-check-input" type="radio" name="activeWarrant" value="no" validate={validateRadio}/>
                                     <label className="form-check-label">No</label>
                                 </div>
                                 <ErrorMessage name="activeWarrant" component="div" className={styles.errorText} />
@@ -873,11 +834,11 @@ function PreIntakeForm() {
                             <div>
                                 <label>Are you currently under child abuse investigation? *</label>
                                 <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="activeInvestigation" value="yes" />
+                                    <Field  className="form-check-input" type="radio" name="activeInvestigation" value="yes"  validate={validateRadio} />
                                     <label className="form-check-label">Yes</label>
                                 </div>
                                 <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="activeInvestigation" value="no" />
+                                    <Field  className="form-check-input" type="radio" name="activeInvestigation" value="no"  validate={validateRadio} />
                                     <label className="form-check-label">No</label>
                                 </div>
                                 <ErrorMessage name="activeInvestigation" component="div" className={styles.errorText} />
@@ -895,13 +856,13 @@ function PreIntakeForm() {
                     <Row className={styles.group}>
                         <Col md={4}>
                             <div>
-                                <label>Any active No Contact Orders or Protection Orders?</label>
+                                <label>Any active No Contact Orders or Protection Orders? *</label>
                                 <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="activeOrders" value="yes" />
+                                    <Field  className="form-check-input" type="radio" name="activeOrders" value="yes" validate={validateRadio}/>
                                     <label className="form-check-label">Yes</label>
                                 </div>
                                 <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="activeOrders" value="no" />
+                                    <Field  className="form-check-input" type="radio" name="activeOrders" value="no" validate={validateRadio}/>
                                     <label className="form-check-label">No</label>
                                 </div>
                                 <ErrorMessage name="activeOrders" component="div" className={styles.errorText} />
