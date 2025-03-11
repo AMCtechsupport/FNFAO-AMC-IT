@@ -9,7 +9,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import InputField from "@/components/InputField";
 import ReferredBySelect from "@/components/ReferredBySelect";
 import ProvincesSelect from "@/components/ProvincesSelect";
-import RelationshipToChildrenSelect from "@/components/RelationshipToChildrenSelect";
 import StatusCFSFileSelect from "@/components/StatusCFSFileSelect";
 import FirstNationSelect from "@/components/FirstNationSelect";
 import PronounSelect from "@/components/Pronouns";
@@ -53,24 +52,24 @@ function PreIntakeForm() {
         firstNationMembership: "",
         treatyNumber: "",
         otherFirstnation: "",
-        inCare: "",
+        inCare: false,
         statusCFSFile: "",
         lastFaceToFace: "",
         cfsAgency: "",
         cfsAgentFullName: "",
         cfsAgentNumber: "",
         cfsAgentEmail: "",
-        onReserve: "",
-        apprehendedOnReserve: "",
-        transitionFromReserve: "",
+        onReserve: false,
+        apprehendedOnReserve: false,
+        transitionFromReserve: false,
         currentlyStaying: "",
         currentlyStayingDuraton: "",
-        peopleHome: "",
+        peopleHome: 0,
         homeMembers: [],
-        inSchool: "",
+        inSchool: false,
         schoolAttending: "",
-        schoolGrade: "",
-        fullStudent: "",
+        currentGrade: "",
+        fullStudent: false,
         schoolSchedule: "",
         birthCertificate: false,
         driversLicense: false,
@@ -78,17 +77,17 @@ function PreIntakeForm() {
         statusCard: false,
         enhancedID: false,
         studentID: false,
-        bankAccount: "",
-        incomeAssistance: "",
+        bankAccount: false,
+        incomeAssistance: false,
         caseWorkerFullName: "",
         caseWorkerPhoneNumber: "",
         caseWorkerEmail: "",
-        youthJustice: "",
+        youthJustice: false,
         custodySupportSpecified: "",
-        accessElder: "",
-        speakingOffice: "",
-        youthWorkshops: "",
-        disabilities: "",
+        accessElder: false,
+        speakingOffice: false,
+        youthWorkshops: false,
+        disabilities: false,
         disabilitiesExplained: "",
         careExperience: "",
         kindSupport: "",
@@ -125,6 +124,12 @@ function PreIntakeForm() {
           const birthDate = new Date(values.dateOfBirth);
           const currentYear = new Date().getFullYear();
           const birthYear = birthDate.getFullYear();
+          const today = new Date();
+
+          // Verify that the date of birth is not in the future
+          if (birthDate > today) {
+            errors.dateOfBirth = "Birth date cannot be in the future";
+          }
 
           // Year validation
           if (birthYear > currentYear) {
@@ -144,25 +149,13 @@ function PreIntakeForm() {
           }
         }
 
-        if (!values.phoneNumber) {
-          errors.phoneNumber = "Please enter a phone number";
-        }
-
         const addressRegex = /^[a-zA-Z0-9\s,.-]*$/;
-        if (!values.address) {
-          errors.address = "Please enter an address";
-        } else if (!addressRegex.test(values.address)) {
+        if (!addressRegex.test(values.address)) {
           errors.address = "The address contains invalid characters";
         }
 
-        if (!values.city) {
-          errors.city = "Please enter a city";
-        } else if (!/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.city)) {
+        if (values.city && !/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.city)) {
           errors.city = "The city can only contain letters and spaces";
-        }
-
-        if (!values.province) {
-          errors.province = "Please select a province";
         }
 
         if (
@@ -172,42 +165,24 @@ function PreIntakeForm() {
           errors.postalCode = "Invalid postal code format (e.g., A1A 1A1)";
         }
 
-        if (!values.email) {
-          errors.email = "Please enter an email";
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
+        if (values.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
           errors.email = "Invalid email format";
         }
 
-        if (!values.emergencyContactFirstName) {
+        if (
+          values.emergencyContactFirstName &&
+          !/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.emergencyContactFirstName)
+        ) {
           errors.emergencyContactFirstName =
-            "Please provide an emergency contact first name.";
-        }
-
-        if (!values.emergencyContactLastName) {
-          errors.emergencyContactLastName =
-            "Please provide an emergency contact last name.";
-        }
-
-        if (!values.emergencyContactNumber) {
-          errors.emergencyContactNumber =
-            "Please provide an emergency contact phone.";
-        }
-
-        if (!values.relationshipToChildren) {
-          errors.relationshipToChildren =
-            "Please provide a relationship with the child(ren).";
+            "The emergency contact name can only contain letters and spaces";
         }
 
         if (
-          values.otherAdultsInvolved === true &&
-          !values.otherAdultsInvolvedExplained.trim()
+          values.emergencyContactLastName &&
+          !/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.emergencyContactLastName)
         ) {
-          errors.otherAdultsInvolvedExplained =
-            "Please specify the other involved adult(s)";
-        }
-
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.cfsAgentEmail)) {
-          errors.cfsAgentEmail = "Invalid email format";
+          errors.emergencyContactLastName =
+            "The emergency contact last name can only contain letters and spaces";
         }
 
         return errors;
@@ -233,13 +208,14 @@ function PreIntakeForm() {
           // Get the current date in ISO 8601 format
           const currentDate = new Date().toISOString();
 
-          // Extract 'children', 'emergencyContactFirstName', 'emergencyContactLastName' and 'emergencyContactNumber'
+          // Extract 'children', 'emergencyContactFirstName', 'emergencyContactLastName', 'emergencyContactNumber', and 'homeMembers'
           // from convertedValues and keep the rest as client data
           const {
             children,
             emergencyContactFirstName,
             emergencyContactLastName,
             emergencyContactNumber,
+            homeMembers,
             ...clientData
           } = convertedValues;
 
@@ -288,9 +264,9 @@ function PreIntakeForm() {
             console.log("Children inserted successfully:", childrenData);
           }
 
-          // If there are home_members, insert them into the 'Home Members' table
-          if (home_members && home_members.length > 0) {
-            const homeMembersData = home_members.map((homeMember) => ({
+          // If there are homeMembers, insert them into the 'Home Members' table
+          if (homeMembers && homeMembers.length > 0) {
+            const homeMembersData = homeMembers.map((homeMember) => ({
               ...homeMember,
               client_id: clientId, // Associate each home member with the client
             }));
@@ -304,10 +280,10 @@ function PreIntakeForm() {
               throw homeMemberError;
             }
 
-            console.log("Home Member inserted successfully:", homeMembersData);
+            console.log("Home Members inserted successfully:", homeMembersData);
           }
 
-          // Insert emergency contact into  the 'Emergency Contact' table
+          // Insert emergency contact into the 'Emergency Contacts' table
           if (
             emergencyContactFirstName &&
             emergencyContactLastName &&
@@ -318,7 +294,7 @@ function PreIntakeForm() {
               lastName: emergencyContactLastName,
               phoneNumber: emergencyContactNumber,
               note: "",
-              client_id: clientId, // Associate emergency contact with the cliente
+              client_id: clientId, // Associate emergency contact with the client
             };
 
             const { error: emergencyContactError } = await supabase
@@ -971,7 +947,7 @@ function PreIntakeForm() {
                 <label>What grade are you currently in?</label>
                 <Field
                   as="textarea"
-                  name="schoolGrade" // Changed name to schoolGrade
+                  name="currentGrade"
                   className={styles.textarea}
                 />
 
