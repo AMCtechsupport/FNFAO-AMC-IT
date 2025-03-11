@@ -2,9 +2,9 @@
 import React, { useState } from "react";
 import UserHome from "../user-home/page";
 import styles from "./preIntake.module.css";
-import { Formik, Form, Field, ErrorMessage, FieldArray  } from "formik";
+import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { Button, Container, Row, Col } from "react-bootstrap";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
 
 import InputField from "@/components/InputField";
 import ReferredBySelect from "@/components/ReferredBySelect";
@@ -13,18 +13,18 @@ import RelationshipToChildrenSelect from "@/components/RelationshipToChildrenSel
 import StatusCFSFileSelect from "@/components/StatusCFSFileSelect";
 import FirstNationSelect from "@/components/FirstNationSelect";
 
-import supabase from "../../lib/supabase";
+import supabase from "../lib/supabase";
 
 export default function PreIntake() {
-    return (
-        <UserHome>
-            <div className={styles.preIntakeContainer}>
-                <div className={styles.container}>
-                    <PreIntakeForm />
-                </div>
-            </div>
-        </UserHome>
-    );
+  return (
+    <UserHome>
+      <div className={styles.preIntakeContainer}>
+        <div className={styles.container}>
+          <PreIntakeForm />
+        </div>
+      </div>
+    </UserHome>
+  );
 }
 
 function PreIntakeForm() {
@@ -100,21 +100,25 @@ function PreIntakeForm() {
             validate={(values) => {
                 let errors = {};
 
-                if (!values.firstName) {
-                    errors.firstName = "Please enter a name";
-                } else if (!/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.firstName)) {
-                    errors.firstName = "The name can only contain letters and spaces";
-                }
+        if (!values.firstName) {
+          errors.firstName = "Please enter a name";
+        } else if (!/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.firstName)) {
+          errors.firstName = "The name can only contain letters and spaces";
+        }
 
-                if (values.middleName && !/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.middleName)) {
-                    errors.middleName = "The middle name can only contain letters and spaces";
-                }
+        if (
+          values.middleName &&
+          !/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.middleName)
+        ) {
+          errors.middleName =
+            "The middle name can only contain letters and spaces";
+        }
 
-                if (!values.lastName) {
-                    errors.lastName = "Please enter a last name";
-                } else if (!/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.lastName)) {
-                    errors.lastName = "The last name can only contain letters and spaces";
-                }
+        if (!values.lastName) {
+          errors.lastName = "Please enter a last name";
+        } else if (!/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.lastName)) {
+          errors.lastName = "The last name can only contain letters and spaces";
+        }
 
                 if (!values.dateOfBirth) {
                     errors.dateOfBirth = "Please select a birth date";
@@ -129,16 +133,16 @@ function PreIntakeForm() {
                         errors.dateOfBirth = "Birth date cannot be in the future";
                     }
 
-                    // Year validation
-                    if (birthYear > currentYear) {
-                        errors.dateOfBirth = "Birth year cannot be in the future";
-                    }
+          // Year validation
+          if (birthYear > currentYear) {
+            errors.dateOfBirth = "Birth year cannot be in the future";
+          }
 
-                     // Month validation
-                    const birthMonth = birthDate.getMonth() + 1;
-                    if (birthMonth < 1 || birthMonth > 12) {
-                        errors.dateOfBirth = "Birth month must be between 01 and 12";
-                    }
+          // Month validation
+          const birthMonth = birthDate.getMonth() + 1;
+          if (birthMonth < 1 || birthMonth > 12) {
+            errors.dateOfBirth = "Birth month must be between 01 and 12";
+          }
 
                     // Day validation
                     const birthDay = birthDate.getDate();
@@ -156,9 +160,12 @@ function PreIntakeForm() {
                     errors.city = "The city can only contain letters and spaces";
                 }
 
-                if (values.postalCode && !/^[A-Z]\d[A-Z] \d[A-Z]\d$/.test(values.postalCode)) {
-                    errors.postalCode = "Invalid postal code format (e.g., A1A 1A1)";
-                }
+        if (
+          values.postalCode &&
+          !/^[A-Z]\d[A-Z] \d[A-Z]\d$/.test(values.postalCode)
+        ) {
+          errors.postalCode = "Invalid postal code format (e.g., A1A 1A1)";
+        }
 
                 if (values.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
                     errors.email = "Invalid email format";
@@ -182,11 +189,11 @@ function PreIntakeForm() {
                     errors.sixPersonalHealthNumber = "Must be exactly 6 digits";
                 }
 
-                return errors;
-            }}
-            onSubmit={async (values, { resetForm }) => {
-                try {
-                    const convertedValues = {};
+        return errors;
+      }}
+      onSubmit={async (values, { resetForm }) => {
+        try {
+          const convertedValues = {};
 
                     // Loop through all fields in the 'values' object
                     // to convert them from "yes/no" to true/false
@@ -202,84 +209,103 @@ function PreIntakeForm() {
                         }
                     }
 
-                    console.log("Converted values:", convertedValues);
+          console.log("Converted values:", convertedValues);
 
-                    // Get the current date in ISO 8601 format
-                    const currentDate = new Date().toISOString();
+          // Get the current date in ISO 8601 format
+          const currentDate = new Date().toISOString();
 
-                    // Extract 'children', 'emergencyContactFirstName', 'emergencyContactLastName' and 'emergencyContactNumber'
-                    // from convertedValues and keep the rest as client data
-                    const { children, emergencyContactFirstName, emergencyContactLastName, emergencyContactNumber, ...clientData  } = convertedValues;
+          // Extract 'children', 'emergencyContactFirstName', 'emergencyContactLastName' and 'emergencyContactNumber'
+          // from convertedValues and keep the rest as client data
+          const {
+            children,
+            emergencyContactFirstName,
+            emergencyContactLastName,
+            emergencyContactNumber,
+            ...clientData
+          } = convertedValues;
 
-                    // Add date fields before inserting
-                    clientData.createdAt = currentDate;
-                    clientData.dateModified = currentDate;
+          // Add date fields before inserting
+          clientData.createdAt = currentDate;
+          clientData.dateModified = currentDate;
 
-                    console.log("Client data to insert:", clientData);
+          console.log("Client data to insert:", clientData);
 
-                    // Insert client data into the 'Clients' table
-                    const { data: client, error: clientError } = await supabase
-                        .from('Clients')
-                        .insert([clientData])
-                        .select(); // Retrieve inserted data to get the client ID
+          // Insert client data into the 'Clients' table
+          const { data: client, error: clientError } = await supabase
+            .from("Clients")
+            .insert([clientData])
+            .select(); // Retrieve inserted data to get the client ID
 
-                    if (clientError) {
-                        console.error("❌ Error inserting client:");
-                        console.error("Message:", clientError.message || "No message");
-                        console.error("Details:", clientError.details || "No details");
-                        console.error("Code:", clientError.code || "No code")
-                        throw clientError;
-                    }
+          if (clientError) {
+            console.error("❌ Error inserting client:");
+            console.error("Message:", clientError.message || "No message");
+            console.error("Details:", clientError.details || "No details");
+            console.error("Code:", clientError.code || "No code");
+            throw clientError;
+          }
 
-                    console.log("Client inserted successfully:", client);
+          console.log("Client inserted successfully:", client);
 
-                    // Get the inserted client's ID
-                    const clientId = client[0]?.client_id;
-                    if (!clientId) throw new Error("Failed to retrieve client ID.");
+          // Get the inserted client's ID
+          const clientId = client[0]?.client_id;
+          if (!clientId) throw new Error("Failed to retrieve client ID.");
 
-                    // If there are children, insert them into the 'Children' table
-                    if (children && children.length > 0) {
-                        const childrenData = children.map(child => ({
-                            ...child,
-                            client_id: clientId, // Associate each child with the client
-                        }));
+          // If there are children, insert them into the 'Children' table
+          if (children && children.length > 0) {
+            const childrenData = children.map((child) => ({
+              ...child,
+              client_id: clientId, // Associate each child with the client
+            }));
 
-                        const { error: childrenError } = await supabase
-                            .from('Childs')
-                            .insert(childrenData);
+            const { error: childrenError } = await supabase
+              .from("Childs")
+              .insert(childrenData);
 
-                        if (childrenError) {
-                            console.error("Error inserting children:", childrenError);
-                            throw childrenError;
-                        }
+            if (childrenError) {
+              console.error("Error inserting children:", childrenError);
+              throw childrenError;
+            }
 
-                        console.log("Children inserted successfully:", childrenData);
-                    }
+            console.log("Children inserted successfully:", childrenData);
+          }
 
-                    // Insert emergency contact into  the 'Emergency Contact' table
-                    if (emergencyContactFirstName && emergencyContactLastName && emergencyContactNumber) {
-                        const emergencyContactData = {
-                            firstName: emergencyContactFirstName,
-                            lastName: emergencyContactLastName,
-                            phoneNumber: emergencyContactNumber,
-                            note: "",
-                            client_id: clientId // Associate emergency contact with the cliente
-                        };
+          // Insert emergency contact into  the 'Emergency Contact' table
+          if (
+            emergencyContactFirstName &&
+            emergencyContactLastName &&
+            emergencyContactNumber
+          ) {
+            const emergencyContactData = {
+              firstName: emergencyContactFirstName,
+              lastName: emergencyContactLastName,
+              phoneNumber: emergencyContactNumber,
+              note: "",
+              client_id: clientId, // Associate emergency contact with the cliente
+            };
 
-                        const { error: emergencyContactError } = await supabase
-                            .from('Emergency Contacts')
-                            .insert([emergencyContactData]);
+            const { error: emergencyContactError } = await supabase
+              .from("Emergency Contacts")
+              .insert([emergencyContactData]);
 
-                        if (emergencyContactError) {
-                            console.error("❌ Error inserting emergency contact:");
-                            console.error("Message:", emergencyContactError.message || "No message");
-                            console.error("Details:", emergencyContactError.details || "No details");
-                            console.error("Code:", emergencyContactError.code || "No code");
-                            throw emergencyContactError;
-                        }
+            if (emergencyContactError) {
+              console.error("❌ Error inserting emergency contact:");
+              console.error(
+                "Message:",
+                emergencyContactError.message || "No message"
+              );
+              console.error(
+                "Details:",
+                emergencyContactError.details || "No details"
+              );
+              console.error("Code:", emergencyContactError.code || "No code");
+              throw emergencyContactError;
+            }
 
-                        console.log("✅ Emergency contact inserted successfully:", emergencyContactData);
-                    }
+            console.log(
+              "✅ Emergency contact inserted successfully:",
+              emergencyContactData
+            );
+          }
 
                     // Reset form and show success message
                     setFormSent(true);
@@ -324,41 +350,70 @@ function PreIntakeForm() {
                         </Col>
                     </Row>
 
-                    <Row >
-                        <Col md={3}>
-                            <InputField name="address" label="Address:" placeholder="161 Main St, Unit 230" error={errors.address} />
-                        </Col>
+          <Row>
+            <Col md={3}>
+              <InputField
+                name="address"
+                label="Address:"
+                placeholder="161 Main St, Unit 230"
+                error={errors.address}
+              />
+            </Col>
 
-                        <Col md={3}>
-                            <InputField name="city" label="City:" placeholder="Winnipeg" error={errors.city} />
-                        </Col>
+            <Col md={3}>
+              <InputField
+                name="city"
+                label="City:"
+                placeholder="Winnipeg"
+                error={errors.city}
+              />
+            </Col>
 
-                        <Col md={4}>
-                            <ProvincesSelect name="province" label="Province:" error={errors.province}/>
-                        </Col>
+            <Col md={4}>
+              <ProvincesSelect
+                name="province"
+                label="Province:"
+                error={errors.province}
+              />
+            </Col>
 
-                        <Col md={2}>
-                            <InputField name="postalCode" label="Postal code:" placeholder="R3C 0V8" error={errors.postalCode} />
-                        </Col>
-                    </Row>
+            <Col md={2}>
+              <InputField
+                name="postalCode"
+                label="Postal code:"
+                placeholder="R3C 0V8"
+                error={errors.postalCode}
+              />
+            </Col>
+          </Row>
 
-                    <Row>
-                        <Col md={3}>
-                            <div>
-                                <label htmlFor="phoneNumber">Phone Number:</label>
-                                <Field type="number" id="phoneNumber" name="phoneNumber" />
-                                <ErrorMessage name="phoneNumber" component={() => <p className={styles.errorText}>{errors.phoneNumber}</p>} />
-                            </div>
-                        </Col>
+          <Row>
+            <Col md={3}>
+              <div>
+                <label htmlFor="phoneNumber">Phone Number:</label>
+                <Field type="number" id="phoneNumber" name="phoneNumber" />
+                <ErrorMessage
+                  name="phoneNumber"
+                  component={() => (
+                    <p className={styles.errorText}>{errors.phoneNumber}</p>
+                  )}
+                />
+              </div>
+            </Col>
 
-                        <Col md={4}>
-                            <div>
-                                <label htmlFor="email">Email:</label>
-                                <Field type="email" id="email" name="email" />
-                                <ErrorMessage name="email" component={() => <p className={styles.errorText}>{errors.email}</p>} />
-                            </div>
-                        </Col>
-                    </Row>
+            <Col md={4}>
+              <div>
+                <label htmlFor="email">Email:</label>
+                <Field type="email" id="email" name="email" />
+                <ErrorMessage
+                  name="email"
+                  component={() => (
+                    <p className={styles.errorText}>{errors.email}</p>
+                  )}
+                />
+              </div>
+            </Col>
+          </Row>
 
                     {/* Emrgency contact */}
                     <Row className={styles.group}>
@@ -367,130 +422,261 @@ function PreIntakeForm() {
                             <InputField name="emergencyContactFirstName" label="First Name:" placeholder="" error={errors.emergencyContactFirstName} />
                         </Col>
 
-                        <Col>
-                            <InputField name="emergencyContactLastName" label="Last Name:" placeholder="" error={errors.emergencyContactLastName} />
-                        </Col>
+            <Col>
+              <InputField
+                name="emergencyContactLastName"
+                label="Last Name:"
+                placeholder=""
+                error={errors.emergencyContactLastName}
+              />
+            </Col>
 
-                        <Col>
-                            <div>
-                                <label htmlFor="emergencyContactNumber">Phone Number:</label>
-                                <Field type="number" id="emergencyContactNumber" name="emergencyContactNumber" />
-                                <ErrorMessage name="emergencyContactNumber" component={() => <p className={styles.errorText}>{errors.emergencyContactNumber}</p>} />
-                            </div>
-                        </Col>
-                    </Row>
+            <Col>
+              <div>
+                <label htmlFor="emergencyContactNumber">Phone Number:</label>
+                <Field
+                  type="number"
+                  id="emergencyContactNumber"
+                  name="emergencyContactNumber"
+                />
+                <ErrorMessage
+                  name="emergencyContactNumber"
+                  component={() => (
+                    <p className={styles.errorText}>
+                      {errors.emergencyContactNumber}
+                    </p>
+                  )}
+                />
+              </div>
+            </Col>
+          </Row>
 
-                    {/* About you */}
-                    <Row>
-                        <h4 className="text-dark">About You</h4>
-                        <Col md={4}>
-                            <RelationshipToChildrenSelect name="relationshipToChildren" label="What is your relationship to the child(ren)?" error={errors.relationshipToChildren} />
-                        </Col>
-                    </Row>
+          {/* About you */}
+          <Row>
+            <h4 className="text-dark">About You</h4>
+            <Col md={4}>
+              <RelationshipToChildrenSelect
+                name="relationshipToChildren"
+                label="What is your relationship to the child(ren)?"
+                error={errors.relationshipToChildren}
+              />
+            </Col>
+          </Row>
 
-                    <Row className={styles.group}>
-                        <Col md={4}>
-                            <div>
-                                <label>Are there any other adults involved in your matter?</label>
-                                <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="otherAdultsInvolved" value="yes" />
-                                    <label className="form-check-label">Yes</label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="otherAdultsInvolved" value="no"  />
-                                    <label className="form-check-label">No</label>
-                                </div>
-                                <ErrorMessage name="otherAdultsInvolved" component="div" className={styles.errorText} />
-                            </div>
-                        </Col>
-                        {values.otherAdultsInvolved === "yes" && (
+          <Row className={styles.group}>
+            <Col md={4}>
+              <div>
+                <label>
+                  Are there any other adults involved in your matter?
+                </label>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="otherAdultsInvolved"
+                    value="yes"
+                  />
+                  <label className="form-check-label">Yes</label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="otherAdultsInvolved"
+                    value="no"
+                  />
+                  <label className="form-check-label">No</label>
+                </div>
+                <ErrorMessage
+                  name="otherAdultsInvolved"
+                  component="div"
+                  className={styles.errorText}
+                />
+              </div>
+            </Col>
+            {values.otherAdultsInvolved === "yes" && (
+              <Col md={8}>
+                <label>Please specify:</label>
+                <Field
+                  as="textarea"
+                  name="otherAdultsInvolvedExplained"
+                  className={styles.textarea}
+                />
+                <ErrorMessage
+                  name="otherAdultsInvolvedExplained"
+                  component="div"
+                  className={styles.errorText}
+                />
+              </Col>
+            )}
+          </Row>
 
-                            <Col md={8}>
-                                <label>Please specify:</label>
-                                <Field as="textarea" name="otherAdultsInvolvedExplained" className={styles.textarea} />
-                                <ErrorMessage name="otherAdultsInvolvedExplained" component="div" className={styles.errorText} />
-                            </Col>
-                        )}
+          <Row>
+            <Col md={4}>
+              <FirstNationSelect
+                name="firstNationMembership"
+                label="First Nation Membership"
+                error={errors.firstNationMembership}
+              />
+            </Col>
+            <Col md={4}>
+              <InputField
+                name="treatyNumber"
+                label="Treaty Number:"
+                placeholder=""
+                error={errors.treatyNumber}
+              />
+            </Col>
+            <Col md={4}>
+              <FirstNationSelect
+                name="otherFirstnation"
+                label="Other First Nation"
+                error={errors.otherFirstnation}
+              />
+            </Col>
+          </Row>
 
-                    </Row>
+          <Row className={styles.group}>
+            <Col md={4}>
+              <label>Personal Health Identification Numbers (9-Digit):</label>
+              <Field
+                type="number"
+                id="ninePersonalHealthNumber"
+                placeholder="000000000"
+                name="ninePersonalHealthNumber"
+              />
+              <ErrorMessage
+                name="ninePersonalHealthNumber"
+                component={() => (
+                  <p className={styles.errorText}>
+                    {errors.ninePersonalHealthNumber}
+                  </p>
+                )}
+              />
+            </Col>
+            <Col md={2}>
+              <label>(6-Digit):</label>
+              <Field
+                type="number"
+                id="sixPersonalHealthNumber"
+                placeholder="000000"
+                name="sixPersonalHealthNumber"
+              />
+              <ErrorMessage
+                name="sixPersonalHealthNumber"
+                component={() => (
+                  <p className={styles.errorText}>
+                    {errors.sixPersonalHealthNumber}
+                  </p>
+                )}
+              />
+            </Col>
+          </Row>
 
-                    <Row>
-                        <Col md={4}>
-                            <FirstNationSelect name="firstNationMembership" label="First Nation Membership" error={errors.firstNationMembership}/>
-                        </Col>
-                        <Col md={4}>
-                            <InputField name="treatyNumber" label="Treaty Number:" placeholder="" error={errors.treatyNumber} />
-                        </Col>
-                        <Col md={4}>
-                            <FirstNationSelect name="otherFirstnation" label="Other First Nation" error={errors.otherFirstnation}/>
-                        </Col>
-                    </Row>
+          <Row>
+            <Col md={4}>
+              <div>
+                <label>Are you living on or off reserve?  </label>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="onReserve"
+                    value="yes"
+                  />
+                  <label className="form-check-label">Yes</label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="onReserve"
+                    value="no"
+                  />
+                  <label className="form-check-label">No</label>
+                </div>
+                <ErrorMessage
+                  name="onReserve"
+                  component="div"
+                  className={styles.onReserve}
+                />
+              </div>
+            </Col>
+            <Col md={4}>
+              <div>
+                <label>
+                  Have you transitioned from a reserve to the city recently?
+                </label>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="transitionFromReserve"
+                    value="yes"
+                  />
+                  <label className="form-check-label">Yes</label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="transitionFromReserve"
+                    value="no"
+                  />
+                  <label className="form-check-label">No</label>
+                </div>
+                <ErrorMessage
+                  name="transitionFromReserve"
+                  component="div"
+                  className={styles.transitionFromReserve}
+                />
+              </div>
+            </Col>
+            <Col md={4}>
+              <div>
+                <label>Are you a previous client of FNFAO?</label>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="previousFNFAOClient"
+                    value="yes"
+                  />
+                  <label className="form-check-label">Yes</label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="previousFNFAOClient"
+                    value="no"
+                  />
+                  <label className="form-check-label">No</label>
+                </div>
+                <ErrorMessage
+                  name="previousFNFAOClient"
+                  component="div"
+                  className={styles.previousFNFAOClient}
+                />
+              </div>
+            </Col>
+          </Row>
 
-                    <Row className={styles.group}>
-                        <Col md={4}>
-                            <label>Personal Health Identification Numbers (9-Digit):</label>
-                            <Field type="number" id="ninePersonalHealthNumber" placeholder="000000000" name="ninePersonalHealthNumber" />
-                            <ErrorMessage name="ninePersonalHealthNumber" component={() => <p className={styles.errorText}>{errors.ninePersonalHealthNumber}</p>} />
-                        </Col>
-                        <Col md={2}>
-                            <label>(6-Digit):</label>
-                            <Field type="number" id="sixPersonalHealthNumber" placeholder="000000" name="sixPersonalHealthNumber" />
-                            <ErrorMessage name="sixPersonalHealthNumber" component={() => <p className={styles.errorText}>{errors.sixPersonalHealthNumber}</p>} />
-                        </Col>
-                    </Row>
-
-                    <Row>
-                        <Col md={4}>
-                            <div>
-                                <label>Are you living on or off reserve?  </label>
-                                <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="onReserve" value="yes" />
-                                    <label className="form-check-label">Yes</label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="onReserve" value="no" />
-                                    <label className="form-check-label">No</label>
-                                </div>
-                                <ErrorMessage name="onReserve" component="div" className={styles.onReserve} />
-                            </div>
-                        </Col>
-                        <Col md={4}>
-                            <div>
-                                <label>Have you transitioned from a reserve to the city recently?</label>
-                                <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="transitionFromReserve" value="yes" />
-                                    <label className="form-check-label">Yes</label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="transitionFromReserve" value="no" />
-                                    <label className="form-check-label">No</label>
-                                </div>
-                                <ErrorMessage name="transitionFromReserve" component="div" className={styles.transitionFromReserve} />
-                            </div>
-                        </Col>
-                        <Col md={4}>
-                            <div>
-                                <label>Are you a previous client of FNFAO?</label>
-                                <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="previousFNFAOClient" value="yes" />
-                                    <label className="form-check-label">Yes</label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="previousFNFAOClient" value="no" />
-                                    <label className="form-check-label">No</label>
-                                </div>
-                                <ErrorMessage name="previousFNFAOClient" component="div" className={styles.previousFNFAOClient} />
-                            </div>
-                        </Col>
-                    </Row>
-
-                    <Row  className={styles.group}>
-                        <Col>
-                            <label>Why are you seeking advocacy today?</label>
-                            <Field as="textarea" name="seekingAdvocacy" className={styles.textarea} />
-                            <ErrorMessage name="seekingAdvocacy" component="div" className={styles.errorText} />
-                        </Col>
-                    </Row>
+          <Row className={styles.group}>
+            <Col>
+              <label>Why are you seeking advocacy today?</label>
+              <Field
+                as="textarea"
+                name="seekingAdvocacy"
+                className={styles.textarea}
+              />
+              <ErrorMessage
+                name="seekingAdvocacy"
+                component="div"
+                className={styles.errorText}
+              />
+            </Col>
+          </Row>
 
                     {/* About your children */}
                     <Row>
@@ -653,133 +839,257 @@ function PreIntakeForm() {
                         </Col>
                     </Row>
 
-                     {/* Other questions */}
-                    <Row>
-                        <h4 className="text-dark">Other Questions</h4>
-                    </Row>
-                    <Row className={styles.group}>
-                        <Col md={4}>
-                            <div>
-                                <label>Need prenatal support?</label>
-                                <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="prenatalSupport" value="yes" />
-                                    <label className="form-check-label">Yes</label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="prenatalSupport" value="no" />
-                                    <label className="form-check-label">No</label>
-                                </div>
-                                <ErrorMessage name="prenatalSupport" component="div" className={styles.errorText} />
-                            </div>
-                        </Col>
-                        {values.prenatalSupport === "yes" && (
+          {/* Other questions */}
+          <Row>
+            <h4 className="text-dark">Other Questions</h4>
+          </Row>
+          <Row className={styles.group}>
+            <Col md={4}>
+              <div>
+                <label>Need prenatal support?</label>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="prenatalSupport"
+                    value="yes"
+                  />
+                  <label className="form-check-label">Yes</label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="prenatalSupport"
+                    value="no"
+                  />
+                  <label className="form-check-label">No</label>
+                </div>
+                <ErrorMessage
+                  name="prenatalSupport"
+                  component="div"
+                  className={styles.errorText}
+                />
+              </div>
+            </Col>
+            {values.prenatalSupport === "yes" && (
+              <Col md={8}>
+                <label>
+                  If yes, specify (e.g. help avoiding birth apprehension, access
+                  to prenatal care, breastfeeding information, preparing for
+                  baby, etc.):
+                </label>
+                <Field
+                  as="textarea"
+                  name="prenatalSupportSpecified"
+                  className={styles.textarea}
+                />
+                <ErrorMessage
+                  name="prenatalSupportSpecified"
+                  component="div"
+                  className={styles.errorText}
+                />
+              </Col>
+            )}
+          </Row>
 
-                            <Col md={8}>
-                                <label>If yes, specify (e.g. help avoiding birth apprehension, access to prenatal care, breastfeeding information, preparing for baby, etc.):</label>
-                                <Field as="textarea" name="prenatalSupportSpecified" className={styles.textarea} />
-                                <ErrorMessage name="prenatalSupportSpecified" component="div" className={styles.errorText} />
-                            </Col>
-                        )}
-                    </Row>
+          <Row className={styles.group}>
+            <Col md={4}>
+              <div>
+                <label>Need housing support?</label>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="housingSupport"
+                    value="yes"
+                  />
+                  <label className="form-check-label">Yes</label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="housingSupport"
+                    value="no"
+                  />
+                  <label className="form-check-label">No</label>
+                </div>
+                <ErrorMessage
+                  name="housingSupport"
+                  component="div"
+                  className={styles.errorText}
+                />
+              </div>
+            </Col>
+            {values.housingSupport === "yes" && (
+              <Col md={8}>
+                <label>
+                  If yes, specify (e.g. urgent housing, preventing eviction,
+                  dealing with the Residential Tenancies Branch, etc):
+                </label>
+                <Field
+                  as="textarea"
+                  name="housingSupportSpecified"
+                  className={styles.textarea}
+                />
+                <ErrorMessage
+                  name="housingSupportSpecified"
+                  component="div"
+                  className={styles.errorText}
+                />
+              </Col>
+            )}
+          </Row>
 
-                    <Row className={styles.group}>
-                        <Col md={4}>
-                            <div>
-                                <label>Need housing support?</label>
-                                <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="housingSupport" value="yes" />
-                                    <label className="form-check-label">Yes</label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="housingSupport" value="no" />
-                                    <label className="form-check-label">No</label>
-                                </div>
-                                <ErrorMessage name="housingSupport" component="div" className={styles.errorText} />
-                            </div>
-                        </Col>
-                        {values.housingSupport === "yes" && (
+          <Row className={styles.group}>
+            <Col md={4}>
+              <div>
+                <label>Need addictions support?</label>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="addictionsSupport"
+                    value="yes"
+                  />
+                  <label className="form-check-label">Yes</label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="addictionsSupport"
+                    value="no"
+                  />
+                  <label className="form-check-label">No</label>
+                </div>
+                <ErrorMessage
+                  name="addictionsSupport"
+                  component="div"
+                  className={styles.errorText}
+                />
+              </div>
+            </Col>
+            {values.addictionsSupport === "yes" && (
+              <Col md={8}>
+                <label>
+                  If yes, specify (e.g. access to detox, treatment, relapse
+                  prevention programming, etc.):
+                </label>
+                <Field
+                  as="textarea"
+                  name="addictionsSupportSpecified"
+                  className={styles.textarea}
+                />
+                <ErrorMessage
+                  name="addictionsSupportSpecified"
+                  component="div"
+                  className={styles.errorText}
+                />
+              </Col>
+            )}
+          </Row>
 
-                            <Col md={8}>
-                                <label>If yes, specify (e.g. urgent housing, preventing eviction, dealing with the Residential Tenancies Branch, etc):</label>
-                                <Field as="textarea" name="housingSupportSpecified" className={styles.textarea} />
-                                <ErrorMessage name="housingSupportSpecified" component="div" className={styles.errorText} />
-                            </Col>
-                        )}
-                    </Row>
+          <Row className={styles.group}>
+            <Col md={4}>
+              <div>
+                <label>Need youth support for you/your children?</label>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="youthSupport"
+                    value="yes"
+                  />
+                  <label className="form-check-label">Yes</label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="youthSupport"
+                    value="no"
+                  />
+                  <label className="form-check-label">No</label>
+                </div>
+                <ErrorMessage
+                  name="youthSupport"
+                  component="div"
+                  className={styles.errorText}
+                />
+              </div>
+            </Col>
+            {values.youthSupport === "yes" && (
+              <Col md={8}>
+                <label>
+                  If yes, specify (e.g. help avoiding birth apprehension, access
+                  to prenatal care, breastfeeding information, preparing for
+                  baby, etc.):
+                </label>
+                <Field
+                  as="textarea"
+                  name="youthSupportSpecified"
+                  className={styles.textarea}
+                />
+                <ErrorMessage
+                  name="youthSupportSpecified"
+                  component="div"
+                  className={styles.errorText}
+                />
+              </Col>
+            )}
+          </Row>
 
-                    <Row className={styles.group}>
-                        <Col md={4}>
-                            <div>
-                                <label>Need addictions support?</label>
-                                <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="addictionsSupport" value="yes" />
-                                    <label className="form-check-label">Yes</label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="addictionsSupport" value="no" />
-                                    <label className="form-check-label">No</label>
-                                </div>
-                                <ErrorMessage name="addictionsSupport" component="div" className={styles.errorText} />
-                            </div>
-                        </Col>
-                        {values.addictionsSupport === "yes" && (
-
-                            <Col md={8}>
-                                <label>If yes, specify (e.g. access to detox, treatment, relapse prevention programming, etc.):</label>
-                                <Field as="textarea" name="addictionsSupportSpecified" className={styles.textarea} />
-                                <ErrorMessage name="addictionsSupportSpecified" component="div" className={styles.errorText} />
-                            </Col>
-                        )}
-                    </Row>
-
-                    <Row className={styles.group}>
-                        <Col md={4}>
-                            <div>
-                                <label>Need youth support for you/your children?</label>
-                                <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="youthSupport" value="yes" />
-                                    <label className="form-check-label">Yes</label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="youthSupport" value="no" />
-                                    <label className="form-check-label">No</label>
-                                </div>
-                                <ErrorMessage name="youthSupport" component="div" className={styles.errorText} />
-                            </div>
-                        </Col>
-                        {values.youthSupport === "yes" && (
-
-                            <Col md={8}>
-                                <label>If yes, specify (e.g. help avoiding birth apprehension, access to prenatal care, breastfeeding information, preparing for baby, etc.):</label>
-                                <Field as="textarea" name="youthSupportSpecified" className={styles.textarea} />
-                                <ErrorMessage name="youthSupportSpecified" component="div" className={styles.errorText} />
-                            </Col>
-                        )}
-                    </Row>
-
-                    <Row className={styles.group}>
-                        <Col md={4}>
-                            <div>
-                                <label>Need custody-related support?</label>
-                                <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="custodySupport" value="yes" />
-                                    <label className="form-check-label">Yes</label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="custodySupport" value="no" />
-                                    <label className="form-check-label">No</label>
-                                </div>
-                                <ErrorMessage name="custodySupport" component="div" className={styles.errorText} />
-                            </div>
-                        </Col>
-                        {values.custodySupport === "yes" && (
-                            <Col md={8}>
-                                <label>If yes, specify (e.g. ex-spouse not honouring custody arrangement for access/visitation, grandparent access, child support, etc:)</label>
-                                <Field as="textarea" name="custodySupportSpecified" className={styles.textarea} />
-                                <ErrorMessage name="custodySupportSpecified" component="div" className={styles.errorText} />
-                            </Col>
-                        )}
-                    </Row>
+          <Row className={styles.group}>
+            <Col md={4}>
+              <div>
+                <label>Need custody-related support?</label>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="custodySupport"
+                    value="yes"
+                  />
+                  <label className="form-check-label">Yes</label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="custodySupport"
+                    value="no"
+                  />
+                  <label className="form-check-label">No</label>
+                </div>
+                <ErrorMessage
+                  name="custodySupport"
+                  component="div"
+                  className={styles.errorText}
+                />
+              </div>
+            </Col>
+            {values.custodySupport === "yes" && (
+              <Col md={8}>
+                <label>
+                  If yes, specify (e.g. ex-spouse not honouring custody
+                  arrangement for access/visitation, grandparent access, child
+                  support, etc:)
+                </label>
+                <Field
+                  as="textarea"
+                  name="custodySupportSpecified"
+                  className={styles.textarea}
+                />
+                <ErrorMessage
+                  name="custodySupportSpecified"
+                  component="div"
+                  className={styles.errorText}
+                />
+              </Col>
+            )}
+          </Row>
 
                     <Row className={styles.group}>
                         <Col md={4}>
@@ -877,62 +1187,120 @@ function PreIntakeForm() {
                         )}
                     </Row>
 
-                    <Row className={styles.group}>
-                        <Col md={3}>
-                            <div>
-                                <label>Do you have a lawyer?</label>
-                                <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="currentLawyer" value="yes" />
-                                    <label className="form-check-label">Yes</label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <Field  className="form-check-input" type="radio" name="currentLawyer" value="no" />
-                                    <label className="form-check-label">No</label>
-                                </div>
-                                <ErrorMessage name="currentLawyer" component="div" className={styles.errorText} />
-                            </div>
-                        </Col>
-                        {values.currentLawyer === "no" && (
-                            <>
-                                <Col md={3}>
-                                    <div>
-                                        <label>If no, need legal assistance?</label>
-                                        <div className="form-check form-check-inline">
-                                            <Field  className="form-check-input" type="radio" name="legalAssistance" value="yes" />
-                                            <label className="form-check-label">Yes</label>
-                                        </div>
-                                        <div className="form-check form-check-inline">
-                                            <Field  className="form-check-input" type="radio" name="legalAssistance" value="no" />
-                                            <label className="form-check-label">No</label>
-                                        </div>
-                                        <ErrorMessage name="legalAssistance" component="div" className={styles.errorText} />
-                                    </div>
-                                </Col>
-                                {values.legalAssistance === "yes" && (
-                                <Col md={6}>
-                                        <label>If yes, specify:</label>
-                                        <Field as="textarea" name="legalAssistanceSpecified" className={styles.textarea} />
-                                        <ErrorMessage name="legalAssistanceSpecified" component="div" className={styles.errorText} />
-                                </Col>
-                                )}
-                            </>
-                        )}
-                    </Row>
-                    <Row>
-                        <h4 className="text-dark">Staff Only</h4>
-                        <Col>
-                            <label>If we are unable to assist, please list why (Example: they do not fit FNFAO’s mandate, etc.):</label>
-                            <Field as="textarea" name="unableToAssistExplained" className={styles.textarea} />
-                            <ErrorMessage name="unableToAssistExplained" component="div" className={styles.errorText} />
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <label>If we are unable to assist, please identify where you are referring them to for support:</label>
-                            <Field as="textarea" name="referForSupport" className={styles.textarea} />
-                            <ErrorMessage name="referForSupport" component="div" className={styles.errorText} />
-                        </Col>
-                    </Row>
+          <Row className={styles.group}>
+            <Col md={3}>
+              <div>
+                <label>Do you have a lawyer?</label>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="currentLawyer"
+                    value="yes"
+                  />
+                  <label className="form-check-label">Yes</label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="currentLawyer"
+                    value="no"
+                  />
+                  <label className="form-check-label">No</label>
+                </div>
+                <ErrorMessage
+                  name="currentLawyer"
+                  component="div"
+                  className={styles.errorText}
+                />
+              </div>
+            </Col>
+            {values.currentLawyer === "no" && (
+              <>
+                <Col md={3}>
+                  <div>
+                    <label>If no, need legal assistance?</label>
+                    <div className="form-check form-check-inline">
+                      <Field
+                        className="form-check-input"
+                        type="radio"
+                        name="legalAssistance"
+                        value="yes"
+                      />
+                      <label className="form-check-label">Yes</label>
+                    </div>
+                    <div className="form-check form-check-inline">
+                      <Field
+                        className="form-check-input"
+                        type="radio"
+                        name="legalAssistance"
+                        value="no"
+                      />
+                      <label className="form-check-label">No</label>
+                    </div>
+                    <ErrorMessage
+                      name="legalAssistance"
+                      component="div"
+                      className={styles.errorText}
+                    />
+                  </div>
+                </Col>
+                {values.legalAssistance === "yes" && (
+                  <Col md={6}>
+                    <label>If yes, specify:</label>
+                    <Field
+                      as="textarea"
+                      name="legalAssistanceSpecified"
+                      className={styles.textarea}
+                    />
+                    <ErrorMessage
+                      name="legalAssistanceSpecified"
+                      component="div"
+                      className={styles.errorText}
+                    />
+                  </Col>
+                )}
+              </>
+            )}
+          </Row>
+          <Row>
+            <h4 className="text-dark">Staff Only</h4>
+            <Col>
+              <label>
+                If we are unable to assist, please list why (Example: they do
+                not fit FNFAO’s mandate, etc.):
+              </label>
+              <Field
+                as="textarea"
+                name="unableToAssistExplained"
+                className={styles.textarea}
+              />
+              <ErrorMessage
+                name="unableToAssistExplained"
+                component="div"
+                className={styles.errorText}
+              />
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <label>
+                If we are unable to assist, please identify where you are
+                referring them to for support:
+              </label>
+              <Field
+                as="textarea"
+                name="referForSupport"
+                className={styles.textarea}
+              />
+              <ErrorMessage
+                name="referForSupport"
+                component="div"
+                className={styles.errorText}
+              />
+            </Col>
+          </Row>
 
 
                     <button type="submit" className={styles.submitButton}>Submit Pre-Intake</button>

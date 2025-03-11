@@ -48,13 +48,17 @@ export default function UserHome({ children }) {
             >
               Pre-Intake
             </Link>
+            <Link
+              href="/clients"
+              className="block text-gray-700 hover:bg-blue-100 p-2 rounded"
+            >
+              Client List
+            </Link>
           </nav>
         </aside>
 
         {/* Main Section */}
-        <main className="flex-1 p-6">
-        {children}
-        </main>
+        <main className="flex-1 p-6">{children}</main>
       </div>
     </div>
   );
