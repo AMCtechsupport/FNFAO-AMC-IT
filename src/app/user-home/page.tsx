@@ -49,6 +49,12 @@ export default function UserHome({ children }) {
               Pre-Intake
             </Link>
             <Link
+              href="/youth-intake"
+              className="block text-gray-700 hover:bg-blue-100 p-2 rounded"
+            >
+              Youth-Intake
+            </Link>
+            <Link
               href="/clients"
               className="block text-gray-700 hover:bg-blue-100 p-2 rounded"
             >

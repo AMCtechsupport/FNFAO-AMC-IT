@@ -1,4 +1,5 @@
 import supabase from "../lib/supabase";
+import UserHome from "../user-home/page";
 import ClientsList from "../../../components/client-list";
 
 export default async function ClientsPage() {
