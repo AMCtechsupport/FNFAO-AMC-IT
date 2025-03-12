@@ -28,74 +28,77 @@ export default function PreIntake() {
 }
 
 function PreIntakeForm() {
-  const [formSent, setFormSent] = useState(false);
+    const [formSent, setFormSent] = useState(false);
 
-  return (
-    <Formik
-      initialValues={{
-        firstName: "",
-        middleName: "",
-        lastName: "",
-        dateOfBirth: "",
-        phoneNumber: "",
-        address: "",
-        city: "",
-        province: "",
-        postalCode: "",
-        email: "",
-        emergencyContactFirstName: "",
-        emergencyContactLastName: "",
-        emergencyContactNumber: "",
-        referredBy: "",
-        relationshipToChildren: "",
-        otherAdultsInvolved: "no",
-        otherAdultsInvolvedExplained: "",
-        firstNationMembership: "",
-        treatyNumber: "",
-        otherFirstnation: "",
-        ninePersonalHealthNumber: "",
-        sixPersonalHealthNumber: "",
-        onReserve: "",
-        transitionFromReserve: "",
-        previousFNFAOClient: "",
-        seekingAdvocacy: "",
-        cfsAgency: "",
-        cfsAgentFullName: "",
-        cfsAgentNumber: "",
-        cfsAgentEmail: "",
-        statusCFSFile: "",
-        visitsChild: "no",
-        visitsChildFrequency: "",
-        casePlanCopy: "yes",
-        casePlanCopyDescribe: "",
-        involvedCFSReason: "",
-        prenatalSupport: "no",
-        prenatalSupportSpecified: "",
-        housingSupport: "no",
-        housingSupportSpecified: "",
-        addictionsSupport: "no",
-        addictionsSupportSpecified: "",
-        youthSupport: "no",
-        youthSupportSpecified: "",
-        custodySupport: "no",
-        custodySupportSpecified: "",
-        criminalCharges: "no",
-        criminalChargesSpecified: "",
-        activeWarrant: "no",
-        activeWarrantSpecified: "",
-        activeInvestigation: "no",
-        activeInvestigationExplained: "",
-        activeOrders: "no",
-        activeOrdersExplained: "",
-        currentLawyer: "yes",
-        legalAssistance: "no",
-        legalAssistanceSpecified: "",
-        unableToAssistExplained: "",
-        referForSupport: "",
-        children: [],
-      }}
-      validate={(values) => {
-        let errors = {};
+    const validateRadio = (value) => {
+        if (!value) {
+          return "Please select an option"; // Error message if there is no selection
+        }
+    };
+
+    return (
+        <Formik
+            initialValues={{
+                firstName: "",
+                middleName: "",
+                lastName: "",
+                dateOfBirth: "",
+                phoneNumber: "",
+                address: "",
+                city: "",
+                province: "",
+                postalCode: "",
+                email: "",
+                emergencyContactFirstName: "",
+                emergencyContactLastName: "",
+                emergencyContactNumber: "",
+                referredBy: "",
+                relationshipToChildren: "",
+                otherAdultsInvolved: "",
+                otherAdultsInvolvedExplained: "",
+                firstNationMembership: "",
+                treatyNumber: "",
+                otherFirstnation: "",
+                ninePersonalHealthNumber: "",
+                sixPersonalHealthNumber: "",
+                onReserve: "",
+                transitionFromReserve: "",
+                previousFNFAOClient: "",
+                seekingAdvocacy: "",
+                visitsChild: "",
+                visitsChildFrequency: "",
+                casePlanCopy: "",
+                casePlanCopyDescribe: "",
+                involvedCFSReason: "",
+                prenatalSupport: "",
+                prenatalSupportSpecified: "",
+                housingSupport: "",
+                housingSupportSpecified: "",
+                addictionsSupport: "",
+                addictionsSupportSpecified: "",
+                youthSupport: "",
+                youthSupportSpecified: "",
+                custodySupport: "",
+                custodySupportSpecified: "",
+                criminalCharges: "",
+                criminalChargesSpecified: "",
+                activeWarrant: "",
+                activeWarrantSpecified: "",
+                activeInvestigation: "",
+                activeInvestigationExplained: "",
+                activeOrders: "",
+                activeOrdersExplained: "",
+                currentLawyer: "",
+                legalAssistance: "",
+                legalAssistanceSpecified: "",
+                unableToAssistExplained: "",
+                referForSupport : "",
+                children: []
+
+
+            }}
+            validate={(values) => {
+                let errors = {};
 
         if (!values.firstName) {
           errors.firstName = "Please enter a name";
@@ -117,12 +120,18 @@ function PreIntakeForm() {
           errors.lastName = "The last name can only contain letters and spaces";
         }
 
-        if (!values.dateOfBirth) {
-          errors.dateOfBirth = "Please select a birth date";
-        } else {
-          const birthDate = new Date(values.dateOfBirth);
-          const currentYear = new Date().getFullYear();
-          const birthYear = birthDate.getFullYear();
+                if (!values.dateOfBirth) {
+                    errors.dateOfBirth = "Please select a birth date";
+                }else {
+                    const birthDate = new Date(values.dateOfBirth);
+                    const currentYear = new Date().getFullYear();
+                    const birthYear = birthDate.getFullYear();
+                    const today = new Date();
+
+                    // Verify that the date of birth is not in the future
+                    if (birthDate > today) {
+                        errors.dateOfBirth = "Birth date cannot be in the future";
+                    }
 
           // Year validation
           if (birthYear > currentYear) {
@@ -135,33 +144,21 @@ function PreIntakeForm() {
             errors.dateOfBirth = "Birth month must be between 01 and 12";
           }
 
-          // Day validation
-          const birthDay = birthDate.getDate();
-          if (birthDay < 1 || birthDay > 31) {
-            errors.dateOfBirth = "Birth day must be between 01 and 31";
-          }
-        }
+                    // Day validation
+                    const birthDay = birthDate.getDate();
+                    if (birthDay < 1 || birthDay > 31) {
+                        errors.dateOfBirth = "Birth day must be between 01 and 31";
+                    }
+                }
 
-        if (!values.phoneNumber) {
-          errors.phoneNumber = "Please enter a phone number";
-        }
+                const addressRegex = /^[a-zA-Z0-9\s,.-]*$/;
+                if (!addressRegex.test(values.address)) {
+                    errors.address = "The address contains invalid characters";
+                }
 
-        const addressRegex = /^[a-zA-Z0-9\s,.-]*$/;
-        if (!values.address) {
-          errors.address = "Please enter an address";
-        } else if (!addressRegex.test(values.address)) {
-          errors.address = "The address contains invalid characters";
-        }
-
-        if (!values.city) {
-          errors.city = "Please enter a city";
-        } else if (!/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.city)) {
-          errors.city = "The city can only contain letters and spaces";
-        }
-
-        if (!values.province) {
-          errors.province = "Please select a province";
-        }
+                if (values.city && !/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.city)) {
+                    errors.city = "The city can only contain letters and spaces";
+                }
 
         if (
           values.postalCode &&
@@ -170,43 +167,27 @@ function PreIntakeForm() {
           errors.postalCode = "Invalid postal code format (e.g., A1A 1A1)";
         }
 
-        if (!values.email) {
-          errors.email = "Please enter an email";
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
-          errors.email = "Invalid email format";
-        }
+                if (values.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
+                    errors.email = "Invalid email format";
+                }
 
-        if (!values.emergencyContactFirstName) {
-          errors.emergencyContactFirstName =
-            "Please provide an emergency contact first name.";
-        }
+                if (values.emergencyContactFirstName && !/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.emergencyContactFirstName)) {
+                    errors.emergencyContactFirstName = "The emergency contact name can only contain letters and spaces";
+                }
 
-        if (!values.emergencyContactLastName) {
-          errors.emergencyContactLastName =
-            "Please provide an emergency contact last name.";
-        }
+                if (values.emergencyContactLastName && !/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.emergencyContactLastName)) {
+                    errors.emergencyContactLastName = "The emergency contact last name can only contain letters and spaces";
+                }
 
-        if (!values.emergencyContactNumber) {
-          errors.emergencyContactNumber =
-            "Please provide an emergency contact phone.";
-        }
+                // Validation for 9 digits (only if the user enters something)
+                if (values.ninePersonalHealthNumber && !/^\d{9}$/.test(values.ninePersonalHealthNumber)) {
+                    errors.ninePersonalHealthNumber = "Must be exactly 9 digits";
+                }
 
-        if (!values.relationshipToChildren) {
-          errors.relationshipToChildren =
-            "Please provide a relationship with the child(ren).";
-        }
-
-        if (
-          values.otherAdultsInvolved === true &&
-          !values.otherAdultsInvolvedExplained.trim()
-        ) {
-          errors.otherAdultsInvolvedExplained =
-            "Please specify the other involved adult(s)";
-        }
-
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.cfsAgentEmail)) {
-          errors.cfsAgentEmail = "Invalid email format";
-        }
+                // Validation for 6 digits (only if the user enters something)
+                if (values.sixPersonalHealthNumber && !/^\d{6}$/.test(values.sixPersonalHealthNumber)) {
+                    errors.sixPersonalHealthNumber = "Must be exactly 6 digits";
+                }
 
         return errors;
       }}
@@ -214,17 +195,19 @@ function PreIntakeForm() {
         try {
           const convertedValues = {};
 
-          // Loop through all fields in the 'values' object
-          // to convert them from "yes/no" to true/false
-          for (let key in values) {
-            if (values[key] === "yes") {
-              convertedValues[key] = true;
-            } else if (values[key] === "no") {
-              convertedValues[key] = false;
-            } else {
-              convertedValues[key] = values[key];
-            }
-          }
+                    // Loop through all fields in the 'values' object
+                    // to convert them from "yes/no" to true/false
+                    for (let key in values) {
+                        if (values[key] === "yes") {
+                            convertedValues[key] = true;
+                        } else if (values[key] === "no") {
+                            convertedValues[key] = false;
+                        } else if (values[key] === "" || values[key] === undefined || values[key] === null) {
+                            convertedValues[key] = null;  // Assigns null if nothing is selected
+                        } else {
+                            convertedValues[key] = values[key];
+                        }
+                    }
 
           console.log("Converted values:", convertedValues);
 
@@ -324,69 +307,48 @@ function PreIntakeForm() {
             );
           }
 
-          // Reset form and show success message
-          setFormSent(true);
-          resetForm();
-          setTimeout(() => setFormSent(false), 3000);
-        } catch (error) {
-          console.error("General error:", error);
-        }
-      }}
-    >
-      {({ values, errors }) => (
-        <Form className={styles.form}>
-          <h2 className={styles.centeredTitle}>PRE-INTAKE FORM</h2>
-          <Row>
-            <h4 className="text-dark">General Information</h4>
-            <Col md={8} />
-            <Col md={4}>
-              <ReferredBySelect
-                name="referredBy"
-                label="How did the client learn about FNFAO?"
-                error={errors.referredBy}
-              />
-            </Col>
-          </Row>
+                    // Reset form and show success message
+                    setFormSent(true);
+                    resetForm();
+                    setTimeout(() => setFormSent(false), 5000);
 
-          <Row>
-            <Col md={3}>
-              <InputField
-                name="firstName"
-                label="First Name:"
-                placeholder="John"
-                error={errors.firstName}
-              />
-            </Col>
+                } catch (error) {
+                    console.error("General error:", error);
+                }
+            }}
 
-            <Col md={3}>
-              <InputField
-                name="middleName"
-                label="Middle Name:"
-                error={errors.middleName}
-              />
-            </Col>
-            <Col md={3}>
-              <InputField
-                name="lastName"
-                label="Last Name:"
-                placeholder="Connor"
-                error={errors.lastName}
-              />
-            </Col>
+        >
+            {({ values, errors }) => (
+                <Form className={styles.form}>
+                    <h2 className={styles.centeredTitle}>PRE-INTAKE FORM</h2>
+                    <Row>
+                        <h4 className="text-dark">General Information</h4>
+                        <Col md={8} />
+                        <Col  md={4}>
+                            <ReferredBySelect name="referredBy" label="How did the client learn about FNFAO?" error={errors.referredBy}/>
+                        </Col>
+                    </Row>
 
-            <Col md={3}>
-              <div>
-                <label htmlFor="dateOfBirth">Birth Date:</label>
-                <Field type="date" id="dateOfBirth" name="dateOfBirth" />
-                <ErrorMessage
-                  name="dateOfBirth"
-                  component={() => (
-                    <p className={styles.errorText}>{errors.dateOfBirth}</p>
-                  )}
-                />
-              </div>
-            </Col>
-          </Row>
+                    <Row >
+                        <Col md={3}>
+                            <InputField name="firstName" label="First Name:*" placeholder="John" error={errors.firstName} />
+                        </Col>
+
+                        <Col md={3}>
+                            <InputField name="middleName" label="Middle Name:" error={errors.middleName} />
+                        </Col>
+                        <Col md={3}>
+                             <InputField name="lastName" label="Last Name:*" placeholder="Connor" error={errors.lastName} />
+                        </Col>
+
+                        <Col md={3}>
+                            <div>
+                                <label htmlFor="dateOfBirth">Birth Date:*</label>
+                                <Field type="date" id="dateOfBirth" name="dateOfBirth" />
+                                <ErrorMessage name="dateOfBirth" component={() => <p className={styles.errorText}>{errors.dateOfBirth}</p>} />
+                            </div>
+                        </Col>
+                    </Row>
 
           <Row>
             <Col md={3}>
@@ -453,16 +415,12 @@ function PreIntakeForm() {
             </Col>
           </Row>
 
-          <Row className={styles.group}>
-            <h6>Emergency Contact</h6>
-            <Col>
-              <InputField
-                name="emergencyContactFirstName"
-                label="First Name:"
-                placeholder=""
-                error={errors.emergencyContactFirstName}
-              />
-            </Col>
+                    {/* Emrgency contact */}
+                    <Row className={styles.group}>
+                        <h6>Emergency Contact</h6>
+                        <Col>
+                            <InputField name="emergencyContactFirstName" label="First Name:" placeholder="" error={errors.emergencyContactFirstName} />
+                        </Col>
 
             <Col>
               <InputField
@@ -720,273 +678,166 @@ function PreIntakeForm() {
             </Col>
           </Row>
 
-          {/* About your children */}
-          <Row>
-            <h4 className="text-dark">About Your Children</h4>
-            <FieldArray name="children">
-              {({ push, remove }) => (
-                <div>
-                  {values.children.map((child, index) => (
-                    <div
-                      key={index}
-                      className={`${styles.bglightgrey} border rounded p-2 mb-3`}
-                    >
-                      <Row className="align-items-center">
-                        <Col md={3}>
-                          <InputField
-                            name={`children.${index}.firstName`}
-                            label="First Name:"
-                          />
-                        </Col>
-                        <Col md={3}>
-                          <InputField
-                            name={`children.${index}.middleName`}
-                            label="Middle Name:"
-                          />
-                        </Col>
-                        <Col md={6}>
-                          <InputField
-                            name={`children.${index}.lastName`}
-                            label="Last Name:"
-                          />
-                        </Col>
-                      </Row>
-                      <Row>
-                        <Col md={3}>
-                          <div>
-                            <label htmlFor={`children.${index}.birthDate`}>
-                              Date of Birth:
-                            </label>
-                            <Field
-                              type="date"
-                              id={`children.${index}.birthDate`}
-                              name={`children.${index}.birthDate`}
-                            />
-                            <ErrorMessage
-                              name={`children.${index}.birthDate`}
-                              component={() => (
-                                <p className={styles.errorText}>
-                                  {errors.children?.[index]?.birthDate}
-                                </p>
-                              )}
-                            />
-                          </div>
-                        </Col>
-                        <Col md={6}>
-                          <FirstNationSelect
-                            name={`children.${index}.childNation`}
-                            label="First Nation Membership"
-                            error={errors.childNation}
-                          />
-                        </Col>
-                        <Col md={3}>
-                          <InputField
-                            name={`children.${index}.childPlaced`}
-                            label="Place of Stay:"
-                          />
-                        </Col>
-                      </Row>
-                      <Row>
-                        <Col md={9}></Col>
-                        <Col md={3} className="d-flex align-items-end mt-2">
-                          <Button
-                            className="w-100 btn btn-danger"
-                            type="button"
-                            onClick={() => remove(index)}
-                          >
-                            Delete
-                          </Button>
-                        </Col>
-                      </Row>
-                    </div>
-                  ))}
-                  <Button
-                    className="btn-dark"
-                    type="button"
-                    onClick={() =>
-                      push({
-                        firstName: "",
-                        middleName: "",
-                        lastName: "",
-                        birthDate: "",
-                        childNation: "",
-                        childPlaced: "",
-                      })
-                    }
-                  >
-                    + Add Child
-                  </Button>
-                </div>
-              )}
-            </FieldArray>
-          </Row>
+                    {/* About your children */}
+                    <Row>
+                        <h4 className="text-dark">About Your Children</h4>
+                        <FieldArray name="children">
+                            {({ push, remove }) => (
+                                <div>
+                                    {values.children.map((child, index) => (
+                                        <div key={index} className={`${styles.bglightgrey} border rounded p-2 mb-3`} >
+                                            <Row className="align-items-center">
+                                                <Col md={3}>
+                                                    <InputField name={`children.${index}.firstName`} label="First Name:" />
+                                                </Col>
+                                                <Col md={3}>
+                                                    <InputField name={`children.${index}.middleName`} label="Middle Name:" />
+                                                </Col>
+                                                <Col md={6}>
+                                                    <InputField name={`children.${index}.lastName`} label="Last Name:" />
+                                                </Col>
+                                            </Row>
+                                            <Row className="mb-4">
+                                                <Col md={3}>
+                                                    <div>
+                                                        <label htmlFor={`children.${index}.birthDate`}>Date of Birth:</label>
+                                                        <Field type="date" id={`children.${index}.birthDate`} name={`children.${index}.birthDate`} />
+                                                        <ErrorMessage
+                                                            name={`children.${index}.birthDate`}
+                                                            component={() => <p className={styles.errorText}>{errors.children?.[index]?.birthDate}</p>}
+                                                        />
+                                                    </div>
+                                                </Col>
+                                                <Col md={6}>
+                                                    <FirstNationSelect name={`children.${index}.childNation`} label="First Nation Membership" error={errors.childNation}/>
+                                                </Col>
+                                                <Col md={3}>
+                                                    <InputField name={`children.${index}.childPlaced`} label="Place of Stay:" />
+                                                </Col>
+                                            </Row>
 
-          {/* Agency information */}
-          <Row>
-            <h4 className="text-dark">Agency Information</h4>
-            <Col>
-              <InputField
-                name="cfsAgency"
-                label="CFS Agency Name:"
-                placeholder=""
-                error={errors.cfsAgency}
-              />
-            </Col>
-            <Col>
-              <InputField
-                name="cfsAgentFullName"
-                label="Agency Worker’s Full Name:"
-                placeholder=""
-                error={errors.cfsAgentFullName}
-              />
-            </Col>
-            <Col md={4}>
-              <div>
-                <label htmlFor="cfsAgentNumber">Phone Number:</label>
-                <Field
-                  type="number"
-                  id="cfsAgentNumber"
-                  name="cfsAgentNumber"
-                />
-                <ErrorMessage
-                  name="cfsAgentNumber"
-                  component={() => (
-                    <p className={styles.errorText}>{errors.cfsAgentNumber}</p>
-                  )}
-                />
-              </div>
-            </Col>
-          </Row>
+                                            {/* Agency information */}
+                                            <div className="bg-light border border-light p-3 rounded">
+                                                <Row className="mt-2">
+                                                    <h5 className="text-dark">Agency Information</h5>
+                                                    <Col md={4}>
+                                                        <InputField name={`children.${index}.childCfsAgency`} label="CFS Agency Name:" />
+                                                    </Col>
+                                                    <Col md={4}>
+                                                        <InputField name={`children.${index}.childCfsAgentFullName`} label="Agency Worker’s Full Name:" />
+                                                    </Col>
+                                                    <Col md={4}>
+                                                        <div>
+                                                            <label htmlFor={`children.${index}.childCfsAgentNumber`}>Phone Number:</label>
+                                                            <Field type="number" id={`children.${index}.childCfsAgentNumber`} name={`children.${index}.childCfsAgentNumber`} />
+                                                            <ErrorMessage
+                                                                name={`children.${index}.childCfsAgentNumber`}
+                                                                component={() => <p className={styles.errorText}>{errors.children?.[index]?.childCfsAgentNumber}</p>} />
+                                                        </div>
+                                                    </Col>
+                                                </Row>
+                                                <Row>
+                                                    <Col md={4}>
+                                                        <div>
+                                                            <label htmlFor={`children.${index}.childCfsAgentEmail`}>Email:</label>
+                                                            <Field type="email" id={`children.${index}.childCfsAgentEmail`} name={`children.${index}.childCfsAgentEmail`} />
+                                                            <ErrorMessage
+                                                                name={`children.${index}.childCfsAgentEmail`}
+                                                                component={() => <p className={styles.errorText}>{errors.children?.[index]?.childCfsAgentEmail}</p>} />
+                                                        </div>
+                                                    </Col>
+                                                    <Col  md={4}>
+                                                        <StatusCFSFileSelect name={`children.${index}.childStatusCfsFile`} label="CFS File Status"  error={errors.children?.[index]?.childStatusCfsFile}/>
+                                                    </Col>
+                                                </Row>
+                                            </div>
+                                            {/* END Agency information */}
 
-          <Row>
-            <Col md={4}>
-              <div>
-                <label htmlFor="cfsAgentEmail">Email:</label>
-                <Field type="email" id="cfsAgentEmail" name="cfsAgentEmail" />
-                <ErrorMessage
-                  name="cfsAgentEmail"
-                  component={() => (
-                    <p className={styles.errorText}>{errors.cfsAgentEmail}</p>
-                  )}
-                />
-              </div>
-            </Col>
-            <Col md={4}>
-              <StatusCFSFileSelect
-                name="statusCFSFile"
-                label="CFS File Status:"
-                error={errors.statusCFSFile}
-              />
-            </Col>
-          </Row>
-          <Row className={styles.group}>
-            <Col md={4}>
-              <div>
-                <label>Do you currently have visits with your children?</label>
-                <div className="form-check form-check-inline">
-                  <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="visitsChild"
-                    value="yes"
-                  />
-                  <label className="form-check-label">Yes</label>
-                </div>
-                <div className="form-check form-check-inline">
-                  <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="visitsChild"
-                    value="no"
-                  />
-                  <label className="form-check-label">No</label>
-                </div>
-                <ErrorMessage
-                  name="visitsChild"
-                  component="div"
-                  className={styles.errorText}
-                />
-              </div>
-            </Col>
-            {values.visitsChild === "yes" && (
-              <Col md={8}>
-                <label>If yes, how often?</label>
-                <Field
-                  as="textarea"
-                  name="visitsChildFrequency"
-                  className={styles.textarea}
-                />
-                <ErrorMessage
-                  name="visitsChildFrequency"
-                  component="div"
-                  className={styles.errorText}
-                />
-              </Col>
-            )}
-          </Row>
-          <Row className={styles.group}>
-            <Col md={4}>
-              <div>
-                <label>Do you have a copy of your case plan(s)?</label>
-                <div className="form-check form-check-inline">
-                  <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="casePlanCopy"
-                    value="yes"
-                  />
-                  <label className="form-check-label">Yes</label>
-                </div>
-                <div className="form-check form-check-inline">
-                  <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="casePlanCopy"
-                    value="no"
-                  />
-                  <label className="form-check-label">No</label>
-                </div>
-                <ErrorMessage
-                  name="casePlanCopy"
-                  component="div"
-                  className={styles.errorText}
-                />
-              </div>
-            </Col>
-            {values.casePlanCopy === "no" && (
-              <Col md={8}>
-                <label>
-                  If no, describe the last requests the agency asked you to
-                  complete to get your children home:
-                </label>
-                <Field
-                  as="textarea"
-                  name="casePlanCopyDescribe"
-                  className={styles.textarea}
-                />
-                <ErrorMessage
-                  name="casePlanCopyDescribe"
-                  component="div"
-                  className={styles.errorText}
-                />
-              </Col>
-            )}
-          </Row>
-          <Row className={styles.group}>
-            <Col>
-              <label>Reason for CFS involvement with your family:</label>
-              <Field
-                as="textarea"
-                name="involvedCFSReason"
-                className={styles.textarea}
-              />
-              <ErrorMessage
-                name="involvedCFSReason"
-                component="div"
-                className={styles.errorText}
-              />
-            </Col>
-          </Row>
+                                            <Row>
+                                                <Col md={9}></Col>
+                                                <Col md={3} className="d-flex align-items-end mt-2">
+                                                    <Button className="w-100 btn btn-danger"  type="button" onClick={() => remove(index)}>Delete</Button>
+                                                </Col>
+                                            </Row>
+                                        </div>
+                                    ))}
+                                    <Button className="btn-dark" type="button" onClick={() =>
+                                        push({
+                                            firstName: "",
+                                            middleName: "",
+                                            lastName: "",
+                                            birthDate: "",
+                                            childNation: "",
+                                            childPlaced: "",
+                                            childCfsAgency:"",
+                                            childCfsAgentFullName:"",
+                                            childCfsAgentNumber:"",
+                                            childCfsAgentEmail:"",
+                                            childStatusCfsFile:""
+                                        })}>
+                                        + Add Child
+                                    </Button>
+                                </div>
+                            )}
+                        </FieldArray>
+                    </Row>
+
+                    <Row className={styles.group}>
+                        <Col md={4}>
+                            <div>
+                                <label>Do you currently have visits with
+                                your children?</label>
+                                <div className="form-check form-check-inline">
+                                    <Field  className="form-check-input" type="radio" name="visitsChild" value="yes" />
+                                    <label className="form-check-label">Yes</label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <Field  className="form-check-input" type="radio" name="visitsChild" value="no" />
+                                    <label className="form-check-label">No</label>
+                                </div>
+                                <ErrorMessage name="visitsChild" component="div" className={styles.errorText} />
+                            </div>
+                        </Col>
+                        {values.visitsChild === "yes" && (
+
+                            <Col md={8}>
+                                <label>If yes, how often?</label>
+                                <Field as="textarea" name="visitsChildFrequency" className={styles.textarea} />
+                                <ErrorMessage name="visitsChildFrequency" component="div" className={styles.errorText} />
+                            </Col>
+                        )}
+                    </Row>
+                    <Row className={styles.group}>
+                        <Col md={4}>
+                            <div>
+                                <label>Do you have a copy of your case plan(s)?</label>
+                                <div className="form-check form-check-inline">
+                                    <Field  className="form-check-input" type="radio" name="casePlanCopy" value="yes" />
+                                    <label className="form-check-label">Yes</label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <Field  className="form-check-input" type="radio" name="casePlanCopy" value="no" />
+                                    <label className="form-check-label">No</label>
+                                </div>
+                                <ErrorMessage name="casePlanCopy" component="div" className={styles.errorText} />
+                            </div>
+                        </Col>
+                        {values.casePlanCopy === "no" && (
+
+                            <Col md={8}>
+                                <label>If no, describe the last requests the agency asked you to complete to get your children home:</label>
+                                <Field as="textarea" name="casePlanCopyDescribe" className={styles.textarea} />
+                                <ErrorMessage name="casePlanCopyDescribe" component="div" className={styles.errorText} />
+                            </Col>
+                        )}
+                    </Row>
+                    <Row  className={styles.group}>
+                        <Col>
+                            <label>Reason for CFS involvement with your family:</label>
+                            <Field as="textarea" name="involvedCFSReason" className={styles.textarea} />
+                            <ErrorMessage name="involvedCFSReason" component="div" className={styles.errorText} />
+                        </Col>
+                    </Row>
 
           {/* Other questions */}
           <Row>
@@ -1240,198 +1091,101 @@ function PreIntakeForm() {
             )}
           </Row>
 
-          <Row className={styles.group}>
-            <Col md={4}>
-              <div>
-                <label>
-                  Do you have any criminal charges (past, active or pending)?
-                </label>
-                <div className="form-check form-check-inline">
-                  <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="criminalCharges"
-                    value="yes"
-                  />
-                  <label className="form-check-label">Yes</label>
-                </div>
-                <div className="form-check form-check-inline">
-                  <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="criminalCharges"
-                    value="no"
-                  />
-                  <label className="form-check-label">No</label>
-                </div>
-                <ErrorMessage
-                  name="criminalCharges"
-                  component="div"
-                  className={styles.errorText}
-                />
-              </div>
-            </Col>
-            {values.criminalCharges === "yes" && (
-              <Col md={8}>
-                <label>If yes, please specify why: </label>
-                <Field
-                  as="textarea"
-                  name="criminalChargesSpecified"
-                  className={styles.textarea}
-                />
-                <ErrorMessage
-                  name="criminalChargesSpecified"
-                  component="div"
-                  className={styles.errorText}
-                />
-              </Col>
-            )}
-          </Row>
+                    <Row className={styles.group}>
+                        <Col md={4}>
+                            <div>
+                                <label>Do you have any criminal charges (past, active or pending)? *</label>
+                                <div className="form-check form-check-inline">
+                                    <Field  className="form-check-input" type="radio" name="criminalCharges" value="yes" validate={validateRadio} />
+                                    <label className="form-check-label">Yes</label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <Field  className="form-check-input" type="radio" name="criminalCharges" value="no" validate={validateRadio} />
+                                    <label className="form-check-label">No</label>
+                                </div>
+                                <ErrorMessage name="criminalCharges" component="div" className={styles.errorText} />
+                            </div>
+                        </Col>
+                        {values.criminalCharges === "yes" && (
+                            <Col md={8}>
+                                <label>If yes, please specify why: </label>
+                                <Field as="textarea" name="criminalChargesSpecified" className={styles.textarea} />
+                                <ErrorMessage name="criminalChargesSpecified" component="div" className={styles.errorText} />
+                            </Col>
+                        )}
+                    </Row>
 
-          <Row className={styles.group}>
-            <Col md={4}>
-              <div>
-                <label>Do you currently have an active arrest warrant?</label>
-                <div className="form-check form-check-inline">
-                  <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="activeWarrant"
-                    value="yes"
-                  />
-                  <label className="form-check-label">Yes</label>
-                </div>
-                <div className="form-check form-check-inline">
-                  <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="activeWarrant"
-                    value="no"
-                  />
-                  <label className="form-check-label">No</label>
-                </div>
-                <ErrorMessage
-                  name="activeWarrant"
-                  component="div"
-                  className={styles.errorText}
-                />
-              </div>
-            </Col>
-            {values.activeWarrant === "yes" && (
-              <Col md={8}>
-                <label>If yes, please specify why: </label>
-                <Field
-                  as="textarea"
-                  name="activeWarrantSpecified"
-                  className={styles.textarea}
-                />
-                <ErrorMessage
-                  name="activeWarrantSpecified"
-                  component="div"
-                  className={styles.errorText}
-                />
-              </Col>
-            )}
-          </Row>
+                    <Row className={styles.group}>
+                        <Col md={4}>
+                            <div>
+                                <label>Do you currently have an active arrest warrant? *</label>
+                                <div className="form-check form-check-inline">
+                                    <Field  className="form-check-input" type="radio" name="activeWarrant" value="yes" validate={validateRadio}/>
+                                    <label className="form-check-label">Yes</label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <Field  className="form-check-input" type="radio" name="activeWarrant" value="no" validate={validateRadio}/>
+                                    <label className="form-check-label">No</label>
+                                </div>
+                                <ErrorMessage name="activeWarrant" component="div" className={styles.errorText} />
+                            </div>
+                        </Col>
+                        {values.activeWarrant === "yes" && (
+                            <Col md={8}>
+                                <label>If yes, please specify why: </label>
+                                <Field as="textarea" name="activeWarrantSpecified" className={styles.textarea} />
+                                <ErrorMessage name="activeWarrantSpecified" component="div" className={styles.errorText} />
+                            </Col>
+                        )}
+                    </Row>
 
-          <Row className={styles.group}>
-            <Col md={4}>
-              <div>
-                <label>
-                  Are you currently under child abuse investigation?
-                </label>
-                <div className="form-check form-check-inline">
-                  <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="activeInvestigation"
-                    value="yes"
-                  />
-                  <label className="form-check-label">Yes</label>
-                </div>
-                <div className="form-check form-check-inline">
-                  <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="activeInvestigation"
-                    value="no"
-                  />
-                  <label className="form-check-label">No</label>
-                </div>
-                <ErrorMessage
-                  name="activeInvestigation"
-                  component="div"
-                  className={styles.errorText}
-                />
-              </div>
-            </Col>
-            {values.activeInvestigation === "yes" && (
-              <Col md={3}>
-                <label>If yes, start date: </label>
-                <Field
-                  type="date"
-                  id="activeInvestigationExplained"
-                  name="activeInvestigationExplained"
-                />
-                <ErrorMessage
-                  name="activeInvestigationExplained"
-                  component={() => (
-                    <p className={styles.errorText}>
-                      {errors.activeInvestigationExplained}
-                    </p>
-                  )}
-                />
-              </Col>
-            )}
-          </Row>
+                    <Row className={styles.group}>
+                        <Col md={4}>
+                            <div>
+                                <label>Are you currently under child abuse investigation? *</label>
+                                <div className="form-check form-check-inline">
+                                    <Field  className="form-check-input" type="radio" name="activeInvestigation" value="yes"  validate={validateRadio} />
+                                    <label className="form-check-label">Yes</label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <Field  className="form-check-input" type="radio" name="activeInvestigation" value="no"  validate={validateRadio} />
+                                    <label className="form-check-label">No</label>
+                                </div>
+                                <ErrorMessage name="activeInvestigation" component="div" className={styles.errorText} />
+                            </div>
+                        </Col>
+                        {values.activeInvestigation === "yes" && (
+                            <Col md={3}>
+                                <label>If yes, start date: </label>
+                                <Field type="date" id="activeInvestigationExplained" name="activeInvestigationExplained" />
+                                <ErrorMessage name="activeInvestigationExplained" component={() => <p className={styles.errorText}>{errors.activeInvestigationExplained}</p>} />
+                            </Col>
+                        )}
+                    </Row>
 
-          <Row className={styles.group}>
-            <Col md={4}>
-              <div>
-                <label>
-                  Any active No Contact Orders or Protection Orders?
-                </label>
-                <div className="form-check form-check-inline">
-                  <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="activeOrders"
-                    value="yes"
-                  />
-                  <label className="form-check-label">Yes</label>
-                </div>
-                <div className="form-check form-check-inline">
-                  <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="activeOrders"
-                    value="no"
-                  />
-                  <label className="form-check-label">No</label>
-                </div>
-                <ErrorMessage
-                  name="activeOrders"
-                  component="div"
-                  className={styles.errorText}
-                />
-              </div>
-            </Col>
-            {values.activeOrders === "yes" && (
-              <Col md={8}>
-                <label>If yes, against who or against you?</label>
-                <Field
-                  as="textarea"
-                  name="activeOrdersExplained"
-                  className={styles.textarea}
-                />
-                <ErrorMessage
-                  name="activeOrdersExplained"
-                  component="div"
-                  className={styles.errorText}
-                />
-              </Col>
-            )}
-          </Row>
+                    <Row className={styles.group}>
+                        <Col md={4}>
+                            <div>
+                                <label>Any active No Contact Orders or Protection Orders? *</label>
+                                <div className="form-check form-check-inline">
+                                    <Field  className="form-check-input" type="radio" name="activeOrders" value="yes" validate={validateRadio}/>
+                                    <label className="form-check-label">Yes</label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                    <Field  className="form-check-input" type="radio" name="activeOrders" value="no" validate={validateRadio}/>
+                                    <label className="form-check-label">No</label>
+                                </div>
+                                <ErrorMessage name="activeOrders" component="div" className={styles.errorText} />
+                            </div>
+                        </Col>
+                        {values.activeOrders === "yes" && (
+                            <Col md={8}>
+                                <label>If yes, against who or against you?</label>
+                                <Field as="textarea" name="activeOrdersExplained" className={styles.textarea} />
+                                <ErrorMessage name="activeOrdersExplained" component="div" className={styles.errorText} />
+                            </Col>
+                        )}
+                    </Row>
 
           <Row className={styles.group}>
             <Col md={3}>
@@ -1548,16 +1302,11 @@ function PreIntakeForm() {
             </Col>
           </Row>
 
-          <button type="submit" className={styles.submitButton}>
-            Send Pre-Intake
-          </button>
-          {formSent && (
-            <p className={styles.successfulText}>
-              Pre-intake sent successfully
-            </p>
-          )}
-        </Form>
-      )}
-    </Formik>
-  );
+
+                    <button type="submit" className={styles.submitButton}>Submit Pre-Intake</button>
+                    {formSent && <p className={styles.successfulText}>Pre-intake sent successfully</p>}
+                </Form>
+            )}
+        </Formik>
+    );
 }
