@@ -5,6 +5,7 @@ import styles from "./preIntake.module.css";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { Button, Container, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import validator from "validator";
 
 import InputField from "@/components/InputField";
 import ReferredBySelect from "@/components/ReferredBySelect";
@@ -25,6 +26,21 @@ export default function PreIntake() {
       </div>
     </UserHome>
   );
+}
+
+function sanitizeInput(input) {
+  if (typeof input === "string") {
+    return validator.escape(input.trim());
+  }
+  return input;
+}
+
+function sanitizeValues(values) {
+  const sanitizedValues = {};
+  for (let key in values) {
+    sanitizedValues[key] = sanitizeInput(values[key]);
+  }
+  return sanitizedValues;
 }
 
 function PreIntakeForm() {
@@ -189,17 +205,19 @@ function PreIntakeForm() {
       }}
       onSubmit={async (values, { resetForm }) => {
         try {
+          const sanitizedValues = sanitizeValues(values);
+
           const convertedValues = {};
 
           // Loop through all fields in the 'values' object
           // to convert them from "yes/no" to true/false
-          for (let key in values) {
-            if (values[key] === "yes") {
+          for (let key in sanitizedValues) {
+            if (sanitizedValues[key] === "yes") {
               convertedValues[key] = true;
-            } else if (values[key] === "no") {
+            } else if (sanitizedValues[key] === "no") {
               convertedValues[key] = false;
             } else {
-              convertedValues[key] = values[key];
+              convertedValues[key] = sanitizedValues[key];
             }
           }
 
@@ -533,7 +551,7 @@ function PreIntakeForm() {
             <h4 className="text-dark">Agency Information</h4>
 
             <Row className={styles.group}>
-              <Col md={4}>
+              <Col md={3}>
                 <div>
                   <label>Are you currently in care?</label>
                   <div className="form-check form-check-inline">
