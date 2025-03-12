@@ -1008,9 +1008,12 @@ function PreIntakeForm() {
           </Row>
 
           <Row className={styles.group}>
-            <Col md={4}>
+            <Col md={6}>
               <div>
-                <label>What Personal Identification do you have?</label>
+                <label className="text-xl font-bold">
+                  What Personal Identification do you have? (Check all that
+                  apply)
+                </label>
                 <div className="form-check">
                   <label className="form-check-label">Birth Certificate</label>
                   <Field

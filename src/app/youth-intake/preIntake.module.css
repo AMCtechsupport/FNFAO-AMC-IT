@@ -146,12 +146,13 @@
     align-items: center; /* Center vertically */
     justify-content: space-between; /* Space between text and checkbox */
   }
-  .form-check {
-    display: flex; /* Use flexbox */
-    align-items: center; /* Center items vertically */
-  }
 
   .form-check-label {
     margin-right: 8px; /* Space between label and checkbox */
+  }
+
+  .form-check-input {
+    width: 1rem !important;
+    height: 1rem !important;
   }
 }
