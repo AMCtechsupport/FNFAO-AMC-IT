@@ -245,31 +245,27 @@ function PreIntakeForm() {
           const clientId = client[0]?.client_id;
           if (!clientId) throw new Error("Failed to retrieve client ID.");
 
-          // If there are children, insert them into the 'Children' table
-          if (children && children.length > 0) {
-            const childrenData = children.map((child) => ({
-              ...child,
-              client_id: clientId, // Associate each child with the client
-            }));
-
-            const { error: childrenError } = await supabase
-              .from("Childs")
-              .insert(childrenData);
-
-            if (childrenError) {
-              console.error("Error inserting children:", childrenError);
-              throw childrenError;
-            }
-
-            console.log("Children inserted successfully:", childrenData);
-          }
-
           // If there are homeMembers, insert them into the 'Home Members' table
           if (homeMembers && homeMembers.length > 0) {
-            const homeMembersData = homeMembers.map((homeMember) => ({
-              ...homeMember,
-              client_id: clientId, // Associate each home member with the client
-            }));
+            const homeMembersData = homeMembers.map((homeMember) => {
+              const {
+                firstName,
+                middleName,
+                lastName,
+                relationship,
+                phoneNumber,
+                email,
+              } = homeMember;
+              return {
+                firstName,
+                middleName,
+                lastName,
+                relationship,
+                phoneNumber,
+                email,
+                client_id: clientId, // Associate each home member with the client
+              };
+            });
 
             const { error: homeMemberError } = await supabase
               .from("Home Members")
@@ -891,9 +887,9 @@ function PreIntakeForm() {
                           firstName: "",
                           middleName: "",
                           lastName: "",
-                          birthDate: "",
-                          memberNation: "",
-                          placeOfStay: "",
+                          relationship: "",
+                          phoneNumber: "",
+                          email: "",
                         })
                       }
                     >
