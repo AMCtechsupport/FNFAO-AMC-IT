@@ -222,6 +222,7 @@ function PreIntakeForm() {
           // Add date fields before inserting
           clientData.createdAt = currentDate;
           clientData.dateModified = currentDate;
+          clientData.clientType = "Youth Intake";
 
           console.log("Client data to insert:", clientData);
 
