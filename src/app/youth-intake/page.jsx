@@ -7,6 +7,7 @@ import { Button, Container, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import validator from "validator";
 
+import PhoneNumberInput from "@/components/ValidPhoneNumber";
 import InputField from "@/components/InputField";
 import ReferredBySelect from "@/components/ReferredBySelect";
 import ProvincesSelect from "@/components/ProvincesSelect";
@@ -41,6 +42,14 @@ function sanitizeValues(values) {
     sanitizedValues[key] = sanitizeInput(values[key]);
   }
   return sanitizedValues;
+}
+
+function validatePhoneNumber(value) {
+  const phoneNumberPattern = /^\(\d{3}\) \d{3}-\d{4}$/;
+  if (value && !phoneNumberPattern.test(value)) {
+    return "Invalid phone number format";
+  }
+  return undefined;
 }
 
 function PreIntakeForm() {
@@ -199,6 +208,30 @@ function PreIntakeForm() {
         ) {
           errors.emergencyContactLastName =
             "The emergency contact last name can only contain letters and spaces";
+        }
+
+        const phoneNumberError = validatePhoneNumber(values.phoneNumber);
+        if (phoneNumberError) {
+          errors.phoneNumber = phoneNumberError;
+        }
+
+        const emergencyContactNumberError = validatePhoneNumber(
+          values.emergencyContactNumber
+        );
+        if (emergencyContactNumberError) {
+          errors.emergencyContactNumber = emergencyContactNumberError;
+        }
+
+        const cfsAgentNumberError = validatePhoneNumber(values.cfsAgentNumber);
+        if (cfsAgentNumberError) {
+          errors.cfsAgentNumber = cfsAgentNumberError;
+        }
+
+        const caseWorkerPhoneNumberError = validatePhoneNumber(
+          values.caseWorkerPhoneNumber
+        );
+        if (caseWorkerPhoneNumberError) {
+          errors.caseWorkerPhoneNumber = caseWorkerPhoneNumberError;
         }
 
         return errors;
@@ -447,16 +480,12 @@ function PreIntakeForm() {
 
           <Row>
             <Col md={3}>
-              <div>
-                <label htmlFor="phoneNumber">Phone Number:</label>
-                <Field type="number" id="phoneNumber" name="phoneNumber" />
-                <ErrorMessage
-                  name="phoneNumber"
-                  component={() => (
-                    <p className={styles.errorText}>{errors.phoneNumber}</p>
-                  )}
-                />
-              </div>
+              <Field
+                name="phoneNumber"
+                label="Phone Number:"
+                component={PhoneNumberInput}
+                placeholder="(123) 456-7890"
+              />
             </Col>
 
             <Col md={3}>
@@ -502,19 +531,11 @@ function PreIntakeForm() {
 
             <Col>
               <div>
-                <label htmlFor="emergencyContactNumber">Phone Number:</label>
                 <Field
-                  type="number"
-                  id="emergencyContactNumber"
                   name="emergencyContactNumber"
-                />
-                <ErrorMessage
-                  name="emergencyContactNumber"
-                  component={() => (
-                    <p className={styles.errorText}>
-                      {errors.emergencyContactNumber}
-                    </p>
-                  )}
+                  label="Emergency Contact Number:"
+                  component={PhoneNumberInput}
+                  placeholder="(123) 456-7890"
                 />
               </div>
             </Col>
@@ -619,20 +640,12 @@ function PreIntakeForm() {
 
           <Row>
             <Col md={4}>
-              <div>
-                <label htmlFor="cfsAgentNumber">Phone Number:</label>
-                <Field
-                  type="number"
-                  id="cfsAgentNumber"
-                  name="cfsAgentNumber"
-                />
-                <ErrorMessage
-                  name="cfsAgentNumber"
-                  component={() => (
-                    <p className={styles.errorText}>{errors.cfsAgentNumber}</p>
-                  )}
-                />
-              </div>
+              <Field
+                name="cfsAgentNumber"
+                label="CFS Agent Number:"
+                component={PhoneNumberInput}
+                placeholder="(123) 456-7890"
+              />
             </Col>
             <Col md={4}>
               <div>
@@ -711,8 +724,8 @@ function PreIntakeForm() {
               </Col>
               <Col md={3}>
                 <FirstNationSelect
-                  name="motherNation"
-                  label="Mother's First Nation Membership"
+                  name="fatherNation"
+                  label="Father's First Nation Membership"
                   error={errors.firstNationMembership}
                 />
               </Col>
@@ -1161,21 +1174,11 @@ function PreIntakeForm() {
           <Row>
             <Col md={4}>
               <div>
-                <label htmlFor="caseWorkerPhoneNumber">
-                  Case Worker Phone Number:
-                </label>
                 <Field
-                  type="number"
-                  id="caseWorkerPhoneNumber"
                   name="caseWorkerPhoneNumber"
-                />
-                <ErrorMessage
-                  name="caseWorkerPhoneNumber"
-                  component={() => (
-                    <p className={styles.errorText}>
-                      {errors.caseWorkerPhoneNumber}
-                    </p>
-                  )}
+                  label="Case Worker Phone Number:"
+                  component={PhoneNumberInput}
+                  placeholder="(123) 456-7890"
                 />
               </div>
             </Col>
