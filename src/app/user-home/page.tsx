@@ -1,13 +1,15 @@
-import Link from "next/link";
+"use server";
 
-export default function UserHome({ children }) {
+import Link from "next/link";
+import AdvocateLinker from "../../../components/link-advocate";
+
+export default async function UserHome({ children }) {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <header className="bg-blue-600 text-white p-4">
         <div className="container mx-auto flex justify-between items-center">
           <img src="/logoFNFAO.svg" alt="logo" />
-
           <h1 className="text-xl font-bold">User Dashboard</h1>
           <div className="space-x-4"></div>
         </div>
@@ -64,7 +66,10 @@ export default function UserHome({ children }) {
         </aside>
 
         {/* Main Section */}
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 p-6">
+          <AdvocateLinker />
+          {children}
+        </main>
       </div>
     </div>
   );
