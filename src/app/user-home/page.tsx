@@ -49,13 +49,13 @@ export default function UserHome({ children } : { children: ReactNode }) {
             </Link>
             <Link
               href="/youth-intake"
-              className="block text-gray-700 hover:bg-blue-100 p-2 rounded"
+              className="block text-white hover:text-gray-300 p-2 rounded"
             >
               Youth-Intake
             </Link>
             <Link
               href="/clients"
-              className="block text-gray-700 hover:bg-blue-100 p-2 rounded"
+              className="block text-white hover:text-gray-300 p-2 rounded"
             >
               Client List
             </Link>
