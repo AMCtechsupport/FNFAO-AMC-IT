@@ -14,7 +14,7 @@ import StatusCFSFileSelect from "@/components/StatusCFSFileSelect";
 import FirstNationSelect from "@/components/FirstNationSelect";
 import MartialStatusSelect from "@/components/MartialStatusSelect";
 
-import supabase from "../../lib/supabase";
+import supabase from "../lib/supabase";
 
 import {Tabs, TabList, Tab, TabPanel} from 'react-tabs';
 import 'react-tabs/style/react-tabs.css'
