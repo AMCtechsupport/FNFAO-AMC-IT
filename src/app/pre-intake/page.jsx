@@ -6,6 +6,7 @@ import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { Button, Container, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+import PhoneNumberInput from "@/components/ValidPhoneNumber";
 import InputField from "@/components/InputField";
 import ReferredBySelect from "@/components/ReferredBySelect";
 import ProvincesSelect from "@/components/ProvincesSelect";
@@ -35,6 +36,14 @@ function PreIntakeForm() {
       return "Please select an option"; // Error message if there is no selection
     }
   };
+
+  function validatePhoneNumber(value) {
+    const phoneNumberPattern = /^\(\d{3}\) \d{3}-\d{4}$/;
+    if (value && !phoneNumberPattern.test(value)) {
+      return "Invalid phone number format";
+    }
+    return undefined;
+  }
 
   return (
     <Formik
@@ -148,6 +157,29 @@ function PreIntakeForm() {
             errors.dateOfBirth = "Birth day must be between 01 and 31";
           }
         }
+        const phoneNumberError = validatePhoneNumber(values.phoneNumber);
+        if (phoneNumberError) {
+          errors.phoneNumber = phoneNumberError;
+        }
+
+        const emergencyContactNumberError = validatePhoneNumber(
+          values.emergencyContactNumber
+        );
+        if (emergencyContactNumberError) {
+          errors.emergencyContactNumber = emergencyContactNumberError;
+        }
+
+        values.children.forEach((child, index) => {
+          const childCfsAgentNumberError = validatePhoneNumber(
+            child.childCfsAgentNumber
+          );
+          if (childCfsAgentNumberError) {
+            if (!errors.children) errors.children = [];
+            if (!errors.children[index]) errors.children[index] = {};
+            errors.children[index].childCfsAgentNumber =
+              childCfsAgentNumberError;
+          }
+        });
 
         const addressRegex = /^[a-zA-Z0-9\s,.-]*$/;
         if (!addressRegex.test(values.address)) {
@@ -428,12 +460,12 @@ function PreIntakeForm() {
             <Col md={3}>
               <div>
                 <label htmlFor="phoneNumber">Phone Number:</label>
-                <Field type="number" id="phoneNumber" name="phoneNumber" />
-                <ErrorMessage
+                <Field
+                  type="number"
+                  id="phoneNumber"
                   name="phoneNumber"
-                  component={() => (
-                    <p className={styles.errorText}>{errors.phoneNumber}</p>
-                  )}
+                  component={PhoneNumberInput}
+                  placeholder="(123) 456-7890"
                 />
               </div>
             </Col>
@@ -480,14 +512,8 @@ function PreIntakeForm() {
                   type="number"
                   id="emergencyContactNumber"
                   name="emergencyContactNumber"
-                />
-                <ErrorMessage
-                  name="emergencyContactNumber"
-                  component={() => (
-                    <p className={styles.errorText}>
-                      {errors.emergencyContactNumber}
-                    </p>
-                  )}
+                  component={PhoneNumberInput}
+                  placeholder="(123) 456-7890"
                 />
               </div>
             </Col>
@@ -814,17 +840,8 @@ function PreIntakeForm() {
                                 type="number"
                                 id={`children.${index}.childCfsAgentNumber`}
                                 name={`children.${index}.childCfsAgentNumber`}
-                              />
-                              <ErrorMessage
-                                name={`children.${index}.childCfsAgentNumber`}
-                                component={() => (
-                                  <p className={styles.errorText}>
-                                    {
-                                      errors.children?.[index]
-                                        ?.childCfsAgentNumber
-                                    }
-                                  </p>
-                                )}
+                                component={PhoneNumberInput}
+                                placeholder="(123) 456-7890"
                               />
                             </div>
                           </Col>
