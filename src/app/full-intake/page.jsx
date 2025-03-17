@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from "react";
 import UserHome from "../user-home/page";
 import styles from "./fullIntake.module.css";
-import { Formik, Form, Field, ErrorMessage, FieldArray  } from "formik";
+import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { Button, Container, Row, Col } from "react-bootstrap";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
 
 import InputField from "@/components/InputField";
 import ReferredBySelect from "@/components/ReferredBySelect";
@@ -15,10 +15,10 @@ import FirstNationSelect from "@/components/FirstNationSelect";
 import MartialStatusSelect from "@/components/MartialStatusSelect";
 
 import supabase from "../lib/supabase";
+import supabase from "../lib/supabase";
 
-import {Tabs, TabList, Tab, TabPanel} from 'react-tabs';
-import 'react-tabs/style/react-tabs.css'
-
+import { Tabs, TabList, Tab, TabPanel } from "react-tabs";
+import "react-tabs/style/react-tabs.css";
 
 export default function FullIntake({client_id}) {
     const testClientId = client_id || "61";
@@ -254,77 +254,85 @@ function FullIntakeForm({client_id}){
                 validate={(values) => {
                     let errors = {};
 
-                    if (!values.firstName) {
-                        errors.firstName = "Please enter a name";
-                    } else if (!/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.firstName)) {
-                        errors.firstName = "The name can only contain letters and spaces";
-                    }
+          if (!values.firstName) {
+            errors.firstName = "Please enter a name";
+          } else if (!/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.firstName)) {
+            errors.firstName = "The name can only contain letters and spaces";
+          }
 
-                    if (values.middleName && !/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.middleName)) {
-                        errors.middleName = "The middle name can only contain letters and spaces";
-                    }
+          if (
+            values.middleName &&
+            !/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.middleName)
+          ) {
+            errors.middleName =
+              "The middle name can only contain letters and spaces";
+          }
 
-                    if (!values.lastName) {
-                        errors.lastName = "Please enter a last name";
-                    } else if (!/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.lastName)) {
-                        errors.lastName = "The last name can only contain letters and spaces";
-                    }
+          if (!values.lastName) {
+            errors.lastName = "Please enter a last name";
+          } else if (!/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.lastName)) {
+            errors.lastName =
+              "The last name can only contain letters and spaces";
+          }
 
-                    if (!values.dateOfBirth) {
-                        errors.dateOfBirth = "Please select a birth date";
-                    }else {
-                        const birthDate = new Date(values.dateOfBirth);
-                        const currentYear = new Date().getFullYear();
-                        const birthYear = birthDate.getFullYear();
+          if (!values.dateOfBirth) {
+            errors.dateOfBirth = "Please select a birth date";
+          } else {
+            const birthDate = new Date(values.dateOfBirth);
+            const currentYear = new Date().getFullYear();
+            const birthYear = birthDate.getFullYear();
 
-                        // Year validation
-                        if (birthYear > currentYear) {
-                            errors.dateOfBirth = "Birth year cannot be in the future";
-                        }
+            // Year validation
+            if (birthYear > currentYear) {
+              errors.dateOfBirth = "Birth year cannot be in the future";
+            }
 
-                        // Month validation
-                        const birthMonth = birthDate.getMonth() + 1;
-                        if (birthMonth < 1 || birthMonth > 12) {
-                            errors.dateOfBirth = "Birth month must be between 01 and 12";
-                        }
+            // Month validation
+            const birthMonth = birthDate.getMonth() + 1;
+            if (birthMonth < 1 || birthMonth > 12) {
+              errors.dateOfBirth = "Birth month must be between 01 and 12";
+            }
 
-                        // Day validation
-                        const birthDay = birthDate.getDate();
-                        if (birthDay < 1 || birthDay > 31) {
-                            errors.dateOfBirth = "Birth day must be between 01 and 31";
-                        }
-                    }
+            // Day validation
+            const birthDay = birthDate.getDate();
+            if (birthDay < 1 || birthDay > 31) {
+              errors.dateOfBirth = "Birth day must be between 01 and 31";
+            }
+          }
 
-                    if (!values.phoneNumber) {
-                        errors.phoneNumber = "Please enter a phone number";
-                    }
+          if (!values.phoneNumber) {
+            errors.phoneNumber = "Please enter a phone number";
+          }
 
-                    const addressRegex = /^[a-zA-Z0-9\s,.-]*$/;
-                    if (!values.address) {
-                        errors.address = "Please enter an address";
-                    } else if (!addressRegex.test(values.address)) {
-                        errors.address = "The address contains invalid characters";
-                    }
+          const addressRegex = /^[a-zA-Z0-9\s,.-]*$/;
+          if (!values.address) {
+            errors.address = "Please enter an address";
+          } else if (!addressRegex.test(values.address)) {
+            errors.address = "The address contains invalid characters";
+          }
 
-                    if (!values.city) {
-                        errors.city = "Please enter a city";
-                    } else if (!/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.city)) {
-                        errors.city = "The city can only contain letters and spaces";
-                    }
+          if (!values.city) {
+            errors.city = "Please enter a city";
+          } else if (!/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.city)) {
+            errors.city = "The city can only contain letters and spaces";
+          }
 
-                    if (!values.province) {
-                        errors.province = "Please select a province";
-                    }
+          if (!values.province) {
+            errors.province = "Please select a province";
+          }
 
-                    if (values.postalCode && !/^[A-Z]\d[A-Z] \d[A-Z]\d$/.test(values.postalCode)) {
-                        errors.postalCode = "Invalid postal code format (e.g., A1A 1A1)";
-                    }
+          if (
+            values.postalCode &&
+            !/^[A-Z]\d[A-Z] \d[A-Z]\d$/.test(values.postalCode)
+          ) {
+            errors.postalCode = "Invalid postal code format (e.g., A1A 1A1)";
+          }
 
-                    if (!values.email) {
-                        errors.email = "Please enter an email";
-                    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
-                        errors.email = "Invalid email format";
-                    }
+          if (!values.email) {
+            errors.email = "Please enter an email";
+          } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
+            errors.email = "Invalid email format";
+          }
 
                     // if (!values.emergencyContactFirstName) {
                     //     errors.emergencyContactFirstName = "Please provide an emergency contact first name.";
@@ -871,3 +879,4 @@ function FullIntakeForm({client_id}){
         </div>
     );
 }
+

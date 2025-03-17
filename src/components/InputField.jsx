@@ -1,17 +1,35 @@
-
 import React from "react";
 import { Field, ErrorMessage } from "formik";
-import styles from "@/app/pre-intake/preIntake.module.css";
+import InputMask from "react-input-mask";
 
-const InputField = ({ name, label, placeholder, error, disabled }) => {
-
-    return (
-        <>
-            <label htmlFor={name}>{label}</label>
-            <Field  type="text" id={name} name={name} placeholder={placeholder} disabled={disabled}/>
-            <ErrorMessage name={name} component={() => <p className={styles.errorText}>{error}</p>} />
-        </>
-    );
-}
+const InputField = ({ label, name, type = "text", placeholder, error }) => {
+  return (
+    <div className="form-group">
+      <label htmlFor={name}>{label}</label>
+      {type === "phoneNumber" ? (
+        <Field name={name}>
+          {({ field }) => (
+            <InputMask
+              {...field}
+              mask="(999) 999-9999"
+              maskChar=""
+              className="form-control"
+              placeholder={placeholder}
+            />
+          )}
+        </Field>
+      ) : (
+        <Field
+          type={type}
+          id={name}
+          name={name}
+          className="form-control"
+          placeholder={placeholder}
+        />
+      )}
+      <ErrorMessage name={name} component="div" className="text-danger" />
+    </div>
+  );
+};
 
 export default InputField;
