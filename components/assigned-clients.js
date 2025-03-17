@@ -125,7 +125,7 @@ export default function AssignedClientsToAdvocate({ advocateId }) {
                 </p>
                 <p className="text-sm text-gray-700">
                   <span className="font-semibold">
-                    First Nation Membership:
+                    First Nation Membership:{" "}
                   </span>
                   {assignment.Clients.firstNationMembership}
                 </p>

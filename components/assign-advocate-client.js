@@ -1,5 +1,6 @@
 "use client";
 
+import { updateClientStatus } from "./client-active";
 import { useState, useEffect } from "react";
 import supabase from "../src/app/lib/supabase";
 
@@ -126,6 +127,9 @@ export default function AssignAdvocate() {
         setMessage("Advocate successfully assigned to the client.");
         setShowPopup(true);
 
+        // Update client status to 'Active' after successful assignment
+        await updateClientStatus(selectedClient.client_id);
+
         // Reset selection and fetch fresh data
         setSelectedClient(null);
         setSelectedAdvocate("");
@@ -137,7 +141,6 @@ export default function AssignAdvocate() {
       setShowPopup(true);
     }
   };
-
   // Function to clear the form
   const handleClearForm = () => {
     setSearchClient("");
@@ -190,11 +193,16 @@ export default function AssignAdvocate() {
                   <br />
                   <span className="text-sm text-gray-600">
                     ID: {client.client_id} | {client.phoneNumber} |{" "}
+                    {client.firstNationMembership} |{" "}
                     {new Date(client.dateOfBirth).toLocaleDateString("en-US", {
                       year: "numeric",
                       month: "long",
                       day: "numeric",
                     })}
+                  </span>
+
+                  <span className="text-sm text-gray-600 block">
+                    Client Status: {client.clientStatus}
                   </span>
                 </li>
               ))}
