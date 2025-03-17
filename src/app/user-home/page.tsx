@@ -26,13 +26,13 @@ export default function UserHome({ children }: { children: ReactNode }) {
               Dashboard
             </a>
             <a
-              href="#"
+              href="profile"
               className="block text-white hover:text-gray-300 p-2 rounded"
             >
               Profile
             </a>
             <a
-              href="#"
+              href="/settings"
               className="block text-white hover:text-gray-300 p-2 rounded"
             >
               Settings
