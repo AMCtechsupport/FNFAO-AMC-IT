@@ -3,11 +3,11 @@ import React from "react";
 import { Field } from "formik";
 import styles from "@/app/pre-intake/preIntake.module.css";
 
-const FirstNationSelect = ({name, label, error }) => {
+const FirstNationSelect = ({name, label, error, disabled }) => {
     return(
         <>
             <label htmlFor="province">{label}:</label>
-            <Field as="select" name={name} className={styles.select}>
+            <Field as="select" name={name} className={styles.select} disabled={disabled}>
                 <option value="">Select a first nation</option>
                 <option value="barren_lands">Barren Lands First Nation (Brochet)</option>
                 <option value="berens_river">Berens River First Nation</option>

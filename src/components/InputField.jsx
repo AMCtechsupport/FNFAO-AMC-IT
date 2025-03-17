@@ -2,7 +2,7 @@ import React from "react";
 import { Field, ErrorMessage } from "formik";
 import InputMask from "react-input-mask";
 
-const InputField = ({ label, name, type = "text", placeholder, error }) => {
+const InputField = ({ label, name, type = "text", placeholder, error, disabled }) => {
   return (
     <div className="form-group">
       <label htmlFor={name}>{label}</label>
