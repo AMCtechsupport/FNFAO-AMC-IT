@@ -1,23 +1,41 @@
 import Link from "next/link";
-import {
-  ClerkProvider,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/nextjs";
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
 export default function Header() {
   return (
     <>
+      {/* Header for unauthenticated users */}
       <SignedOut>
-        <SignInButton />
+        <header className="bg-black text-white">
+          <div className="flex justify-between p-4">
+            <div className="flex-1"></div> {/* Pushes content to the right */}
+            <SignInButton>Sign In</SignInButton>
+          </div>
+        </header>
       </SignedOut>
+
+      {/* Header for authenticated users */}
       <SignedIn>
-        <UserButton />
+        <header className="bg-black text-white">
+          <div className="flex justify-between items-center p-4">
+            {/* Logo */}
+            <img src="/logoDataHub.png" alt="logo" />
+
+            {/* Navigation links and auth button */}
+            <div className="flex items-center space-x-4">
+              <Link href="/" className="text-white hover:text-gray-300">
+                Home
+              </Link>
+              <Link href="/user-home" className="text-white hover:text-gray-300">
+                Dashboard
+              </Link>
+
+              {/* Authenticated user button */}
+              <UserButton />
+            </div>
+          </div>
+        </header>
       </SignedIn>
-      <Link href="/">Home Page</Link>
-      <Link href="/user-home"> User Dashboard</Link>
     </>
   );
 }
