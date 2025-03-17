@@ -117,7 +117,7 @@ const FirstNationManagement = () => {
             />
             <button
               onClick={handleAddFirstNation}
-              className="mt-4 w-full p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-4 w-full p-3 bg-blue-600 text-black rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               Add New First Nation
             </button>

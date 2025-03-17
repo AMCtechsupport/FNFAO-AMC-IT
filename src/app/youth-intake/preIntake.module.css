@@ -1,5 +1,5 @@
-.preIntakeContainer {
-  background: #e8e8e8;
+.fullIntakeContainer {
+  background: #cccccc;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -16,7 +16,8 @@
 }
 
 .form {
-  min-width: 600px;
+  width: 100%; /* Width relative to the container */
+  max-width: 1000px; /* Maximum width for larger screens */
   margin-top: 50px;
   background: #fff;
   border-radius: 5px;
@@ -56,23 +57,30 @@
 
 .successfulText {
   color: rgb(9, 158, 4);
-  font-size: 14px;
+  font-size: 16px;
   margin-top: 5px;
+  font-weight: bold;
 }
 
-/* Button  */
-.submitButton {
-  background-color: #007bff;
+/* Button */
+.submitButton,
+.customAddButton,
+.customDeleteButton,
+.cancelButton {
+  background-color: black;
   color: white;
-  padding: 10px 15px;
+  padding: 10px 20px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
+  width: 100%; /* Button width */
 }
 
-.submitButton:hover {
-  background-color: #0056b3;
+.submitButton:hover,
+.customAddButton:hover,
+.customDeleteButton:hover {
+  background-color: #333;
 }
 
 .form select {
@@ -85,7 +93,7 @@
   margin-bottom: 5px;
   color: #1f1f1f;
   background-color: white;
-  appearance: none; /* Removes the system default style*/
+  appearance: none; /* Removes the system default style */
   cursor: pointer;
 }
 
@@ -95,8 +103,7 @@
   box-shadow: rgba(0, 123, 255, 0.25) 0px 0px 5px;
 }
 
-/* ----- */
-
+/* Radio buttons */
 .radio-inline {
   display: inline-flex;
   align-items: center;
@@ -119,40 +126,38 @@
   text-transform: uppercase;
 }
 
-/* Backgroud color for children pre-intake */
+/* Background color for children pre-intake */
 .bglightgrey {
-  background-color: #dfdce7;
-}
-
-.customDeleteButton {
-  background-color: rgb(98, 0, 255);
-  color: white;
-  border: none;
+  background-color: #f9f9f9;
   padding: 10px 20px;
   border-radius: 5px;
-  cursor: pointer;
 }
 
-.customAddButton {
-  background-color: green;
-  color: white;
-  border: none;
-  padding: 10px 20px;
+.tabsContainer {
+  background-color: #f9f9f9;
+  padding: 40px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 8px;
+}
+
+/* Select component */
+select:disabled {
+  background-color: #f0f0f0; /* Background color to indicate disabled */
+  cursor: not-allowed; /* Changes the cursor to indicate disabled */
+}
+
+/* Tabs */
+:global(.react-tabs__tab--selected) {
+  background-color: #212529 !important; /* Ensures the color is applied */
+  color: white !important;
+  font-weight: bold;
   border-radius: 5px;
-  cursor: pointer;
+}
 
-  .form-check {
-    display: flex;
-    align-items: center; /* Center vertically */
-    justify-content: space-between; /* Space between text and checkbox */
-  }
-
-  .form-check-label {
-    margin-right: 8px; /* Space between label and checkbox */
-  }
-
-  .form-check-input {
-    width: 1rem !important;
-    height: 1rem !important;
-  }
+/* TabPanel */
+:global(.react-tabs__tab-panel--selected) {
+  background-color: #f0f0f0;
+  padding: 20px;
+  border-radius: 5px;
 }
