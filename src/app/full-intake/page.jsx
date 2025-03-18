@@ -6,6 +6,7 @@ import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { Button, Container, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+import PhoneNumberInput from "@/components/ValidPhoneNumber";
 import InputField from "@/components/InputField";
 import ReferredBySelect from "@/components/ReferredBySelect";
 import ProvincesSelect from "@/components/ProvincesSelect";
@@ -589,14 +590,6 @@ function FullIntakeForm({ client_id }) {
                         id="phoneNumber"
                         name="phoneNumber"
                         disabled={!isEditing}
-                      />
-                      <ErrorMessage
-                        name="phoneNumber"
-                        component={() => (
-                          <p className={styles.errorText}>
-                            {errors.phoneNumber}
-                          </p>
-                        )}
                       />
                     </div>
                   </Col>
