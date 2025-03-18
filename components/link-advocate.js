@@ -1,10 +1,12 @@
-// src/app/link-advocate.js
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useUser } from "@clerk/clerk-react";
 import { linkAdvocate } from "../src/app/lib/link-advocate-server";
+import supabase from "@/app/lib/supabase";
 
 const LinkAdvocate = () => {
+  const { user } = useUser();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -13,7 +15,32 @@ const LinkAdvocate = () => {
 
   const handleLinkAdvocate = async (e) => {
     e.preventDefault();
+
+    // Make sure the user is logged in before checking the database
+    if (!user) {
+      setError("User is not authenticated.");
+      return;
+    }
+
+    // Check if the email or clerk_user_id already exists in the database
+    const { data, error: checkError } = await supabase
+      .from("Advocates")
+      .select("advocate_id")
+      .eq("clerk_user_id", user.id)
+      .limit(1);
+
+    if (checkError) {
+      console.error("Error checking advocate existence:", checkError.message);
+    }
+
+    // If advocate already exists, prevent linking again
+    if (data && data.length > 0) {
+      setError("You are already registered as an advocate.");
+      return;
+    }
+
     try {
+      // Proceed to link advocate if not already linked
       const data = await linkAdvocate(firstName, lastName, email);
       setSuccess("Advocate linked successfully!");
       console.log("Advocate linked successfully:", data);
@@ -81,13 +108,13 @@ const LinkAdvocate = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border mb-4 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         <button
           type="submit"
-          className="w-full py-3 bg-blue-500 text-white rounded-md font-semibold hover:bg-blue-600 transition"
+          className="w-full py-2 bg-blue-500 text-white rounded-md font-semibold hover:bg-blue-600 transition"
         >
           Link Advocate
         </button>
