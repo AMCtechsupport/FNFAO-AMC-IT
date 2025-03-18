@@ -20,7 +20,7 @@ export default function UserHome({ children }: { children: ReactNode }) {
         <aside className="w-64 bg-black p-4 border-r">
           <nav className="space-y-4">
             <a
-              href="#"
+              href="user-dashboard"
               className="block text-white hover:text-purple-600 hover:font-bold transition-colors p-2 rounded"
             >
               Dashboard
