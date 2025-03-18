@@ -14,6 +14,8 @@ import StatusCFSFileSelect from "@/components/StatusCFSFileSelect";
 import FirstNationSelect from "@/components/FirstNationSelect";
 import MartialStatusSelect from "@/components/MartialStatusSelect";
 
+import { handleNotesUpdate } from "../utils/notesUpdates"; // handles updates to the Notes table
+
 import supabase from "../lib/supabase";
 
 
@@ -126,6 +128,7 @@ const handleChildrenUpdate = async (children, client_id, setChildrenData ) => {
 function FullIntakeForm({client_id}){
     const [originalData, setOriginalData] = useState(null);
     const [childrenData, setChildrenData] = useState([]); // State for children
+    const [notesData, setNotesData] = useState([]); // State for case notes
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false); // state to enable/disable fields
     const [formSent, setFormSent] = useState(false);
@@ -161,7 +164,19 @@ function FullIntakeForm({client_id}){
             } else {
                 console.log("Children Data:", children);
                 setChildrenData(children || []);
+            }
 
+            // Gets the case notes associated with the client
+            const {data: notes, error: notesError} = await supabase
+                .from("Notes")
+                .select("*")
+                .eq("client_id", client_id );
+
+            if (notesError){
+                console.error("Error fetching notes data:", notesError.message || notesError);
+            }else {
+                console.log("Notes Data:", notes);
+                setNotesData(notes || []);
             }
 
             setLoading(false);
@@ -247,7 +262,12 @@ function FullIntakeForm({client_id}){
                         // unableToAssistExplained: "",
                         // referForSupport : "",
                         martialStatus: originalData?.martialStatus || "",
-                        children: childrenData || []
+                        dateModified : originalData?.dateModified ? originalData.dateModified.split("T")[0] : "",
+                        modifiedBy: originalData?.modifiedBy || "",
+                        createdAt: originalData?.createdAt ? originalData.createdAt.split("T")[0] : "",
+
+                        children: childrenData || [],
+                        notes: notesData || []
                     }
                 }
                 enableReinitialize
@@ -379,8 +399,9 @@ function FullIntakeForm({client_id}){
                         // Check if values are different from the original data
                         const isClientUnchanged = JSON.stringify(values) === JSON.stringify(originalData);
                         const isChildrenUnchanged = JSON.stringify(values.children) === JSON.stringify(childrenData);
+                        const isNotesUnchanged = JSON.stringify(values.notes) === JSON.stringify(notesData);
 
-                        if (isClientUnchanged && isChildrenUnchanged) {
+                        if (isClientUnchanged && isChildrenUnchanged && isNotesUnchanged) {
                             console.warn("Warning: No changes detected, skipping update.");
                             setIsEditing(false);
                             return;
@@ -389,7 +410,7 @@ function FullIntakeForm({client_id}){
                         console.log("Updating Clients with values:", values);
                         const { children, ...clientValues } = values; // Extract 'children' and leave only the 'Clients' values
 
-                        // Attempt to update data in Supabase
+                        // Updates data in Supabase
                         const { data, error} = await supabase
                             .from("Clients")
                             .update(clientValues)
@@ -409,12 +430,19 @@ function FullIntakeForm({client_id}){
                             console.log("Update successful. Updated data:", data);
 
                             console.log("Updating Children with values:", values.children);
+
                             // Call `handle Children Update` to update the children in the database
                             const childrenUpdateSuccess = await handleChildrenUpdate(values.children, client_id, setChildrenData);
                             console.log("Children update result:", childrenUpdateSuccess);
-
                             if (!childrenUpdateSuccess) {
                                 console.error("Error updating children data.");
+                            }
+
+                            // Call `handle Notes Update` to update the notes in the database
+                            const notesUpdateSuccess = await handleNotesUpdate(values.notes, client_id, setNotesData);
+                            console.log("Notes update result:", notesUpdateSuccess);
+                            if (!notesUpdateSuccess){
+                                console.error("Error update notes data.");
                             }
 
                             // UPDATE originalData with the new values
@@ -439,6 +467,15 @@ function FullIntakeForm({client_id}){
                     <Form className={styles.form}>
                         <h2 className={styles.centeredTitle}>FULL-INTAKE FORM</h2>
                         <div >
+                            <Row>
+                                {/* <Col><label><strong>Created At:</strong></label> <div>{Formik.values?.createdAt}</div></Col> */}
+                                <Col md={3}><InputField name="createdAt" label="Created At:" placeholder="" error={errors.createdAt} disabled={false} /></Col>
+                                <Col></Col>
+                                <Col md={3}>
+                                    <InputField name="dateModified" label="Last updated:" placeholder="" error={errors.dateModified} disabled={!isEditing} />
+                                </Col>
+                                <Col md={3}><InputField name="modifiedBy" label="Updated by:" placeholder="" error={errors.modifiedBy} disabled={!isEditing} /></Col>
+                            </Row>
                             <Row >
                                 <Col md={3}>
                                     <InputField name="firstName" label="First Name:" placeholder="John" error={errors.firstName} disabled={!isEditing} />
@@ -752,7 +789,11 @@ function FullIntakeForm({client_id}){
                                                             .sort((a, b) => a.child_id - b.child_id) // Sort children by ascending child_id
                                                             .map((child, index) => (
                                                             <div key={`${child.child_id}-${index}`} className={`${styles.bglightgrey} border rounded p-2 mb-3`} >
-
+                                                                <Row className="mb-2">
+                                                                    <Col>
+                                                                        <h5>Child ID. {child.child_id}</h5>
+                                                                    </Col>
+                                                                </Row>
                                                                 <Row className="align-items-center">
                                                                     <Col md={3}>
                                                                         <InputField name={`children.${index}.firstName`} label="First Name:" disabled={!isEditing} />
@@ -853,7 +894,32 @@ function FullIntakeForm({client_id}){
                                     </TabPanel>
                                     <TabPanel>Tab panel Community housingSupport   </TabPanel>
                                     <TabPanel>Tab panel Employment  </TabPanel>
-                                    <TabPanel>Tab panel Case notes   </TabPanel>
+                                    <TabPanel>
+                                        {/* Case Notes Tab */}
+
+                                        <Row>
+                                            <Col md={3}><InputField name="createdAt" label="Created At:" placeholder="" error={errors.createdAt} disabled={false} /></Col>
+                                                <Col></Col>
+                                                <Col md={3}>
+                                                    <InputField name="dateModified" label="Last updated:" placeholder="" error={errors.dateModified} disabled={!isEditing} />
+                                                </Col>
+
+                                                <Col md={3}><InputField name="modifiedBy" label="Updated by:" placeholder="" error={errors.modifiedBy} disabled={!isEditing} /></Col>
+                                            </Row>
+                                        <Row>
+                                            <Col md={6}>
+                                                <label>Case Note:</label>
+                                                <Field as="textarea" name="addictionsSupportSpecified" className={styles.textarea} disabled={!isEditing} />
+                                                <ErrorMessage name="addictionsSupportSpecified" component="div" className={styles.errorText} />
+                                            </Col>
+                                            <Col md={6}>
+                                                <label>Action Plan:</label>
+                                                <Field as="textarea" name="addictionsSupportSpecified" className={styles.textarea} disabled={!isEditing} />
+                                                <ErrorMessage name="addictionsSupportSpecified" component="div" className={styles.errorText} />
+                                            </Col>
+                                        </Row>
+
+                                    </TabPanel>
                                     <TabPanel>Tab panel Legal notes   </TabPanel>
                                 </Tabs>
                             </div>
