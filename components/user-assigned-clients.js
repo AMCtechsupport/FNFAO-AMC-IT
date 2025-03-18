@@ -29,19 +29,30 @@ export default function AssignedClientsList({ advocateId }) {
 
         // Handle search query
         if (searchQuery) {
-          const isNumeric = !isNaN(searchQuery);
-
-          if (isNumeric) {
+          if (!isNaN(searchQuery)) {
             // If searchQuery is numeric, search by client_id
             query = query.eq("Clients.client_id", parseInt(searchQuery, 10));
           } else {
-            // Apply 'ilike' conditions for each client field separately
-            query = query
-              .ilike("Clients.firstName", `%${searchQuery}%`)
-              .or(`Clients.middleName.ilike.%${searchQuery}%`)
-              .or(`Clients.lastName.ilike.%${searchQuery}%`);
+            setError("Please enter a valid numeric value for the client ID.");
+            setAssignedClients([]);
+            setLoading(false);
+            return;
           }
         }
+        // if (searchQuery) {
+        //   const isNumeric = !isNaN(searchQuery);
+
+        //   if (isNumeric) {
+        //     // If searchQuery is numeric, search by client_id
+        //     query = query.eq("Clients.client_id", parseInt(searchQuery, 10));
+        //   } else {
+        //     // Apply 'ilike' conditions for each client field separately
+        //     query = query
+        //       .ilike("Clients.firstName", `%${searchQuery}%`)
+        //       .or(`Clients.middleName.ilike.%${searchQuery}%`)
+        //       .or(`Clients.lastName.ilike.%${searchQuery}%`);
+        //   }
+        // }
 
         // Get the total number of clients
         const { count, error: countError } = await query.select(
@@ -108,7 +119,7 @@ export default function AssignedClientsList({ advocateId }) {
         <div className="mb-4">
           <input
             type="text"
-            placeholder="Search by ID"
+            placeholder="Search by Client ID"
             value={searchQuery}
             onChange={handleSearchChange}
             className="p-2 border rounded-md w-full"
