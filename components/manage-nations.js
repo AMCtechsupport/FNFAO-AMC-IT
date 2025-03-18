@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import supabase from "@/app/lib/supabase"; // Adjust according to your file structure
+import supabase from "@/app/lib/supabase";
 
 const FirstNationManagement = () => {
   const [firstNations, setFirstNations] = useState([]);
@@ -44,7 +44,7 @@ const FirstNationManagement = () => {
         ...firstNations,
         { firstNationMembership: newFirstNation },
       ]);
-      setNewFirstNation(""); // Clear the input after adding
+      setNewFirstNation("");
     }
   };
 

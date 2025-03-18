@@ -13,6 +13,7 @@ import ProvincesSelect from "@/components/ProvincesSelect";
 import RelationshipToChildrenSelect from "@/components/RelationshipToChildrenSelect";
 import StatusCFSFileSelect from "@/components/StatusCFSFileSelect";
 import FirstNationSelect from "@/components/FirstNationSelect";
+import ManageCfsAgencies from "@/components/ManageCfsAgencies";
 
 import supabase from "../lib/supabase";
 
@@ -233,6 +234,27 @@ function PreIntakeForm() {
           errors.sixPersonalHealthNumber = "Must be exactly 6 digits";
         }
 
+        if (
+          values.criminalCharges === "yes" &&
+          !values.criminalChargesSpecified
+        ) {
+          errors.criminalChargesSpecified = "Please specify why.";
+        }
+
+        if (values.activeWarrant === "yes" && !values.activeWarrantSpecified) {
+          errors.activeWarrantSpecified = "Please specify why.";
+        }
+
+        if (
+          values.criminalCharges === "yes" &&
+          !values.activeInvestigationExplained
+        ) {
+          errors.activeInvestigationExplained = "Please select a start date.";
+        }
+        if (values.activeOrders === "yes" && !values.activeOrdersExplained) {
+          errors.activeOrdersExplained = "Please specify why.";
+        }
+
         return errors;
       }}
       onSubmit={async (values, { resetForm }) => {
@@ -364,7 +386,7 @@ function PreIntakeForm() {
         }
       }}
     >
-      {({ values, errors, touched }) => (
+      {({ values, setFieldValue, errors, touched }) => (
         <Form className={styles.form}>
           <h2 className={styles.centeredTitle}>PRE-INTAKE FORM</h2>
           <Row>
@@ -818,9 +840,10 @@ function PreIntakeForm() {
                         <Row className="mt-2">
                           <h5 className="text-dark">Agency Information</h5>
                           <Col md={4}>
-                            <InputField
+                            <ManageCfsAgencies
                               name={`children.${index}.childCfsAgency`}
-                              label="CFS Agency Name:"
+                              value={values.children[index].childCfsAgency}
+                              setFieldValue={setFieldValue}
                             />
                           </Col>
                           <Col md={4}>
@@ -879,6 +902,7 @@ function PreIntakeForm() {
                               error={
                                 errors.children?.[index]?.childStatusCfsFile
                               }
+                              setFieldValue={setFieldValue}
                             />
                           </Col>
                         </Row>

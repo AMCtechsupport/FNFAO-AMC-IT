@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import supabase from "@/app/lib/supabase"; // Adjust according to your file structure
+import supabase from "@/app/lib/supabase";
 
 const CFSAgenciesManagement = () => {
-  const [cfsAgencies, setCfsAgencies] = useState([]); // Changed to cfsAgencies
-  const [newCfsAgency, setNewCfsAgency] = useState(""); // Changed to newCfsAgency
+  const [cfsAgencies, setCfsAgencies] = useState([]);
+  const [newCfsAgency, setNewCfsAgency] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -14,8 +14,8 @@ const CFSAgenciesManagement = () => {
     const fetchCfsAgencies = async () => {
       setIsLoading(true);
       const { data, error } = await supabase
-        .from("CFS Agencies") // Table name changed to "CFS Agencies"
-        .select("agencyName"); // Field changed to agencyName
+        .from("CFS Agencies")
+        .select("agencyName");
 
       if (error) {
         setError("Error fetching CFS agencies");
@@ -35,24 +35,24 @@ const CFSAgenciesManagement = () => {
     if (newCfsAgency.trim() === "") return;
 
     const { data, error } = await supabase
-      .from("CFS Agencies") // Table name changed to "CFS Agencies"
-      .insert([{ agencyName: newCfsAgency }]); // Field changed to agencyName
+      .from("CFS Agencies")
+      .insert([{ agencyName: newCfsAgency }]);
 
     if (error) {
       setError("Error adding new CFS Agency");
       console.error("Error adding new CFS Agency:", error);
     } else {
       setCfsAgencies([...cfsAgencies, { agencyName: newCfsAgency }]);
-      setNewCfsAgency(""); // Clear the input after adding
+      setNewCfsAgency("");
     }
   };
 
   // Handle removing a CFS Agency from the table
   const handleRemoveCfsAgency = async (agencyName) => {
     const { data, error } = await supabase
-      .from("CFS Agencies") // Table name changed to "CFS Agencies"
+      .from("CFS Agencies")
       .delete()
-      .eq("agencyName", agencyName); // Field changed to agencyName
+      .eq("agencyName", agencyName);
 
     if (error) {
       setError("Error removing CFS Agency");

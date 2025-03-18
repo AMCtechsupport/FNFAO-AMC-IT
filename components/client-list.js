@@ -117,10 +117,7 @@ export default function ClientsList({ initialClients, totalCount }) {
         <>
           <ul className="divide-y divide-gray-600">
             {clients.map((client) => (
-              <li
-                key={client.client_id}
-                className="py-2 border-b-2 border-gray-600"
-              >
+              <li key={client.client_id} className=" border-gray-600">
                 <div className="text-left p-2 border-2 border-gray-700 rounded-lg mb-4 shadow-sm bg-white">
                   <ul className="text-lg font-bold text-gray-900">
                     <Link href={`clients/${client.client_id}`}>
