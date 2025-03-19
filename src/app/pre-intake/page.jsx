@@ -15,6 +15,7 @@ import StatusCFSFileSelect from "@/components/StatusCFSFileSelect";
 import FirstNationSelect from "@/components/FirstNationSelect";
 import ManageCfsAgencies from "@/components/ManageCfsAgencies";
 
+import { useUser } from "@clerk/clerk-react";
 import supabase from "../lib/supabase";
 
 export default function PreIntake() {
@@ -30,6 +31,7 @@ export default function PreIntake() {
 }
 
 function PreIntakeForm() {
+  const { user } = useUser();
   const [formSent, setFormSent] = useState(false);
 
   const validateRadio = (value) => {
@@ -303,7 +305,12 @@ function PreIntakeForm() {
           // Insert client data into the 'Clients' table
           const { data: client, error: clientError } = await supabase
             .from("Clients")
-            .insert([clientData])
+            .insert([
+              {
+                ...clientData,
+                createdBy: user.id,
+              },
+            ])
             .select(); // Retrieve inserted data to get the client ID
 
           if (clientError) {
