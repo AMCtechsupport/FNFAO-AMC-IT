@@ -2,7 +2,7 @@ import supabase from "../lib/supabase";
 
 export async function handleNotesUpdate (notes, client_id, setNotesData ){
     try {
-        // Gets the current children in the database
+        // Gets the current notes in the database
         const { data: existingNotes, error: fetchError } = await supabase
             .from("Notes")
             .select("*")
@@ -12,6 +12,8 @@ export async function handleNotesUpdate (notes, client_id, setNotesData ){
             console.error("Error fetching existing notes: ", fetchError);
             return false;
         }
+
+        console.log("Existing Notes in DB:", existingNotes); // quitar
 
         const existingNotesIds = existingNotes.map(note => note.note_id); // Extracts note_id from existingNotes
         const newNotes = [];
@@ -72,7 +74,7 @@ export async function handleNotesUpdate (notes, client_id, setNotesData ){
         const { data: updatedNotesList, error: fetchUpdatedNotesError } = await supabase
         .from("Notes")
         .select("*")
-        .eq("note_id", note_id);
+        .eq("client_id", client_id);
 
         if (fetchUpdatedNotesError) {
             console.error("Error fetching updated note:", fetchUpdatedNotesError);

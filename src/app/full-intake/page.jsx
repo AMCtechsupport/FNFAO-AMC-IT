@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import UserHome from "../user-home/page";
 import styles from "./fullIntake.module.css";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
-import { Button, Container, Row, Col } from "react-bootstrap";
+import { Button, Container, Row, Col, Modal } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 import InputField from "@/components/InputField";
@@ -15,6 +15,7 @@ import FirstNationSelect from "@/components/FirstNationSelect";
 import MartialStatusSelect from "@/components/MartialStatusSelect";
 
 import { handleNotesUpdate } from "../utils/notesUpdates"; // handles updates to the Notes table
+
 
 import supabase from "../lib/supabase";
 
@@ -132,6 +133,18 @@ function FullIntakeForm({client_id}){
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false); // state to enable/disable fields
     const [formSent, setFormSent] = useState(false);
+
+    const [selectedNote, setSelectedNote] = useState(null);
+    const [selectedAddNote, setSelectedAddNote] = useState(null);
+
+    const handleShowNoteDetails = (note) => {
+        setSelectedNote(note); // Save the selected note
+    };
+
+    const handleCloseNoteDetails = () => {
+        setSelectedNote(null); // Close the note details
+    };
+
 
     // Load client and children data when opening the form
     useEffect(() => {
@@ -407,8 +420,15 @@ function FullIntakeForm({client_id}){
                             return;
                         }
 
+                        // ----------------
                         console.log("Updating Clients with values:", values);
-                        const { children, ...clientValues } = values; // Extract 'children' and leave only the 'Clients' values
+                        const { children, notes, ...clientValues } = values; // Extract 'children', 'notes'  and leave only the 'Clients' values
+
+                        // console.log("Values before updating Clients:", JSON.stringify(clientValues, null, 2)); //quitar
+                        // console.log("Updating client_id:", client_id);//quitar
+                        // console.log("Children data before update:", JSON.stringify(values.children, null, 2)); //quitar
+                        // console.log("Notes data before update:", JSON.stringify(values.notes, null, 2)); //quitar
+
 
                         // Updates data in Supabase
                         const { data, error} = await supabase
@@ -421,7 +441,9 @@ function FullIntakeForm({client_id}){
 
                         // If there's an error, print it and exit
                         if (error) {
-                            console.error("Error updating data:", error);
+                            // console.error("Error updating data:", error);
+                            console.error("Error updating Clients data:", JSON.stringify(error, null, 2));
+
                             return;
                         }
 
@@ -702,6 +724,7 @@ function FullIntakeForm({client_id}){
                                         </Row>
                                     </TabPanel>
                                     <TabPanel>
+                                        {/* CFS Tab */}
                                         {childrenData.length === 0 ? (
                                             <p>No children found for this client.</p>
                                         ) : (
@@ -897,28 +920,145 @@ function FullIntakeForm({client_id}){
                                     <TabPanel>
                                         {/* Case Notes Tab */}
 
-                                        <Row>
-                                            <Col md={3}><InputField name="createdAt" label="Created At:" placeholder="" error={errors.createdAt} disabled={false} /></Col>
-                                                <Col></Col>
+                                        {notesData.length === 0 ? (
+                                            <p>No notes found for this client.</p>
+                                        ) : (
+                                            <>
+                                                {/* Mostrar la tabla de notas */}
+                                                {!selectedNote && (
+                                                    <table className="table table-striped table-bordered">
+                                                        <thead className="table-dark">
+                                                            <tr>
+                                                                <th>Note ID</th>
+                                                                <th>Created At</th>
+                                                                <th>Type</th>
+                                                                <th></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {notesData.map((note) => (
+                                                                <tr key={note.note_id}>
+                                                                    <td>{note.note_id}</td>
+                                                                    <td>{note.createdAt}</td>
+                                                                    <td>{note.type}</td>
+                                                                    <td>
+                                                                        <Button
+                                                                            className="btn btn-primary btn-sm"
+                                                                            onClick={() => handleShowNoteDetails(note)}
+
+                                                                        >
+                                                                            See Note
+                                                                        </Button>
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                )}
+
                                                 <Col md={3}>
-                                                    <InputField name="dateModified" label="Last updated:" placeholder="" error={errors.dateModified} disabled={!isEditing} />
+                                                    <Button
+                                                        variant="secondary"
+                                                        className="mb-3"
+                                                        disabled={!isEditing}
+                                                        // onClick={handleCloseNoteDetails}
+                                                    >
+                                                        Add Note
+                                                    </Button>
                                                 </Col>
 
-                                                <Col md={3}><InputField name="modifiedBy" label="Updated by:" placeholder="" error={errors.modifiedBy} disabled={!isEditing} /></Col>
-                                            </Row>
-                                        <Row>
-                                            <Col md={6}>
-                                                <label>Case Note:</label>
-                                                <Field as="textarea" name="addictionsSupportSpecified" className={styles.textarea} disabled={!isEditing} />
-                                                <ErrorMessage name="addictionsSupportSpecified" component="div" className={styles.errorText} />
-                                            </Col>
-                                            <Col md={6}>
-                                                <label>Action Plan:</label>
-                                                <Field as="textarea" name="addictionsSupportSpecified" className={styles.textarea} disabled={!isEditing} />
-                                                <ErrorMessage name="addictionsSupportSpecified" component="div" className={styles.errorText} />
-                                            </Col>
-                                        </Row>
+                                                {/* Show details of the selected note */}
+                                                {selectedNote && (
+                                                    <div className="note-details">
+                                                        <Row className="mb-2">
+                                                            <Col md={9}>
+                                                                <h5>Note ID: {selectedNote.note_id}</h5>
+                                                            </Col>
+                                                            <Col md={3}>
+                                                                <div>
+                                                                    <label><strong>Created At:</strong> {selectedNote.createdAt}</label>
+                                                                </div>
+                                                            </Col>
+                                                        </Row>
 
+                                                        <Row className="align-items-center">
+                                                            <Col md={4}>
+                                                                <div>
+                                                                <label><strong>Type:</strong> {selectedNote.type} </label>
+                                                                </div>
+                                                            </Col>
+                                                            <Col md={4}>
+                                                                <div>
+                                                                    <label><strong>Subtype:</strong> {selectedNote.subType}</label>
+                                                                </div>
+                                                            </Col>
+
+                                                        </Row>
+
+                                                        <Row className="mt-3">
+                                                            <Col md={6}>
+                                                                <div>
+                                                                    <label><strong>Case Note:</strong></label>
+                                                                    <Field
+                                                                        as="textarea"
+                                                                        name="description"
+                                                                        className="form-control"
+                                                                        value={selectedNote.description}
+                                                                        rows={10}
+                                                                        disabled
+                                                                    />
+                                                                    {/* Error handling */}
+                                                                    <ErrorMessage
+                                                                        name="description"
+                                                                        component="div"
+                                                                        className="text-danger"
+                                                                    />
+                                                                </div>
+                                                            </Col>
+                                                            <Col md={6}>
+                                                                <div>
+                                                                    <label><strong>Action Plan:</strong></label>
+                                                                    <Field
+                                                                        as="textarea"
+                                                                        name="actionPlan"
+                                                                        className="form-control"
+                                                                        value={selectedNote.actionPlan}
+                                                                        rows={10}
+                                                                        disabled
+                                                                    />
+                                                                    {/* Error handling */}
+                                                                    <ErrorMessage
+                                                                        name="actionPlan"
+                                                                        component="div"
+                                                                        className="text-danger"
+                                                                    />
+                                                                </div>
+                                                            </Col>
+                                                        </Row>
+
+                                                        <Row className="mt-3">
+                                                            <Col md={9}>
+                                                                <div>
+                                                                    <label><strong>Last Updated:</strong> {selectedNote.modifiedAt}</label>
+                                                                </div>
+                                                            </Col>
+                                                            <Col md={3}>
+                                                                <Button
+                                                                    variant="secondary"
+                                                                    className="mb-3"
+                                                                    onClick={handleCloseNoteDetails}
+                                                                >
+                                                                    Close Note
+                                                                </Button>
+                                                            </Col>
+                                                        </Row>
+                                                    </div>
+                                                )}
+
+                                                {/* Show add new note details */}
+
+                                            </>
+                                        )}
                                     </TabPanel>
                                     <TabPanel>Tab panel Legal notes   </TabPanel>
                                 </Tabs>
