@@ -13,7 +13,9 @@ export default async function AdminDashboard(params: {
 
   const query = (await params.searchParams).search;
   const client = await clerkClient();
-  const users = query ? (await client.users.getUserList({ query })).data : [];
+  const users = query
+    ? (await client.users.getUserList({ query })).data
+    : (await client.users.getUserList()).data;
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-gray-50 rounded-lg shadow-md">
