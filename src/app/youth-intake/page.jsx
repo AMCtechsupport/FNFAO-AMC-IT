@@ -16,6 +16,7 @@ import FirstNationSelect from "@/components/FirstNationSelect";
 import PronounSelect from "@/components/Pronouns";
 
 import supabase from "../lib/supabase";
+import { useUser } from "@clerk/clerk-react";
 
 export default function PreIntake() {
   return (
@@ -53,6 +54,7 @@ function validatePhoneNumber(value) {
 }
 
 function PreIntakeForm() {
+  const { user } = useUser();
   const [formSent, setFormSent] = useState(false);
 
   return (
@@ -280,8 +282,13 @@ function PreIntakeForm() {
           // Insert client data into the 'Clients' table
           const { data: client, error: clientError } = await supabase
             .from("Clients")
-            .insert([clientData])
-            .select(); // Retrieve inserted data to get the client ID
+            .insert([
+              {
+                ...clientData,
+                createdBy: user.id,
+              },
+            ])
+            .select();
 
           if (clientError) {
             console.error("❌ Error inserting client:");
@@ -1451,11 +1458,11 @@ function PreIntakeForm() {
           </Row>
 
           <button type="submit" className={styles.submitButton}>
-            Send Pre-Intake
+            Submit Youth Intake
           </button>
           {formSent && (
             <p className={styles.successfulText}>
-              Pre-intake sent successfully
+              Youth Intake sent successfully
             </p>
           )}
         </Form>

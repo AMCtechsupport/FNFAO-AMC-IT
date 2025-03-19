@@ -299,6 +299,7 @@ function PreIntakeForm() {
           // Add date fields before inserting
           clientData.createdAt = currentDate;
           clientData.dateModified = currentDate;
+          clientData.clientType = "Pre-Intake";
 
           console.log("Client data to insert:", clientData);
 
@@ -311,7 +312,7 @@ function PreIntakeForm() {
                 createdBy: user.id,
               },
             ])
-            .select(); // Retrieve inserted data to get the client ID
+            .select();
 
           if (clientError) {
             console.error("❌ Error inserting client:");
