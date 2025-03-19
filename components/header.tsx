@@ -26,7 +26,10 @@ export default function Header() {
               <Link href="/" className="text-white hover:text-gray-300">
                 Home
               </Link>
-              <Link href="/user-home" className="text-white hover:text-gray-300">
+              <Link
+                href="/user-dashboard"
+                className="text-white hover:text-gray-300"
+              >
                 Dashboard
               </Link>
 
