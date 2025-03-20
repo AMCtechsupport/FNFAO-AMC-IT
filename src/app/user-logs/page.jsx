@@ -2,45 +2,19 @@
 
 import { useEffect, useState } from "react";
 import supabase from "../lib/supabase";
+import LogTable from "../../../components/user-logs-table";
+import SearchBar from "../../../components/user-logs-search";
+import LogModal from "../../../components/user-logs-modal";
+import LogsPagination from "../../../components/user-logs-pagination";
 
 const UserLogs = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedLog, setSelectedLog] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-    // Fetch initial logs data
-    const fetchLogs = async () => {
-      const { data, error } = await supabase.from("User Logs").select("*");
-      if (error) {
-        console.error("Error fetching user logs", error);
-      } else {
-        setLogs(data);
-      }
-      setLoading(false);
-    };
-
-    fetchLogs();
-
-    // Real-time subscription to changes in the "Clients" table
-    const clientChannel = supabase
-      .channel("custom-client-channel")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "Clients" },
-        (payload) => {
-          console.log("Change received in Clients table!", payload);
-          handleRealTimeChange(payload);
-        }
-      )
-      .subscribe();
-
-    // Cleanup on component unmount
-    return () => {
-      supabase.removeSubscription(clientChannel);
-    };
-  }, []);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [totalLogs, setTotalLogs] = useState(0);
 
   // Handle real-time changes in the Clients table
   const handleRealTimeChange = async (payload) => {
@@ -64,7 +38,6 @@ const UserLogs = () => {
         "dateOfBirth",
       ];
 
-      // Helper function to handle each key-value pair in the client data
       const description = [
         ...prioritizedFields.map((field) => {
           return client[field] ? `${field}: ${client[field]}` : `${field}: N/A`;
@@ -76,7 +49,6 @@ const UserLogs = () => {
           }),
       ];
 
-      // Join all the key-value pairs into one string with new lines
       return description.filter(Boolean).join("\n");
     };
 
@@ -130,142 +102,84 @@ const UserLogs = () => {
     }
   };
 
-  // Function to format the description
-  const formatDescription = (description) => {
-    return description.split("\n").map((line, index) => (
-      <div key={index} className="mb-2">
-        {line}
-      </div>
-    ));
-  };
+  useEffect(() => {
+    const fetchLogs = async () => {
+      setLoading(true);
+      let query = supabase.from("User Logs").select("*");
 
-  const openModal = (log) => {
-    setSelectedLog(log);
-  };
+      if (searchQuery) {
+        query = query.ilike("client_id", `%${searchQuery}%`);
+      }
 
-  const closeModal = () => {
-    setSelectedLog(null);
-  };
+      query = query.order("createdAt", { ascending: false });
 
-  // Search change handler
+      // Paginate the query
+      query = query.range(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage - 1
+      );
+
+      const { data, error, count } = await query;
+      if (error) {
+        console.error("Error fetching user logs", error);
+      } else {
+        setLogs(data);
+        setTotalLogs(count);
+      }
+      setLoading(false);
+    };
+
+    fetchLogs();
+
+    // Real-time subscription to changes in the "Clients" table
+    const clientChannel = supabase
+      .channel("custom-client-channel")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "Clients" },
+        (payload) => {
+          console.log("Change received in Clients table!", payload);
+          handleRealTimeChange(payload);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      clientChannel.unsubscribe();
+    };
+  }, [searchQuery, currentPage]);
+
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
+    setCurrentPage(1);
   };
 
-  // Handle pressing the Enter key to trigger a refresh
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      fetchLogs(); // Refresh logs when Enter is pressed
-    }
+  const handlePageChange = (page) => {
+    if (page < 1 || page > Math.ceil(totalLogs / itemsPerPage)) return;
+    setCurrentPage(page);
   };
-
-  // Function to fetch logs with search filtering (by client_id)
-  const fetchLogs = async () => {
-    setLoading(true);
-    let query = supabase.from("User Logs").select("*");
-
-    // Apply search filtering based on client_id
-    if (searchQuery) {
-      query = query.ilike("client_id", `%${searchQuery}%`);
-    }
-
-    const { data, error } = await query;
-    if (error) {
-      console.error("Error fetching user logs", error);
-    } else {
-      setLogs(data);
-    }
-    setLoading(false);
-  };
-
-  if (loading)
-    return <div className="text-center text-xl text-gray-500">Loading...</div>;
 
   return (
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-3xl font-semibold text-gray-800 mb-6">User Logs</h1>
 
       {/* Search Bar */}
-      <input
-        type="text"
-        value={searchQuery}
-        onChange={handleSearchChange}
-        onKeyDown={handleKeyDown} // Trigger refresh on Enter key press
-        placeholder="Search by Client ID"
-        className="border p-2 rounded w-full mb-4"
+      <SearchBar value={searchQuery} onSearchChange={handleSearchChange} />
+
+      {/* Log Table */}
+      <LogTable logs={logs} loading={loading} onLogClick={setSelectedLog} />
+
+      {/* Pagination */}
+      <LogsPagination
+        currentPage={currentPage}
+        totalItems={totalLogs}
+        itemsPerPage={itemsPerPage}
+        onPageChange={handlePageChange}
       />
 
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        <table className="min-w-full text-sm text-left text-gray-600">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="py-3 px-6 font-medium text-gray-800">Log ID</th>
-              <th className="py-3 px-6 font-medium text-gray-800">
-                Created At
-              </th>
-              <th className="py-3 px-6 font-medium text-gray-800">Client ID</th>
-              <th className="py-3 px-6 font-medium text-gray-800">
-                Description
-              </th>
-              <th className="py-3 px-6 font-medium text-gray-800">Log Type</th>
-              <th className="py-3 px-6 font-medium text-gray-800">
-                Clerk User ID
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {logs.length === 0 ? (
-              <tr>
-                <td colSpan="6" className="text-center py-4 px-6">
-                  No logs found
-                </td>
-              </tr>
-            ) : (
-              logs.map((log) => (
-                <tr key={log.log_id} className="border-b hover:bg-gray-50">
-                  <td className="py-4 px-6">{log.log_id}</td>
-                  <td className="py-4 px-6">
-                    {new Date(log.createdAt).toLocaleString()}
-                  </td>
-                  <td className="py-4 px-6">{log.client_id}</td>
-                  <td className="py-4 px-6">
-                    <button
-                      onClick={() => openModal(log)}
-                      className="text-blue-600 hover:text-blue-800 underline"
-                    >
-                      View Description
-                    </button>
-                  </td>
-                  <td className="py-4 px-6">{log.logType}</td>
-                  <td className="py-4 px-6">{log.clerk_user_id}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
+      {/* Modal */}
       {selectedLog && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
-          onClick={closeModal}
-        >
-          <div
-            className="bg-white p-6 rounded-lg w-1/3 max-h-[80vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-xl font-semibold mb-4">Log Description</h2>
-            <div className="space-y-2">
-              {formatDescription(selectedLog.description)}
-            </div>
-            <button
-              onClick={closeModal}
-              className="mt-4 py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Close
-            </button>
-          </div>
-        </div>
+        <LogModal log={selectedLog} onClose={() => setSelectedLog(null)} />
       )}
     </div>
   );
