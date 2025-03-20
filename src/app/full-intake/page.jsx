@@ -13,6 +13,8 @@ import RelationshipToChildrenSelect from "@/components/RelationshipToChildrenSel
 import StatusCFSFileSelect from "@/components/StatusCFSFileSelect";
 import FirstNationSelect from "@/components/FirstNationSelect";
 import MartialStatusSelect from "@/components/MartialStatusSelect";
+import TypeNoteSelect from "@/components/TypeNoteSelect";
+import SubTypeNoteSelect from "@/components/SubTypeNoteSelect"
 
 import { handleNotesUpdate } from "../utils/notesUpdates"; // handles updates to the Notes table
 
@@ -135,7 +137,8 @@ function FullIntakeForm({client_id}){
     const [formSent, setFormSent] = useState(false);
 
     const [selectedNote, setSelectedNote] = useState(null);
-    const [selectedAddNote, setSelectedAddNote] = useState(null);
+    const [showNewNoteForm, setShowNewNoteForm] = useState(false);
+
 
     const handleShowNoteDetails = (note) => {
         setSelectedNote(note); // Save the selected note
@@ -143,6 +146,23 @@ function FullIntakeForm({client_id}){
 
     const handleCloseNoteDetails = () => {
         setSelectedNote(null); // Close the note details
+    };
+
+    const handleAddNoteClick = (values, setFieldValue) => {
+        const newNote = {
+            client_id: client_id,
+            type: values.type || "General",  // Default value
+            subType: values.subType || "Uncategorized",
+            description: values.description?.trim() || "No description provided",
+            actionPlan: values.actionPlan?.trim() || "No action plan provided", // Avoid empty values
+            advocate_id: "19",
+            createdAt: new Date().toISOString(),
+            modifiedAt: new Date().toISOString(),
+        };
+
+        setFieldValue("notes", [...values.notes, newNote]); // Add the new note to the Formik array
+        setShowNewNoteForm(true);
+        console.log("New note added:", newNote);
     };
 
 
@@ -396,7 +416,7 @@ function FullIntakeForm({client_id}){
                 onSubmit={async (values, { resetForm }) => {
                     try {
                         console.log("Form submitted with values:", values);
-
+                        console.log("onSubmit values.notes:", values);
                         // Validate that client_id is valid
                         if (!client_id) {
                             console.error("Error: client_id is not valid:", client_id);
@@ -422,7 +442,7 @@ function FullIntakeForm({client_id}){
 
                         // ----------------
                         console.log("Updating Clients with values:", values);
-                        const { children, notes, ...clientValues } = values; // Extract 'children', 'notes'  and leave only the 'Clients' values
+                        const { children, notes, actionPlan, description, type, subType, advocate_id, ...clientValues } = values; // Extract 'children', 'notes'  and leave only the 'Clients' values
 
                         // console.log("Values before updating Clients:", JSON.stringify(clientValues, null, 2)); //quitar
                         // console.log("Updating client_id:", client_id);//quitar
@@ -470,6 +490,7 @@ function FullIntakeForm({client_id}){
                             // UPDATE originalData with the new values
                             setOriginalData(data[0]);  // Use the data returned by Supabase
 
+                            setShowNewNoteForm(false);
                             setIsEditing(false);
                             setFormSent(true);
                             resetForm({ values });
@@ -484,14 +505,14 @@ function FullIntakeForm({client_id}){
                 }}
 
             >
-            {({ values, errors, resetForm }) => (
+            {({ values, errors, resetForm, setFieldValue }) => (
                 <>
                     <Form className={styles.form}>
                         <h2 className={styles.centeredTitle}>FULL-INTAKE FORM</h2>
                         <div >
                             <Row>
                                 {/* <Col><label><strong>Created At:</strong></label> <div>{Formik.values?.createdAt}</div></Col> */}
-                                <Col md={3}><InputField name="createdAt" label="Created At:" placeholder="" error={errors.createdAt} disabled={false} /></Col>
+                                <Col md={3}><InputField name="createdAt" label="Created At:" placeholder="" error={errors.createdAt} disabled={!isEditing} /></Col>
                                 <Col></Col>
                                 <Col md={3}>
                                     <InputField name="dateModified" label="Last updated:" placeholder="" error={errors.dateModified} disabled={!isEditing} />
@@ -563,8 +584,7 @@ function FullIntakeForm({client_id}){
                                         <Tab href="/generalInfo" onClick={() => console.log("Tab 1 clicked!")}>General Information</Tab>
                                         <Tab href="/cfs" onClick={() => console.log("Tab 2 clicked!")}>CFS</Tab>
                                         <Tab href="/childrenInfo" onClick={() => console.log("Tab 3 clicked!")}>Children Information</Tab>
-                                        <Tab href="/community" onClick={() => console.log("Tab 4 clicked!")}>Community Housing</Tab>
-                                        <Tab href="/employment" onClick={() => console.log("Tab 5 clicked!")}>Employment</Tab>
+                                        <Tab href="/community" onClick={() => console.log("Tab 4 clicked!")}>Health and Wellness</Tab>
                                         <Tab href="/caseNotes" onClick={() => console.log("Tab 6 clicked!")}>Case Notes</Tab>
                                         <Tab href="/legalNotes" onClick={() => console.log("Tab 7 clicked!")}>Legal Notes</Tab>
                                     </TabList>
@@ -915,16 +935,16 @@ function FullIntakeForm({client_id}){
                                             </FieldArray>
                                         </Row>
                                     </TabPanel>
-                                    <TabPanel>Tab panel Community housingSupport   </TabPanel>
-                                    <TabPanel>Tab panel Employment  </TabPanel>
+                                    <TabPanel>Tab panel Health and Wellness</TabPanel>
                                     <TabPanel>
+
                                         {/* Case Notes Tab */}
 
                                         {notesData.length === 0 ? (
                                             <p>No notes found for this client.</p>
                                         ) : (
                                             <>
-                                                {/* Mostrar la tabla de notas */}
+                                                {/* Displays the notes table */}
                                                 {!selectedNote && (
                                                     <table className="table table-striped table-bordered">
                                                         <thead className="table-dark">
@@ -936,7 +956,7 @@ function FullIntakeForm({client_id}){
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            {notesData.map((note) => (
+                                                            {[...notesData].sort((a, b) => a.note_id - b.note_id).map((note) => (
                                                                 <tr key={note.note_id}>
                                                                     <td>{note.note_id}</td>
                                                                     <td>{note.createdAt}</td>
@@ -955,17 +975,6 @@ function FullIntakeForm({client_id}){
                                                         </tbody>
                                                     </table>
                                                 )}
-
-                                                <Col md={3}>
-                                                    <Button
-                                                        variant="secondary"
-                                                        className="mb-3"
-                                                        disabled={!isEditing}
-                                                        // onClick={handleCloseNoteDetails}
-                                                    >
-                                                        Add Note
-                                                    </Button>
-                                                </Col>
 
                                                 {/* Show details of the selected note */}
                                                 {selectedNote && (
@@ -1037,12 +1046,17 @@ function FullIntakeForm({client_id}){
                                                         </Row>
 
                                                         <Row className="mt-3">
-                                                            <Col md={9}>
+                                                            <Col md={4}>
                                                                 <div>
                                                                     <label><strong>Last Updated:</strong> {selectedNote.modifiedAt}</label>
                                                                 </div>
                                                             </Col>
-                                                            <Col md={3}>
+                                                            <Col md={4}>
+                                                                <div>
+                                                                    <label><strong>Author:</strong> </label>
+                                                                </div>
+                                                            </Col>
+                                                            <Col md={4}>
                                                                 <Button
                                                                     variant="secondary"
                                                                     className="mb-3"
@@ -1056,6 +1070,40 @@ function FullIntakeForm({client_id}){
                                                 )}
 
                                                 {/* Show add new note details */}
+                                                {!showNewNoteForm && (
+                                                    <Button onClick={() => handleAddNoteClick(values, setFieldValue)} disabled={!isEditing} >Add Note</Button>
+                                                )}
+                                                {showNewNoteForm && (
+                                                    <div style={{ backgroundColor: "#dbdbdb", padding: "15px", borderRadius: "8px", border: "0.5px solid #ccc" }} >
+                                                        {/* Separating line */}
+                                                        {/* <hr className="my-3" /> */}
+                                                        <h4>New Note</h4>
+                                                        <Row>
+                                                            <Col>
+                                                                {/* <InputField name="treatyNumber" label="Treaty Number:" placeholder="" error={errors.treatyNumber} disabled={!isEditing} /> */}
+                                                                <TypeNoteSelect name={`notes.${values.notes.length - 1}.type`} label="Type" placeholder="" error={errors.type} disabled={!isEditing}/>
+                                                            </Col>
+                                                            <Col>
+                                                                <SubTypeNoteSelect name={`notes.${values.notes.length - 1}.subType`} label="Subtype" placeholder="" error={errors.subType} disabled={!isEditing}/>
+                                                            </Col>
+                                                        </Row>
+
+                                                        <label>Description:</label>
+                                                        <Field
+                                                            // label="Description"
+                                                            name={`notes.${values.notes.length - 1}.description`}
+                                                            as="textarea"
+                                                            rows={4}
+                                                        />
+                                                        <label>Action Plan:</label>
+                                                        <Field
+                                                            // label="Action Plan"
+                                                            name={`notes.${values.notes.length - 1}.actionPlan`}
+                                                            as="textarea"
+                                                            rows={4}
+                                                        />
+                                                    </div>
+                                                )}
 
                                             </>
                                         )}
@@ -1071,7 +1119,7 @@ function FullIntakeForm({client_id}){
                                 <Col md={4}> <Button className={styles.cancelButton} onClick={() => setIsEditing(true)}>Edit</Button> </Col>
                             ) : (
                                 <>
-                                    <Col md={4}><Button className={styles.cancelButton} onClick={() => { resetForm(); setIsEditing(false); }}>Cancel</Button> </Col>
+                                    <Col md={4}><Button className={styles.cancelButton} onClick={() => { resetForm(); setIsEditing(false); setShowNewNoteForm(false) }}>Cancel</Button> </Col>
                                     <Col md={4}><Button className={styles.submitButton} type="submit">Save</Button> </Col>
                                 </>
                             )}

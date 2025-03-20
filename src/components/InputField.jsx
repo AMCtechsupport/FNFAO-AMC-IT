@@ -15,6 +15,7 @@ const InputField = ({ label, name, type = "text", placeholder, error, disabled }
               maskChar=""
               className="form-control"
               placeholder={placeholder}
+              disabled={disabled}
             />
           )}
         </Field>
@@ -25,6 +26,7 @@ const InputField = ({ label, name, type = "text", placeholder, error, disabled }
           name={name}
           className="form-control"
           placeholder={placeholder}
+          disabled={disabled}
         />
       )}
       <ErrorMessage name={name} component="div" className="text-danger" />
