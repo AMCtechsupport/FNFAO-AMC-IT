@@ -55,12 +55,28 @@ const UserLogs = () => {
 
     // Utility function to create a detailed client log description
     const generateClientDescription = (client) => {
-      return Object.keys(client)
-        .map((key) => {
-          return `${key}: ${client[key] || "N/A"}`;
-        })
-        .filter(Boolean)
-        .join("\n");
+      const prioritizedFields = [
+        "client_id",
+        "firstName",
+        "lastName",
+        "phoneNumber",
+        "dateOfBirth",
+      ];
+
+      // Helper function to handle each key-value pair in the client data
+      const description = [
+        ...prioritizedFields.map((field) => {
+          return client[field] ? `${field}: ${client[field]}` : `${field}: N/A`;
+        }),
+        ...Object.keys(client)
+          .filter((key) => !prioritizedFields.includes(key))
+          .map((key) => {
+            return `${key}: ${client[key] || "N/A"}`;
+          }),
+      ];
+
+      // Join all the key-value pairs into one string with new lines
+      return description.filter(Boolean).join("\n");
     };
 
     // Construct the description based on event type
@@ -99,7 +115,6 @@ const UserLogs = () => {
   const logUserEvent = async (description, eventType, client_id) => {
     const { data, error } = await supabase.from("User Logs").insert([
       {
-        log_id: `log-${client.user_id}-${new Date().getTime()}`,
         description,
         logType: eventType,
         clerk_user_id: "admin",
