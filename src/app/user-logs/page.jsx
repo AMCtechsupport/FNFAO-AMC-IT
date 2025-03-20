@@ -7,6 +7,7 @@ const UserLogs = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedLog, setSelectedLog] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     // Fetch initial logs data
@@ -146,12 +147,53 @@ const UserLogs = () => {
     setSelectedLog(null);
   };
 
+  // Search change handler
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  // Handle pressing the Enter key to trigger a refresh
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      fetchLogs(); // Refresh logs when Enter is pressed
+    }
+  };
+
+  // Function to fetch logs with search filtering (by client_id)
+  const fetchLogs = async () => {
+    setLoading(true);
+    let query = supabase.from("User Logs").select("*");
+
+    // Apply search filtering based on client_id
+    if (searchQuery) {
+      query = query.ilike("client_id", `%${searchQuery}%`);
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      console.error("Error fetching user logs", error);
+    } else {
+      setLogs(data);
+    }
+    setLoading(false);
+  };
+
   if (loading)
     return <div className="text-center text-xl text-gray-500">Loading...</div>;
 
   return (
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-3xl font-semibold text-gray-800 mb-6">User Logs</h1>
+
+      {/* Search Bar */}
+      <input
+        type="text"
+        value={searchQuery}
+        onChange={handleSearchChange}
+        onKeyDown={handleKeyDown} // Trigger refresh on Enter key press
+        placeholder="Search by Client ID"
+        className="border p-2 rounded w-full mb-4"
+      />
 
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
         <table className="min-w-full text-sm text-left text-gray-600">
