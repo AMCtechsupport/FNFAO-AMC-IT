@@ -739,7 +739,7 @@ function FullIntakeForm({client_id}){
                                         </Row>
                                         <Row>
                                             <Col md={4}>
-                                                <MartialStatusSelect name="martialStatus" label="Marital Status:" error={errors.martialStatus} disabled={!isEditing} />
+                                                <MartialStatusSelect name="martialStatus" label="Marital Status" error={errors.martialStatus} disabled={!isEditing} />
                                             </Col>
                                         </Row>
                                     </TabPanel>
@@ -834,7 +834,7 @@ function FullIntakeForm({client_id}){
                                                             <div key={`${child.child_id}-${index}`} className={`${styles.bglightgrey} border rounded p-2 mb-3`} >
                                                                 <Row className="mb-2">
                                                                     <Col>
-                                                                        <h5>Child ID. {child.child_id}</h5>
+                                                                        <h5>Child No. {index + 1} </h5>
                                                                     </Col>
                                                                 </Row>
                                                                 <Row className="align-items-center">
@@ -935,7 +935,61 @@ function FullIntakeForm({client_id}){
                                             </FieldArray>
                                         </Row>
                                     </TabPanel>
-                                    <TabPanel>Tab panel Health and Wellness</TabPanel>
+                                    <TabPanel>
+                                        {/* Health and Wellness Tab */}
+
+                                        <Row className={styles.group}>
+                                            <Col>
+                                            <label>How do you maintain your mental, emotional, spiritual and physical wellbeing? </label>
+                                            <Field
+                                                as="textarea"
+                                                name="seekingAdvocacy"
+                                                className={styles.textarea}
+                                                disabled={!isEditing}
+                                            />
+                                            <ErrorMessage
+                                                name="seekingAdvocacy"
+                                                component="div"
+                                                className={styles.errorText}
+                                            />
+                                            </Col>
+                                        </Row>
+
+                                        <Row className={styles.group}>
+                                            <Col>
+                                            <label>How has Drugs and/or Alcohol impacted your life? </label>
+                                            <Field
+                                                as="textarea"
+                                                name="drugsImpact"
+                                                className={styles.textarea}
+                                                disabled={!isEditing}
+                                            />
+                                            <ErrorMessage
+                                                name="seekingAdvocacy"
+                                                component="div"
+                                                className={styles.errorText}
+                                            />
+                                            </Col>
+                                        </Row>
+
+                                        <Row className={styles.group}>
+                                            <Col>
+                                            <label>When was the last time you used Drugs and/or Alcohol? </label>
+                                            <Field
+                                                as="textarea"
+                                                name="lastTimeUsed"
+                                                className={styles.textarea}
+                                                disabled={!isEditing}
+                                            />
+                                            <ErrorMessage
+                                                name="seekingAdvocacy"
+                                                component="div"
+                                                className={styles.errorText}
+                                            />
+                                            </Col>
+                                        </Row>
+
+                                    </TabPanel>
                                     <TabPanel>
 
                                         {/* Case Notes Tab */}
@@ -1056,7 +1110,8 @@ function FullIntakeForm({client_id}){
                                                                     <label><strong>Author:</strong> </label>
                                                                 </div>
                                                             </Col>
-                                                            <Col md={4}>
+                                                            <Col md={2}></Col>
+                                                            <Col md={2}>
                                                                 <Button
                                                                     variant="secondary"
                                                                     className="mb-3"
@@ -1101,6 +1156,17 @@ function FullIntakeForm({client_id}){
                                                             name={`notes.${values.notes.length - 1}.actionPlan`}
                                                             as="textarea"
                                                             rows={4}
+                                                        />
+
+                                                        {/* Input to upload file */}
+                                                        <label>Attach File:</label>
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*,.pdf,.doc,.docx"
+                                                            onChange={(event) => {
+                                                                const file = event.currentTarget.files[0];
+                                                                setFieldValue(`notes.${values.notes.length - 1}.file`, file);
+                                                            }}
                                                         />
                                                     </div>
                                                 )}
