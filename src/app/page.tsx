@@ -12,14 +12,17 @@ export default function Home() {
           backgroundSize: "contain",
           backgroundPosition: "center", // Center the image
           backgroundRepeat: "no-repeat", // Avoid image repetition
-          height: "100vh",
+          backgroundColor: "#212121",
+          minHeight: "100vh",
+          width: "100%",
+          overflow: "hidden",
         }}
       >
       </main>
 
       <footer className="bg-black text-white text-center p-4">
-        <p>&copy; 2025 FNFAO App</p>
-      </footer>
+        <p>&copy; All rights reserved. 2025 Assembly of Manitoba Chiefs </p>
+      </footer> */}
     </div>
   );
 }

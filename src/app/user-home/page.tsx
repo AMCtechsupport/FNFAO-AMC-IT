@@ -39,25 +39,25 @@ export default function UserHome({ children }: { children: ReactNode }) {
             </a>
             <Link
               href="/full-intake"
-              className="block text-white hover:text-gray-300 p-2 rounded"
+              className="block text-white hover:font-bold no-underline transition-colors p-2 rounded"
             >
               Full-Intake
             </Link>
             <Link
               href="/pre-intake"
-              className="block text-white hover:text-gray-300 p-2 rounded"
+              className="block text-white hover:font-bold no-underline transition-colors p-2 rounded"
             >
               Pre-Intake
             </Link>
             <Link
               href="/youth-intake"
-              className="block text-white hover:text-gray-300 p-2 rounded"
+              className="block text-white hover:font-bold no-underline transition-colors p-2 rounded"
             >
               Youth-Intake
             </Link>
             <Link
               href="/clients"
-              className="block text-white hover:text-gray-300 p-2 rounded"
+              className="block text-white hover:font-bold no-underline transition-colors p-2 rounded"
             >
               Client List
             </Link>

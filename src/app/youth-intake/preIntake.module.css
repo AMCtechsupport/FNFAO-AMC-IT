@@ -1,6 +1,6 @@
 .fullIntakeContainer {
   background: #cccccc;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .container {
@@ -38,7 +38,7 @@
 
 .form input,
 .form textarea {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   width: 100%;
   border-radius: 5px;
   border: 2px solid #e2e2e2;
@@ -63,10 +63,7 @@
 }
 
 /* Button */
-.submitButton,
-.customAddButton,
-.customDeleteButton,
-.cancelButton {
+.submitButton, .customAddButton, .customDeleteButton, .cancelButton {
   background-color: black;
   color: white;
   padding: 10px 20px;
@@ -77,14 +74,12 @@
   width: 100%; /* Button width */
 }
 
-.submitButton:hover,
-.customAddButton:hover,
-.customDeleteButton:hover {
+.submitButton:hover, .customAddButton:hover, .customDeleteButton:hover {
   background-color: #333;
 }
 
 .form select {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   width: 100%;
   border-radius: 5px;
   border: 2px solid #e2e2e2;
@@ -141,15 +136,17 @@
   border-radius: 8px;
 }
 
+
 /* Select component */
 select:disabled {
-  background-color: #f0f0f0; /* Background color to indicate disabled */
+  background-color: #f0f0f0 ; /* Background color to indicate disabled */
   cursor: not-allowed; /* Changes the cursor to indicate disabled */
 }
 
+
 /* Tabs */
 :global(.react-tabs__tab--selected) {
-  background-color: #212529 !important; /* Ensures the color is applied */
+  background-color: #212529  !important; /* Ensures the color is applied */
   color: white !important;
   font-weight: bold;
   border-radius: 5px;
@@ -160,4 +157,29 @@ select:disabled {
   background-color: #f0f0f0;
   padding: 20px;
   border-radius: 5px;
+}
+
+
+.customAddButton {
+  background-color: green;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+
+  .form-check {
+    display: flex;
+    align-items: center; /* Center vertically */
+    justify-content: space-between; /* Space between text and checkbox */
+  }
+
+  .form-check-label {
+    margin-right: 8px; /* Space between label and checkbox */
+  }
+
+  .form-check-input {
+    width: 1rem !important;
+    height: 1rem !important;
+  }
 }

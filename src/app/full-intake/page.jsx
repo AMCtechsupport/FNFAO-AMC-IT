@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import UserHome from "../user-home/page";
 import styles from "./fullIntake.module.css";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
-import { Button, Container, Row, Col } from "react-bootstrap";
+import { Button, Container, Row, Col, Modal } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 import PhoneNumberInput from "@/components/ValidPhoneNumber";
@@ -14,7 +14,11 @@ import RelationshipToChildrenSelect from "@/components/RelationshipToChildrenSel
 import CFSStatusManagement from "@/components/StatusCFSFileSelect";
 import FirstNationSelect from "@/components/FirstNationSelect";
 import MartialStatusSelect from "@/components/MartialStatusSelect";
-import ManageCfsAgencies from "@/components/ManageCfsAgencies";
+import TypeNoteSelect from "@/components/TypeNoteSelect";
+import SubTypeNoteSelect from "@/components/SubTypeNoteSelect"
+
+import { handleNotesUpdate } from "../utils/notesUpdates"; // handles updates to the Notes table
+
 
 import supabase from "../lib/supabase";
 
@@ -129,12 +133,43 @@ const handleChildrenUpdate = async (children, client_id, setChildrenData) => {
   }
 };
 
-function FullIntakeForm({ client_id }) {
-  const [originalData, setOriginalData] = useState(null);
-  const [childrenData, setChildrenData] = useState([]); // State for children
-  const [loading, setLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false); // state to enable/disable fields
-  const [formSent, setFormSent] = useState(false);
+function FullIntakeForm({client_id}){
+    const [originalData, setOriginalData] = useState(null);
+    const [childrenData, setChildrenData] = useState([]); // State for children
+    const [notesData, setNotesData] = useState([]); // State for case notes
+    const [loading, setLoading] = useState(true);
+    const [isEditing, setIsEditing] = useState(false); // state to enable/disable fields
+    const [formSent, setFormSent] = useState(false);
+
+    const [selectedNote, setSelectedNote] = useState(null);
+    const [showNewNoteForm, setShowNewNoteForm] = useState(false);
+
+
+    const handleShowNoteDetails = (note) => {
+        setSelectedNote(note); // Save the selected note
+    };
+
+    const handleCloseNoteDetails = () => {
+        setSelectedNote(null); // Close the note details
+    };
+
+    const handleAddNoteClick = (values, setFieldValue) => {
+        const newNote = {
+            client_id: client_id,
+            type: values.type || "General",  // Default value
+            subType: values.subType || "Uncategorized",
+            description: values.description?.trim() || "No description provided",
+            actionPlan: values.actionPlan?.trim() || "No action plan provided", // Avoid empty values
+            advocate_id: "19",
+            createdAt: new Date().toISOString(),
+            modifiedAt: new Date().toISOString(),
+        };
+
+        setFieldValue("notes", [...values.notes, newNote]); // Add the new note to the Formik array
+        setShowNewNoteForm(true);
+        console.log("New note added:", newNote);
+    };
+
 
   // Load client and children data when opening the form
   useEffect(() => {
@@ -164,15 +199,25 @@ function FullIntakeForm({ client_id }) {
         .select("*")
         .eq("client_id", client_id);
 
-      if (childrenError) {
-        console.error(
-          "Error fetching children data:",
-          childrenError.message || childrenError
-        );
-      } else {
-        console.log("Children Data:", children);
-        setChildrenData(children || []);
-      }
+            if (childrenError) {
+                console.error("Error fetching children data:", childrenError.message || childrenError);
+            } else {
+                console.log("Children Data:", children);
+                setChildrenData(children || []);
+            }
+
+            // Gets the case notes associated with the client
+            const {data: notes, error: notesError} = await supabase
+                .from("Notes")
+                .select("*")
+                .eq("client_id", client_id );
+
+            if (notesError){
+                console.error("Error fetching notes data:", notesError.message || notesError);
+            }else {
+                console.log("Notes Data:", notes);
+                setNotesData(notes || []);
+            }
 
       setLoading(false);
     }
@@ -184,122 +229,89 @@ function FullIntakeForm({ client_id }) {
     return <div>Loading...</div>;
   }
 
-  return (
-    <div className="form-container">
-      <Formik
-        initialValues={{
-          firstName: originalData?.firstName || "",
-          middleName: originalData?.middleName || "",
-          lastName: originalData?.lastName || "",
-          dateOfBirth: originalData?.dateOfBirth
-            ? originalData.dateOfBirth.split("T")[0]
-            : "",
-          phoneNumber: originalData?.phoneNumber || "",
-          address: originalData?.address || "",
-          city: originalData?.city || "",
-          province: originalData?.province || "",
-          postalCode: originalData?.postalCode || "",
-          email: originalData?.email || "",
-          // emergencyContactFirstName: "",
-          // emergencyContactLastName: "",
-          // emergencyContactNumber: "",
-          // referredBy: "",
-          relationshipToChildren: originalData?.relationshipToChildren || "",
-          // otherAdultsInvolved: originalData?.otherAdultsInvolved === true ? "yes" : originalData?.otherAdultsInvolved === false ? "no" : "",
-          otherAdultsInvolved: originalData?.otherAdultsInvolved
-            ? "yes"
-            : originalData?.otherAdultsInvolved === false
-            ? "no"
-            : "",
-          otherAdultsInvolvedExplained:
-            originalData?.otherAdultsInvolvedExplained || "",
-          firstNationMembership: originalData?.firstNationMembership || "",
-          treatyNumber: originalData?.treatyNumber || "",
-          otherFirstnation: originalData?.otherFirstnation || "",
-          ninePersonalHealthNumber:
-            originalData?.ninePersonalHealthNumber || "",
-          sixPersonalHealthNumber: originalData?.sixPersonalHealthNumber || "",
-          // onReserve: clientData?.onReserve || "",
-          onReserve:
-            originalData?.onReserve === true
-              ? "yes"
-              : originalData?.onReserve === false
-              ? "no"
-              : "",
-          // transitionFromReserve: clientData?.transitionFromReserve || "",
-          transitionFromReserve:
-            originalData?.transitionFromReserve === true
-              ? "yes"
-              : originalData?.transitionFromReserve === false
-              ? "no"
-              : "",
-          // previousFNFAOClient: clientData?.previousFNFAOClient || "",
-          previousFNFAOClient:
-            originalData?.previousFNFAOClient === true
-              ? "yes"
-              : originalData?.previousFNFAOClient === false
-              ? "no"
-              : "",
-          // seekingAdvocacy: "",
-          cfsAgency: "",
-          // cfsAgentFullName: "",
-          // cfsAgentNumber: "",
-          // cfsAgentEmail: "",
-          // statusCFSFile: "",
-          // visitsChild:'no',
-          // visitsChildFrequency: "",
-          // casePlanCopy:'yes',
-          // casePlanCopyDescribe: "",
-          // involvedCFSReason: "",
-          // prenatalSupport:clientData?.prenatalSupport || "",
-          prenatalSupport:
-            originalData?.prenatalSupport === true
-              ? "yes"
-              : originalData?.prenatalSupport === false
-              ? "no"
-              : "",
-          prenatalSupportSpecified:
-            originalData?.prenatalSupportSpecified || "",
-          // housingSupport:clientData?.housingSupport || "",
-          housingSupport:
-            originalData?.housingSupport === true
-              ? "yes"
-              : originalData?.housingSupport === false
-              ? "no"
-              : "",
-          housingSupportSpecified: originalData?.housingSupportSpecified || "",
-          // addictionsSupport:clientData?.addictionsSupport || "",
-          addictionsSupport:
-            originalData?.addictionsSupport === true
-              ? "yes"
-              : originalData?.addictionsSupport === false
-              ? "no"
-              : "",
-          addictionsSupportSpecified:
-            originalData?.addictionsSupportSpecified || "",
-          // youthSupport:'no',
-          // youthSupportSpecified: "",
-          // custodySupport:'no',
-          // custodySupportSpecified: "",
-          // criminalCharges:'no',
-          // criminalChargesSpecified: "",
-          // activeWarrant:'no',
-          // activeWarrantSpecified: "",
-          // activeInvestigation:'no',
-          // activeInvestigationExplained: "",
-          // activeOrders:'no',
-          // activeOrdersExplained: "",
-          // currentLawyer:'yes',
-          // legalAssistance:'no',
-          // legalAssistanceSpecified: "",
-          // unableToAssistExplained: "",
-          // referForSupport : "",
-          martialStatus: originalData?.martialStatus || "",
-          children: childrenData || [],
-        }}
-        enableReinitialize
-        validate={(values) => {
-          let errors = {};
+    return(
+        <div className="form-container">
+            <Formik
+                initialValues={
+                    {
+                        firstName:originalData?.firstName || "",
+                        middleName:originalData?.middleName || "",
+                        lastName:originalData?.lastName || "",
+                        dateOfBirth: originalData?.dateOfBirth ? originalData.dateOfBirth.split("T")[0] : "",
+                        phoneNumber:originalData?.phoneNumber || "",
+                        address: originalData?.address || "",
+                        city: originalData?.city || "",
+                        province: originalData?.province || "",
+                        postalCode: originalData?.postalCode || "",
+                        email: originalData?.email || "",
+                        // emergencyContactFirstName: "",
+                        // emergencyContactLastName: "",
+                        // emergencyContactNumber: "",
+                        // referredBy: "",
+                        relationshipToChildren: originalData?.relationshipToChildren || "",
+                        // otherAdultsInvolved: originalData?.otherAdultsInvolved === true ? "yes" : originalData?.otherAdultsInvolved === false ? "no" : "",
+                        otherAdultsInvolved: originalData?.otherAdultsInvolved ? "yes" : (originalData?.otherAdultsInvolved === false ? "no" : ""),
+                        otherAdultsInvolvedExplained: originalData?.otherAdultsInvolvedExplained || "",
+                        firstNationMembership: originalData?.firstNationMembership || "",
+                        treatyNumber: originalData?.treatyNumber || "",
+                        otherFirstnation: originalData?.otherFirstnation || "",
+                        ninePersonalHealthNumber: originalData?.ninePersonalHealthNumber || "",
+                        sixPersonalHealthNumber: originalData?.sixPersonalHealthNumber || "",
+                        // onReserve: clientData?.onReserve || "",
+                        onReserve: originalData?.onReserve === true ? "yes" : originalData?.onReserve === false ? "no" : "",
+                        // transitionFromReserve: clientData?.transitionFromReserve || "",
+                        transitionFromReserve: originalData?.transitionFromReserve === true ? "yes" : originalData?.transitionFromReserve === false ? "no" : "",
+                        // previousFNFAOClient: clientData?.previousFNFAOClient || "",
+                        previousFNFAOClient: originalData?.previousFNFAOClient === true ? "yes" : originalData?.previousFNFAOClient === false ? "no" : "",
+                        // seekingAdvocacy: "",
+                        // cfsAgency: "",
+                        // cfsAgentFullName: "",
+                        // cfsAgentNumber: "",
+                        // cfsAgentEmail: "",
+                        // statusCFSFile: "",
+                        // visitsChild:'no',
+                        // visitsChildFrequency: "",
+                        // casePlanCopy:'yes',
+                        // casePlanCopyDescribe: "",
+                        // involvedCFSReason: "",
+                        // prenatalSupport:clientData?.prenatalSupport || "",
+                        prenatalSupport: originalData?.prenatalSupport === true ? "yes" : originalData?.prenatalSupport === false ? "no" : "",
+                        prenatalSupportSpecified: originalData?.prenatalSupportSpecified || "",
+                        // housingSupport:clientData?.housingSupport || "",
+                        housingSupport: originalData?.housingSupport === true ? "yes" : originalData?.housingSupport === false ? "no" : "",
+                        housingSupportSpecified: originalData?.housingSupportSpecified || "",
+                        // addictionsSupport:clientData?.addictionsSupport || "",
+                        addictionsSupport: originalData?.addictionsSupport === true ? "yes" : originalData?.addictionsSupport === false ? "no" : "",
+                        addictionsSupportSpecified: originalData?.addictionsSupportSpecified || "",
+                        // youthSupport:'no',
+                        // youthSupportSpecified: "",
+                        // custodySupport:'no',
+                        // custodySupportSpecified: "",
+                        // criminalCharges:'no',
+                        // criminalChargesSpecified: "",
+                        // activeWarrant:'no',
+                        // activeWarrantSpecified: "",
+                        // activeInvestigation:'no',
+                        // activeInvestigationExplained: "",
+                        // activeOrders:'no',
+                        // activeOrdersExplained: "",
+                        // currentLawyer:'yes',
+                        // legalAssistance:'no',
+                        // legalAssistanceSpecified: "",
+                        // unableToAssistExplained: "",
+                        // referForSupport : "",
+                        martialStatus: originalData?.martialStatus || "",
+                        dateModified : originalData?.dateModified ? originalData.dateModified.split("T")[0] : "",
+                        modifiedBy: originalData?.modifiedBy || "",
+                        createdAt: originalData?.createdAt ? originalData.createdAt.split("T")[0] : "",
+
+                        children: childrenData || [],
+                        notes: notesData || []
+                    }
+                }
+                enableReinitialize
+                validate={(values) => {
+                    let errors = {};
 
           if (!values.firstName) {
             errors.firstName = "Please enter a name";
@@ -405,17 +417,17 @@ function FullIntakeForm({ client_id }) {
           //     errors.cfsAgentEmail = "Invalid email format";
           // }
 
-          return errors;
-        }}
-        onSubmit={async (values, { resetForm }) => {
-          try {
-            console.log("Form submitted with values:", values);
-
-            // Validate that client_id is valid
-            if (!client_id) {
-              console.error("Error: client_id is not valid:", client_id);
-              return;
-            }
+                    return errors;
+                }}
+                onSubmit={async (values, { resetForm }) => {
+                    try {
+                        console.log("Form submitted with values:", values);
+                        console.log("onSubmit values.notes:", values);
+                        // Validate that client_id is valid
+                        if (!client_id) {
+                            console.error("Error: client_id is not valid:", client_id);
+                            return;
+                        }
 
             // Validate that values are not empty
             if (!values || Object.keys(values).length === 0) {
@@ -423,83 +435,100 @@ function FullIntakeForm({ client_id }) {
               return;
             }
 
-            // Check if values are different from the original data
-            const isClientUnchanged =
-              JSON.stringify(values) === JSON.stringify(originalData);
-            const isChildrenUnchanged =
-              JSON.stringify(values.children) === JSON.stringify(childrenData);
+                        // Check if values are different from the original data
+                        const isClientUnchanged = JSON.stringify(values) === JSON.stringify(originalData);
+                        const isChildrenUnchanged = JSON.stringify(values.children) === JSON.stringify(childrenData);
+                        const isNotesUnchanged = JSON.stringify(values.notes) === JSON.stringify(notesData);
 
-            if (isClientUnchanged && isChildrenUnchanged) {
-              console.warn("Warning: No changes detected, skipping update.");
-              setIsEditing(false);
-              return;
-            }
+                        if (isClientUnchanged && isChildrenUnchanged && isNotesUnchanged) {
+                            console.warn("Warning: No changes detected, skipping update.");
+                            setIsEditing(false);
+                            return;
+                        }
 
-            console.log("Updating Clients with values:", values);
-            const { children, ...clientValues } = values; // Extract 'children' and leave only the 'Clients' values
+                        // ----------------
+                        console.log("Updating Clients with values:", values);
+                        const { children, notes, actionPlan, description, type, subType, advocate_id, ...clientValues } = values; // Extract 'children', 'notes'  and leave only the 'Clients' values
 
-            // Attempt to update data in Supabase
-            const { data, error } = await supabase
-              .from("Clients")
-              .update(clientValues)
-              .eq("client_id", client_id)
-              .select(); // This retrieves the updated data
+                        // console.log("Values before updating Clients:", JSON.stringify(clientValues, null, 2)); //quitar
+                        // console.log("Updating client_id:", client_id);//quitar
+                        // console.log("Children data before update:", JSON.stringify(values.children, null, 2)); //quitar
+                        // console.log("Notes data before update:", JSON.stringify(values.notes, null, 2)); //quitar
+
+
+                        // Updates data in Supabase
+                        const { data, error} = await supabase
+                            .from("Clients")
+                            .update(clientValues)
+                            .eq("client_id", client_id)
+                            .select(); // This retrieves the updated data
 
             // console.log("Supabase response:", response);
 
-            // If there's an error, print it and exit
-            if (error) {
-              console.error("Error updating data:", error);
-              return;
-            }
+                        // If there's an error, print it and exit
+                        if (error) {
+                            // console.error("Error updating data:", error);
+                            console.error("Error updating Clients data:", JSON.stringify(error, null, 2));
+
+                            return;
+                        }
 
             // Confirm that the update was successful
             if (data && data.length > 0) {
               console.log("Update successful. Updated data:", data);
 
-              console.log("Updating Children with values:", values.children);
-              // Call `handle Children Update` to update the children in the database
-              const childrenUpdateSuccess = await handleChildrenUpdate(
-                values.children,
-                client_id,
-                setChildrenData
-              );
-              console.log("Children update result:", childrenUpdateSuccess);
+                            console.log("Updating Children with values:", values.children);
 
-              if (!childrenUpdateSuccess) {
-                console.error("Error updating children data.");
-              }
+                            // Call `handle Children Update` to update the children in the database
+                            const childrenUpdateSuccess = await handleChildrenUpdate(values.children, client_id, setChildrenData);
+                            console.log("Children update result:", childrenUpdateSuccess);
+                            if (!childrenUpdateSuccess) {
+                                console.error("Error updating children data.");
+                            }
+
+                            // Call `handle Notes Update` to update the notes in the database
+                            const notesUpdateSuccess = await handleNotesUpdate(values.notes, client_id, setNotesData);
+                            console.log("Notes update result:", notesUpdateSuccess);
+                            if (!notesUpdateSuccess){
+                                console.error("Error update notes data.");
+                            }
 
               // UPDATE originalData with the new values
               setOriginalData(data[0]); // Use the data returned by Supabase
 
-              setIsEditing(false);
-              setFormSent(true);
-              resetForm({ values });
-              setTimeout(() => setFormSent(false), 3000);
-            } else {
-              console.warn("Warning: The update did not modify any data.");
-            }
-          } catch (err) {
-            console.error("Unexpected error:", err);
-          }
-        }}
-      >
-        {({ values, setFieldValue, errors, resetForm }) => (
-          <>
-            <Form className={styles.form}>
-              <h2 className={styles.centeredTitle}>FULL-INTAKE FORM</h2>
-              <div>
-                <Row>
-                  <Col md={3}>
-                    <InputField
-                      name="firstName"
-                      label="First Name:"
-                      placeholder="John"
-                      error={errors.firstName}
-                      disabled={!isEditing}
-                    />
-                  </Col>
+                            setShowNewNoteForm(false);
+                            setIsEditing(false);
+                            setFormSent(true);
+                            resetForm({ values });
+                            setTimeout(() => setFormSent(false), 3000);
+                        } else {
+                            console.warn("Warning: The update did not modify any data.");
+                        }
+
+                    } catch (err) {
+                        console.error("Unexpected error:", err);
+                    }
+                }}
+
+            >
+            {({ values, errors, resetForm, setFieldValue }) => (
+                <>
+                    <Form className={styles.form}>
+                        <h2 className={styles.centeredTitle}>FULL-INTAKE FORM</h2>
+                        <div >
+                            <Row>
+                                {/* <Col><label><strong>Created At:</strong></label> <div>{Formik.values?.createdAt}</div></Col> */}
+                                <Col md={3}><InputField name="createdAt" label="Created At:" placeholder="" error={errors.createdAt} disabled={!isEditing} /></Col>
+                                <Col></Col>
+                                <Col md={3}>
+                                    <InputField name="dateModified" label="Last updated:" placeholder="" error={errors.dateModified} disabled={!isEditing} />
+                                </Col>
+                                <Col md={3}><InputField name="modifiedBy" label="Updated by:" placeholder="" error={errors.modifiedBy} disabled={!isEditing} /></Col>
+                            </Row>
+                            <Row >
+                                <Col md={3}>
+                                    <InputField name="firstName" label="First Name:" placeholder="John" error={errors.firstName} disabled={!isEditing} />
+                                </Col>
 
                   <Col md={3}>
                     <InputField
@@ -594,74 +623,29 @@ function FullIntakeForm({ client_id }) {
                     </div>
                   </Col>
 
-                  <Col md={4}>
-                    <div>
-                      <label htmlFor="email">Email:</label>
-                      <Field
-                        type="email"
-                        id="email"
-                        name="email"
-                        disabled={!isEditing}
-                      />
-                      <ErrorMessage
-                        name="email"
-                        component={() => (
-                          <p className={styles.errorText}>{errors.email}</p>
-                        )}
-                      />
-                    </div>
-                  </Col>
-                </Row>
-              </div>
-              <Row>
-                <div className="{styles.tabsContainer}">
-                  <Tabs>
-                    <TabList>
-                      <Tab
-                        href="/generalInfo"
-                        onClick={() => console.log("Tab 1 clicked!")}
-                      >
-                        General Information
-                      </Tab>
-                      <Tab
-                        href="/cfs"
-                        onClick={() => console.log("Tab 2 clicked!")}
-                      >
-                        CFS
-                      </Tab>
-                      <Tab
-                        href="/childrenInfo"
-                        onClick={() => console.log("Tab 3 clicked!")}
-                      >
-                        Children Information
-                      </Tab>
-                      <Tab
-                        href="/community"
-                        onClick={() => console.log("Tab 4 clicked!")}
-                      >
-                        Community Housing
-                      </Tab>
-                      <Tab
-                        href="/employment"
-                        onClick={() => console.log("Tab 5 clicked!")}
-                      >
-                        Employment
-                      </Tab>
-                      <Tab
-                        href="/caseNotes"
-                        onClick={() => console.log("Tab 6 clicked!")}
-                      >
-                        Case Notes
-                      </Tab>
-                      <Tab
-                        href="/legalNotes"
-                        onClick={() => console.log("Tab 7 clicked!")}
-                      >
-                        Legal Notes
-                      </Tab>
-                    </TabList>
-                    <TabPanel>
-                      {/* General Information Tab */}
+                                <Col md={4}>
+                                    <div>
+                                        <label htmlFor="email">Email:</label>
+                                        <Field type="email" id="email" name="email" disabled={!isEditing} />
+                                        <ErrorMessage name="email" component={() => <p className={styles.errorText}>{errors.email}</p>} />
+                                    </div>
+                                </Col>
+                            </Row>
+                        </div>
+                        <Row>
+                            <div className="{styles.tabsContainer}">
+                                <Tabs >
+                                    <TabList >
+                                        <Tab href="/generalInfo" onClick={() => console.log("Tab 1 clicked!")}>General Information</Tab>
+                                        <Tab href="/cfs" onClick={() => console.log("Tab 2 clicked!")}>CFS</Tab>
+                                        <Tab href="/childrenInfo" onClick={() => console.log("Tab 3 clicked!")}>Children Information</Tab>
+                                        <Tab href="/community" onClick={() => console.log("Tab 4 clicked!")}>Health and Wellness</Tab>
+                                        <Tab href="/caseNotes" onClick={() => console.log("Tab 6 clicked!")}>Case Notes</Tab>
+                                        <Tab href="/legalNotes" onClick={() => console.log("Tab 7 clicked!")}>Legal Notes</Tab>
+                                    </TabList>
+                                    <TabPanel>
+
+                                        {/* General Information Tab */}
 
                       <Row className="mt-4">
                         <Col md={4}>
@@ -945,86 +929,53 @@ function FullIntakeForm({ client_id }) {
                         )}
                       </Row>
 
-                      <Row className={styles.group}>
-                        <Col md={4}>
-                          <div>
-                            <label>Need addictions support?</label>
-                            <div className="form-check form-check-inline">
-                              <Field
-                                className="form-check-input"
-                                type="radio"
-                                name="addictionsSupport"
-                                value="yes"
-                                checked={values.addictionsSupport === "yes"}
-                                disabled={!isEditing}
-                              />
-                              <label className="form-check-label">Yes</label>
-                            </div>
-                            <div className="form-check form-check-inline">
-                              <Field
-                                className="form-check-input"
-                                type="radio"
-                                name="addictionsSupport"
-                                value="no"
-                                checked={values.addictionsSupport === "no"}
-                                disabled={!isEditing}
-                              />
-                              <label className="form-check-label">No</label>
-                            </div>
-                            <ErrorMessage
-                              name="addictionsSupport"
-                              component="div"
-                              className={styles.errorText}
-                            />
-                          </div>
-                        </Col>
-                        {values.addictionsSupport === "yes" && (
-                          <Col md={8}>
-                            <label>
-                              If yes, specify (e.g. access to detox, treatment,
-                              relapse prevention programming, etc.):
-                            </label>
-                            <Field
-                              as="textarea"
-                              name="addictionsSupportSpecified"
-                              className={styles.textarea}
-                              disabled={!isEditing}
-                            />
-                            <ErrorMessage
-                              name="addictionsSupportSpecified"
-                              component="div"
-                              className={styles.errorText}
-                            />
-                          </Col>
-                        )}
-                      </Row>
-                      <Row>
-                        <Col md={4}>
-                          <MartialStatusSelect
-                            name="martialStatus"
-                            label="Marital Status:"
-                            error={errors.martialStatus}
-                            disabled={!isEditing}
-                          />
-                        </Col>
-                      </Row>
-                    </TabPanel>
-                    <TabPanel>
-                      {childrenData.length === 0 ? (
-                        <p>No children found for this client.</p>
-                      ) : (
-                        <>
-                          {childrenData.length > 0 && (
-                            <table className="table table-striped table-bordered">
-                              {/* Table header */}
-                              <thead className="table-dark">
-                                <tr>
-                                  <th>CFS Agency</th>
-                                  <th>Child Name</th>
-                                  <th>CFS Agent</th>
-                                  <th>Status</th>
-                                </tr>
-                              </thead>
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                                <div>
+                                                    <label>Need addictions support?</label>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="addictionsSupport" value="yes" checked={values.addictionsSupport === "yes"} disabled={!isEditing} />
+                                                        <label className="form-check-label">Yes</label>
+                                                    </div>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="addictionsSupport" value="no" checked={values.addictionsSupport === "no"} disabled={!isEditing} />
+                                                        <label className="form-check-label">No</label>
+                                                    </div>
+                                                    <ErrorMessage name="addictionsSupport" component="div" className={styles.errorText} />
+                                                </div>
+                                            </Col>
+                                            {values.addictionsSupport === "yes" && (
+
+                                                <Col md={8}>
+                                                    <label>If yes, specify (e.g. access to detox, treatment, relapse prevention programming, etc.):</label>
+                                                    <Field as="textarea" name="addictionsSupportSpecified" className={styles.textarea} disabled={!isEditing} />
+                                                    <ErrorMessage name="addictionsSupportSpecified" component="div" className={styles.errorText} />
+                                                </Col>
+                                            )}
+                                        </Row>
+                                        <Row>
+                                            <Col md={4}>
+                                                <MartialStatusSelect name="martialStatus" label="Marital Status" error={errors.martialStatus} disabled={!isEditing} />
+                                            </Col>
+                                        </Row>
+                                    </TabPanel>
+                                    <TabPanel>
+                                        {/* CFS Tab */}
+                                        {childrenData.length === 0 ? (
+                                            <p>No children found for this client.</p>
+                                        ) : (
+                                            <>
+                                               {childrenData.length > 0 && (
+                                                    <table className="table table-striped table-bordered">
+                                                        {/* Table header */}
+                                                        <thead className="table-dark">
+                                                            <tr>
+                                                                <th>CFS Agency</th>
+                                                                <th>Child Name</th>
+                                                                <th>CFS Agent</th>
+                                                                <th>Status</th>
+                                                            </tr>
+                                                        </thead>
 
                               {/* Body of the table with the data of each child */}
                               <tbody>
@@ -1142,82 +1093,47 @@ function FullIntakeForm({ client_id }) {
                           those at home or in care):
                         </h6>
 
-                        <FieldArray name="children">
-                          {({ push, remove }) => (
-                            <div>
-                              {values.children
-                                .sort((a, b) => a.child_id - b.child_id) // Sort children by ascending child_id
-                                .map((child, index) => (
-                                  <div
-                                    key={`${child.child_id}-${index}`}
-                                    className={`${styles.bglightgrey} border rounded p-2 mb-3`}
-                                  >
-                                    <Row className="align-items-center">
-                                      <Col md={3}>
-                                        <InputField
-                                          name={`children.${index}.firstName`}
-                                          label="First Name:"
-                                          disabled={!isEditing}
-                                        />
-                                      </Col>
-                                      <Col md={3}>
-                                        <InputField
-                                          name={`children.${index}.middleName`}
-                                          label="Middle Name:"
-                                          disabled={!isEditing}
-                                        />
-                                      </Col>
-                                      <Col md={6}>
-                                        <InputField
-                                          name={`children.${index}.lastName`}
-                                          label="Last Name:"
-                                          disabled={!isEditing}
-                                        />
-                                      </Col>
-                                    </Row>
-                                    <Row className="mb-4">
-                                      <Col md={3}>
-                                        <div>
-                                          <label
-                                            htmlFor={`children.${index}.birthDate`}
-                                          >
-                                            Date of Birth:
-                                          </label>
-                                          <Field
-                                            type="date"
-                                            id={`children.${index}.birthDate`}
-                                            name={`children.${index}.birthDate`}
-                                            disabled={!isEditing}
-                                          />
-                                          <ErrorMessage
-                                            name={`children.${index}.birthDate`}
-                                            component={() => (
-                                              <p className={styles.errorText}>
-                                                {
-                                                  errors.children?.[index]
-                                                    ?.birthDate
-                                                }
-                                              </p>
-                                            )}
-                                          />
-                                        </div>
-                                      </Col>
-                                      <Col md={6}>
-                                        <FirstNationSelect
-                                          name={`children.${index}.childNation`}
-                                          label="First Nation Membership"
-                                          error={errors.childNation}
-                                          disabled={!isEditing}
-                                        />
-                                      </Col>
-                                      <Col md={3}>
-                                        <InputField
-                                          name={`children.${index}.childPlaced`}
-                                          label="Place of Stay:"
-                                          disabled={!isEditing}
-                                        />
-                                      </Col>
-                                    </Row>
+                                            <FieldArray name="children">
+                                                {({ push, remove }) => (
+                                                    <div>
+                                                        {values.children
+                                                            .sort((a, b) => a.child_id - b.child_id) // Sort children by ascending child_id
+                                                            .map((child, index) => (
+                                                            <div key={`${child.child_id}-${index}`} className={`${styles.bglightgrey} border rounded p-2 mb-3`} >
+                                                                <Row className="mb-2">
+                                                                    <Col>
+                                                                        <h5>Child No. {index + 1} </h5>
+                                                                    </Col>
+                                                                </Row>
+                                                                <Row className="align-items-center">
+                                                                    <Col md={3}>
+                                                                        <InputField name={`children.${index}.firstName`} label="First Name:" disabled={!isEditing} />
+                                                                    </Col>
+                                                                    <Col md={3}>
+                                                                        <InputField name={`children.${index}.middleName`} label="Middle Name:" disabled={!isEditing} />
+                                                                    </Col>
+                                                                    <Col md={6}>
+                                                                        <InputField name={`children.${index}.lastName`} label="Last Name:" disabled={!isEditing} />
+                                                                    </Col>
+                                                                </Row>
+                                                                <Row className="mb-4">
+                                                                    <Col md={3}>
+                                                                        <div>
+                                                                            <label htmlFor={`children.${index}.birthDate`}>Date of Birth:</label>
+                                                                            <Field type="date" id={`children.${index}.birthDate`} name={`children.${index}.birthDate`} disabled={!isEditing} />
+                                                                            <ErrorMessage
+                                                                                name={`children.${index}.birthDate`}
+                                                                                component={() => <p className={styles.errorText}>{errors.children?.[index]?.birthDate}</p>}
+                                                                            />
+                                                                        </div>
+                                                                    </Col>
+                                                                    <Col md={6}>
+                                                                        <FirstNationSelect name={`children.${index}.childNation`} label="First Nation Membership" error={errors.childNation} disabled={!isEditing}/>
+                                                                    </Col>
+                                                                    <Col md={3}>
+                                                                        <InputField name={`children.${index}.childPlaced`} label="Place of Stay:" disabled={!isEditing} />
+                                                                    </Col>
+                                                                </Row>
 
                                     {/* Agency information */}
                                     <div className="bg-light border border-light p-3 rounded">
@@ -1310,101 +1226,297 @@ function FullIntakeForm({ client_id }) {
 
                                     {/* END Agency information */}
 
-                                    <Row>
-                                      <Col md={9}></Col>
-                                      <Col
-                                        md={3}
-                                        className="d-flex align-items-end mt-2"
-                                      >
-                                        <Button
-                                          className="w-100 btn btn-danger"
-                                          type="button"
-                                          onClick={() => remove(index)}
-                                          disabled={!isEditing}
-                                        >
-                                          Delete
-                                        </Button>
-                                      </Col>
-                                    </Row>
-                                  </div>
-                                ))}
-                              <Button
-                                className="btn-dark"
-                                type="button"
-                                onClick={() =>
-                                  push({
-                                    firstName: "",
-                                    middleName: "",
-                                    lastName: "",
-                                    birthDate: "",
-                                    childNation: "",
-                                    childPlaced: "",
-                                    childCfsAgency: "",
-                                    childCfsAgentFullName: "",
-                                    childCfsAgentNumber: "",
-                                    childCfsAgentEmail: "",
-                                    childStatusCfsFile: "",
-                                  })
-                                }
-                                disabled={!isEditing}
-                              >
-                                + Add Child
-                              </Button>
-                            </div>
-                          )}
-                        </FieldArray>
-                      </Row>
-                    </TabPanel>
-                    <TabPanel>Tab panel Community housingSupport </TabPanel>
-                    <TabPanel>Tab panel Employment </TabPanel>
-                    <TabPanel>Tab panel Case notes </TabPanel>
-                    <TabPanel>Tab panel Legal notes </TabPanel>
-                  </Tabs>
-                </div>
-              </Row>
+                                                                <Row>
+                                                                    <Col md={9}></Col>
+                                                                    <Col md={3} className="d-flex align-items-end mt-2">
+                                                                        <Button className="w-100 btn btn-danger" type="button" onClick={() => remove(index)} disabled={!isEditing} >Delete</Button>
+                                                                    </Col>
+                                                                </Row>
 
-              {/* Action buttons */}
-              <Row className="mt-3">
-                {!isEditing ? (
-                  <Col md={4}>
-                    {" "}
-                    <Button
-                      className={styles.cancelButton}
-                      onClick={() => setIsEditing(true)}
-                    >
-                      Edit
-                    </Button>{" "}
-                  </Col>
-                ) : (
-                  <>
-                    <Col md={4}>
-                      <Button
-                        className={styles.cancelButton}
-                        onClick={() => {
-                          resetForm();
-                          setIsEditing(false);
-                        }}
-                      >
-                        Cancel
-                      </Button>{" "}
-                    </Col>
-                    <Col md={4}>
-                      <Button className={styles.submitButton} type="submit">
-                        Save
-                      </Button>{" "}
-                    </Col>
-                  </>
-                )}
-              </Row>
-              {formSent && (
-                <div className={styles.successfulText}>
-                  Form saved successfully!
-                </div>
-              )}
-            </Form>
-          </>
-        )}
-      </Formik>
-    </div>
-  );
+                                                            </div>
+                                                        ))}
+                                                        <Button className="btn-dark" type="button" onClick={() =>
+                                                            push({
+                                                                firstName: "",
+                                                                middleName: "",
+                                                                lastName: "",
+                                                                birthDate: "",
+                                                                childNation: "",
+                                                                childPlaced: "",
+                                                                childCfsAgency:"",
+                                                                childCfsAgentFullName:"",
+                                                                childCfsAgentNumber:"",
+                                                                childCfsAgentEmail:"",
+                                                                childStatusCfsFile:""
+                                                            })} disabled={!isEditing}>
+                                                            + Add Child
+                                                        </Button>
+                                                    </div>
+                                                )}
+                                            </FieldArray>
+                                        </Row>
+                                    </TabPanel>
+                                    <TabPanel>
+                                        {/* Health and Wellness Tab */}
+
+                                        <Row className={styles.group}>
+                                            <Col>
+                                            <label>How do you maintain your mental, emotional, spiritual and physical wellbeing? </label>
+                                            <Field
+                                                as="textarea"
+                                                name="seekingAdvocacy"
+                                                className={styles.textarea}
+                                                disabled={!isEditing}
+                                            />
+                                            <ErrorMessage
+                                                name="seekingAdvocacy"
+                                                component="div"
+                                                className={styles.errorText}
+                                            />
+                                            </Col>
+                                        </Row>
+
+                                        <Row className={styles.group}>
+                                            <Col>
+                                            <label>How has Drugs and/or Alcohol impacted your life? </label>
+                                            <Field
+                                                as="textarea"
+                                                name="drugsImpact"
+                                                className={styles.textarea}
+                                                disabled={!isEditing}
+                                            />
+                                            <ErrorMessage
+                                                name="seekingAdvocacy"
+                                                component="div"
+                                                className={styles.errorText}
+                                            />
+                                            </Col>
+                                        </Row>
+
+                                        <Row className={styles.group}>
+                                            <Col>
+                                            <label>When was the last time you used Drugs and/or Alcohol? </label>
+                                            <Field
+                                                as="textarea"
+                                                name="lastTimeUsed"
+                                                className={styles.textarea}
+                                                disabled={!isEditing}
+                                            />
+                                            <ErrorMessage
+                                                name="seekingAdvocacy"
+                                                component="div"
+                                                className={styles.errorText}
+                                            />
+                                            </Col>
+                                        </Row>
+
+                                    </TabPanel>
+                                    <TabPanel>
+
+                                        {/* Case Notes Tab */}
+
+                                        {notesData.length === 0 ? (
+                                            <p>No notes found for this client.</p>
+                                        ) : (
+                                            <>
+                                                {/* Displays the notes table */}
+                                                {!selectedNote && (
+                                                    <table className="table table-striped table-bordered">
+                                                        <thead className="table-dark">
+                                                            <tr>
+                                                                <th>Note ID</th>
+                                                                <th>Created At</th>
+                                                                <th>Type</th>
+                                                                <th></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {[...notesData].sort((a, b) => a.note_id - b.note_id).map((note) => (
+                                                                <tr key={note.note_id}>
+                                                                    <td>{note.note_id}</td>
+                                                                    <td>{note.createdAt}</td>
+                                                                    <td>{note.type}</td>
+                                                                    <td>
+                                                                        <Button
+                                                                            className="btn btn-primary btn-sm"
+                                                                            onClick={() => handleShowNoteDetails(note)}
+
+                                                                        >
+                                                                            See Note
+                                                                        </Button>
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                )}
+
+                                                {/* Show details of the selected note */}
+                                                {selectedNote && (
+                                                    <div className="note-details">
+                                                        <Row className="mb-2">
+                                                            <Col md={9}>
+                                                                <h5>Note ID: {selectedNote.note_id}</h5>
+                                                            </Col>
+                                                            <Col md={3}>
+                                                                <div>
+                                                                    <label><strong>Created At:</strong> {selectedNote.createdAt}</label>
+                                                                </div>
+                                                            </Col>
+                                                        </Row>
+
+                                                        <Row className="align-items-center">
+                                                            <Col md={4}>
+                                                                <div>
+                                                                <label><strong>Type:</strong> {selectedNote.type} </label>
+                                                                </div>
+                                                            </Col>
+                                                            <Col md={4}>
+                                                                <div>
+                                                                    <label><strong>Subtype:</strong> {selectedNote.subType}</label>
+                                                                </div>
+                                                            </Col>
+
+                                                        </Row>
+
+                                                        <Row className="mt-3">
+                                                            <Col md={6}>
+                                                                <div>
+                                                                    <label><strong>Case Note:</strong></label>
+                                                                    <Field
+                                                                        as="textarea"
+                                                                        name="description"
+                                                                        className="form-control"
+                                                                        value={selectedNote.description}
+                                                                        rows={10}
+                                                                        disabled
+                                                                    />
+                                                                    {/* Error handling */}
+                                                                    <ErrorMessage
+                                                                        name="description"
+                                                                        component="div"
+                                                                        className="text-danger"
+                                                                    />
+                                                                </div>
+                                                            </Col>
+                                                            <Col md={6}>
+                                                                <div>
+                                                                    <label><strong>Action Plan:</strong></label>
+                                                                    <Field
+                                                                        as="textarea"
+                                                                        name="actionPlan"
+                                                                        className="form-control"
+                                                                        value={selectedNote.actionPlan}
+                                                                        rows={10}
+                                                                        disabled
+                                                                    />
+                                                                    {/* Error handling */}
+                                                                    <ErrorMessage
+                                                                        name="actionPlan"
+                                                                        component="div"
+                                                                        className="text-danger"
+                                                                    />
+                                                                </div>
+                                                            </Col>
+                                                        </Row>
+
+                                                        <Row className="mt-3">
+                                                            <Col md={4}>
+                                                                <div>
+                                                                    <label><strong>Last Updated:</strong> {selectedNote.modifiedAt}</label>
+                                                                </div>
+                                                            </Col>
+                                                            <Col md={4}>
+                                                                <div>
+                                                                    <label><strong>Author:</strong> </label>
+                                                                </div>
+                                                            </Col>
+                                                            <Col md={2}></Col>
+                                                            <Col md={2}>
+                                                                <Button
+                                                                    variant="secondary"
+                                                                    className="mb-3"
+                                                                    onClick={handleCloseNoteDetails}
+                                                                >
+                                                                    Close Note
+                                                                </Button>
+                                                            </Col>
+                                                        </Row>
+                                                    </div>
+                                                )}
+
+                                                {/* Show add new note details */}
+                                                {!showNewNoteForm && (
+                                                    <Button onClick={() => handleAddNoteClick(values, setFieldValue)} disabled={!isEditing} >Add Note</Button>
+                                                )}
+                                                {showNewNoteForm && (
+                                                    <div style={{ backgroundColor: "#dbdbdb", padding: "15px", borderRadius: "8px", border: "0.5px solid #ccc" }} >
+                                                        {/* Separating line */}
+                                                        {/* <hr className="my-3" /> */}
+                                                        <h4>New Note</h4>
+                                                        <Row>
+                                                            <Col>
+                                                                {/* <InputField name="treatyNumber" label="Treaty Number:" placeholder="" error={errors.treatyNumber} disabled={!isEditing} /> */}
+                                                                <TypeNoteSelect name={`notes.${values.notes.length - 1}.type`} label="Type" placeholder="" error={errors.type} disabled={!isEditing}/>
+                                                            </Col>
+                                                            <Col>
+                                                                <SubTypeNoteSelect name={`notes.${values.notes.length - 1}.subType`} label="Subtype" placeholder="" error={errors.subType} disabled={!isEditing}/>
+                                                            </Col>
+                                                        </Row>
+
+                                                        <label>Description:</label>
+                                                        <Field
+                                                            // label="Description"
+                                                            name={`notes.${values.notes.length - 1}.description`}
+                                                            as="textarea"
+                                                            rows={4}
+                                                        />
+                                                        <label>Action Plan:</label>
+                                                        <Field
+                                                            // label="Action Plan"
+                                                            name={`notes.${values.notes.length - 1}.actionPlan`}
+                                                            as="textarea"
+                                                            rows={4}
+                                                        />
+
+                                                        {/* Input to upload file */}
+                                                        <label>Attach File:</label>
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*,.pdf,.doc,.docx"
+                                                            onChange={(event) => {
+                                                                const file = event.currentTarget.files[0];
+                                                                setFieldValue(`notes.${values.notes.length - 1}.file`, file);
+                                                            }}
+                                                        />
+                                                    </div>
+                                                )}
+
+                                            </>
+                                        )}
+                                    </TabPanel>
+                                    <TabPanel>Tab panel Legal notes   </TabPanel>
+                                </Tabs>
+                            </div>
+                        </Row>
+
+                        {/* Action buttons */}
+                        <Row className="mt-3">
+                            {!isEditing ? (
+                                <Col md={4}> <Button className={styles.cancelButton} onClick={() => setIsEditing(true)}>Edit</Button> </Col>
+                            ) : (
+                                <>
+                                    <Col md={4}><Button className={styles.cancelButton} onClick={() => { resetForm(); setIsEditing(false); setShowNewNoteForm(false) }}>Cancel</Button> </Col>
+                                    <Col md={4}><Button className={styles.submitButton} type="submit">Save</Button> </Col>
+                                </>
+                            )}
+                        </Row>
+                        {formSent && <div className={styles.successfulText}>Form saved successfully!</div>}
+                    </Form>
+
+                </>
+            )}
+            </Formik>
+        </div>
+    );
 }
