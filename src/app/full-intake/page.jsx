@@ -16,6 +16,7 @@ import FirstNationSelect from "@/components/FirstNationSelect";
 import MartialStatusSelect from "@/components/MartialStatusSelect";
 import TypeNoteSelect from "@/components/TypeNoteSelect";
 import SubTypeNoteSelect from "@/components/SubTypeNoteSelect"
+import ManageCfsAgencies from "@/components/ManageCfsAgencies";
 
 import { handleNotesUpdate } from "../utils/notesUpdates"; // handles updates to the Notes table
 
