@@ -1,22 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Field } from "formik";
 import supabase from "@/app/lib/supabase";
-import styles from "@/app/pre-intake/preIntake.module.css";
 
-const FirstNationSelect = ({ name, label, error, value, onChange }) => {
+const FirstNationSelect = ({ field, form, label, error, disabled }) => {
   const [firstNations, setFirstNations] = useState([]);
 
-  // Fetch first nations data from Supabase when the component mounts
   useEffect(() => {
     const fetchFirstNations = async () => {
       const { data, error } = await supabase
         .from("First Nations")
-        .select("firstNationMembership");
+        .select("nation_id,firstNationMembership");
 
       if (error) {
         console.error("Error fetching first nations:", error);
       } else {
-        setFirstNations(data);
+        setFirstNations(data || []);
       }
     };
 
@@ -26,23 +23,18 @@ const FirstNationSelect = ({ name, label, error, value, onChange }) => {
   return (
     <>
       <label htmlFor={name}>{label}:</label>
-      <Field
-        as="select"
-        name={name}
-        className={styles.select}
-        value={value}
-        onChange={onChange}
+
+      <select
+        {...field} // Bind Formik's field props
+        disabled={disabled}
       >
         <option value="">Select a first nation</option>
         {firstNations.map((nation) => (
-          <option
-            key={nation.firstNationMembership}
-            value={nation.firstNationMembership}
-          >
+          <option key={nation.nation_id} value={nation.firstNationMembership}>
             {nation.firstNationMembership}
           </option>
         ))}
-      </Field>
+      </select>
 
       {error && <div className="error">{error}</div>}
     </>

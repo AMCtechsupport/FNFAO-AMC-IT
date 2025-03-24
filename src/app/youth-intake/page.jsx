@@ -14,6 +14,7 @@ import ProvincesSelect from "@/components/ProvincesSelect";
 import StatusCFSFileSelect from "@/components/StatusCFSFileSelect";
 import FirstNationSelect from "@/components/FirstNationSelect";
 import PronounSelect from "@/components/Pronouns";
+import ManageCfsAgencies from "@/components/ManageCfsAgencies";
 
 import supabase from "../lib/supabase";
 import { useUser } from "@clerk/clerk-react";
@@ -78,7 +79,7 @@ function PreIntakeForm() {
         referredBy: "",
         firstNationMembership: "",
         treatyNumber: "",
-        otherFirstnation: "",
+        otherFirstNation: "",
         inCare: false,
         statusCFSFile: "",
         lastFaceToFace: "",
@@ -120,7 +121,7 @@ function PreIntakeForm() {
         kindSupport: "",
         personalGoals: "",
         additionalInformation: "",
-        youthIntakeAccurate: "",
+        motherNation: "",
       }}
       validate={(values) => {
         let errors = {};
@@ -194,6 +195,20 @@ function PreIntakeForm() {
 
         if (values.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
           errors.email = "Invalid email format";
+        }
+
+        if (
+          values.cfsAgentEmail &&
+          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.cfsAgentEmail)
+        ) {
+          errors.cfsAgentEmail = "Invalid email format";
+        }
+
+        if (
+          values.caseWorkerEmail &&
+          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.caseWorkerEmail)
+        ) {
+          errors.caseWorkerEmail = "Invalid email format";
         }
 
         if (
@@ -550,9 +565,10 @@ function PreIntakeForm() {
 
           <Row>
             <Col md={4}>
-              <FirstNationSelect
+              <Field
                 name="firstNationMembership"
-                label="First Nation Membership"
+                component={FirstNationSelect}
+                label="First Nation Membership:"
                 error={errors.firstNationMembership}
               />
             </Col>
@@ -566,10 +582,11 @@ function PreIntakeForm() {
               />
             </Col>
             <Col md={4}>
-              <FirstNationSelect
-                name="otherFirstnation"
-                label="Other First Nation"
-                error={errors.otherFirstnation}
+              <Field
+                name="otherFirstNation"
+                component={FirstNationSelect}
+                label="Other First Nation Membership:"
+                error={errors.otherFirstNation}
               />
             </Col>
           </Row>
@@ -627,20 +644,13 @@ function PreIntakeForm() {
               </Col>
             </Row>
 
-            <Col>
-              <InputField
+            <Col md={4}>
+              <Field
                 name="cfsAgency"
-                label="CFS Agency Name:"
-                placeholder=""
+                value="cfsAgency"
+                component={ManageCfsAgencies}
+                label="CFS Agency"
                 error={errors.cfsAgency}
-              />
-            </Col>
-            <Col>
-              <InputField
-                name="cfsAgentFullName"
-                label="Agency Worker’s Full Name:"
-                placeholder=""
-                error={errors.cfsAgentFullName}
               />
             </Col>
           </Row>
@@ -696,11 +706,12 @@ function PreIntakeForm() {
                 error={errors.lastName}
               />
             </Col>
-            <Col md={3}>
-              <FirstNationSelect
+            <Col md={4}>
+              <Field
                 name="motherNation"
-                label="Mother's First Nation Membership"
-                error={errors.firstNationMembership}
+                component={FirstNationSelect}
+                label="Mother's First Nation Membership:"
+                error={errors.motherNation}
               />
             </Col>
 
@@ -729,11 +740,12 @@ function PreIntakeForm() {
                   error={errors.lastName}
                 />
               </Col>
-              <Col md={3}>
-                <FirstNationSelect
+              <Col md={4}>
+                <Field
                   name="fatherNation"
-                  label="Father's First Nation Membership"
-                  error={errors.firstNationMembership}
+                  component={FirstNationSelect}
+                  label="Father's First Nation Membership:"
+                  error={errors.fatherNation}
                 />
               </Col>
             </Row>
@@ -1427,32 +1439,6 @@ function PreIntakeForm() {
                 as="textarea"
                 name="additionalInformation"
                 className={styles.textarea}
-              />
-            </Col>
-          </Row>
-
-          <Row>
-            <Col>
-              <label>
-                The First Nations Family Advocate Office (FNFAO) Rites of
-                Passage Stream of Service strives to provide the best possible
-                advocacy and support services to First Nations youth who are
-                experiencing difficulties and high stress on their emotional,
-                physical, mental, and spiritual well-being. To best help youth
-                clients to meet their needs, we will gather information that
-                will aid in our ability to provide efficient services and life
-                coaching. We expect honest and accurate information to best help
-                youth clients.
-                <br />
-                <br />I declare that the information provided in this Youth
-                Intake Form is accurate and truthful to the best of my
-                knowledge.
-              </label>
-              <Field
-                as="textarea"
-                name="youthIntakeAccurate"
-                className={styles.textarea}
-                placeholder="Type Name Here"
               />
             </Col>
           </Row>

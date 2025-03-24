@@ -1,48 +1,49 @@
 import React, { useEffect, useState } from "react";
+import { Field } from "formik";
 import supabase from "@/app/lib/supabase";
 
-const ManageCfsAgencies = ({ name, value, setFieldValue, disabled }) => {
+const ManageCfsAgencies = ({
+  name,
+  label,
+  error,
+  value,
+  onChange,
+  disabled,
+}) => {
   const [agencies, setAgencies] = useState([]);
 
   useEffect(() => {
     const fetchAgencies = async () => {
       const { data, error } = await supabase
         .from("CFS Agencies")
-        .select("agency_id, agencyName");
+        .select("agency_id,agencyName");
 
       if (error) {
         console.error("Error fetching CFS agencies:", error);
       } else {
-        setAgencies(data);
+        setAgencies(data || []);
       }
     };
 
     fetchAgencies();
   }, []);
 
-  const handleChange = (event) => {
-    setFieldValue(name, event.target.value);
-  };
-
   return (
-    <div className="form-group">
-      <label htmlFor={name}>CFS Agency:</label>
-      <select
-        name={name}
-        value={value}
-        onChange={handleChange}
-        className="form-control"
-        disabled={disabled}
-      >
+    <>
+      <label htmlFor={name}>{label}:</label>
+
+      {/* Use Formik's Field component for binding with the form */}
+      <Field as="select" name="cfsAgency">
         <option value="">Select an agency</option>
         {agencies.map((agency) => (
           <option key={agency.agency_id} value={agency.agencyName}>
-            {" "}
             {agency.agencyName}
           </option>
         ))}
-      </select>
-    </div>
+      </Field>
+
+      {error && <div className="error">{error}</div>}
+    </>
   );
 };
 
