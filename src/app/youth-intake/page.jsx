@@ -122,6 +122,9 @@ function PreIntakeForm() {
         personalGoals: "",
         additionalInformation: "",
         motherNation: "",
+        accessElderExplained: "",
+        connectedCommunity: "",
+        connectedCommunityExplained: "",
       }}
       validate={(values) => {
         let errors = {};
@@ -568,7 +571,7 @@ function PreIntakeForm() {
               <Field
                 name="firstNationMembership"
                 component={FirstNationSelect}
-                label="First Nation Membership:"
+                label="First Nation Membership"
                 error={errors.firstNationMembership}
               />
             </Col>
@@ -585,7 +588,7 @@ function PreIntakeForm() {
               <Field
                 name="otherFirstNation"
                 component={FirstNationSelect}
-                label="Other First Nation Membership:"
+                label="Other First Nation Membership"
                 error={errors.otherFirstNation}
               />
             </Col>
@@ -710,7 +713,7 @@ function PreIntakeForm() {
               <Field
                 name="motherNation"
                 component={FirstNationSelect}
-                label="Mother's First Nation Membership:"
+                label="Mother's First Nation Membership"
                 error={errors.motherNation}
               />
             </Col>
@@ -744,7 +747,7 @@ function PreIntakeForm() {
                 <Field
                   name="fatherNation"
                   component={FirstNationSelect}
-                  label="Father's First Nation Membership:"
+                  label="Father's First Nation Membership"
                   error={errors.fatherNation}
                 />
               </Col>
@@ -906,12 +909,16 @@ function PreIntakeForm() {
                             <InputField
                               name={`homeMembers.${index}.phoneNumber`}
                               label="Phone Number:"
+                              as={PhoneNumberInput}
+                              placeholder="(123) 456-7890"
+                              error={errors.homeMembers?.[index]?.phoneNumber}
                             />
                           </Col>
                           <Col md={3}>
                             <InputField
                               name={`homeMembers.${index}.email`}
                               label="Email Address:"
+                              placeholder="email@provider.com"
                               error={errors.email}
                             />
                           </Col>
@@ -1124,7 +1131,44 @@ function PreIntakeForm() {
               </div>
             </Col>
           </Row>
-
+          <Row className={styles.group}>
+            <Col md={4}>
+              <div>
+                <label>Do you have access to an elder or Counsellor?</label>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="accessElder"
+                    value="yes"
+                  />
+                  <label className="form-check-label">Yes</label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="accessElder"
+                    value="no"
+                  />
+                  <label className="form-check-label">No</label>
+                </div>
+              </div>
+            </Col>
+            {values.accessElder === "no" && (
+              <Col md={8}>
+                <label>
+                  Are you interested in getting access to an Elder or
+                  Counsellor?
+                </label>
+                <Field
+                  as="textarea"
+                  name="accessElderExplained"
+                  className={styles.textarea}
+                />
+              </Col>
+            )}
+          </Row>
           <Row>
             <h4 className="text-dark">Financial Information:</h4>
           </Row>
@@ -1272,32 +1316,6 @@ function PreIntakeForm() {
           <Row className={styles.group}>
             <Col md={4}>
               <div>
-                <label>Do you have access to an elder or Counsellor?</label>
-                <div className="form-check form-check-inline">
-                  <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="accessElder"
-                    value="yes"
-                  />
-                  <label className="form-check-label">Yes</label>
-                </div>
-                <div className="form-check form-check-inline">
-                  <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="accessElder"
-                    value="no"
-                  />
-                  <label className="form-check-label">No</label>
-                </div>
-              </div>
-            </Col>
-          </Row>
-
-          <Row className={styles.group}>
-            <Col md={4}>
-              <div>
                 <label>
                   Would you be interested in speaking to someone at the office?
                 </label>
@@ -1349,6 +1367,49 @@ function PreIntakeForm() {
                 </div>
               </div>
             </Col>
+          </Row>
+
+          <Row className={styles.group}>
+            <Col md={4}>
+              <div>
+                <label>
+                  Are you connected to any other community or organization?
+                </label>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="connectedCommunity"
+                    value="yes"
+                  />
+                  <label className="form-check-label">Yes</label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="connectedCommunity"
+                    value="no"
+                  />
+                  <label className="form-check-label">No</label>
+                </div>
+              </div>
+            </Col>
+            {values.connectedCommunity === "yes" && (
+              <Col md={8}>
+                <label>Please share the details:</label>
+                <Field
+                  as="textarea"
+                  name="connectedCommunityExplained"
+                  className={styles.textarea}
+                />
+                <ErrorMessage
+                  name="connectedCommunityExplained"
+                  component="div"
+                  className={styles.errorText}
+                />
+              </Col>
+            )}
           </Row>
 
           <Row className={styles.group}>

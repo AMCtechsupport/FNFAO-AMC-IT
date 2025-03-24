@@ -22,7 +22,7 @@ const FirstNationSelect = ({ field, form, label, error, disabled }) => {
 
   return (
     <>
-      <label htmlFor={name}>{label}:</label>
+      <label>{label}:</label>
 
       <select
         {...field} // Bind Formik's field props
