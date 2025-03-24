@@ -123,7 +123,7 @@ function PreIntakeForm() {
         additionalInformation: "",
         motherNation: "",
         accessElderExplained: "",
-        connectedCommunity: "",
+        connectedCommunity: false,
         connectedCommunityExplained: "",
       }}
       validate={(values) => {
@@ -906,10 +906,10 @@ function PreIntakeForm() {
                             />
                           </Col>
                           <Col md={3}>
-                            <InputField
+                            <Field
                               name={`homeMembers.${index}.phoneNumber`}
                               label="Phone Number:"
-                              as={PhoneNumberInput}
+                              component={PhoneNumberInput}
                               placeholder="(123) 456-7890"
                               error={errors.homeMembers?.[index]?.phoneNumber}
                             />
