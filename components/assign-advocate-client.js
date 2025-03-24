@@ -124,7 +124,7 @@ export default function AssignAdvocate() {
         setMessage("Failed to assign advocate: " + insertError.message);
         setShowPopup(true);
       } else {
-        setMessage("Advocate successfully assigned to the client.");
+        setMessage("Client successfully assigned to the selected Advocate.");
         setShowPopup(true);
 
         // Update client status to 'Active' after successful assignment
