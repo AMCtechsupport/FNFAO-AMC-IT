@@ -7,6 +7,8 @@ import SearchBar from "../../../components/user-logs-search";
 import LogModal from "../../../components/user-logs-modal";
 import LogsPagination from "../../../components/user-logs-pagination";
 
+import UserHome from "../user-home/page";
+
 const UserLogs = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -160,28 +162,30 @@ const UserLogs = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-semibold text-gray-800 mb-6">User Logs</h1>
+    <UserHome>
+      <div className="max-w-4xl mx-auto p-6">
+        <h1 className="text-3xl font-semibold text-gray-800 mb-6">User Logs</h1>
 
-      {/* Search Bar */}
-      <SearchBar value={searchQuery} onSearchChange={handleSearchChange} />
+        {/* Search Bar */}
+        <SearchBar value={searchQuery} onSearchChange={handleSearchChange} />
 
-      {/* Log Table */}
-      <LogTable logs={logs} loading={loading} onLogClick={setSelectedLog} />
+        {/* Log Table */}
+        <LogTable logs={logs} loading={loading} onLogClick={setSelectedLog} />
 
-      {/* Pagination */}
-      <LogsPagination
-        currentPage={currentPage}
-        totalItems={totalLogs}
-        itemsPerPage={itemsPerPage}
-        onPageChange={handlePageChange}
-      />
+        {/* Pagination */}
+        <LogsPagination
+          currentPage={currentPage}
+          totalItems={totalLogs}
+          itemsPerPage={itemsPerPage}
+          onPageChange={handlePageChange}
+        />
 
-      {/* Modal */}
-      {selectedLog && (
-        <LogModal log={selectedLog} onClose={() => setSelectedLog(null)} />
-      )}
-    </div>
+        {/* Modal */}
+        {selectedLog && (
+          <LogModal log={selectedLog} onClose={() => setSelectedLog(null)} />
+        )}
+      </div>
+    </UserHome>
   );
 };
 

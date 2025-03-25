@@ -1,4 +1,6 @@
-import { ReactNode } from "react";
+"use client";
+
+import { ReactNode, useState, useEffect } from "react";
 import Link from "next/link";
 import {
   ClerkProvider,
@@ -6,13 +8,32 @@ import {
   SignedIn,
   SignedOut,
   UserButton,
+  useUser,
 } from "@clerk/nextjs";
 
 export default function UserHome({ children }: { children: ReactNode }) {
+  const [isClient, setIsClient] = useState(false);
+
+  const { user } = useUser();
+  const [userRole, setUserRole] = useState<string | undefined>(undefined);
+
+  // Set isClient to true when the component is mounted on the client-side
+  useEffect(() => {
+    setIsClient(true);
+    // Set the user role after the component is mounted
+    if (user) {
+      setUserRole(user.publicMetadata?.role);
+    }
+  }, [user]); // Only re-run when `user` changes
+
+  // Only render content that requires the user data if we're on the client
+  if (!isClient) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#cccccc" }}>
-      {" "}
-      {/* Background color /}
+      {/* Background color */}
 
       {/* Main Content */}
       <div className="flex">
@@ -61,6 +82,28 @@ export default function UserHome({ children }: { children: ReactNode }) {
             >
               Client List
             </Link>
+            <Link
+              href="/user-logs"
+              className="block text-white hover:font-bold no-underline transition-colors p-2 rounded"
+            >
+              User Logs
+            </Link>
+            {userRole === "admin" && (
+              <Link
+                href="/admin"
+                className="block text-white hover:font-bold no-underline transition-colors p-2 rounded"
+              >
+                Admin
+              </Link>
+            )}
+            {(userRole === "operational manager" || userRole === "admin") && (
+              <Link
+                href="/operational-manager-dash"
+                className="block text-white hover:font-bold no-underline transition-colors p-2 rounded"
+              >
+                Manager Dash
+              </Link>
+            )}
           </nav>
         </aside>
 

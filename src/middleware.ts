@@ -8,10 +8,14 @@ const isProtectedRoute = createRouteMatcher([
   "/pre-intake(.*)",
   "/manager-dash(.*)",
   "/admin(.*)",
+  "/user-logs(.*)",
+  "/youth-intake(.*)",
 ]);
 
 // Define the route that needs admin role protection
-const isAdminRoute = createRouteMatcher(["/manager-dash(.*)", "/admin(.*)"]);
+const isAdminRoute = createRouteMatcher(["/manager-dash(.*)"]);
+
+const isAdminOrYouthWorkerRoute = createRouteMatcher(["/youth-intake(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {
@@ -26,6 +30,15 @@ export default clerkMiddleware(async (auth, req) => {
     if (
       isAdminRoute(req) &&
       (await auth()).sessionClaims?.metadata?.role !== "admin"
+    ) {
+      const url = new URL("/", req.url);
+      return NextResponse.redirect(url);
+    }
+
+    if (
+      isAdminOrYouthWorkerRoute(req) &&
+      userRole !== "admin" &&
+      userRole !== "youth worker"
     ) {
       const url = new URL("/", req.url);
       return NextResponse.redirect(url);
