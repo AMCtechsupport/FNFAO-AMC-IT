@@ -1,10 +1,9 @@
 "use client";
 
-// test
-
 import { useState, useEffect } from "react";
 import supabase from "../src/app/lib/supabase";
 import Link from "next/link";
+import UnassignClient from "./unassign-advocate";
 
 export default function AssignedClientsToAdvocate({ advocateId }) {
   const [assignedClients, setAssignedClients] = useState([]);
@@ -71,6 +70,15 @@ export default function AssignedClientsToAdvocate({ advocateId }) {
       fetchAssignedClients();
     }
   }, [advocateId, currentPage, searchQuery]);
+
+  // Handle unassignment
+  const handleUnassign = (clientId) => {
+    setAssignedClients((prevClients) =>
+      prevClients.filter(
+        (assignment) => assignment.Clients.client_id !== clientId
+      )
+    );
+  };
 
   // Pagination control handlers
   const totalPages = Math.ceil(totalClients / clientsPerPage);
@@ -161,6 +169,13 @@ export default function AssignedClientsToAdvocate({ advocateId }) {
                     }
                   )}
                 </p>
+
+                {/* Unassign Client Button */}
+                <UnassignClient
+                  advocateId={advocateId}
+                  clientId={assignment.Clients.client_id}
+                  onUnassign={handleUnassign}
+                />
               </div>
             </li>
           ))}
