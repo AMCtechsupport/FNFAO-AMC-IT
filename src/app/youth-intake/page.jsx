@@ -94,6 +94,7 @@ function PreIntakeForm() {
         currentlyStayingDuraton: "",
         peopleHome: 0,
         homeMembers: [],
+        educationalPersons: [],
         inSchool: false,
         schoolAttending: "",
         currentGrade: "",
@@ -287,6 +288,7 @@ function PreIntakeForm() {
             emergencyContactLastName,
             emergencyContactNumber,
             homeMembers,
+            educationalPersons,
             ...clientData
           } = convertedValues;
 
@@ -354,6 +356,48 @@ function PreIntakeForm() {
             }
 
             console.log("Home Members inserted successfully:", homeMembersData);
+          }
+
+          // For Educational Support Persons
+          if (educationalPersons && educationalPersons.length > 0) {
+            const educationalPersonsData = educationalPersons.map(
+              (educationalPerson) => {
+                const {
+                  firstName,
+                  middleName,
+                  lastName,
+                  relationship,
+                  phoneNumber,
+                  email,
+                } = educationalPerson;
+                return {
+                  firstName,
+                  middleName,
+                  lastName,
+                  relationship,
+                  phoneNumber,
+                  email,
+                  client_id: clientId,
+                };
+              }
+            );
+
+            const { error: educationalPersonsError } = await supabase
+              .from("Educational Support Persons")
+              .insert(educationalPersonsData);
+
+            if (educationalPersonsError) {
+              console.error(
+                "Error inserting educational support person:",
+                educationalPersonsError
+              );
+              throw educationalPersonsError;
+            }
+
+            console.log(
+              "Educational support persons inserted successfully:",
+              educationalPersonsData
+            );
           }
 
           // Insert emergency contact into the 'Emergency Contacts' table
@@ -1169,6 +1213,99 @@ function PreIntakeForm() {
               </Col>
             )}
           </Row>
+
+          <Row className={styles.group}>
+            <label>Is there an educational support person you contact?</label>
+            <FieldArray name="educationalPersons">
+              {({ push, remove }) => (
+                <div>
+                  {values.educationalPersons.map((educationalPerson, index) => (
+                    <div
+                      key={index}
+                      className={`${styles.bglightgrey} border rounded p-2 mb-3`}
+                    >
+                      <Row className="align-items-center">
+                        <Col md={3}>
+                          <InputField
+                            name={`educationalPersons.${index}.firstName`}
+                            label="First Name:"
+                          />
+                        </Col>
+                        <Col md={3}>
+                          <InputField
+                            name={`educationalPersons.${index}.middleName`}
+                            label="Middle Name:"
+                          />
+                        </Col>
+                        <Col md={3}>
+                          <InputField
+                            name={`educationalPersons.${index}.lastName`}
+                            label="Last Name:"
+                          />
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col md={2}>
+                          <InputField
+                            name={`educationalPersons.${index}.relationship`}
+                            label="Relationship:"
+                          />
+                        </Col>
+                        <Col md={3}>
+                          <Field
+                            name={`educationalPersons.${index}.phoneNumber`}
+                            label="Phone Number:"
+                            component={PhoneNumberInput}
+                            placeholder="(123) 456-7890"
+                            error={
+                              errors.educationalPersons?.[index]?.phoneNumber
+                            }
+                          />
+                        </Col>
+                        <Col md={3}>
+                          <InputField
+                            name={`educationalPersons.${index}.email`}
+                            label="Email Address:"
+                            placeholder="email@provider.com"
+                            error={errors.email}
+                          />
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col md={9}></Col>
+                        <Col md={3} className="d-flex align-items-end mt-2">
+                          <Button
+                            className="w-100 btn btn-danger"
+                            type="button"
+                            onClick={() => remove(index)}
+                          >
+                            Delete
+                          </Button>
+                        </Col>
+                      </Row>
+                    </div>
+                  ))}
+                  <Button
+                    className="btn-dark"
+                    type="button"
+                    onClick={() =>
+                      push({
+                        firstName: "",
+                        middleName: "",
+                        lastName: "",
+                        relationship: "",
+                        phoneNumber: "",
+                        email: "",
+                      })
+                    }
+                  >
+                    + Add Educational Support Person
+                  </Button>
+                </div>
+              )}
+            </FieldArray>
+          </Row>
+
           <Row>
             <h4 className="text-dark">Financial Information:</h4>
           </Row>
