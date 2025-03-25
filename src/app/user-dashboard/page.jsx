@@ -40,6 +40,7 @@ export default function AssignedClientsToAdvocate() {
               }`
             : "Loading..."}
         </h2>
+
         {advocate ? (
           <AssignedClientsList advocateId={advocate.advocate_id} />
         ) : (
