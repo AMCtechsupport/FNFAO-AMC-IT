@@ -59,12 +59,45 @@ export default async function AdminDashboard(params: {
 
             <form action={setRole} className="inline">
               <input type="hidden" value={user.id} name="id" />
+              <input type="hidden" value="operational manager" name="role" />
+              <button
+                type="submit"
+                className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
+              >
+                Make Operational Manager
+              </button>
+            </form>
+
+            <form action={setRole} className="inline">
+              <input type="hidden" value={user.id} name="id" />
+              <input type="hidden" value="advocacy coordinator" name="role" />
+              <button
+                type="submit"
+                className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
+              >
+                Make Advocacy Coordinator
+              </button>
+            </form>
+
+            <form action={setRole} className="inline">
+              <input type="hidden" value={user.id} name="id" />
               <input type="hidden" value="advocate" name="role" />
               <button
                 type="submit"
                 className="bg-yellow-500 text-white py-2 px-4 rounded hover:bg-yellow-600 transition"
               >
                 Make Advocate
+              </button>
+            </form>
+
+            <form action={setRole} className="inline">
+              <input type="hidden" value={user.id} name="id" />
+              <input type="hidden" value="youth worker" name="role" />
+              <button
+                type="submit"
+                className="bg-green-500 text-white py-2 px-4 rounded hover:bg-yellow-600 transition"
+              >
+                Make Youth Worker
               </button>
             </form>
 
