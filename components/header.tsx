@@ -20,7 +20,7 @@ export default function Header() {
           <div className="flex justify-between items-center p-4">
             {/* Logo */}
             <Link href="/user-home">
-              <img src="/logoDataHub.png" alt="logo" />
+              <img src="/logo.png" alt="logo" />
             </Link>
 
             {/* Navigation links and auth button */}

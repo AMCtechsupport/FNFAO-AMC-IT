@@ -3,7 +3,7 @@ import { Field } from "formik";
 import supabase from "@/app/lib/supabase";
 import styles from "@/app/pre-intake/preIntake.module.css";
 
-const FirstNationSelect = ({ name, label, error, value, onChange }) => {
+const FirstNationSelect = ({ name, label, error, value, onChange, disabled }) => {
   const [firstNations, setFirstNations] = useState([]);
 
   // Fetch first nations data from Supabase when the component mounts
@@ -32,6 +32,7 @@ const FirstNationSelect = ({ name, label, error, value, onChange }) => {
         className={styles.select}
         value={value}
         onChange={onChange}
+        disabled={disabled}
       >
         <option value="">Select a first nation</option>
         {firstNations.map((nation) => (

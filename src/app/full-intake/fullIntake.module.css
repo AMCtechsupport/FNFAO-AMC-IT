@@ -169,3 +169,8 @@ select:disabled {
   border-radius: 5px;
 }
 
+.checkbox-container {
+  display: flex;
+  align-items: center; /* Alinea verticalmente */
+  gap: 8px; /* Espacio entre checkbox y label */
+}
