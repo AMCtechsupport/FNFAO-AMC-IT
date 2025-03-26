@@ -70,7 +70,7 @@ function PreIntakeForm() {
         otherAdultsInvolvedExplained: "",
         firstNationMembership: "",
         treatyNumber: "",
-        otherFirstnation: "",
+        otherFirstNation: "",
         ninePersonalHealthNumber: "",
         sixPersonalHealthNumber: "",
         onReserve: "",
@@ -627,9 +627,9 @@ function PreIntakeForm() {
             </Col>
             <Col md={4}>
               <FirstNationSelect
-                name="otherFirstnation"
+                name="otherFirstNation"
                 label="Other First Nation"
-                error={errors.otherFirstnation}
+                error={errors.otherFirstNation}
               />
             </Col>
           </Row>

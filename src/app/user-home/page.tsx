@@ -88,20 +88,22 @@ export default function UserHome({ children }: { children: ReactNode }) {
             >
               User Logs
             </Link>
-            {userRole === "admin" && (
-              <Link
-                href="/admin"
-                className="block text-white hover:font-bold no-underline transition-colors p-2 rounded"
-              >
-                Admin
-              </Link>
-            )}
             {(userRole === "operational manager" || userRole === "admin") && (
               <Link
-                href="/operational-manager-dash"
+                href="/manager-dash"
                 className="block text-white hover:font-bold no-underline transition-colors p-2 rounded"
               >
-                Manager Dash
+                Manager Dashboard
+              </Link>
+            )}
+            {(userRole === "operational manager" ||
+              userRole === "admin" ||
+              userRole === "advocacy coordinator") && (
+              <Link
+                href="/advocacy-coordinator-dash"
+                className="block text-white hover:font-bold no-underline transition-colors p-2 rounded"
+              >
+                Advocacy Coordinator Dash
               </Link>
             )}
           </nav>

@@ -22,7 +22,7 @@ export default async function AdminDashboard(params: {
   return (
     <UserHome>
       <div className="max-w-3xl mx-auto p-6 bg-gray-50 rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
+        <h1 className="text-2xl font-bold mb-4">Manager Dashboard</h1>
 
         <div className="mb-6">
           <SearchUsers />
