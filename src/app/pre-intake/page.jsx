@@ -6,6 +6,7 @@ import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { Button, Container, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+import ValidNameInput from "@/components/ValidNameInput";
 import PhoneNumberInput from "@/components/ValidPhoneNumber";
 import InputField from "@/components/InputField";
 import ReferredBySelect from "@/components/ReferredBySelect";
@@ -789,22 +790,41 @@ function PreIntakeForm() {
                     >
                       <Row className="align-items-center">
                         <Col md={3}>
-                          <InputField
-                            name={`children.${index}.firstName`}
-                            label="First Name:"
-                          />
+                          <div>
+                            <label htmlFor={`children.${index}.firstName`}>
+                              First Name:
+                            </label>
+                            <Field
+                              id={`children.${index}.firstName`}
+                              name={`children.${index}.firstName`}
+                              component={ValidNameInput}
+                            />
+                          </div>
                         </Col>
+
                         <Col md={3}>
-                          <InputField
-                            name={`children.${index}.middleName`}
-                            label="Middle Name:"
-                          />
+                          <div>
+                            <label htmlFor={`children.${index}.middleName`}>
+                              Middle Name:
+                            </label>
+                            <Field
+                              id={`children.${index}.middleName`}
+                              name={`children.${index}.middleName`}
+                              component={ValidNameInput}
+                            />
+                          </div>
                         </Col>
-                        <Col md={6}>
-                          <InputField
-                            name={`children.${index}.lastName`}
-                            label="Last Name:"
-                          />
+                        <Col md={5}>
+                          <div>
+                            <label htmlFor={`children.${index}.lastName`}>
+                              Last Name:
+                            </label>
+                            <Field
+                              id={`children.${index}.lastName`}
+                              name={`children.${index}.lastName`}
+                              component={ValidNameInput}
+                            />
+                          </div>
                         </Col>
                       </Row>
                       <Row className="mb-4">
