@@ -15,6 +15,7 @@ import FirstNationSelect from "@/components/FirstNationSelect";
 import MartialStatusSelect from "@/components/MartialStatusSelect";
 import TypeNoteSelect from "@/components/TypeNoteSelect";
 import SubTypeNoteSelect from "@/components/SubTypeNoteSelect"
+import FormattedDate from "@/components/FormattedDate";
 
 import { handleNotesUpdate } from "../utils/notesUpdates"; // handles updates to the Notes table
 
@@ -148,7 +149,7 @@ function FullIntakeForm({client_id}){
         setSelectedNote(null); // Close the note details
     };
 
-    const handleAddNoteClick = (values, setFieldValue) => {
+    const handleAddNoteClick = (values, push) => {
         const newNote = {
             client_id: client_id,
             type: values.type || "General",  // Default value
@@ -160,7 +161,8 @@ function FullIntakeForm({client_id}){
             modifiedAt: new Date().toISOString(),
         };
 
-        setFieldValue("notes", [...values.notes, newNote]); // Add the new note to the Formik array
+        // setFieldValue("notes", [...values.notes, newNote]); // Add the new note to the Formik array
+        push(newNote);
         setShowNewNoteForm(true);
         console.log("New note added:", newNote);
     };
@@ -264,9 +266,9 @@ function FullIntakeForm({client_id}){
                         // cfsAgentEmail: "",
                         // statusCFSFile: "",
                         // visitsChild:'no',
-                        // visitsChildFrequency: "",
-                        // casePlanCopy:'yes',
-                        // casePlanCopyDescribe: "",
+                        visitsChildFrequency: originalData?.visitsChildFrequency || "",
+                        casePlanCopy: originalData?.casePlanCopy === true ? "yes" : originalData?.casePlanCopy === false ? "no" : "",
+                        casePlanCopyDescribe: originalData?.casePlanCopyDescribe || "",
                         // involvedCFSReason: "",
                         // prenatalSupport:clientData?.prenatalSupport || "",
                         prenatalSupport: originalData?.prenatalSupport === true ? "yes" : originalData?.prenatalSupport === false ? "no" : "",
@@ -317,10 +319,24 @@ function FullIntakeForm({client_id}){
                         accessElder: originalData?.accessElder ? "yes" : (originalData?.accessElder === false ? "no" : ""),
                         accessElderExplained: originalData?.accessElderExplained || "",
 
+                        childrenInCareDuration: originalData?.childrenInCareDuration || "",
+                        cfsChildrenApprehesionReason: originalData?.cfsChildrenApprehesionReason || "",
+                        kinship: originalData?.kinship ? "yes" : (originalData?.kinship === false ? "no" : ""),
+                        kinshipExplained: originalData?.kinshipExplained || "",
+                        anyConcerns: originalData?.anyConcerns || "",
+                        prentativeSupport: originalData?.prentativeSupport ? "yes" : (originalData?.prentativeSupport === false ? "no" : ""),
+                        privateAgreement: originalData?.privateAgreement ? "yes" : (originalData?.privateAgreement === false ? "no" : null), //asi para boleanos que esten nulos en la bd
+                        privateAgreementExplained: originalData?.privateAgreementExplained || "",
+                        previousInvolvement: originalData?.previousInvolvement ? "yes" : (originalData?.previousInvolvement === false ? "no" : null),
+                        previousInvolvementExplain: originalData?.previousInvolvementExplain || "",
+                        parentalCapacityDone: originalData?.parentalCapacityDone ? "yes" : (originalData?.parentalCapacityDone === false ? "no" : null),
+                        parentalCapacity: originalData?.parentalCapacity || "",
 
 
-                        children: childrenData || [],
-                        notes: notesData || []
+                        // children: childrenData || [],
+                        children: childrenData.length > 0 ? childrenData : [{}],
+                        notes: notesData || [],
+                        // family: []
                     }
                 }
                 enableReinitialize
@@ -462,13 +478,15 @@ function FullIntakeForm({client_id}){
 
                         // ----------------
                         console.log("Updating Clients with values:", values);
-                        const { children, notes, actionPlan, description, type, subType, advocate_id, ...clientValues } = values; // Extract 'children', 'notes'  and leave only the 'Clients' values
+                        const { children, notes, actionPlan, description, type, subType, advocate_id, ...clientValues } = values; // Extract 'children', 'notes', etc  and leave only the 'Clients' values
 
                         // console.log("Values before updating Clients:", JSON.stringify(clientValues, null, 2)); //quitar
                         // console.log("Updating client_id:", client_id);//quitar
                         // console.log("Children data before update:", JSON.stringify(values.children, null, 2)); //quitar
                         // console.log("Notes data before update:", JSON.stringify(values.notes, null, 2)); //quitar
 
+                        // Add dateModified field with the current date and time
+                        clientValues.dateModified = new Date().toISOString();
 
                         // Updates data in Supabase
                         const { data, error} = await supabase
@@ -528,18 +546,28 @@ function FullIntakeForm({client_id}){
             {({ values, errors, resetForm, setFieldValue }) => (
                 <>
                     <Form className={styles.form}>
-                        <h2 className={styles.centeredTitle}>FULL-INTAKE FORM</h2>
+                    <h2 className={styles.centeredTitle}>FULL-INTAKE FORM</h2>
                         <div >
+
                             <Row>
-                                {/* <Col><label><strong>Created At:</strong></label> <div>{Formik.values?.createdAt}</div></Col> */}
-                                <Col md={3}><InputField name="createdAt" label="Created At:" placeholder="" error={errors.createdAt} disabled={!isEditing} /></Col>
-                                <Col></Col>
-                                <Col md={3}>
-                                    <InputField name="dateModified" label="Last updated:" placeholder="" error={errors.dateModified} disabled={!isEditing} />
+                                <Col md={7}><label htmlFor="createdAt"> <strong> Created At: </strong>
+                                    <FormattedDate dateString={values.createdAt}/></label>
                                 </Col>
-                                <Col md={3}><InputField name="modifiedBy" label="Updated by:" placeholder="" error={errors.modifiedBy} disabled={!isEditing} /></Col>
                             </Row>
-                            <Row >
+                            <Row  md={6}>
+                                <Col md={8}><label htmlFor="dateModified"> <strong> Last Updated: </strong>
+                                    <FormattedDate dateString={values.dateModified}/></label>
+                                </Col>
+
+                                <Col md={4}>
+                                    <label><strong>Updated by:</strong></label>
+                                    <div>{values.modifiedBy}</div>
+                                </Col>
+                            </Row>
+                        </div>
+
+                        <div className="bg- p-2 rounded border border-light border-1">
+                            <Row className="mt-3">
                                 <Col md={3}>
                                     <InputField name="firstName" label="First Name:" placeholder="John" error={errors.firstName} disabled={!isEditing} />
                                 </Col>
@@ -798,8 +826,352 @@ function FullIntakeForm({client_id}){
                                             </>
                                         )}
 
+                                        <Row className={styles.group}>
+                                            <Col md={5}>
+                                                <InputField
+                                                    name="childrenInCareDuration"
+                                                    label="How long have your children been in CFS care?"
+                                                    type="number"  // Set the type to "number" to allow only numeric input
+                                                    placeholder="Enter duration in years"  // Provide a placeholder for the input field
+                                                    error={errors.childrenInCareDuration}  // Pass the error to display validation messages
+                                                    disabled={!isEditing}  // Disable the input if not in editing mode
+                                                />
+                                            </Col>
+                                        </Row>
 
-                                     </TabPanel>
+                                        <Row className={styles.group}>
+                                            <Col>
+                                                <label> What was the reason given by CFS for apprehending your children?</label>
+                                                <Field
+                                                    as="textarea"
+                                                    name="cfsChildrenApprehesionReason"
+                                                    className={styles.textarea}
+                                                    disabled={!isEditing}
+                                                />
+                                                <ErrorMessage
+                                                    name="cfsChildrenApprehesionReason"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                />
+                                            </Col>
+                                        </Row>
+
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                                <div>
+                                                    <label>Are any of your children placed with family (Kinship Care)?</label>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="kinship" value="yes"  checked={values.kinship === "yes"} disabled={!isEditing} />
+                                                        <label className="form-check-label">Yes</label>
+                                                    </div>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="kinship" value="no" checked={values.kinship === "no"} disabled={!isEditing} />
+                                                        <label className="form-check-label">No</label>
+                                                    </div>
+                                                    <ErrorMessage name="kinship" component="div" className={styles.errorText} />
+                                                </div>
+                                            </Col>
+                                            {values.kinship === "yes" && (
+
+                                                <Col md={8}>
+                                                    <label>If yes, explain:</label>
+                                                    <Field as="textarea" name="kinshipExplained" className={styles.textarea} disabled={!isEditing} />
+                                                    <ErrorMessage name="kinshipExplained" component="div" className={styles.errorText} />
+                                                </Col>
+                                            )}
+                                        </Row>
+
+                                        {/* Family members or friends for Kinship Care */}
+                                        {/* <Row className={styles.group}>
+                                            <h4 className="text-dark">Family Members or Friends </h4>
+                                            <Col md={8}>
+                                                <div>
+                                                    <label>Do you have any family members or friends that you can turn to for Kinship Care?</label>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="kinship" value="yes"  checked={values.kinship === "yes"} disabled={!isEditing} />
+                                                        <label className="form-check-label">Yes</label>
+                                                    </div>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="kinship" value="no" checked={values.kinship === "no"} disabled={!isEditing} />
+                                                        <label className="form-check-label">No</label>
+                                                    </div>
+                                                    <ErrorMessage name="kinship" component="div" className={styles.errorText} />
+                                                </div>
+                                            </Col>
+                                            {values.kinship === "yes" && (
+                                                <Row className="mt-3">
+
+                                                    <FieldArray name="family">
+                                                    {({ push, remove }) => (
+                                                        <div>
+                                                        {values.family.map((member, index) => (
+                                                            <div
+                                                            key={index}
+                                                            className={`${styles.bglightgrey} border rounded p-2 mb-3`}
+                                                            >
+                                                            <Row className="align-items-center">
+                                                                <Col md={4}>
+                                                                <InputField
+                                                                    name={`family.${index}.firstName`}
+                                                                    label="First Name:"
+                                                                />
+                                                                </Col>
+
+                                                                <Col md={4}>
+                                                                <InputField
+                                                                    name={`family.${index}.lastName`}
+                                                                    label="Last Name:"
+                                                                />
+                                                                </Col>
+
+                                                                <Col md={4}>
+                                                                <InputField
+                                                                    name={`family.${index}.relationshipToClient`}
+                                                                    label="Relationship:"
+                                                                />
+                                                                </Col>
+                                                            </Row>
+
+                                                            <Row>
+                                                                <Col md={4}>
+                                                                    <div>
+                                                                    <label
+                                                                        htmlFor={`family.${index}.phoneNumber`}
+                                                                    >
+                                                                        Phone Number:
+                                                                    </label>
+                                                                    <Field
+                                                                        type="number"
+                                                                        id={`family.${index}.phoneNumber`}
+                                                                        name={`family.${index}.phoneNumber`}
+                                                                        component={PhoneNumberInput}
+                                                                        placeholder="(123) 456-7890"
+                                                                    />
+                                                                    </div>
+                                                                </Col>
+                                                            </Row>
+
+                                                            <Row>
+                                                                <Col md={9}></Col>
+                                                                <Col md={3} className="d-flex align-items-end mt-2">
+                                                                <Button
+                                                                    className="w-100 btn btn-danger"
+                                                                    type="button"
+                                                                    onClick={() => remove(index)}
+                                                                >
+                                                                    Delete
+                                                                </Button>
+                                                                </Col>
+                                                            </Row>
+                                                            </div>
+                                                        ))}
+                                                        <Button
+                                                            className="btn-dark"
+                                                            type="button"
+                                                            onClick={() =>
+                                                            push({
+                                                                firstName: "",
+                                                                middleName: "",
+                                                                lastName: "",
+                                                                birthDate: "",
+                                                                childNation: "",
+                                                                childPlaced: "",
+                                                                childCfsAgency: "",
+                                                                childCfsAgentFullName: "",
+                                                                childCfsAgentNumber: "",
+                                                                childCfsAgentEmail: "",
+                                                                childStatusCfsFile: "",
+                                                            })
+                                                            }
+                                                        >
+                                                            + Add Member
+                                                        </Button>
+                                                        </div>
+                                                    )}
+                                                    </FieldArray>
+                                                </Row>
+                                            )}
+                                        </Row> */}
+                                        {/* END Family or friends for Kinship Care */}
+
+                                        <Row className={styles.group}>
+                                            <Col>
+                                                <label> Are there any concerns you have about the level of care your child(ren) are currently receiving?</label>
+                                                <Field
+                                                    as="textarea"
+                                                    name="anyConcerns"
+                                                    className={styles.textarea}
+                                                    disabled={!isEditing}
+                                                />
+                                                <ErrorMessage
+                                                    name="anyConcerns"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                />
+                                            </Col>
+                                        </Row>
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                            <div>
+                                                <label>Do you have a copy of your case plan(s)?</label>
+                                                <div className="form-check form-check-inline">
+                                                <Field
+                                                    className="form-check-input"
+                                                    type="radio"
+                                                    name="casePlanCopy"
+                                                    value="yes"
+                                                    disabled={!isEditing}
+                                                />
+                                                <label className="form-check-label">Yes</label>
+                                                </div>
+                                                <div className="form-check form-check-inline">
+                                                <Field
+                                                    className="form-check-input"
+                                                    type="radio"
+                                                    name="casePlanCopy"
+                                                    value="no"
+                                                    disabled={!isEditing}
+                                                />
+                                                <label className="form-check-label">No</label>
+                                                </div>
+                                                <ErrorMessage
+                                                    name="casePlanCopy"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                />
+                                            </div>
+                                            </Col>
+                                            {values.casePlanCopy === "no" && (
+                                            <Col md={8}>
+                                                <label>
+                                                If no, describe the last requests the agency asked you to
+                                                complete to get your children home:
+                                                </label>
+                                                <Field
+                                                    as="textarea"
+                                                    name="casePlanCopyDescribe"
+                                                    className={styles.textarea}
+                                                    disabled={!isEditing}
+                                                />
+                                                <ErrorMessage
+                                                    name="casePlanCopyDescribe"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                />
+                                            </Col>
+                                            )}
+                                        </Row>
+
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                                <div>
+                                                    <label>Did you receive any preventative supports to assist you with your children prior to their apprehension?</label>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="prentativeSupport" value="yes"  checked={values.prentativeSupport === "yes"} disabled={!isEditing} />
+                                                        <label className="form-check-label">Yes</label>
+                                                    </div>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="prentativeSupport" value="no" checked={values.prentativeSupport === "no"} disabled={!isEditing} />
+                                                        <label className="form-check-label">No</label>
+                                                    </div>
+                                                    <ErrorMessage name="prentativeSupport" component="div" className={styles.errorText} />
+                                                </div>
+                                            </Col>
+                                            {values.prentativeSupport === "yes" && (
+
+                                                <Col md={8}>
+                                                    <label>If yes, explain:</label>
+                                                    <Field as="textarea" name="kinshipExplained" className={styles.textarea} disabled={!isEditing} />
+                                                    <ErrorMessage name="kinshipExplained" component="div" className={styles.errorText} />
+                                                </Col>
+                                            )}
+                                        </Row>
+
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                                <div>
+                                                    <label>Do you currently have a Private Agreement or Safety Plan for any of your children?</label>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="privateAgreement" value="yes" checked={values.privateAgreement === "yes"} disabled={!isEditing} />
+                                                        <label className="form-check-label">Yes</label>
+                                                    </div>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="privateAgreement" value="no" checked={values.privateAgreement === "no"} disabled={!isEditing} />
+                                                        <label className="form-check-label">No</label>
+                                                    </div>
+                                                    <ErrorMessage name="privateAgreement" component="div" className={styles.errorText} />
+                                                </div>
+                                            </Col>
+                                            {values.privateAgreement === "yes" && (
+
+                                                <Col md={8}>
+                                                    <label>If yes, explain:</label>
+                                                    <Field as="textarea" name="privateAgreementExplained" className={styles.textarea} disabled={!isEditing} />
+                                                    <ErrorMessage name="privateAgreementExplained" component="div" className={styles.errorText} />
+                                                </Col>
+                                            )}
+                                        </Row>
+
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                                <div>
+                                                    <label>Have you had previous involvement with CFS? </label>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="previousInvolvement" value="yes" checked={values.previousInvolvement === "yes"} disabled={!isEditing} />
+                                                        <label className="form-check-label">Yes</label>
+                                                    </div>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="previousInvolvement" value="no" checked={values.previousInvolvement === "no"} disabled={!isEditing} />
+                                                        <label className="form-check-label">No</label>
+                                                    </div>
+                                                    <ErrorMessage name="previousInvolvement" component="div" className={styles.errorText} />
+                                                </div>
+                                            </Col>
+                                            {values.previousInvolvement === "yes" && (
+
+                                                <Col md={8}>
+                                                    <label>If yes, explain:</label>
+                                                    <Field as="textarea" name="previousInvolvementExplain" className={styles.textarea} disabled={!isEditing} />
+                                                    <ErrorMessage name="previousInvolvementExplain" component="div" className={styles.errorText} />
+                                                </Col>
+                                            )}
+                                        </Row>
+
+                                        <Row className={styles.group}>
+                                            <Col >
+                                                <label>What is your current visitation schedule with your children? </label>
+                                                <Field as="textarea" name="visitsChildFrequency" className={styles.textarea} disabled={!isEditing} />
+                                                <ErrorMessage name="visitsChildFrequency" component="div" className={styles.errorText} />
+                                            </Col>
+                                        </Row>
+
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                                <div>
+                                                    <label>Have you had a Parental Capacity Assessment (PCA) done?</label>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="parentalCapacityDone" value="yes" checked={values.parentalCapacityDone === "yes"} disabled={!isEditing} />
+                                                        <label className="form-check-label">Yes</label>
+                                                    </div>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="parentalCapacityDone" value="no" checked={values.parentalCapacityDone === "no"} disabled={!isEditing} />
+                                                        <label className="form-check-label">No</label>
+                                                    </div>
+                                                    <ErrorMessage name="parentalCapacityDone" component="div" className={styles.errorText} />
+                                                </div>
+                                            </Col>
+                                            {values.parentalCapacityDone === "yes" && (
+
+                                                <Col md={8}>
+                                                    <label>If yes, explain:</label>
+                                                    <Field as="textarea" name="parentalCapacity" className={styles.textarea} disabled={!isEditing} />
+                                                    <ErrorMessage name="parentalCapacity" component="div" className={styles.errorText} />
+                                                </Col>
+                                            )}
+                                        </Row>
+
+
+                                    </TabPanel>
                                     <TabPanel>
                                         {/* Children Information Tab */}
 
@@ -920,7 +1292,16 @@ function FullIntakeForm({client_id}){
                                                                             </div>
                                                                         </Col>
                                                                         <Col  md={4}>
-                                                                            <StatusCFSFileSelect name={`children.${index}.childStatusCfsFile`} label="CFS File Status"  error={errors.children?.[index]?.childStatusCfsFile} disabled={!isEditing} />
+                                                                            <StatusCFSFileSelect
+                                                                                name={`children.${index}.childStatusCfsFile`}
+                                                                                label="CFS File Status"
+                                                                                error={errors.children?.[index]?.childStatusCfsFile}
+                                                                                disabled={!isEditing}
+                                                                                onChange={(e) => setFieldValue(`children.${index}.childStatusCfsFile`, e.target.value)}
+                                                                                // onChange={(e) => {
+                                                                                //     formik.setFieldValue(`children.${index}.childStatusCfsFile`, e.target.value);
+                                                                                // }}
+                                                                            />
                                                                         </Col>
                                                                     </Row>
                                                                 </div>
@@ -1265,13 +1646,12 @@ function FullIntakeForm({client_id}){
                                                             {[...notesData].sort((a, b) => a.note_id - b.note_id).map((note) => (
                                                                 <tr key={note.note_id}>
                                                                     <td>{note.note_id}</td>
-                                                                    <td>{note.createdAt}</td>
+                                                                    <td><FormattedDate dateString={note.createdAt}/></td>
                                                                     <td>{note.type}</td>
                                                                     <td>
                                                                         <Button
                                                                             className="btn btn-primary btn-sm"
                                                                             onClick={() => handleShowNoteDetails(note)}
-
                                                                         >
                                                                             See Note
                                                                         </Button>
@@ -1286,12 +1666,12 @@ function FullIntakeForm({client_id}){
                                                 {selectedNote && (
                                                     <div className="note-details">
                                                         <Row className="mb-2">
-                                                            <Col md={9}>
+                                                            <Col md={8}>
                                                                 <h5>Note ID: {selectedNote.note_id}</h5>
                                                             </Col>
-                                                            <Col md={3}>
+                                                            <Col md={4}>
                                                                 <div>
-                                                                    <label><strong>Created At:</strong> {selectedNote.createdAt}</label>
+                                                                    <label><strong>Created At: </strong>{new Date(selectedNote.createdAt).toLocaleString()}</label>
                                                                 </div>
                                                             </Col>
                                                         </Row>
@@ -1378,7 +1758,15 @@ function FullIntakeForm({client_id}){
 
                                                 {/* Show add new note details */}
                                                 {!showNewNoteForm && (
-                                                    <Button onClick={() => handleAddNoteClick(values, setFieldValue)} disabled={!isEditing} >Add Note</Button>
+                                                    // <Button onClick={() => handleAddNoteClick(values, setFieldValue)} disabled={!isEditing} >Add Note</Button>
+                                                    <FieldArray name="notes">
+                                                        {({ push }) => (
+                                                            <Button onClick={() => handleAddNoteClick(values, push)} disabled={!isEditing}>
+                                                                Add Note
+                                                            </Button>
+                                                        )}
+                                                    </FieldArray>
+
                                                 )}
                                                 {showNewNoteForm && (
                                                     <div style={{ backgroundColor: "#dbdbdb", padding: "15px", borderRadius: "8px", border: "0.5px solid #ccc" }} >
@@ -1430,6 +1818,7 @@ function FullIntakeForm({client_id}){
                                 </Tabs>
                             </div>
                         </Row>
+
 
                         {/* Action buttons */}
                         <Row className="mt-3">

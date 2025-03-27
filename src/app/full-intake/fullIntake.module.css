@@ -138,6 +138,10 @@
   border-radius: 5px;
 }
 
+.bg-custom-gray {
+  background-color: #212121;
+}
+
 .tabsContainer {
   background-color: #f9f9f9;
   padding: 40px;
