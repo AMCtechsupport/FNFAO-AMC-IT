@@ -37,16 +37,12 @@ export default function PreIntake() {
 const validationSchema = Yup.object({
   homeMembers: Yup.array().of(
     Yup.object({
-      email: Yup.string()
-        .email("Please enter a valid email address")
-        .required("Email is required"),
+      email: Yup.string().email("Please enter a valid email address"),
     })
   ),
   educationalPersons: Yup.array().of(
     Yup.object({
-      email: Yup.string()
-        .email("Please enter a valid email address")
-        .required("Email is required"),
+      email: Yup.string().email("Please enter a valid email address"),
     })
   ),
 });
