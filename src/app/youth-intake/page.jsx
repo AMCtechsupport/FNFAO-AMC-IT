@@ -6,7 +6,10 @@ import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { Button, Container, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import validator from "validator";
+import * as Yup from "yup";
 
+import EmailInput from "../../components/ValidEmailInput";
+import ValidNameInput from "@/components/ValidNameInput";
 import PhoneNumberInput from "@/components/ValidPhoneNumber";
 import InputField from "@/components/InputField";
 import ReferredBySelect from "@/components/ReferredBySelect";
@@ -30,6 +33,23 @@ export default function PreIntake() {
     </UserHome>
   );
 }
+
+const validationSchema = Yup.object({
+  homeMembers: Yup.array().of(
+    Yup.object({
+      email: Yup.string()
+        .email("Please enter a valid email address")
+        .required("Email is required"),
+    })
+  ),
+  educationalPersons: Yup.array().of(
+    Yup.object({
+      email: Yup.string()
+        .email("Please enter a valid email address")
+        .required("Email is required"),
+    })
+  ),
+});
 
 function sanitizeInput(input) {
   if (typeof input === "string") {
@@ -93,8 +113,26 @@ function PreIntakeForm() {
         currentlyStaying: "",
         currentlyStayingDuraton: "",
         peopleHome: 0,
-        homeMembers: [],
-        educationalPersons: [],
+        homeMembers: [
+          {
+            firstName: "",
+            middleName: "",
+            lastName: "",
+            relationship: "",
+            phoneNumber: "",
+            email: "",
+          },
+        ],
+        educationalPersons: [
+          {
+            firstName: "",
+            middleName: "",
+            lastName: "",
+            relationship: "",
+            phoneNumber: "",
+            email: "",
+          },
+        ],
         inSchool: false,
         schoolAttending: "",
         currentGrade: "",
@@ -126,7 +164,14 @@ function PreIntakeForm() {
         accessElderExplained: "",
         connectedCommunity: false,
         connectedCommunityExplained: "",
+        motherFirstName: "",
+        motherMiddleName: "",
+        motherLastName: "",
+        fatherFirstName: "",
+        fatherMiddleName: "",
+        fatherLastName: "",
       }}
+      validationSchema={validationSchema} // Apply the Yup validation schema
       validate={(values) => {
         let errors = {};
 
@@ -229,6 +274,11 @@ function PreIntakeForm() {
         ) {
           errors.emergencyContactLastName =
             "The emergency contact last name can only contain letters and spaces";
+        }
+
+        if (values.peopleHome && !/^\d+$/.test(values.peopleHome)) {
+          errors.peopleHome =
+            "The number of people at home must contain only digits";
         }
 
         const phoneNumberError = validatePhoneNumber(values.phoneNumber);
@@ -730,28 +780,37 @@ function PreIntakeForm() {
           </Row>
           <Row>
             <Col md={3}>
-              <InputField
-                name="motherFirstName"
-                label="Mother's First Name:"
-                placeholder="Mary"
-                error={errors.firstName}
-              />
+              <div>
+                <label htmlFor="motherFirstName">Mother's First Name:</label>
+                <Field
+                  id="motherFirstName"
+                  name="motherFirstName"
+                  component={ValidNameInput}
+                  placeholder="Mary"
+                />
+              </div>
             </Col>
 
             <Col md={3}>
-              <InputField
-                name="motherMiddleName"
-                label="Mother's Middle Name:"
-                error={errors.middleName}
-              />
+              <div>
+                <label htmlFor="motherMiddleName">Mother's Middle Name:</label>
+                <Field
+                  id="motherMiddleName"
+                  name="motherMiddleName"
+                  component={ValidNameInput}
+                />
+              </div>
             </Col>
-            <Col md={3}>
-              <InputField
-                name="motherLastName"
-                label="Mother's Last Name:"
-                placeholder="Davis"
-                error={errors.lastName}
-              />
+
+            <Col md={4}>
+              <div>
+                <label htmlFor="motherLastName">Mother's Last Name:</label>
+                <Field
+                  id="motherLastName"
+                  name="motherLastName"
+                  component={ValidNameInput}
+                />
+              </div>
             </Col>
             <Col md={4}>
               <Field
@@ -764,28 +823,39 @@ function PreIntakeForm() {
 
             <Row>
               <Col md={3}>
-                <InputField
-                  name="fatherFirstName"
-                  label="Father's First Name:"
-                  placeholder="John"
-                  error={errors.firstName}
-                />
+                <div>
+                  <label htmlFor="fatherFirstName">Father's First Name:</label>
+                  <Field
+                    id="fatherFirstName"
+                    name="fatherFirstName"
+                    component={ValidNameInput}
+                    placeholder="Jones"
+                  />
+                </div>
               </Col>
 
               <Col md={3}>
-                <InputField
-                  name="fatherMiddleName"
-                  label="Father's Middle Name:"
-                  error={errors.middleName}
-                />
+                <div>
+                  <label htmlFor="fatherMiddleName">
+                    Father's Middle Name:
+                  </label>
+                  <Field
+                    id="fatherMiddleName"
+                    name="fatherMiddleName"
+                    component={ValidNameInput}
+                  />
+                </div>
               </Col>
-              <Col md={3}>
-                <InputField
-                  name="fatherLastName"
-                  label="Father's Last Name:"
-                  placeholder="Davis"
-                  error={errors.lastName}
-                />
+
+              <Col md={4}>
+                <div>
+                  <label htmlFor="fatherLastName">Father's Last Name:</label>
+                  <Field
+                    id="fatherLastName"
+                    name="fatherLastName"
+                    component={ValidNameInput}
+                  />
+                </div>
               </Col>
               <Col md={4}>
                 <Field
@@ -905,11 +975,10 @@ function PreIntakeForm() {
             <Row>
               <Col md={2}>
                 <label>Number of People who live at home:</label>
-                <Field
-                  as="textarea"
-                  name="peopleHome"
-                  className={styles.textarea}
-                />
+                <Field as="textarea" name="peopleHome" />
+                <ErrorMessage name="peopleHome">
+                  {(msg) => <div style={{ color: "red" }}>{msg}</div>}
+                </ErrorMessage>
               </Col>
             </Row>
             <Row>
@@ -924,30 +993,59 @@ function PreIntakeForm() {
                       >
                         <Row className="align-items-center">
                           <Col md={3}>
-                            <InputField
-                              name={`homeMembers.${index}.firstName`}
-                              label="First Name:"
-                            />
+                            <div>
+                              <label htmlFor={`homeMembers.${index}.firstName`}>
+                                First Name:
+                              </label>
+                              <Field
+                                id={`homeMembers.${index}.firstName`}
+                                name={`homeMembers.${index}.firstName`}
+                                component={ValidNameInput}
+                              />
+                            </div>
                           </Col>
+
                           <Col md={3}>
-                            <InputField
-                              name={`homeMembers.${index}.middleName`}
-                              label="Middle Name:"
-                            />
+                            <div>
+                              <label
+                                htmlFor={`homeMembers.${index}.middleName`}
+                              >
+                                Middle Name:
+                              </label>
+                              <Field
+                                id={`homeMembers.${index}.middleName`}
+                                name={`homeMembers.${index}.middleName`}
+                                component={ValidNameInput}
+                              />
+                            </div>
                           </Col>
-                          <Col md={3}>
-                            <InputField
-                              name={`homeMembers.${index}.lastName`}
-                              label="Last Name:"
-                            />
+                          <Col md={4}>
+                            <div>
+                              <label htmlFor={`homeMembers.${index}.lastName`}>
+                                Last Name:
+                              </label>
+                              <Field
+                                id={`homeMembers.${index}.lastName`}
+                                name={`homeMembers.${index}.lastName`}
+                                component={ValidNameInput}
+                              />
+                            </div>
                           </Col>
                         </Row>
                         <Row>
-                          <Col md={2}>
-                            <InputField
-                              name={`homeMembers.${index}.relationship`}
-                              label="Relationship:"
-                            />
+                          <Col md={4}>
+                            <div>
+                              <label
+                                htmlFor={`homeMembers.${index}.relationship`}
+                              >
+                                Relationship:
+                              </label>
+                              <Field
+                                id={`homeMembers.${index}.relationship`}
+                                name={`homeMembers.${index}.relationship`}
+                                component={ValidNameInput}
+                              />
+                            </div>
                           </Col>
                           <Col md={3}>
                             <Field
@@ -959,11 +1057,11 @@ function PreIntakeForm() {
                             />
                           </Col>
                           <Col md={3}>
-                            <InputField
+                            <Field
                               name={`homeMembers.${index}.email`}
                               label="Email Address:"
-                              placeholder="email@provider.com"
-                              error={errors.email}
+                              component={EmailInput}
+                              placeholder="youremail@example.com"
                             />
                           </Col>
                         </Row>
@@ -1226,30 +1324,63 @@ function PreIntakeForm() {
                     >
                       <Row className="align-items-center">
                         <Col md={3}>
-                          <InputField
-                            name={`educationalPersons.${index}.firstName`}
-                            label="First Name:"
-                          />
+                          <div>
+                            <label
+                              htmlFor={`educationalPersons.${index}.firstName`}
+                            >
+                              First Name:
+                            </label>
+                            <Field
+                              id={`educationalPersons.${index}.firstName`}
+                              name={`educationalPersons.${index}.firstName`}
+                              component={ValidNameInput}
+                            />
+                          </div>
                         </Col>
+
                         <Col md={3}>
-                          <InputField
-                            name={`educationalPersons.${index}.middleName`}
-                            label="Middle Name:"
-                          />
+                          <div>
+                            <label
+                              htmlFor={`educationalPersons.${index}.middleName`}
+                            >
+                              Middle Name:
+                            </label>
+                            <Field
+                              id={`educationalPersons.${index}.middleName`}
+                              name={`educationalPersons.${index}.middleName`}
+                              component={ValidNameInput}
+                            />
+                          </div>
                         </Col>
-                        <Col md={3}>
-                          <InputField
-                            name={`educationalPersons.${index}.lastName`}
-                            label="Last Name:"
-                          />
+                        <Col md={4}>
+                          <div>
+                            <label
+                              htmlFor={`educationalPersons.${index}.lastName`}
+                            >
+                              Last Name:
+                            </label>
+                            <Field
+                              id={`educationalPersons.${index}.lastName`}
+                              name={`educationalPersons.${index}.lastName`}
+                              component={ValidNameInput}
+                            />
+                          </div>
                         </Col>
                       </Row>
                       <Row>
-                        <Col md={2}>
-                          <InputField
-                            name={`educationalPersons.${index}.relationship`}
-                            label="Relationship:"
-                          />
+                        <Col md={4}>
+                          <div>
+                            <label
+                              htmlFor={`educationalPersons.${index}.relationship`}
+                            >
+                              Relationship:
+                            </label>
+                            <Field
+                              id={`educationalPersons.${index}.relationship`}
+                              name={`educationalPersons.${index}.relationship`}
+                              component={ValidNameInput}
+                            />
+                          </div>
                         </Col>
                         <Col md={3}>
                           <Field
@@ -1263,11 +1394,11 @@ function PreIntakeForm() {
                           />
                         </Col>
                         <Col md={3}>
-                          <InputField
+                          <Field
                             name={`educationalPersons.${index}.email`}
                             label="Email Address:"
-                            placeholder="email@provider.com"
-                            error={errors.email}
+                            component={EmailInput}
+                            placeholder="youremail@example.com"
                           />
                         </Col>
                       </Row>
@@ -1363,14 +1494,21 @@ function PreIntakeForm() {
           </Row>
 
           <Row>
-            <Col md={3}>
-              <InputField
-                name="caseWorkerFullName"
-                label="Case Worker's Full Name:"
-                placeholder="Jimmy"
-              />
+            <Col md={4}>
+              <div>
+                <label htmlFor="caseWorkerFullName">
+                  Case Worker's Full Name:
+                </label>
+                <Field
+                  id="caseWorkerFullName"
+                  name="caseWorkerFullName"
+                  component={ValidNameInput}
+                  placeholder="Jimmy"
+                />
+              </div>
             </Col>
           </Row>
+
           <Row>
             <Col md={4}>
               <div>

@@ -53,6 +53,7 @@ export default clerkMiddleware(async (auth, req) => {
       isAdminOrYouthWorkerRoute(req) &&
       userRole !== "admin" &&
       userRole !== "advocacy coordinator" &&
+      userRole !== "operational manager" &&
       userRole !== "youth worker"
     ) {
       const url = new URL("/", req.url);

@@ -15,7 +15,7 @@ const ValidNameInput = ({ field, form, label, ...props }) => {
   // Handle change event to sanitize input before passing to Formik
   const handleChange = (e) => {
     const sanitizedValue = sanitizeInput(e.target.value);
-    setFieldValue(name, sanitizedValue); // Update Formik state with sanitized value
+    setFieldValue(name, sanitizedValue); // Update Formik state
   };
 
   return (
@@ -28,7 +28,7 @@ const ValidNameInput = ({ field, form, label, ...props }) => {
         name={name}
         type="text"
         className={errors[name] && touched[name] ? styles.errorInput : ""}
-        onChange={handleChange} // Use the sanitized onChange handler
+        onChange={handleChange}
       />
       {/* Error message */}
       <ErrorMessage name={name} component="p" />
