@@ -15,9 +15,11 @@ import FirstNationSelect from "@/components/FirstNationSelect";
 import MartialStatusSelect from "@/components/MartialStatusSelect";
 import TypeNoteSelect from "@/components/TypeNoteSelect";
 import SubTypeNoteSelect from "@/components/SubTypeNoteSelect"
+import GenderSelect from "@/components/GenderSelect";
 import FormattedDate from "@/components/FormattedDate";
 
 import { handleNotesUpdate } from "../utils/notesUpdates"; // handles updates to the Notes table
+import {handleFamilyUpdate }  from "../utils/familyUpdates";
 
 
 import supabase from "../lib/supabase";
@@ -132,6 +134,7 @@ const handleChildrenUpdate = async (children, client_id, setChildrenData ) => {
 function FullIntakeForm({client_id}){
     const [originalData, setOriginalData] = useState(null);
     const [childrenData, setChildrenData] = useState([]); // State for children
+    const [familyData, setFamilyData] = useState([]);
     const [notesData, setNotesData] = useState([]); // State for case notes
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false); // state to enable/disable fields
@@ -199,6 +202,19 @@ function FullIntakeForm({client_id}){
             } else {
                 console.log("Children Data:", children);
                 setChildrenData(children || []);
+            }
+
+            // Gets the family members associated with the client
+            const { data: familyData, error: familyError } = await supabase
+                .from("Important Family and Friends")
+                .select("*")
+                .eq("client_id", client_id);
+
+            if (familyError) {
+                console.error("Error fetching children data:", familyError.message || familyError);
+            } else {
+                console.log("Family Data:", familyData);
+                setFamilyData(familyData || []);
             }
 
             // Gets the case notes associated with the client
@@ -325,18 +341,36 @@ function FullIntakeForm({client_id}){
                         kinshipExplained: originalData?.kinshipExplained || "",
                         anyConcerns: originalData?.anyConcerns || "",
                         prentativeSupport: originalData?.prentativeSupport ? "yes" : (originalData?.prentativeSupport === false ? "no" : ""),
+                        prentativeSupportExplained: originalData?.prentativeSupportExplained || "",
                         privateAgreement: originalData?.privateAgreement ? "yes" : (originalData?.privateAgreement === false ? "no" : null), //asi para boleanos que esten nulos en la bd
                         privateAgreementExplained: originalData?.privateAgreementExplained || "",
                         previousInvolvement: originalData?.previousInvolvement ? "yes" : (originalData?.previousInvolvement === false ? "no" : null),
                         previousInvolvementExplain: originalData?.previousInvolvementExplain || "",
                         parentalCapacityDone: originalData?.parentalCapacityDone ? "yes" : (originalData?.parentalCapacityDone === false ? "no" : null),
                         parentalCapacity: originalData?.parentalCapacity || "",
+                        cfsExplain: originalData?.cfsExplain ? "yes" : (originalData?.cfsExplain === false ? "no" : null),
+                        turnToKinshipCare: originalData?.turnToKinshipCare ? "yes" : (originalData?.turnToKinshipCare === false ? "no" : null),
 
-
-                        // children: childrenData || [],
-                        children: childrenData.length > 0 ? childrenData : [{}],
+                        // children: childrenData.length > 0 ? childrenData : [{}],
+                        children: childrenData.map(child => ({
+                            firstName: child.firstName || "",
+                            middleName: child.middleName || "",
+                            lastName: child.lastName || "",
+                            birthDate: child.birthDate || "",
+                            childNation: child.childNation || "",
+                            gender: child.gender || "",
+                            childPlaced: child.childPlaced || "",
+                            childCfsAgency: child.childCfsAgency || "",
+                            childCfsAgentFullName: child.childCfsAgentFullName || "",
+                            childCfsAgentNumber: child.childCfsAgentNumber !== null && child.childCfsAgentNumber !== undefined ? child.childCfsAgentNumber : "",
+                            childCfsAgentEmail: child.childCfsAgentEmail || "",
+                            childStatusCfsFile: child.childStatusCfsFile !== "" ? child.childStatusCfsFile : "",
+                            childCfsSupervisorFullName: child.childCfsSupervisorFullName || "",
+                            childCfsSupervisorNumber: child.childCfsSupervisorNumber !== null && child.childCfsSupervisorNumber !== undefined ? child.childCfsSupervisorNumber : "",
+                            childCfsSupervisorEmail: child.childCfsSupervisorEmail || "",
+                       })) || [],
                         notes: notesData || [],
-                        // family: []
+                        family: familyData || [],
                     }
                 }
                 enableReinitialize
@@ -468,17 +502,17 @@ function FullIntakeForm({client_id}){
                         // Check if values are different from the original data
                         const isClientUnchanged = JSON.stringify(values) === JSON.stringify(originalData);
                         const isChildrenUnchanged = JSON.stringify(values.children) === JSON.stringify(childrenData);
+                        const isFamilyUnchanged = JSON.stringify(values.family) === JSON.stringify(familyData);
                         const isNotesUnchanged = JSON.stringify(values.notes) === JSON.stringify(notesData);
 
-                        if (isClientUnchanged && isChildrenUnchanged && isNotesUnchanged) {
+                        if (isClientUnchanged && isChildrenUnchanged && isFamilyUnchanged && isNotesUnchanged) {
                             console.warn("Warning: No changes detected, skipping update.");
                             setIsEditing(false);
                             return;
                         }
 
-                        // ----------------
                         console.log("Updating Clients with values:", values);
-                        const { children, notes, actionPlan, description, type, subType, advocate_id, ...clientValues } = values; // Extract 'children', 'notes', etc  and leave only the 'Clients' values
+                        const { children, notes, actionPlan, description, type, subType, advocate_id, family, ...clientValues } = values; // Extract 'children', 'notes', etc  and leave only the 'Clients' values
 
                         // console.log("Values before updating Clients:", JSON.stringify(clientValues, null, 2)); //quitar
                         // console.log("Updating client_id:", client_id);//quitar
@@ -518,6 +552,13 @@ function FullIntakeForm({client_id}){
                                 console.error("Error updating children data.");
                             }
 
+                            // Call `handle family Update` to update the family and friend members in the database
+                            const familyUpdateSuccess = await handleFamilyUpdate(values.family, client_id, setFamilyData);
+                            console.log("Family update result:", familyUpdateSuccess);
+                            if (!familyUpdateSuccess){
+                                console.error("Error update family data.");
+                            }
+
                             // Call `handle Notes Update` to update the notes in the database
                             const notesUpdateSuccess = await handleNotesUpdate(values.notes, client_id, setNotesData);
                             console.log("Notes update result:", notesUpdateSuccess);
@@ -547,16 +588,16 @@ function FullIntakeForm({client_id}){
                 <>
                     <Form className={styles.form}>
                     <h2 className={styles.centeredTitle}>FULL-INTAKE FORM</h2>
+                    <hr className="separator-line" />
                         <div >
 
                             <Row>
-                                <Col md={7}><label htmlFor="createdAt"> <strong> Created At: </strong>
-                                    <FormattedDate dateString={values.createdAt}/></label>
+                                <Col md={4}><label htmlFor="createdAt"> <strong> Created At: </strong> {values.createdAt}</label>
+                                    {/* <FormattedDate dateString={values.createdAt}/> */}
                                 </Col>
-                            </Row>
-                            <Row  md={6}>
-                                <Col md={8}><label htmlFor="dateModified"> <strong> Last Updated: </strong>
-                                    <FormattedDate dateString={values.dateModified}/></label>
+
+                                <Col md={4}><label htmlFor="dateModified"> <strong> Last Updated: </strong> {values.dateModified}</label>
+                                    {/* <FormattedDate dateString={values.dateModified}/> */}
                                 </Col>
 
                                 <Col md={4}>
@@ -565,6 +606,7 @@ function FullIntakeForm({client_id}){
                                 </Col>
                             </Row>
                         </div>
+                        <hr className="separator-line" />
 
                         <div className="bg- p-2 rounded border border-light border-1">
                             <Row className="mt-3">
@@ -793,11 +835,26 @@ function FullIntakeForm({client_id}){
                                     </TabPanel>
                                     <TabPanel>
                                         {/* CFS Tab */}
+
+                                        <h5 className="text-dark">CFS Agencies </h5>
                                         {childrenData.length === 0 ? (
                                             <p>No children found for this client.</p>
                                         ) : (
-                                            <>
-                                               {childrenData.length > 0 && (
+                                            (() => {
+                                                // Group children by agency
+                                                const agenciesMap = new Map();
+
+                                                childrenData.forEach(child => {
+                                                    if (!agenciesMap.has(child.childCfsAgency)) {
+                                                        agenciesMap.set(child.childCfsAgency, []);
+                                                    }
+                                                    agenciesMap.get(child.childCfsAgency).push(child);
+                                                });
+
+                                                // Convert Map to an array for rendering
+                                                const agenciesArray = Array.from(agenciesMap.entries());
+
+                                                return (
                                                     <table className="table table-striped table-bordered">
                                                         {/* Table header */}
                                                         <thead className="table-dark">
@@ -809,32 +866,126 @@ function FullIntakeForm({client_id}){
                                                             </tr>
                                                         </thead>
 
-                                                        {/* Body of the table with the data of each child */}
+                                                        {/* Table body with grouped data */}
                                                         <tbody>
-                                                            {childrenData.map((child) => (
-                                                                <tr key={child.child_id}>
-                                                                    <td>{child.childCfsAgency || "N/A"}</td>
-                                                                    <td>{child.firstName} {child.lastName}</td>
-                                                                    <td>{child.childCfsAgentFullName || "N/A"}</td>
-                                                                    <td>{child.childStatusCfsFile || "N/A"}</td>
-                                                                </tr>
-                                                            ))}
+                                                            {agenciesArray.map(([agency, children]) =>
+                                                                children.map((child, index) => (
+                                                                    <tr key={child.child_id}>
+                                                                        {/* Show agency name only on the first row of the group */}
+                                                                        {index === 0 && (
+                                                                            <td rowSpan={children.length}>{agency || "N/A"}</td>
+                                                                        )}
+                                                                        <td>{child.firstName} {child.lastName}</td>
+                                                                        <td>{child.childCfsAgentFullName || "N/A"}</td>
+                                                                        <td>{child.childStatusCfsFile || "N/A"}</td>
+                                                                    </tr>
+                                                                ))
+                                                            )}
                                                         </tbody>
                                                     </table>
-                                                )}
-
-                                            </>
+                                                );
+                                            })()
                                         )}
 
+
+                                        {/* Agency Worker’s table */}
+                                        <h5 className="text-dark">Agency Worker’s </h5>
+                                        {childrenData.length > 0 && (() => {
+                                            // Extract unique agents from childrenData
+                                            const uniqueAgents = Array.from(
+                                                new Map(
+                                                    childrenData
+                                                        .filter(child => child.childCfsAgentFullName)
+                                                        .map(child => [child.childCfsAgentFullName, {
+                                                            fullName: child.childCfsAgentFullName,
+                                                            phone: child.childCfsAgentNumber || "N/A",
+                                                            email: child.childCfsAgentEmail || "N/A",
+                                                            supervisorName: child.childCfsSupervisorFullName || "N/A"
+                                                        }])
+                                                ).values()
+                                            );
+
+                                            return uniqueAgents.length > 0 ? (
+                                                <table className="table table-striped table-bordered">
+                                                    {/* Table header */}
+                                                    <thead className="table-dark">
+                                                        <tr>
+                                                            <th>Full Name</th>
+                                                            <th>Phone</th>
+                                                            <th>Email</th>
+                                                            <th>Supervisor</th>
+                                                        </tr>
+                                                    </thead>
+
+                                                    {/* Body of the table with the data of the unique agents*/}
+                                                    <tbody>
+                                                        {uniqueAgents.map((agent, index) => (
+                                                            <tr key={index}>
+                                                                <td>{agent.fullName}</td>
+                                                                <td>{agent.phone}</td>
+                                                                <td>{agent.email}</td>
+                                                                <td>{agent.supervisorName}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            ) : null;
+                                        })()}
+
+                                        {/* Supervisor’s table */}
+                                        <h5 className="text-dark">Supervisor’s</h5>
+                                        {childrenData.length > 0 && (() => {
+                                            // Extract unique supervisors from childrenData
+                                            const uniqueSupervisors = Array.from(
+                                                new Map(
+                                                    childrenData
+                                                        .filter(child => child.childCfsSupervisorFullName)
+                                                        .map(child => [child.childCfsSupervisorFullName, {
+                                                            supervisorName: child.childCfsSupervisorFullName,
+                                                            supervisorPhone: child.childCfsSupervisorNumber || "N/A",
+                                                            supervisorEmail: child.childCfsSupervisorEmail || "N/A"
+                                                        }])
+                                                ).values()
+                                            );
+
+                                            return uniqueSupervisors.length > 0 ? (
+                                                <table className="table table-striped table-bordered">
+                                                    {/* Table header */}
+                                                    <thead className="table-dark">
+                                                        <tr>
+                                                            <th>Supervisor Name</th>
+                                                            <th>Phone</th>
+                                                            <th>Email</th>
+                                                        </tr>
+                                                    </thead>
+
+                                                    {/* Body of the table with the data of the unique supervisors*/}
+                                                    <tbody>
+                                                        {uniqueSupervisors.map((supervisor, index) => (
+                                                            <tr key={index}>
+                                                                <td>{supervisor.supervisorName}</td>
+                                                                <td>{supervisor.supervisorPhone}</td>
+                                                                <td>{supervisor.supervisorEmail}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            ) : null;
+                                        })()}
+
                                         <Row className={styles.group}>
-                                            <Col md={5}>
-                                                <InputField
+                                            <Col>
+                                                <label>How long have your children been in CFS care?</label>
+                                                <Field
+                                                    as="textarea"
                                                     name="childrenInCareDuration"
-                                                    label="How long have your children been in CFS care?"
-                                                    type="number"  // Set the type to "number" to allow only numeric input
-                                                    placeholder="Enter duration in years"  // Provide a placeholder for the input field
-                                                    error={errors.childrenInCareDuration}  // Pass the error to display validation messages
-                                                    disabled={!isEditing}  // Disable the input if not in editing mode
+                                                    className={styles.textarea}
+                                                    disabled={!isEditing}
+                                                />
+                                                <ErrorMessage
+                                                    name="childrenInCareDuration"
+                                                    component="div"
+                                                    className={styles.errorText}
                                                 />
                                             </Col>
                                         </Row>
@@ -882,38 +1033,36 @@ function FullIntakeForm({client_id}){
                                         </Row>
 
                                         {/* Family members or friends for Kinship Care */}
-                                        {/* <Row className={styles.group}>
-                                            <h4 className="text-dark">Family Members or Friends </h4>
+                                        <Row className={styles.group}>
+                                            <h5 className="text-dark">Family Members or Friends </h5>
                                             <Col md={8}>
                                                 <div>
                                                     <label>Do you have any family members or friends that you can turn to for Kinship Care?</label>
                                                     <div className="form-check form-check-inline">
-                                                        <Field  className="form-check-input" type="radio" name="kinship" value="yes"  checked={values.kinship === "yes"} disabled={!isEditing} />
+                                                        <Field  className="form-check-input" type="radio" name="turnToKinshipCare" value="yes"  checked={values.turnToKinshipCare === "yes"} disabled={!isEditing} />
                                                         <label className="form-check-label">Yes</label>
                                                     </div>
                                                     <div className="form-check form-check-inline">
-                                                        <Field  className="form-check-input" type="radio" name="kinship" value="no" checked={values.kinship === "no"} disabled={!isEditing} />
+                                                        <Field  className="form-check-input" type="radio" name="turnToKinshipCare" value="no" checked={values.turnToKinshipCare === "no"} disabled={!isEditing} />
                                                         <label className="form-check-label">No</label>
                                                     </div>
-                                                    <ErrorMessage name="kinship" component="div" className={styles.errorText} />
+                                                    <ErrorMessage name="turnToKinshipCare" component="div" className={styles.errorText} />
                                                 </div>
                                             </Col>
-                                            {values.kinship === "yes" && (
+                                            {values.turnToKinshipCare === "yes" && (
                                                 <Row className="mt-3">
 
                                                     <FieldArray name="family">
                                                     {({ push, remove }) => (
-                                                        <div>
+                                                        <div  className="bg-gray-100 p-2 rounded border border-light border-2">
                                                         {values.family.map((member, index) => (
-                                                            <div
-                                                            key={index}
-                                                            className={`${styles.bglightgrey} border rounded p-2 mb-3`}
-                                                            >
+                                                            <div key={`${member.family_and_friends_id}-${index}`} className={`${styles.bglightgrey} border rounded p-2 mb-3`}>
                                                             <Row className="align-items-center">
                                                                 <Col md={4}>
                                                                 <InputField
                                                                     name={`family.${index}.firstName`}
                                                                     label="First Name:"
+                                                                    disabled={!isEditing}
                                                                 />
                                                                 </Col>
 
@@ -921,6 +1070,7 @@ function FullIntakeForm({client_id}){
                                                                 <InputField
                                                                     name={`family.${index}.lastName`}
                                                                     label="Last Name:"
+                                                                    disabled={!isEditing}
                                                                 />
                                                                 </Col>
 
@@ -928,6 +1078,7 @@ function FullIntakeForm({client_id}){
                                                                 <InputField
                                                                     name={`family.${index}.relationshipToClient`}
                                                                     label="Relationship:"
+                                                                    disabled={!isEditing}
                                                                 />
                                                                 </Col>
                                                             </Row>
@@ -944,8 +1095,9 @@ function FullIntakeForm({client_id}){
                                                                         type="number"
                                                                         id={`family.${index}.phoneNumber`}
                                                                         name={`family.${index}.phoneNumber`}
-                                                                        component={PhoneNumberInput}
+                                                                        // component={PhoneNumberInput}
                                                                         placeholder="(123) 456-7890"
+                                                                        disabled={!isEditing}
                                                                     />
                                                                     </div>
                                                                 </Col>
@@ -958,6 +1110,7 @@ function FullIntakeForm({client_id}){
                                                                     className="w-100 btn btn-danger"
                                                                     type="button"
                                                                     onClick={() => remove(index)}
+                                                                    disabled={!isEditing}
                                                                 >
                                                                     Delete
                                                                 </Button>
@@ -968,19 +1121,13 @@ function FullIntakeForm({client_id}){
                                                         <Button
                                                             className="btn-dark"
                                                             type="button"
+                                                            disabled={!isEditing}
                                                             onClick={() =>
                                                             push({
                                                                 firstName: "",
-                                                                middleName: "",
                                                                 lastName: "",
-                                                                birthDate: "",
-                                                                childNation: "",
-                                                                childPlaced: "",
-                                                                childCfsAgency: "",
-                                                                childCfsAgentFullName: "",
-                                                                childCfsAgentNumber: "",
-                                                                childCfsAgentEmail: "",
-                                                                childStatusCfsFile: "",
+                                                                relationshipToClient: "",
+                                                                phoneNumber: "",
                                                             })
                                                             }
                                                         >
@@ -991,7 +1138,7 @@ function FullIntakeForm({client_id}){
                                                     </FieldArray>
                                                 </Row>
                                             )}
-                                        </Row> */}
+                                        </Row>
                                         {/* END Family or friends for Kinship Care */}
 
                                         <Row className={styles.group}>
@@ -1081,8 +1228,8 @@ function FullIntakeForm({client_id}){
 
                                                 <Col md={8}>
                                                     <label>If yes, explain:</label>
-                                                    <Field as="textarea" name="kinshipExplained" className={styles.textarea} disabled={!isEditing} />
-                                                    <ErrorMessage name="kinshipExplained" component="div" className={styles.errorText} />
+                                                    <Field as="textarea" name="prentativeSupportExplained" className={styles.textarea} disabled={!isEditing} />
+                                                    <ErrorMessage name="prentativeSupportExplained" component="div" className={styles.errorText} />
                                                 </Col>
                                             )}
                                         </Row>
@@ -1110,6 +1257,23 @@ function FullIntakeForm({client_id}){
                                                     <ErrorMessage name="privateAgreementExplained" component="div" className={styles.errorText} />
                                                 </Col>
                                             )}
+                                        </Row>
+
+                                        <Row className={styles.group}>
+                                            <Col>
+                                                <div>
+                                                    <label>Did CFS accurately explain the process that was to be followed to get your children home?  </label>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="cfsExplain" value="yes" checked={values.cfsExplain === "yes"} disabled={!isEditing} />
+                                                        <label className="form-check-label">Yes</label>
+                                                    </div>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="cfsExplain" value="no" checked={values.cfsExplain === "no"} disabled={!isEditing} />
+                                                        <label className="form-check-label">No</label>
+                                                    </div>
+                                                    <ErrorMessage name="cfsExplain" component="div" className={styles.errorText} />
+                                                </div>
+                                            </Col>
                                         </Row>
 
                                         <Row className={styles.group}>
@@ -1213,9 +1377,7 @@ function FullIntakeForm({client_id}){
 
                                         )}
 
-
-
-                                        {/* About your children */}
+                                        {/* list of children */}
                                         <Row className="mb-3">
                                             <h6 className="text-dark">Children’s Information (List all children, including those at home or in care):</h6>
 
@@ -1241,8 +1403,9 @@ function FullIntakeForm({client_id}){
                                                                     <Col md={6}>
                                                                         <InputField name={`children.${index}.lastName`} label="Last Name:" disabled={!isEditing} />
                                                                     </Col>
+
                                                                 </Row>
-                                                                <Row className="mb-4">
+                                                                <Row >
                                                                     <Col md={3}>
                                                                         <div>
                                                                             <label htmlFor={`children.${index}.birthDate`}>Date of Birth:</label>
@@ -1257,39 +1420,22 @@ function FullIntakeForm({client_id}){
                                                                         <FirstNationSelect name={`children.${index}.childNation`} label="First Nation Membership" error={errors.childNation} disabled={!isEditing}/>
                                                                     </Col>
                                                                     <Col md={3}>
+                                                                        <GenderSelect name={`children.${index}.gender`} label="Gender:" error={errors.gender} disabled={!isEditing}/>
+                                                                    </Col>
+                                                                </Row>
+                                                                <Row>
+                                                                    <Col md={6}>
                                                                         <InputField name={`children.${index}.childPlaced`} label="Place of Stay:" disabled={!isEditing} />
                                                                     </Col>
                                                                 </Row>
 
                                                                 {/* Agency information */}
+                                                                <hr className="separator-line" />
                                                                 <div className="bg-light border border-light p-3 rounded">
-                                                                    <Row className="mt-2">
+                                                                    <Row>
                                                                         <h5 className="text-dark">Agency Information</h5>
                                                                         <Col md={4}>
                                                                             <InputField name={`children.${index}.childCfsAgency`} label="CFS Agency Name:" disabled={!isEditing} />
-                                                                        </Col>
-                                                                        <Col md={4}>
-                                                                            <InputField name={`children.${index}.childCfsAgentFullName`} label="Agency Worker’s Full Name:" disabled={!isEditing} />
-                                                                        </Col>
-                                                                        <Col md={4}>
-                                                                            <div>
-                                                                                <label htmlFor={`children.${index}.childCfsAgentNumber`}>Phone Number:</label>
-                                                                                <Field type="number" id={`children.${index}.childCfsAgentNumber`} name={`children.${index}.childCfsAgentNumber`} disabled={!isEditing} />
-                                                                                <ErrorMessage
-                                                                                    name={`children.${index}.childCfsAgentNumber`}
-                                                                                    component={() => <p className={styles.errorText}>{errors.children?.[index]?.childCfsAgentNumber}</p>} />
-                                                                            </div>
-                                                                        </Col>
-                                                                    </Row>
-                                                                    <Row>
-                                                                        <Col md={4}>
-                                                                            <div>
-                                                                                <label htmlFor={`children.${index}.childCfsAgentEmail`}>Email:</label>
-                                                                                <Field type="email" id={`children.${index}.childCfsAgentEmail`} name={`children.${index}.childCfsAgentEmail`} disabled={!isEditing} />
-                                                                                <ErrorMessage
-                                                                                    name={`children.${index}.childCfsAgentEmail`}
-                                                                                    component={() => <p className={styles.errorText}>{errors.children?.[index]?.childCfsAgentEmail}</p>} />
-                                                                            </div>
                                                                         </Col>
                                                                         <Col  md={4}>
                                                                             <StatusCFSFileSelect
@@ -1298,15 +1444,62 @@ function FullIntakeForm({client_id}){
                                                                                 error={errors.children?.[index]?.childStatusCfsFile}
                                                                                 disabled={!isEditing}
                                                                                 onChange={(e) => setFieldValue(`children.${index}.childStatusCfsFile`, e.target.value)}
-                                                                                // onChange={(e) => {
-                                                                                //     formik.setFieldValue(`children.${index}.childStatusCfsFile`, e.target.value);
-                                                                                // }}
                                                                             />
                                                                         </Col>
                                                                     </Row>
-                                                                </div>
+                                                                    <Row>
+                                                                        <Col md={4}>
+                                                                            <InputField name={`children.${index}.childCfsAgentFullName`} label="Worker’s Full Name:" disabled={!isEditing} />
+                                                                        </Col>
+                                                                        <Col md={4}>
+                                                                            <div>
+                                                                                <label htmlFor={`children.${index}.childCfsAgentNumber`}>Worker’s Phone Number:</label>
+                                                                                <Field type="number" id={`children.${index}.childCfsAgentNumber`} name={`children.${index}.childCfsAgentNumber`} disabled={!isEditing} />
+                                                                                <ErrorMessage
+                                                                                    name={`children.${index}.childCfsAgentNumber`}
+                                                                                    component={() => <p className={styles.errorText}>{errors.children?.[index]?.childCfsAgentNumber}</p>} />
+                                                                            </div>
+                                                                        </Col>
+                                                                        <Col md={4}>
+                                                                            <div>
+                                                                                <label htmlFor={`children.${index}.childCfsAgentEmail`}>Worker’s Email:</label>
+                                                                                <Field type="email" id={`children.${index}.childCfsAgentEmail`} name={`children.${index}.childCfsAgentEmail`} disabled={!isEditing} />
+                                                                                <ErrorMessage
+                                                                                    name={`children.${index}.childCfsAgentEmail`}
+                                                                                    component={() => <p className={styles.errorText}>{errors.children?.[index]?.childCfsAgentEmail}</p>} />
+                                                                            </div>
+                                                                        </Col>
 
+                                                                    </Row>
+
+                                                                    {/* CFS Supervisor's information */}
+                                                                    <Row>
+                                                                        <Col md={4}>
+                                                                            <InputField name={`children.${index}.childCfsSupervisorFullName`} label="Supervisor's Full Name:" disabled={!isEditing} />
+                                                                        </Col>
+                                                                        <Col md={4}>
+                                                                            <div>
+                                                                                <label htmlFor={`children.${index}.childCfsSupervisorNumber`}>Supervisor's Phone Number:</label>
+                                                                                <Field type="number" id={`children.${index}.childCfsSupervisorNumber`} name={`children.${index}.childCfsSupervisorNumber`} disabled={!isEditing} />
+                                                                                <ErrorMessage
+                                                                                    name={`children.${index}.childCfsSupervisorNumber`}
+                                                                                    component={() => <p className={styles.errorText}>{errors.children?.[index]?.childCfsSupervisorNumber}</p>} />
+                                                                            </div>
+                                                                        </Col>
+                                                                        <Col md={4}>
+                                                                            <div>
+                                                                                <label htmlFor={`children.${index}.childCfsSupervisorEmail`}>Supervisor's Email:</label>
+                                                                                <Field type="email" id={`children.${index}.childCfsSupervisorEmail`} name={`children.${index}.childCfsSupervisorEmail`} disabled={!isEditing} />
+                                                                                <ErrorMessage
+                                                                                    name={`children.${index}.childCfsSupervisorEmail`}
+                                                                                    component={() => <p className={styles.errorText}>{errors.children?.[index]?.childCfsSupervisorEmail}</p>} />
+                                                                            </div>
+                                                                        </Col>
+                                                                    </Row>
+
+                                                                </div>
                                                                 {/* END Agency information */}
+
 
                                                                 <Row>
                                                                     <Col md={9}></Col>
@@ -1324,12 +1517,16 @@ function FullIntakeForm({client_id}){
                                                                 lastName: "",
                                                                 birthDate: "",
                                                                 childNation: "",
+                                                                gender:"",
                                                                 childPlaced: "",
                                                                 childCfsAgency:"",
                                                                 childCfsAgentFullName:"",
                                                                 childCfsAgentNumber:"",
                                                                 childCfsAgentEmail:"",
-                                                                childStatusCfsFile:""
+                                                                childStatusCfsFile:"",
+                                                                childCfsSupervisorFullName:"",
+                                                                childCfsSupervisorNumber:"",
+                                                                childCfsSupervisorEmail:""
                                                             })} disabled={!isEditing}>
                                                             + Add Child
                                                         </Button>
