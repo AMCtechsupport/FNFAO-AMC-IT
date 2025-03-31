@@ -104,9 +104,14 @@
   box-shadow: rgba(0, 123, 255, 0.25) 0px 0px 5px;
 }
 
-/* .form input:disabled {
-  background-color: #f0f0f0 !important;
-} */
+
+/* Background color for InputFields and textares disabled */
+.form input:disabled:not([type="radio"]):not([type="checkbox"]),
+.form textarea:disabled {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+}
+
 
 /* Radio buttons */
 .radio-inline {
@@ -138,6 +143,10 @@
   border-radius: 5px;
 }
 
+.bg-custom-gray {
+  background-color: #212121;
+}
+
 .tabsContainer {
   background-color: #f9f9f9;
   padding: 40px;
@@ -167,5 +176,39 @@ select:disabled {
   background-color: #f0f0f0;
   padding: 20px;
   border-radius: 5px;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center; /* Align vertically*/
+  gap: 8px; /* Space between checkbox and label */
+}
+
+
+.titleContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Centers content horizontally*/
+  gap: 10px; /* Space between the logo and the title */
+}
+
+.logo {
+  width: 60px;
+  height: auto;
+}
+
+/* Checkboxes */
+.checkboxRow {
+  margin-bottom: 8px; /* Adjust the space between rows */
+}
+
+.checkboxWrapper {
+  display: flex;
+  align-items: center; /* Vertically aligns checkbox and text */
+  gap: 8px; /* Space between the checkbox and the question */
+}
+
+.checkboxWrapper label {
+  margin: 0; /* Remove any margins that might misalign the text */
 }
 

@@ -1341,9 +1341,7 @@ function PreIntakeForm() {
           <Row className={styles.group}>
             <Col md={4}>
               <div>
-                <label>
-                  Do you have any criminal charges (past, active or pending)? *
-                </label>
+                <label> Do you have any criminal charges (past, active or pending)? *</label>
                 <div className="form-check form-check-inline">
                   <Field
                     className="form-check-input"

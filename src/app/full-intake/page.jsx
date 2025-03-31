@@ -11,132 +11,134 @@ import InputField from "@/components/InputField";
 import ReferredBySelect from "@/components/ReferredBySelect";
 import ProvincesSelect from "@/components/ProvincesSelect";
 import RelationshipToChildrenSelect from "@/components/RelationshipToChildrenSelect";
-import CFSStatusManagement from "@/components/StatusCFSFileSelect";
+import StatusCFSFileSelect from "@/components/StatusCFSFileSelect";
 import FirstNationSelect from "@/components/FirstNationSelect";
 import MartialStatusSelect from "@/components/MartialStatusSelect";
 import TypeNoteSelect from "@/components/TypeNoteSelect";
 import SubTypeNoteSelect from "@/components/SubTypeNoteSelect"
-import ManageCfsAgencies from "@/components/ManageCfsAgencies";
+import GenderSelect from "@/components/GenderSelect";
+import YesNoSelect from "../../components/yesNoSelect";
+import FormattedDate from "@/components/FormattedDate";
 
 import { handleNotesUpdate } from "../utils/notesUpdates"; // handles updates to the Notes table
+import {handleFamilyUpdate }  from "../utils/familyUpdates";
+import { handleHomeMembersUpdate } from "../utils/homeMebersUpdate";
 
 
 import supabase from "../lib/supabase";
 
+
 import { Tabs, TabList, Tab, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 
-export default function FullIntake({ client_id }) {
-  const testClientId = client_id || "61";
-  console.log("Client ID First:", client_id);
-  return (
-    <UserHome>
-      <div className={styles.fullIntakeContainer}>
-        <div className={styles.container}>
-          <FullIntakeForm client_id={testClientId} />
-        </div>
-      </div>
-    </UserHome>
-  );
+export default function FullIntake({client_id}) {
+    const testClientId = client_id || "61";
+    console.log("Client ID First:",client_id);
+    return (
+        <UserHome>
+            <div className={styles.fullIntakeContainer}>
+                <div className={styles.container}>
+                    <FullIntakeForm client_id = {testClientId} />
+                </div>
+            </div>
+        </UserHome>
+    );
 }
 
-const handleChildrenUpdate = async (children, client_id, setChildrenData) => {
-  try {
-    // Gets the current children in the database
-    const { data: existingChildren, error: fetchError } = await supabase
-      .from("Childs")
-      .select("*")
-      .eq("client_id", client_id);
+const handleChildrenUpdate = async (children, client_id, setChildrenData ) => {
+    try {
+        // Gets the current children in the database
+        const { data: existingChildren, error: fetchError } = await supabase
+            .from("Childs")
+            .select("*")
+            .eq("client_id", client_id);
 
-    if (fetchError) {
-      console.error("Error fetching existing children:", fetchError);
-      return false;
-    }
+        if (fetchError) {
+            console.error("Error fetching existing children:", fetchError);
+            return false;
+        }
 
-    const existingChildIds = existingChildren.map((child) => child.child_id); // Extracts child_id from existingChildren
-    const newChildren = [];
-    const updatedChildren = [];
-    const receivedChildIds = [];
+        const existingChildIds = existingChildren.map(child => child.child_id); // Extracts child_id from existingChildren
+        const newChildren = [];
+        const updatedChildren = [];
+        const receivedChildIds = [];
 
-    children.forEach((child) => {
-      if (child.child_id) {
-        updatedChildren.push(child);
-        receivedChildIds.push(child.child_id);
-      } else {
-        newChildren.push({ ...child, client_id });
-      }
-    });
+        children.forEach(child => {
+            if (child.child_id) {
+                updatedChildren.push(child);
+                receivedChildIds.push(child.child_id);
+            } else {
+                newChildren.push({ ...child, client_id });
+            }
+        });
 
-    // Detect deleted children
-    const deletedChildrenIds = existingChildIds.filter(
-      (id) => !receivedChildIds.includes(id)
-    );
+        // Detect deleted children
+        const deletedChildrenIds = existingChildIds.filter(id => !receivedChildIds.includes(id));
 
-    // Insert new children
-    if (newChildren.length > 0) {
-      const { error: insertError } = await supabase
+        // Insert new children
+        if (newChildren.length > 0) {
+            const { error: insertError } = await supabase.from("Childs").insert(newChildren);
+            if (insertError) {
+                console.error("Error inserting new children:", insertError);
+                return false;
+            }
+            console.log("New children inserted:", newChildren);
+        }
+
+        // Update existing children
+        for (const child of updatedChildren) {
+            const { error: updateError } = await supabase
+                .from("Childs")
+                .update(child)
+                .eq("child_id", child.child_id);
+
+            if (updateError) {
+                console.error(`Error updating child ${child.child_id}:`, updateError);
+                return false;
+            }
+        }
+        console.log("Existing children updated:", updatedChildren);
+
+        // Delete removed children
+        if (deletedChildrenIds.length > 0) {
+            const { error: deleteError } = await supabase
+                .from("Childs")
+                .delete()
+                .in("child_id", deletedChildrenIds);
+
+            if (deleteError) {
+                console.error("Error deleting children:", deleteError);
+                return false;
+            }
+            console.log("Children deleted:", deletedChildrenIds);
+        }
+
+        // Gets updated children again after modifications
+        const { data: updatedChildrenList, error: fetchUpdatedChildrenError } = await supabase
         .from("Childs")
-        .insert(newChildren);
-      if (insertError) {
-        console.error("Error inserting new children:", insertError);
+        .select("*")
+        .eq("client_id", client_id);
+
+        if (fetchUpdatedChildrenError) {
+        console.error("Error fetching updated children:", fetchUpdatedChildrenError);
         return false;
-      }
-      console.log("New children inserted:", newChildren);
-    }
+        }
 
-    // Update existing children
-    for (const child of updatedChildren) {
-      const { error: updateError } = await supabase
-        .from("Childs")
-        .update(child)
-        .eq("child_id", child.child_id);
+        // ChildrenData status updated
+        setChildrenData(updatedChildrenList);
 
-      if (updateError) {
-        console.error(`Error updating child ${child.child_id}:`, updateError);
+        return true;
+    } catch (error) {
+        console.error("Unexpected error in handleChildrenUpdate:", error);
         return false;
-      }
     }
-    console.log("Existing children updated:", updatedChildren);
-
-    // Delete removed children
-    if (deletedChildrenIds.length > 0) {
-      const { error: deleteError } = await supabase
-        .from("Childs")
-        .delete()
-        .in("child_id", deletedChildrenIds);
-
-      if (deleteError) {
-        console.error("Error deleting children:", deleteError);
-        return false;
-      }
-      console.log("Children deleted:", deletedChildrenIds);
-    }
-
-    // Gets updated children again after modifications
-    const { data: updatedChildrenList, error: fetchUpdatedChildrenError } =
-      await supabase.from("Childs").select("*").eq("client_id", client_id);
-
-    if (fetchUpdatedChildrenError) {
-      console.error(
-        "Error fetching updated children:",
-        fetchUpdatedChildrenError
-      );
-      return false;
-    }
-
-    // ChildrenData status updated
-    setChildrenData(updatedChildrenList);
-
-    return true;
-  } catch (error) {
-    console.error("Unexpected error in handleChildrenUpdate:", error);
-    return false;
-  }
 };
 
 function FullIntakeForm({client_id}){
     const [originalData, setOriginalData] = useState(null);
     const [childrenData, setChildrenData] = useState([]); // State for children
+    const [familyData, setFamilyData] = useState([]);
+    const [homeMembersData, setHomeMembersData] = useState([]);
     const [notesData, setNotesData] = useState([]); // State for case notes
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false); // state to enable/disable fields
@@ -154,7 +156,7 @@ function FullIntakeForm({client_id}){
         setSelectedNote(null); // Close the note details
     };
 
-    const handleAddNoteClick = (values, setFieldValue) => {
+    const handleAddNoteClick = (values, push) => {
         const newNote = {
             client_id: client_id,
             type: values.type || "General",  // Default value
@@ -166,39 +168,43 @@ function FullIntakeForm({client_id}){
             modifiedAt: new Date().toISOString(),
         };
 
-        setFieldValue("notes", [...values.notes, newNote]); // Add the new note to the Formik array
+        // setFieldValue("notes", [...values.notes, newNote]); // Add the new note to the Formik array
+        push(newNote);
         setShowNewNoteForm(true);
         console.log("New note added:", newNote);
     };
 
+    const validateRadio = (value) => {
+        if (!value) {
+          return "Please select an option"; // Error message if there is no selection
+        }
+    };
 
-  // Load client and children data when opening the form
-  useEffect(() => {
-    async function fetchClientData() {
-      setLoading(true);
+    // Load client and children data when opening the form
+    useEffect(() => {
 
-      // Gets data from the client
-      const { data: clientData, error: clientError } = await supabase
-        .from("Clients")
-        .select("*")
-        .eq("client_id", client_id)
-        .single();
+        async function fetchClientData() {
+            setLoading(true);
 
-      if (clientError) {
-        console.error(
-          "Error fetching client data:",
-          clientError.message || clientError
-        );
-      } else {
-        setOriginalData(clientData);
-        console.log("Original data:", clientData);
-      }
+            // Gets data from the client
+            const { data: clientData, error: clientError } = await supabase
+                .from("Clients")
+                .select("*")
+                .eq("client_id", client_id)
+                .single();
 
-      // Gets the children associated with the client
-      const { data: children, error: childrenError } = await supabase
-        .from("Childs")
-        .select("*")
-        .eq("client_id", client_id);
+            if (clientError) {
+                console.error("Error fetching client data:", clientError.message || clientError);
+            } else {
+                setOriginalData(clientData);
+                console.log("Original data:", clientData);
+            }
+
+            // Gets the children associated with the client
+            const { data: children, error: childrenError } = await supabase
+                .from("Childs")
+                .select("*")
+                .eq("client_id", client_id);
 
             if (childrenError) {
                 console.error("Error fetching children data:", childrenError.message || childrenError);
@@ -206,6 +212,33 @@ function FullIntakeForm({client_id}){
                 console.log("Children Data:", children);
                 setChildrenData(children || []);
             }
+
+            // Gets the family members associated with the client
+            const { data: familyData, error: familyError } = await supabase
+                .from("Important Family and Friends")
+                .select("*")
+                .eq("client_id", client_id);
+
+            if (familyError) {
+                console.error("Error fetching family data:", familyError.message || familyError);
+            } else {
+                console.log("Family Data:", familyData);
+                setFamilyData(familyData || []);
+            }
+
+            // Gets the home members associated with the client
+            const { data: homeMembersData, error: homeMembersError } = await supabase
+                .from("Home Members")
+                .select("*")
+                .eq("client_id", client_id);
+
+            if (homeMembersError) {
+                console.error("Error fetching home members data:", homeMembersError.message || homeMembersError);
+            } else {
+                console.log("Home members Data:", homeMembersData);
+                setHomeMembersData(homeMembersData || []);
+            }
+
 
             // Gets the case notes associated with the client
             const {data: notes, error: notesError} = await supabase
@@ -220,15 +253,16 @@ function FullIntakeForm({client_id}){
                 setNotesData(notes || []);
             }
 
-      setLoading(false);
+            setLoading(false);
+        }
+
+        fetchClientData();
+    }, [client_id]);
+
+
+    if (loading) {
+        return <div>Loading...</div>;
     }
-
-    fetchClientData();
-  }, [client_id]);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
 
     return(
         <div className="form-container">
@@ -255,7 +289,7 @@ function FullIntakeForm({client_id}){
                         otherAdultsInvolvedExplained: originalData?.otherAdultsInvolvedExplained || "",
                         firstNationMembership: originalData?.firstNationMembership || "",
                         treatyNumber: originalData?.treatyNumber || "",
-                        otherFirstnation: originalData?.otherFirstnation || "",
+                        otherFirstNation: originalData?.otherFirstNation || "",
                         ninePersonalHealthNumber: originalData?.ninePersonalHealthNumber || "",
                         sixPersonalHealthNumber: originalData?.sixPersonalHealthNumber || "",
                         // onReserve: clientData?.onReserve || "",
@@ -271,9 +305,9 @@ function FullIntakeForm({client_id}){
                         // cfsAgentEmail: "",
                         // statusCFSFile: "",
                         // visitsChild:'no',
-                        // visitsChildFrequency: "",
-                        // casePlanCopy:'yes',
-                        // casePlanCopyDescribe: "",
+                        visitsChildFrequency: originalData?.visitsChildFrequency || "",
+                        casePlanCopy: originalData?.casePlanCopy === true ? "yes" : originalData?.casePlanCopy === false ? "no" : "",
+                        casePlanCopyDescribe: originalData?.casePlanCopyDescribe || "",
                         // involvedCFSReason: "",
                         // prenatalSupport:clientData?.prenatalSupport || "",
                         prenatalSupport: originalData?.prenatalSupport === true ? "yes" : originalData?.prenatalSupport === false ? "no" : "",
@@ -284,21 +318,21 @@ function FullIntakeForm({client_id}){
                         // addictionsSupport:clientData?.addictionsSupport || "",
                         addictionsSupport: originalData?.addictionsSupport === true ? "yes" : originalData?.addictionsSupport === false ? "no" : "",
                         addictionsSupportSpecified: originalData?.addictionsSupportSpecified || "",
-                        // youthSupport:'no',
-                        // youthSupportSpecified: "",
-                        // custodySupport:'no',
-                        // custodySupportSpecified: "",
-                        // criminalCharges:'no',
-                        // criminalChargesSpecified: "",
-                        // activeWarrant:'no',
-                        // activeWarrantSpecified: "",
-                        // activeInvestigation:'no',
-                        // activeInvestigationExplained: "",
-                        // activeOrders:'no',
-                        // activeOrdersExplained: "",
-                        // currentLawyer:'yes',
-                        // legalAssistance:'no',
-                        // legalAssistanceSpecified: "",
+                        youthSupport: originalData?.youthSupport ? "yes" : (originalData?.youthSupport === false ? "no" : null),
+                        youthSupportSpecified: originalData?.youthSupportSpecified || "",
+                        custodySupport: originalData?.custodySupport ? "yes" : (originalData?.custodySupport === false ? "no" : null),
+                        custodySupportSpecified: originalData?.custodySupportSpecified || "",
+                        criminalCharges: originalData?.criminalCharges ? "yes" : (originalData?.criminalCharges === false ? "no" : null),
+                        criminalChargesSpecified: originalData?.criminalChargesSpecified || "",
+                        activeWarrant: originalData?.activeWarrant ? "yes" : (originalData?.activeWarrant === false ? "no" : null),
+                        activeWarrantSpecified: originalData?.activeWarrantSpecified || "",
+                        activeInvestigation: originalData?.activeInvestigation ? "yes" : (originalData?.activeInvestigation === false ? "no" : null),
+                        activeInvestigationExplained: originalData?.activeInvestigationExplained || "",
+                        activeOrders: originalData?.activeOrders ? "yes" : (originalData?.activeOrders === false ? "no" : null),
+                        activeOrdersExplained: originalData?.activeOrdersExplained || "",
+                        currentLawyer: originalData?.currentLawyer ? "yes" : (originalData?.currentLawyer === false ? "no" : null),
+                        legalAssistance: originalData?.legalAssistance ? "yes" : (originalData?.legalAssistance === false ? "no" : null),
+                        legalAssistanceSpecified: originalData?.legalAssistanceSpecified || "",
                         // unableToAssistExplained: "",
                         // referForSupport : "",
                         martialStatus: originalData?.martialStatus || "",
@@ -306,8 +340,70 @@ function FullIntakeForm({client_id}){
                         modifiedBy: originalData?.modifiedBy || "",
                         createdAt: originalData?.createdAt ? originalData.createdAt.split("T")[0] : "",
 
-                        children: childrenData || [],
-                        notes: notesData || []
+                        residentialSchool: Boolean(originalData?.residentialSchool),
+                        cfsCare: Boolean(originalData?.cfsCare),
+                        adoptedScoop: Boolean(originalData?.adoptedScoop),
+                        experiencedSuicide: Boolean(originalData?.experiencedSuicide),
+                        MMIWG2S: Boolean(originalData?.MMIWG2S),
+                        familyViolence: Boolean(originalData?.familyViolence),
+
+                        FASD: Boolean(originalData?.FASD),
+                        ADHD: Boolean(originalData?.ADHD),
+                        PTSD: Boolean(originalData?.PTSD),
+                        depression: Boolean(originalData?.depression),
+                        cancerAutoimmuneCondition: Boolean(originalData?.cancerAutoimmuneCondition),
+                        otherMentalCondition: Boolean(originalData?.otherMentalCondition),
+                        otherMentalConditionExplained: originalData?.otherMentalConditionExplained || "",
+                        diagnosedFollowingExplain:originalData?.diagnosedFollowingExplain || "",
+                        negativeCopingSkills: originalData?.negativeCopingSkills ? "yes" : (originalData?.negativeCopingSkills === false ? "no" : ""),
+                        negativeCopingSkillsExplain: originalData?.negativeCopingSkillsExplain || "",
+
+                        drugsImpact: originalData?.drugsImpact || "",
+                        lastTimeUsed: originalData?.lastTimeUsed || "",
+                        educationalGoals: originalData?.educationalGoals ? "yes" : (originalData?.educationalGoals === false ? "no" : ""),
+                        educationalGoalsExplained: originalData?.educationalGoalsExplained || "",
+                        accessElder: originalData?.accessElder ? "yes" : (originalData?.accessElder === false ? "no" : ""),
+                        accessElderExplained: originalData?.accessElderExplained || "",
+
+                        childrenInCareDuration: originalData?.childrenInCareDuration || "",
+                        cfsChildrenApprehesionReason: originalData?.cfsChildrenApprehesionReason || "",
+                        kinship: originalData?.kinship ? "yes" : (originalData?.kinship === false ? "no" : ""),
+                        kinshipExplained: originalData?.kinshipExplained || "",
+                        anyConcerns: originalData?.anyConcerns || "",
+                        prentativeSupport: originalData?.prentativeSupport ? "yes" : (originalData?.prentativeSupport === false ? "no" : ""),
+                        prentativeSupportExplained: originalData?.prentativeSupportExplained || "",
+                        privateAgreement: originalData?.privateAgreement ? "yes" : (originalData?.privateAgreement === false ? "no" : null), //asi para boleanos que esten nulos en la bd
+                        privateAgreementExplained: originalData?.privateAgreementExplained || "",
+                        previousInvolvement: originalData?.previousInvolvement ? "yes" : (originalData?.previousInvolvement === false ? "no" : null),
+                        previousInvolvementExplain: originalData?.previousInvolvementExplain || "",
+                        parentalCapacityDone: originalData?.parentalCapacityDone ? "yes" : (originalData?.parentalCapacityDone === false ? "no" : null),
+                        parentalCapacity: originalData?.parentalCapacity || "",
+                        cfsExplain: originalData?.cfsExplain ? "yes" : (originalData?.cfsExplain === false ? "no" : null),
+                        turnToKinshipCare: originalData?.turnToKinshipCare ? "yes" : (originalData?.turnToKinshipCare === false ? "no" : null),
+
+                        sourceIncome: originalData.sourceIncome !== null && originalData.sourceIncome !== undefined ? originalData.sourceIncome : "",
+
+                        // children: childrenData.length > 0 ? childrenData : [{}],
+                        children: childrenData.map(child => ({
+                            firstName: child.firstName || "",
+                            middleName: child.middleName || "",
+                            lastName: child.lastName || "",
+                            birthDate: child.birthDate || "",
+                            childNation: child.childNation || "",
+                            gender: child.gender || "",
+                            childPlaced: child.childPlaced || "",
+                            childCfsAgency: child.childCfsAgency || "",
+                            childCfsAgentFullName: child.childCfsAgentFullName || "",
+                            childCfsAgentNumber: child.childCfsAgentNumber !== null && child.childCfsAgentNumber !== undefined ? child.childCfsAgentNumber : "",
+                            childCfsAgentEmail: child.childCfsAgentEmail || "",
+                            childStatusCfsFile: child.childStatusCfsFile !== "" ? child.childStatusCfsFile : "",
+                            childCfsSupervisorFullName: child.childCfsSupervisorFullName || "",
+                            childCfsSupervisorNumber: child.childCfsSupervisorNumber !== null && child.childCfsSupervisorNumber !== undefined ? child.childCfsSupervisorNumber : "",
+                            childCfsSupervisorEmail: child.childCfsSupervisorEmail || "",
+                       })) || [],
+                        notes: notesData || [],
+                        family: familyData || [],
+                        homeMembers: homeMembersData || [],
                     }
                 }
                 enableReinitialize
@@ -394,29 +490,29 @@ function FullIntakeForm({client_id}){
             errors.email = "Invalid email format";
           }
 
-          // if (!values.emergencyContactFirstName) {
-          //     errors.emergencyContactFirstName = "Please provide an emergency contact first name.";
-          // }
+                    // if (!values.emergencyContactFirstName) {
+                    //     errors.emergencyContactFirstName = "Please provide an emergency contact first name.";
+                    // }
 
-          // if (!values.emergencyContactLastName) {
-          //     errors.emergencyContactLastName = "Please provide an emergency contact last name.";
-          // }
+                    // if (!values.emergencyContactLastName) {
+                    //     errors.emergencyContactLastName = "Please provide an emergency contact last name.";
+                    // }
 
-          // if (!values.emergencyContactNumber) {
-          //     errors.emergencyContactNumber = "Please provide an emergency contact phone.";
-          // }
+                    // if (!values.emergencyContactNumber) {
+                    //     errors.emergencyContactNumber = "Please provide an emergency contact phone.";
+                    // }
 
-          // if (!values.relationshipToChildren) {
-          //     errors.relationshipToChildren = "Please provide a relationship with the child(ren).";
-          // }
+                    // if (!values.relationshipToChildren) {
+                    //     errors.relationshipToChildren = "Please provide a relationship with the child(ren).";
+                    // }
 
-          // if (values.otherAdultsInvolved === true && !values.otherAdultsInvolvedExplained.trim()) {
-          //     errors.otherAdultsInvolvedExplained = "Please specify the other involved adult(s)";
-          // }
+                    // if (values.otherAdultsInvolved === true && !values.otherAdultsInvolvedExplained.trim()) {
+                    //     errors.otherAdultsInvolvedExplained = "Please specify the other involved adult(s)";
+                    // }
 
-          // if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.cfsAgentEmail)) {
-          //     errors.cfsAgentEmail = "Invalid email format";
-          // }
+                    // if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.cfsAgentEmail)) {
+                    //     errors.cfsAgentEmail = "Invalid email format";
+                    // }
 
                     return errors;
                 }}
@@ -430,32 +526,35 @@ function FullIntakeForm({client_id}){
                             return;
                         }
 
-            // Validate that values are not empty
-            if (!values || Object.keys(values).length === 0) {
-              console.error("Error: No values to update.");
-              return;
-            }
+                        // Validate that values are not empty
+                        if (!values || Object.keys(values).length === 0) {
+                            console.error("Error: No values to update.");
+                            return;
+                        }
 
                         // Check if values are different from the original data
                         const isClientUnchanged = JSON.stringify(values) === JSON.stringify(originalData);
                         const isChildrenUnchanged = JSON.stringify(values.children) === JSON.stringify(childrenData);
+                        const isFamilyUnchanged = JSON.stringify(values.family) === JSON.stringify(familyData);
+                        const isHomeMembersUnchanged = JSON.stringify(values.homeMembers) === JSON.stringify(homeMembersData);
                         const isNotesUnchanged = JSON.stringify(values.notes) === JSON.stringify(notesData);
 
-                        if (isClientUnchanged && isChildrenUnchanged && isNotesUnchanged) {
+                        if (isClientUnchanged && isChildrenUnchanged && isFamilyUnchanged && isHomeMembersUnchanged && isNotesUnchanged) {
                             console.warn("Warning: No changes detected, skipping update.");
                             setIsEditing(false);
                             return;
                         }
 
-                        // ----------------
                         console.log("Updating Clients with values:", values);
-                        const { children, notes, actionPlan, description, type, subType, advocate_id, ...clientValues } = values; // Extract 'children', 'notes'  and leave only the 'Clients' values
+                        const { children, notes, actionPlan, description, type, subType, advocate_id, family, homeMembers, ...clientValues } = values; // Extract 'children', 'notes', etc  and leave only the 'Clients' values
 
                         // console.log("Values before updating Clients:", JSON.stringify(clientValues, null, 2)); //quitar
                         // console.log("Updating client_id:", client_id);//quitar
                         // console.log("Children data before update:", JSON.stringify(values.children, null, 2)); //quitar
                         // console.log("Notes data before update:", JSON.stringify(values.notes, null, 2)); //quitar
 
+                        // Add dateModified field with the current date and time
+                        clientValues.dateModified = new Date().toISOString();
 
                         // Updates data in Supabase
                         const { data, error} = await supabase
@@ -464,7 +563,7 @@ function FullIntakeForm({client_id}){
                             .eq("client_id", client_id)
                             .select(); // This retrieves the updated data
 
-            // console.log("Supabase response:", response);
+                        // console.log("Supabase response:", response);
 
                         // If there's an error, print it and exit
                         if (error) {
@@ -474,9 +573,9 @@ function FullIntakeForm({client_id}){
                             return;
                         }
 
-            // Confirm that the update was successful
-            if (data && data.length > 0) {
-              console.log("Update successful. Updated data:", data);
+                        // Confirm that the update was successful
+                        if (data && data.length > 0) {
+                            console.log("Update successful. Updated data:", data);
 
                             console.log("Updating Children with values:", values.children);
 
@@ -487,6 +586,20 @@ function FullIntakeForm({client_id}){
                                 console.error("Error updating children data.");
                             }
 
+                            // Call `handle family Update` to update the family and friend members in the database
+                            const familyUpdateSuccess = await handleFamilyUpdate(values.family, client_id, setFamilyData);
+                            console.log("Family update result:", familyUpdateSuccess);
+                            if (!familyUpdateSuccess){
+                                console.error("Error update family data.");
+                            }
+
+                            // Call `handleHomeMembersUpdate` to update the home members in the database
+                            const homeMemberUpdateSuccess = await handleHomeMembersUpdate(values.homeMembers, client_id, setHomeMembersData);
+                            console.log("Home members update result:", homeMemberUpdateSuccess);
+                            if (!homeMemberUpdateSuccess){
+                                console.error("Error update home members data.");
+                            }
+
                             // Call `handle Notes Update` to update the notes in the database
                             const notesUpdateSuccess = await handleNotesUpdate(values.notes, client_id, setNotesData);
                             console.log("Notes update result:", notesUpdateSuccess);
@@ -494,8 +607,8 @@ function FullIntakeForm({client_id}){
                                 console.error("Error update notes data.");
                             }
 
-              // UPDATE originalData with the new values
-              setOriginalData(data[0]); // Use the data returned by Supabase
+                            // UPDATE originalData with the new values
+                            setOriginalData(data[0]);  // Use the data returned by Supabase
 
                             setShowNewNoteForm(false);
                             setIsEditing(false);
@@ -515,114 +628,79 @@ function FullIntakeForm({client_id}){
             {({ values, errors, resetForm, setFieldValue }) => (
                 <>
                     <Form className={styles.form}>
+                    <div className={styles.titleContainer}>
+                        <img src="/full-intake logo.png" alt="Logo" className={styles.logo} />
                         <h2 className={styles.centeredTitle}>FULL-INTAKE FORM</h2>
+                    </div>
+                    <hr className="separator-line" />
                         <div >
+
                             <Row>
-                                {/* <Col><label><strong>Created At:</strong></label> <div>{Formik.values?.createdAt}</div></Col> */}
-                                <Col md={3}><InputField name="createdAt" label="Created At:" placeholder="" error={errors.createdAt} disabled={!isEditing} /></Col>
-                                <Col></Col>
-                                <Col md={3}>
-                                    <InputField name="dateModified" label="Last updated:" placeholder="" error={errors.dateModified} disabled={!isEditing} />
+                                <Col md={4}><label htmlFor="createdAt"> <strong> Created At: </strong> {values.createdAt}</label>
+                                    {/* <FormattedDate dateString={values.createdAt}/> */}
                                 </Col>
-                                <Col md={3}><InputField name="modifiedBy" label="Updated by:" placeholder="" error={errors.modifiedBy} disabled={!isEditing} /></Col>
+
+                                <Col md={4}><label htmlFor="dateModified"> <strong> Last Updated: </strong> {values.dateModified}</label>
+                                    {/* <FormattedDate dateString={values.dateModified}/> */}
+                                </Col>
+
+                                <Col md={4}>
+                                    <label><strong>Updated by:</strong></label>
+                                    <div>{values.modifiedBy}</div>
+                                </Col>
                             </Row>
-                            <Row >
+                        </div>
+                        <hr className="separator-line" />
+
+                        <div className="bg- p-2 rounded border border-light border-1">
+                            <Row className="mt-3">
                                 <Col md={3}>
                                     <InputField name="firstName" label="First Name:" placeholder="John" error={errors.firstName} disabled={!isEditing} />
                                 </Col>
 
-                  <Col md={3}>
-                    <InputField
-                      name="middleName"
-                      label="Middle Name:"
-                      error={errors.middleName}
-                      disabled={!isEditing}
-                    />
-                  </Col>
-                  <Col md={3}>
-                    <InputField
-                      name="lastName"
-                      label="Last Name:"
-                      placeholder="Connor"
-                      error={errors.lastName}
-                      disabled={!isEditing}
-                    />
-                  </Col>
+                                <Col md={3}>
+                                    <InputField name="middleName" label="Middle Name:" error={errors.middleName} disabled={!isEditing} />
+                                </Col>
+                                <Col md={3}>
+                                    <InputField name="lastName" label="Last Name:" placeholder="Connor" error={errors.lastName} disabled={!isEditing} />
+                                </Col>
 
-                  <Col md={3}>
-                    <div>
-                      <label htmlFor="dateOfBirth">Birth Date:</label>
-                      <Field
-                        type="date"
-                        id="dateOfBirth"
-                        name="dateOfBirth"
-                        disabled={!isEditing}
-                      />
-                      <ErrorMessage
-                        name="dateOfBirth"
-                        component={() => (
-                          <p className={styles.errorText}>
-                            {errors.dateOfBirth}
-                          </p>
-                        )}
-                      />
-                    </div>
-                  </Col>
-                </Row>
+                                <Col md={3}>
+                                    <div>
+                                        <label htmlFor="dateOfBirth">Birth Date:</label>
+                                        <Field type="date" id="dateOfBirth" name="dateOfBirth" disabled={!isEditing} />
+                                        <ErrorMessage name="dateOfBirth" component={() => <p className={styles.errorText}>{errors.dateOfBirth}</p>} />
+                                    </div>
+                                </Col>
+                            </Row>
 
-                <Row>
-                  <Col md={3}>
-                    <InputField
-                      name="address"
-                      label="Address:"
-                      placeholder="161 Main St, Unit 230"
-                      error={errors.address}
-                      disabled={!isEditing}
-                    />
-                  </Col>
+                            <Row >
+                                <Col md={3}>
+                                    <InputField name="address" label="Address:" placeholder="161 Main St, Unit 230" error={errors.address} disabled={!isEditing} />
+                                </Col>
 
-                  <Col md={3}>
-                    <InputField
-                      name="city"
-                      label="City:"
-                      placeholder="Winnipeg"
-                      error={errors.city}
-                      disabled={!isEditing}
-                    />
-                  </Col>
+                                <Col md={3}>
+                                    <InputField name="city" label="City:" placeholder="Winnipeg" error={errors.city} disabled={!isEditing} />
+                                </Col>
 
-                  <Col md={4}>
-                    <ProvincesSelect
-                      name="province"
-                      label="Province:"
-                      error={errors.province}
-                      disabled={!isEditing}
-                    />
-                  </Col>
+                                <Col md={4}>
 
-                  <Col md={2}>
-                    <InputField
-                      name="postalCode"
-                      label="Postal code:"
-                      placeholder="R3C 0V8"
-                      error={errors.postalCode}
-                      disabled={!isEditing}
-                    />
-                  </Col>
-                </Row>
+                                    <ProvincesSelect name="province" label="Province:" error={errors.province} disabled={!isEditing} />
+                                </Col>
 
-                <Row className="mb-4">
-                  <Col md={3}>
-                    <div>
-                      <label htmlFor="phoneNumber">Phone Number:</label>
-                      <Field
-                        type="number"
-                        id="phoneNumber"
-                        name="phoneNumber"
-                        disabled={!isEditing}
-                      />
-                    </div>
-                  </Col>
+                                <Col md={2}>
+                                    <InputField name="postalCode" label="Postal code:" placeholder="R3C 0V8" error={errors.postalCode} disabled={!isEditing} />
+                                </Col>
+                            </Row>
+
+                            <Row className="mb-4">
+                                <Col md={3}>
+                                    <div>
+                                        <label htmlFor="phoneNumber">Phone Number:</label>
+                                        <Field type="number" id="phoneNumber" name="phoneNumber" component={PhoneNumberInput} placeholder="(123) 456-7890" disabled={!isEditing} />
+                                        <ErrorMessage name="phoneNumber" component={() => <p className={styles.errorText}>{errors.phoneNumber}</p>} />
+                                    </div>
+                                </Col>
 
                                 <Col md={4}>
                                     <div>
@@ -648,287 +726,129 @@ function FullIntakeForm({client_id}){
 
                                         {/* General Information Tab */}
 
-                      <Row className="mt-4">
-                        <Col md={4}>
-                          <FirstNationSelect
-                            name="firstNationMembership"
-                            label="First Nation Membership"
-                            error={errors.firstNationMembership}
-                            disabled={!isEditing}
-                          />
-                        </Col>
-                        <Col md={4}>
-                          <InputField
-                            name="treatyNumber"
-                            label="Treaty Number:"
-                            placeholder=""
-                            error={errors.treatyNumber}
-                            disabled={!isEditing}
-                          />
-                        </Col>
-                        <Col md={4}>
-                          <FirstNationSelect
-                            name="otherFirstnation"
-                            label="Other First Nation"
-                            error={errors.otherFirstnation}
-                            disabled={!isEditing}
-                          />
-                        </Col>
-                      </Row>
+                                        <Row className="mt-2">
+                                            <Col md={5}>
+                                                <FirstNationSelect name="firstNationMembership" label="First Nation Membership" error={errors.firstNationMembership} disabled={!isEditing} />
+                                            </Col>
+                                            <Col md={3}>
+                                                <InputField name="treatyNumber" label="Treaty Number:" placeholder="" error={errors.treatyNumber} disabled={!isEditing} />
+                                            </Col>
+                                            <Col md={4}>
+                                                <FirstNationSelect name="otherFirstnation" label="Other First Nation" error={errors.otherFirstnation} disabled={!isEditing}/>
+                                            </Col>
+                                        </Row>
 
-                      <Row className="mt-3">
-                        <Col md={4}>
-                          <label>
-                            Personal Health Identification Numbers (9-Digit):
-                          </label>
-                          <Field
-                            type="number"
-                            id="ninePersonalHealthNumber"
-                            placeholder="000000000"
-                            name="ninePersonalHealthNumber"
-                            disabled={!isEditing}
-                          />
-                          <ErrorMessage
-                            name="ninePersonalHealthNumber"
-                            component={() => (
-                              <p className={styles.errorText}>
-                                {errors.ninePersonalHealthNumber}
-                              </p>
-                            )}
-                          />
-                        </Col>
-                        <Col md={2}>
-                          <label>(6-Digit):</label>
-                          <Field
-                            type="number"
-                            id="sixPersonalHealthNumber"
-                            placeholder="000000"
-                            name="sixPersonalHealthNumber"
-                            disabled={!isEditing}
-                          />
-                          <ErrorMessage
-                            name="sixPersonalHealthNumber"
-                            component={() => (
-                              <p className={styles.errorText}>
-                                {errors.sixPersonalHealthNumber}
-                              </p>
-                            )}
-                          />
-                        </Col>
-                      </Row>
+                                        <Row className="mt-3">
+                                            <Col md={5}>
+                                                <label>Personal Health Identification Numbers (9-Digit):</label>
+                                                <Field type="number" id="ninePersonalHealthNumber" placeholder="000000000" name="ninePersonalHealthNumber" disabled={!isEditing} />
+                                                <ErrorMessage name="ninePersonalHealthNumber" component={() => <p className={styles.errorText}>{errors.ninePersonalHealthNumber}</p>} />
+                                            </Col>
+                                            <Col md={3}>
+                                                <label>(6-Digit):</label>
+                                                <Field type="number" id="sixPersonalHealthNumber" placeholder="000000" name="sixPersonalHealthNumber" disabled={!isEditing} />
+                                                <ErrorMessage name="sixPersonalHealthNumber" component={() => <p className={styles.errorText}>{errors.sixPersonalHealthNumber}</p>} />
+                                            </Col>
+                                            <Col md={4}>
+                                                <MartialStatusSelect name="martialStatus" label="Marital Status" error={errors.martialStatus} disabled={!isEditing} />
+                                            </Col>
+                                        </Row>
 
-                      <Row className="mt-3">
-                        <Col md={4}>
-                          <div>
-                            <label>Are you living on or off reserve?  </label>
-                            <div className="form-check form-check-inline">
-                              <Field
-                                className="form-check-input"
-                                type="radio"
-                                name="onReserve"
-                                value="yes"
-                                checked={values.onReserve === "yes"}
-                                disabled={!isEditing}
-                              />
-                              <label className="form-check-label">Yes</label>
-                            </div>
-                            <div className="form-check form-check-inline">
-                              <Field
-                                className="form-check-input"
-                                type="radio"
-                                name="onReserve"
-                                value="no"
-                                checked={values.onReserve === "no"}
-                                disabled={!isEditing}
-                              />
-                              <label className="form-check-label">No</label>
-                            </div>
-                            <ErrorMessage
-                              name="onReserve"
-                              component="div"
-                              className={styles.onReserve}
-                            />
-                          </div>
-                        </Col>
-                        <Col md={4}>
-                          <div>
-                            <label>
-                              Have you transitioned from a reserve to the city
-                              recently?
-                            </label>
-                            <div className="form-check form-check-inline">
-                              <Field
-                                className="form-check-input"
-                                type="radio"
-                                name="transitionFromReserve"
-                                value="yes"
-                                checked={values.transitionFromReserve === "yes"}
-                                disabled={!isEditing}
-                              />
-                              <label className="form-check-label">Yes</label>
-                            </div>
-                            <div className="form-check form-check-inline">
-                              <Field
-                                className="form-check-input"
-                                type="radio"
-                                name="transitionFromReserve"
-                                value="no"
-                                checked={values.transitionFromReserve === "no"}
-                                disabled={!isEditing}
-                              />
-                              <label className="form-check-label">No</label>
-                            </div>
-                            <ErrorMessage
-                              name="transitionFromReserve"
-                              component="div"
-                              className={styles.transitionFromReserve}
-                            />
-                          </div>
-                        </Col>
-                        <Col md={4}>
-                          <div>
-                            <label>Are you a previous client of FNFAO?</label>
-                            <div className="form-check form-check-inline">
-                              <Field
-                                className="form-check-input"
-                                type="radio"
-                                name="previousFNFAOClient"
-                                value="yes"
-                                checked={values.previousFNFAOClient === "yes"}
-                                disabled={!isEditing}
-                              />
-                              <label className="form-check-label">Yes</label>
-                            </div>
-                            <div className="form-check form-check-inline">
-                              <Field
-                                className="form-check-input"
-                                type="radio"
-                                name="previousFNFAOClient"
-                                value="no"
-                                checked={values.previousFNFAOClient === "no"}
-                                disabled={!isEditing}
-                              />
-                              <label className="form-check-label">No</label>
-                            </div>
-                            <ErrorMessage
-                              name="previousFNFAOClient"
-                              component="div"
-                              className={styles.previousFNFAOClient}
-                            />
-                          </div>
-                        </Col>
-                      </Row>
+                                        <hr className="separator-line" />
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                                <div>
+                                                    <label>Are you living on or off reserve?  </label>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="onReserve" value="yes" checked={values.onReserve === "yes"} disabled={!isEditing} />
+                                                        <label className="form-check-label">Yes</label>
+                                                    </div>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="onReserve" value="no" checked={values.onReserve === "no"} disabled={!isEditing} />
+                                                        <label className="form-check-label">No</label>
+                                                    </div>
+                                                    <ErrorMessage name="onReserve" component="div" className={styles.onReserve} />
+                                                </div>
+                                            </Col>
+                                            <Col md={4}>
+                                                <div>
+                                                    <label>Have you transitioned from a reserve to the city recently?</label>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="transitionFromReserve" value="yes" checked={values.transitionFromReserve === "yes"} disabled={!isEditing} />
+                                                        <label className="form-check-label">Yes</label>
+                                                    </div>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="transitionFromReserve" value="no" checked={values.transitionFromReserve === "no"} disabled={!isEditing} />
+                                                        <label className="form-check-label">No</label>
+                                                    </div>
+                                                    <ErrorMessage name="transitionFromReserve" component="div" className={styles.transitionFromReserve} />
+                                                </div>
+                                            </Col>
+                                            <Col md={4}>
+                                                <div>
+                                                    <label>Are you a previous client of FNFAO?</label>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="previousFNFAOClient" value="yes" checked={values.previousFNFAOClient === "yes"} disabled={!isEditing} />
+                                                        <label className="form-check-label">Yes</label>
+                                                    </div>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="previousFNFAOClient" value="no" checked={values.previousFNFAOClient === "no"} disabled={!isEditing}/>
+                                                        <label className="form-check-label">No</label>
+                                                    </div>
+                                                    <ErrorMessage name="previousFNFAOClient" component="div" className={styles.previousFNFAOClient} />
+                                                </div>
+                                            </Col>
+                                        </Row>
 
-                      <Row className={styles.group}>
-                        <Col md={4}>
-                          <div>
-                            <label>Need prenatal support?</label>
-                            <div className="form-check form-check-inline">
-                              <Field
-                                className="form-check-input"
-                                type="radio"
-                                name="prenatalSupport"
-                                value="yes"
-                                checked={values.prenatalSupport === "yes"}
-                                disabled={!isEditing}
-                              />
-                              <label className="form-check-label">Yes</label>
-                            </div>
-                            <div className="form-check form-check-inline">
-                              <Field
-                                className="form-check-input"
-                                type="radio"
-                                name="prenatalSupport"
-                                value="no"
-                                checked={values.prenatalSupport === "no"}
-                                disabled={!isEditing}
-                              />
-                              <label className="form-check-label">No</label>
-                            </div>
-                            <ErrorMessage
-                              name="prenatalSupport"
-                              component="div"
-                              className={styles.errorText}
-                            />
-                          </div>
-                        </Col>
-                        {values.prenatalSupport === "yes" && (
-                          <Col md={8}>
-                            <label>
-                              If yes, specify (e.g. help avoiding birth
-                              apprehension, access to prenatal care,
-                              breastfeeding information, preparing for baby,
-                              etc.):
-                            </label>
-                            <Field
-                              as="textarea"
-                              name="prenatalSupportSpecified"
-                              className={styles.textarea}
-                              disabled={!isEditing}
-                            />
-                            <ErrorMessage
-                              name="prenatalSupportSpecified"
-                              component="div"
-                              className={styles.errorText}
-                            />
-                          </Col>
-                        )}
-                      </Row>
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                                <div>
+                                                    <label>Need prenatal support?</label>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="prenatalSupport" value="yes"  checked={values.prenatalSupport === "yes"} disabled={!isEditing} />
+                                                        <label className="form-check-label">Yes</label>
+                                                    </div>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="prenatalSupport" value="no" checked={values.prenatalSupport === "no"} disabled={!isEditing} />
+                                                        <label className="form-check-label">No</label>
+                                                    </div>
+                                                    <ErrorMessage name="prenatalSupport" component="div" className={styles.errorText} />
+                                                </div>
+                                            </Col>
+                                            {values.prenatalSupport === "yes" && (
 
-                      <Row className={styles.group}>
-                        <Col md={4}>
-                          <div>
-                            <label>Need housing support?</label>
-                            <div className="form-check form-check-inline">
-                              <Field
-                                className="form-check-input"
-                                type="radio"
-                                name="housingSupport"
-                                value="yes"
-                                checked={values.housingSupport === "yes"}
-                                disabled={!isEditing}
-                              />
-                              <label className="form-check-label">Yes</label>
-                            </div>
-                            <div className="form-check form-check-inline">
-                              <Field
-                                className="form-check-input"
-                                type="radio"
-                                name="housingSupport"
-                                value="no"
-                                checked={values.housingSupport === "no"}
-                                disabled={!isEditing}
-                              />
-                              <label className="form-check-label">No</label>
-                            </div>
-                            <ErrorMessage
-                              name="housingSupport"
-                              component="div"
-                              className={styles.errorText}
-                            />
-                          </div>
-                        </Col>
-                        {values.housingSupport === "yes" && (
-                          <Col md={8}>
-                            <label>
-                              If yes, specify (e.g. urgent housing, preventing
-                              eviction, dealing with the Residential Tenancies
-                              Branch, etc):
-                            </label>
-                            <Field
-                              as="textarea"
-                              name="housingSupportSpecified"
-                              className={styles.textarea}
-                              disabled={!isEditing}
-                            />
-                            <ErrorMessage
-                              name="housingSupportSpecified"
-                              component="div"
-                              className={styles.errorText}
-                            />
-                          </Col>
-                        )}
-                      </Row>
+                                                <Col md={8}>
+                                                    <label>If yes, specify (e.g. help avoiding birth apprehension, access to prenatal care, breastfeeding information, preparing for baby, etc.):</label>
+                                                    <Field as="textarea" name="prenatalSupportSpecified" className={styles.textarea} disabled={!isEditing} />
+                                                    <ErrorMessage name="prenatalSupportSpecified" component="div" className={styles.errorText} />
+                                                </Col>
+                                            )}
+                                        </Row>
+
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                                <div>
+                                                    <label>Need housing support?</label>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="housingSupport" value="yes" checked={values.housingSupport === "yes"} disabled={!isEditing} />
+                                                        <label className="form-check-label">Yes</label>
+                                                    </div>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="housingSupport" value="no" checked={values.housingSupport === "no"} disabled={!isEditing} />
+                                                        <label className="form-check-label">No</label>
+                                                    </div>
+                                                    <ErrorMessage name="housingSupport" component="div" className={styles.errorText} />
+                                                </div>
+                                            </Col>
+                                            {values.housingSupport === "yes" && (
+
+                                                <Col md={8}>
+                                                    <label>If yes, specify (e.g. urgent housing, preventing eviction, dealing with the Residential Tenancies Branch, etc):</label>
+                                                    <Field as="textarea" name="housingSupportSpecified" className={styles.textarea} disabled={!isEditing} />
+                                                    <ErrorMessage name="housingSupportSpecified" component="div" className={styles.errorText} />
+                                                </Col>
+                                            )}
+                                        </Row>
 
                                         <Row className={styles.group}>
                                             <Col md={4}>
@@ -954,19 +874,575 @@ function FullIntakeForm({client_id}){
                                                 </Col>
                                             )}
                                         </Row>
-                                        <Row>
-                                            <Col md={4}>
-                                                <MartialStatusSelect name="martialStatus" label="Marital Status" error={errors.martialStatus} disabled={!isEditing} />
+
+                                        {/* Home members */}
+                                        <Row className="mt-3">
+                                            <div className={styles.group}>
+                                                <h5>Important Family Members and Friends</h5>
+
+                                                <FieldArray name="homeMembers">
+                                                {({ push, remove }) => (
+                                                    <div  className="bg-gray-100 p-2 rounded border border-light border-2">
+                                                    {values.homeMembers.map((member, index) => (
+                                                        <div key={`${member.home_members_id}-${index}`} className={`${styles.bglightgrey} border rounded p-2 mb-3`}>
+                                                        <Row className="align-items-center">
+                                                            <Col md={4}>
+                                                            <InputField
+                                                                name={`homeMembers.${index}.firstName`}
+                                                                label="First Name:"
+                                                                disabled={!isEditing}
+                                                            />
+                                                            </Col>
+
+                                                            <Col md={4}>
+                                                            <InputField
+                                                                name={`homeMembers.${index}.lastName`}
+                                                                label="Last Name:"
+                                                                disabled={!isEditing}
+                                                            />
+                                                            </Col>
+
+                                                            <Col md={4}>
+                                                            <InputField
+                                                                name={`homeMembers.${index}.relationship`}
+                                                                label="Relationship:"
+                                                                disabled={!isEditing}
+                                                            />
+                                                            </Col>
+                                                        </Row>
+
+                                                        <Row>
+                                                            <Col md={4}>
+                                                                <div>
+                                                                <label
+                                                                    htmlFor={`homeMembers.${index}.phoneNumber`}
+                                                                >
+                                                                    Phone Number:
+                                                                </label>
+                                                                <Field
+                                                                    type="number"
+                                                                    id={`homeMembers.${index}.phoneNumber`}
+                                                                    name={`homeMembers.${index}.phoneNumber`}
+                                                                    component={PhoneNumberInput}
+                                                                    placeholder="(123) 456-7890"
+                                                                    disabled={!isEditing}
+                                                                />
+                                                                </div>
+                                                            </Col>
+                                                            <Col md={4}>
+                                                                <div>
+                                                                    <label htmlFor={`homeMembers.${index}.email`}>Email:</label>
+                                                                    <Field type="email" id={`homeMembers.${index}.email`} name={`homeMembers.${index}.email`} disabled={!isEditing} />
+                                                                    <ErrorMessage
+                                                                        name={`homeMembers.${index}.email`}
+                                                                        component={() => <p className={styles.errorText}>{errors.homeMembers?.[index]?.email}</p>} />
+                                                                </div>
+                                                            </Col>
+                                                            <Col  md={4}>
+                                                                <YesNoSelect
+                                                                    name={`homeMembers.${index}.livingTogether`}
+                                                                    label="Living Together?"
+                                                                    error={errors.homeMembers?.[index]?.livingTogether}
+                                                                    disabled={!isEditing}
+                                                                    onChange={(e) => setFieldValue(`homeMembers.${index}.livingTogether`, e.target.value)}
+                                                                />
+                                                            </Col>
+
+                                                        </Row>
+
+                                                        <Row>
+                                                            <Col md={9}></Col>
+                                                            <Col md={3} className="d-flex align-items-end mt-2">
+                                                            <Button
+                                                                className="w-100 btn btn-danger"
+                                                                type="button"
+                                                                onClick={() => remove(index)}
+                                                                disabled={!isEditing}
+                                                            >
+                                                                Delete
+                                                            </Button>
+                                                            </Col>
+                                                        </Row>
+                                                        </div>
+                                                    ))}
+                                                    <Button
+                                                        className="btn-dark"
+                                                        type="button"
+                                                        disabled={!isEditing}
+                                                        onClick={() =>
+                                                        push({
+                                                            firstName: "",
+                                                            lastName: "",
+                                                            relationship: "",
+                                                            phoneNumber: "",
+                                                            email:"",
+                                                            livingTogether:""
+                                                        })}>
+                                                        + Add Member
+                                                    </Button>
+                                                    </div>
+                                                )}
+                                                </FieldArray>
+                                            </div>
+                                        </Row>
+
+                                        {/* Checkboxes */}
+
+                                        <div className={styles.group}>
+                                            <label>Have you or a family member ever experienced any of the following? (Please check all that apply)</label>
+                                            {[
+                                                { name: "residentialSchool", label: "Attended Residential School?" },
+                                                { name: "cfsCare", label: "Been in CFS Care?" },
+                                                { name: "adoptedScoop", label: "Adopted in the 60’s Scoop?" },
+                                                { name: "experiencedSuicide", label: "Experienced Suicide in your family?" },
+                                                { name: "MMIWG2S", label: "Connect with the MMIWG2S+ experience?" },
+                                                { name: "familyViolence", label: "Impacted by Family Violence?" }
+                                            ].map(({ name, label }) => (
+                                                <Row key={name} className={styles.checkboxRow}>
+                                                    <Col md={1}></Col>
+                                                    <Col className={styles.checkboxWrapper} md={4}>
+                                                        <label htmlFor={name}>
+                                                            <span style={{ marginRight: "7px", fontSize: "1.2em" }}>•</span>
+                                                            {label}
+                                                        </label>
+                                                    </Col>
+                                                    <Col md={1}>
+                                                        <Field
+                                                            type="checkbox"
+                                                            name={name}
+                                                            checked={Boolean(values[name])}
+                                                            onChange={(e) => setFieldValue(name, Boolean(e.target.checked))}
+                                                            disabled={!isEditing}
+                                                        />
+                                                    </Col>
+                                                </Row>
+                                            ))}
+                                        </div>
+
+                                        <Row className={styles.group}>
+                                            <Col className="mt-1">
+                                                <label>Source of Income: </label>
+                                                <Field as="textarea" name="sourceIncome" className={styles.textarea} disabled={!isEditing} />
+                                                <ErrorMessage name="sourceIncome" component="div" className={styles.errorText} />
                                             </Col>
+                                        </Row>
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                            <div>
+                                                <label>Need youth support for you/your children?</label>
+                                                <div className="form-check form-check-inline">
+                                                <Field
+                                                    className="form-check-input"
+                                                    type="radio"
+                                                    name="youthSupport"
+                                                    value="yes"
+                                                    disabled={!isEditing}
+                                                />
+                                                <label className="form-check-label">Yes</label>
+                                                </div>
+                                                <div className="form-check form-check-inline">
+                                                <Field
+                                                    className="form-check-input"
+                                                    type="radio"
+                                                    name="youthSupport"
+                                                    value="no"
+                                                    disabled={!isEditing}
+                                                />
+                                                <label className="form-check-label">No</label>
+                                                </div>
+                                                <ErrorMessage
+                                                name="youthSupport"
+                                                component="div"
+                                                className={styles.errorText}
+                                                />
+                                            </div>
+                                            </Col>
+                                            {values.youthSupport === "yes" && (
+                                            <Col md={8}>
+                                                <label>
+                                                If yes, specify (e.g. help avoiding birth apprehension, access
+                                                to prenatal care, breastfeeding information, preparing for
+                                                baby, etc.):
+                                                </label>
+                                                <Field
+                                                    as="textarea"
+                                                    name="youthSupportSpecified"
+                                                    className={styles.textarea}
+                                                    disabled={!isEditing}
+                                                />
+                                                <ErrorMessage
+                                                    name="youthSupportSpecified"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                />
+                                            </Col>
+                                            )}
+                                        </Row>
+                                        <Row className={styles.group}>
+                                            <Col md={3}>
+                                            <div>
+                                                <label>Do you have a lawyer?</label>
+                                                <div className="form-check form-check-inline">
+                                                <Field
+                                                    className="form-check-input"
+                                                    type="radio"
+                                                    name="currentLawyer"
+                                                    value="yes"
+                                                    disabled={!isEditing}
+                                                />
+                                                <label className="form-check-label">Yes</label>
+                                                </div>
+                                                <div className="form-check form-check-inline">
+                                                <Field
+                                                    className="form-check-input"
+                                                    type="radio"
+                                                    name="currentLawyer"
+                                                    value="no"
+                                                    disabled={!isEditing}
+                                                />
+                                                <label className="form-check-label">No</label>
+                                                </div>
+                                                <ErrorMessage
+                                                    name="currentLawyer"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                />
+                                            </div>
+                                            </Col>
+                                            {values.currentLawyer === "no" && (
+                                            <>
+                                                <Col md={3}>
+                                                <div>
+                                                    <label>If no, need legal assistance?</label>
+                                                    <div className="form-check form-check-inline">
+                                                    <Field
+                                                        className="form-check-input"
+                                                        type="radio"
+                                                        name="legalAssistance"
+                                                        value="yes"
+                                                        disabled={!isEditing}
+                                                    />
+                                                    <label className="form-check-label">Yes</label>
+                                                    </div>
+                                                    <div className="form-check form-check-inline">
+                                                    <Field
+                                                        className="form-check-input"
+                                                        type="radio"
+                                                        name="legalAssistance"
+                                                        value="no"
+                                                        disabled={!isEditing}
+                                                    />
+                                                    <label className="form-check-label">No</label>
+                                                    </div>
+                                                    <ErrorMessage
+                                                        name="legalAssistance"
+                                                        component="div"
+                                                        className={styles.errorText}
+                                                    />
+                                                </div>
+                                                </Col>
+                                                {values.legalAssistance === "yes" && (
+                                                <Col md={6}>
+                                                    <label>If yes, specify:</label>
+                                                    <Field
+                                                        as="textarea"
+                                                        name="legalAssistanceSpecified"
+                                                        className={styles.textarea}
+                                                        disabled={!isEditing}
+                                                    />
+                                                    <ErrorMessage
+                                                        name="legalAssistanceSpecified"
+                                                        component="div"
+                                                        className={styles.errorText}
+                                                    />
+                                                </Col>
+                                                )}
+                                            </>
+                                            )}
+                                        </Row>
+
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                            <div>
+                                                <label>Are you seeking support for custody-related issues? </label>
+                                                <div className="form-check form-check-inline">
+                                                <Field
+                                                    className="form-check-input"
+                                                    type="radio"
+                                                    name="custodySupport"
+                                                    value="yes"
+                                                    disabled={!isEditing}
+                                                />
+                                                <label className="form-check-label">Yes</label>
+                                                </div>
+                                                <div className="form-check form-check-inline">
+                                                <Field
+                                                    className="form-check-input"
+                                                    type="radio"
+                                                    name="custodySupport"
+                                                    value="no"
+                                                    disabled={!isEditing}
+                                                />
+                                                <label className="form-check-label">No</label>
+                                                </div>
+                                                <ErrorMessage
+                                                    name="custodySupport"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                />
+                                            </div>
+                                            </Col>
+                                            {values.custodySupport === "yes" && (
+                                            <Col md={8}>
+                                                <label>
+                                                    If yes, please specify what kind of custody-related issues
+                                                    (Example: ex-spouse not honouring custody arrangement for
+                                                    access/visitation, grandparent access, child support, etc.):
+                                                </label>
+                                                <Field
+                                                    as="textarea"
+                                                    name="custodySupportSpecified"
+                                                    className={styles.textarea}
+                                                    disabled={!isEditing}
+                                                />
+                                                <ErrorMessage
+                                                    name="custodySupportSpecified"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                />
+                                            </Col>
+                                            )}
+                                        </Row>
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                            <div>
+                                                <label> Do you have any criminal charges (past, active or pending)? *</label>
+                                                <div className="form-check form-check-inline">
+                                                <Field
+                                                    className="form-check-input"
+                                                    type="radio"
+                                                    name="criminalCharges"
+                                                    value="yes"
+                                                    validate={validateRadio}
+                                                    disabled={!isEditing}
+                                                />
+                                                <label className="form-check-label">Yes</label>
+                                                </div>
+                                                <div className="form-check form-check-inline">
+                                                <Field
+                                                    className="form-check-input"
+                                                    type="radio"
+                                                    name="criminalCharges"
+                                                    value="no"
+                                                    validate={validateRadio}
+                                                    disabled={!isEditing}
+                                                />
+                                                <label className="form-check-label">No</label>
+                                                </div>
+                                                <ErrorMessage
+                                                    name="criminalCharges"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                />
+                                            </div>
+                                            </Col>
+                                            {values.criminalCharges === "yes" && (
+                                            <Col md={8}>
+                                                <label>If yes, please specify why: </label>
+                                                <Field
+                                                    as="textarea"
+                                                    name="criminalChargesSpecified"
+                                                    className={styles.textarea}
+                                                    disabled={!isEditing}
+                                                />
+                                                <ErrorMessage
+                                                    name="criminalChargesSpecified"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                />
+                                            </Col>
+                                            )}
+                                        </Row>
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                            <div>
+                                                <label>Do you currently have an active arrest warrant? *</label>
+                                                <div className="form-check form-check-inline">
+                                                <Field
+                                                    className="form-check-input"
+                                                    type="radio"
+                                                    name="activeWarrant"
+                                                    value="yes"
+                                                    validate={validateRadio}
+                                                    disabled={!isEditing}
+                                                />
+                                                <label className="form-check-label">Yes</label>
+                                                </div>
+                                                <div className="form-check form-check-inline">
+                                                <Field
+                                                    className="form-check-input"
+                                                    type="radio"
+                                                    name="activeWarrant"
+                                                    value="no"
+                                                    validate={validateRadio}
+                                                    disabled={!isEditing}
+                                                />
+                                                <label className="form-check-label">No</label>
+                                                </div>
+                                                <ErrorMessage
+                                                    name="activeWarrant"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                />
+                                            </div>
+                                            </Col>
+                                            {values.activeWarrant === "yes" && (
+                                            <Col md={8}>
+                                                <label>If yes, please specify why: </label>
+                                                <Field
+                                                    as="textarea"
+                                                    name="activeWarrantSpecified"
+                                                    className={styles.textarea}
+                                                    disabled={!isEditing}
+                                                />
+                                                <ErrorMessage
+                                                    name="activeWarrantSpecified"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                />
+                                            </Col>
+                                            )}
+                                        </Row>
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                            <div>
+                                                <label>
+                                                Are you currently under child abuse investigation? *
+                                                </label>
+                                                <div className="form-check form-check-inline">
+                                                <Field
+                                                    className="form-check-input"
+                                                    type="radio"
+                                                    name="activeInvestigation"
+                                                    value="yes"
+                                                    validate={validateRadio}
+                                                    disabled={!isEditing}
+                                                />
+                                                <label className="form-check-label">Yes</label>
+                                                </div>
+                                                <div className="form-check form-check-inline">
+                                                <Field
+                                                    className="form-check-input"
+                                                    type="radio"
+                                                    name="activeInvestigation"
+                                                    value="no"
+                                                    validate={validateRadio}
+                                                    disabled={!isEditing}
+                                                />
+                                                <label className="form-check-label">No</label>
+                                                </div>
+                                                <ErrorMessage
+                                                    name="activeInvestigation"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                />
+                                            </div>
+                                            </Col>
+                                            {values.activeInvestigation === "yes" && (
+                                            <Col md={3}>
+                                                <label>If yes, start date: </label>
+                                                <Field
+                                                    type="date"
+                                                    id="activeInvestigationExplained"
+                                                    name="activeInvestigationExplained"
+                                                    disabled={!isEditing}
+                                                />
+                                                <ErrorMessage
+                                                    name="activeInvestigationExplained"
+                                                    component={() => (
+                                                        <p className={styles.errorText}>
+                                                        {errors.activeInvestigationExplained}
+                                                        </p>
+                                                    )}
+                                                />
+                                            </Col>
+                                            )}
+                                        </Row>
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                            <div>
+                                                <label>
+                                                Any active No Contact Orders or Protection Orders? *
+                                                </label>
+                                                <div className="form-check form-check-inline">
+                                                <Field
+                                                    className="form-check-input"
+                                                    type="radio"
+                                                    name="activeOrders"
+                                                    value="yes"
+                                                    validate={validateRadio}
+                                                    disabled={!isEditing}
+                                                />
+                                                <label className="form-check-label">Yes</label>
+                                                </div>
+                                                <div className="form-check form-check-inline">
+                                                <Field
+                                                    className="form-check-input"
+                                                    type="radio"
+                                                    name="activeOrders"
+                                                    value="no"
+                                                    validate={validateRadio}
+                                                    disabled={!isEditing}
+                                                />
+                                                <label className="form-check-label">No</label>
+                                                </div>
+                                                <ErrorMessage
+                                                    name="activeOrders"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                />
+                                            </div>
+                                            </Col>
+                                            {values.activeOrders === "yes" && (
+                                            <Col md={8}>
+                                                <label>If yes, against who or against you?</label>
+                                                <Field
+                                                    as="textarea"
+                                                    name="activeOrdersExplained"
+                                                    className={styles.textarea}
+                                                    disabled={!isEditing}
+                                                />
+                                                <ErrorMessage
+                                                    name="activeOrdersExplained"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                />
+                                            </Col>
+                                            )}
                                         </Row>
                                     </TabPanel>
                                     <TabPanel>
                                         {/* CFS Tab */}
+
+                                        <h5 className="text-dark">CFS Agencies </h5>
                                         {childrenData.length === 0 ? (
                                             <p>No children found for this client.</p>
                                         ) : (
-                                            <>
-                                               {childrenData.length > 0 && (
+                                            (() => {
+                                                // Group children by agency
+                                                const agenciesMap = new Map();
+
+                                                childrenData.forEach(child => {
+                                                    if (!agenciesMap.has(child.childCfsAgency)) {
+                                                        agenciesMap.set(child.childCfsAgency, []);
+                                                    }
+                                                    agenciesMap.get(child.childCfsAgency).push(child);
+                                                });
+
+                                                // Convert Map to an array for rendering
+                                                const agenciesArray = Array.from(agenciesMap.entries());
+
+                                                return (
                                                     <table className="table table-striped table-bordered">
                                                         {/* Table header */}
                                                         <thead className="table-dark">
@@ -978,121 +1454,525 @@ function FullIntakeForm({client_id}){
                                                             </tr>
                                                         </thead>
 
-                              {/* Body of the table with the data of each child */}
-                              <tbody>
-                                {childrenData.map((child, index) => (
-                                  <tr key={child.child_id}>
-                                    <td>
-                                      <ManageCfsAgencies
-                                        name={`children.${index}.childCfsAgency`}
-                                        value={
-                                          values.children[index].childCfsAgency
-                                        }
-                                        setFieldValue={setFieldValue}
-                                        disabled={!isEditing}
-                                      />
-                                    </td>
-                                    <td>
-                                      {child.firstName} {child.lastName}
-                                    </td>
-                                    <td>
-                                      {child.childCfsAgentFullName || "N/A"}
-                                    </td>
-                                    <td>{child.childStatusCfsFile || "N/A"}</td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          )}
-                        </>
-                      )}
-                    </TabPanel>
-                    <TabPanel>
-                      {/* Children Information Tab */}
+                                                        {/* Table body with grouped data */}
+                                                        <tbody>
+                                                            {agenciesArray.map(([agency, children]) =>
+                                                                children.map((child, index) => (
+                                                                    <tr key={child.child_id}>
+                                                                        {/* Show agency name only on the first row of the group */}
+                                                                        {index === 0 && (
+                                                                            <td rowSpan={children.length}>{agency || "N/A"}</td>
+                                                                        )}
+                                                                        <td>{child.firstName} {child.lastName}</td>
+                                                                        <td>{child.childCfsAgentFullName || "N/A"}</td>
+                                                                        <td>{child.childStatusCfsFile || "N/A"}</td>
+                                                                    </tr>
+                                                                ))
+                                                            )}
+                                                        </tbody>
+                                                    </table>
+                                                );
+                                            })()
+                                        )}
 
-                      {childrenData.length === 0 ? (
-                        <p>No children found for this client.</p>
-                      ) : (
-                        <>
-                          <Row className="mt-4 mb-3">
-                            <Col md={4}>
-                              <RelationshipToChildrenSelect
-                                name="relationshipToChildren"
-                                label="What is your relationship to the child(ren)?"
-                                error={errors.relationshipToChildren}
-                                disabled={!isEditing}
-                              />
-                            </Col>
-                            <Col md={8}></Col>
-                          </Row>
-                          <Row className={styles.group}>
-                            <Col md={5}>
-                              <div>
-                                <label>
-                                  Are there any other adults involved in your
-                                  matter?
-                                </label>
-                                <div className="form-check form-check-inline">
-                                  <Field
-                                    className="form-check-input"
-                                    type="radio"
-                                    name="otherAdultsInvolved"
-                                    value="yes"
-                                    checked={
-                                      values.otherAdultsInvolved === "yes"
-                                    }
-                                    disabled={!isEditing}
-                                  />
-                                  <label className="form-check-label">
-                                    Yes
-                                  </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                  <Field
-                                    className="form-check-input"
-                                    type="radio"
-                                    name="otherAdultsInvolved"
-                                    value="no"
-                                    checked={
-                                      values.otherAdultsInvolved === "no"
-                                    }
-                                    disabled={!isEditing}
-                                  />
-                                  <label className="form-check-label">No</label>
-                                </div>
-                                <ErrorMessage
-                                  name="otherAdultsInvolved"
-                                  component="div"
-                                  className={styles.errorText}
-                                />
-                              </div>
-                            </Col>
-                            {values.otherAdultsInvolved === "yes" && (
-                              <Col md={12}>
-                                <label>Please specify:</label>
-                                <Field
-                                  as="textarea"
-                                  name="otherAdultsInvolvedExplained"
-                                  className={styles.textarea}
-                                  disabled={!isEditing}
-                                />
-                                <ErrorMessage
-                                  name="otherAdultsInvolvedExplained"
-                                  component="div"
-                                  className={styles.errorText}
-                                />
-                              </Col>
-                            )}
-                          </Row>
-                        </>
-                      )}
+                                        <hr className="separator-line" />
 
-                      {/* About your children */}
-                      <Row className="mb-3">
-                        <h6 className="text-dark">
-                          Children’s Information (List all children, including
-                          those at home or in care):
-                        </h6>
+                                        {/* Agency Worker’s table */}
+                                        <h5 className="text-dark">Agency Worker’s </h5>
+                                        {childrenData.length > 0 && (() => {
+                                            // Extract unique agents from childrenData
+                                            const uniqueAgents = Array.from(
+                                                new Map(
+                                                    childrenData
+                                                        .filter(child => child.childCfsAgentFullName)
+                                                        .map(child => [child.childCfsAgentFullName, {
+                                                            fullName: child.childCfsAgentFullName,
+                                                            phone: child.childCfsAgentNumber || "N/A",
+                                                            email: child.childCfsAgentEmail || "N/A",
+                                                            supervisorName: child.childCfsSupervisorFullName || "N/A"
+                                                        }])
+                                                ).values()
+                                            );
+
+                                            return uniqueAgents.length > 0 ? (
+                                                <table className="table table-striped table-bordered">
+                                                    {/* Table header */}
+                                                    <thead className="table-dark">
+                                                        <tr>
+                                                            <th>Full Name</th>
+                                                            <th>Phone</th>
+                                                            <th>Email</th>
+                                                            <th>Supervisor</th>
+                                                        </tr>
+                                                    </thead>
+
+                                                    {/* Body of the table with the data of the unique agents*/}
+                                                    <tbody>
+                                                        {uniqueAgents.map((agent, index) => (
+                                                            <tr key={index}>
+                                                                <td>{agent.fullName}</td>
+                                                                <td>{agent.phone}</td>
+                                                                <td>{agent.email}</td>
+                                                                <td>{agent.supervisorName}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            ) : null;
+                                        })()}
+
+                                        <hr className="separator-line" />
+
+                                        {/* Supervisor’s table */}
+                                        <h5 className="text-dark">Supervisor’s</h5>
+                                        {childrenData.length > 0 && (() => {
+                                            // Extract unique supervisors from childrenData
+                                            const uniqueSupervisors = Array.from(
+                                                new Map(
+                                                    childrenData
+                                                        .filter(child => child.childCfsSupervisorFullName)
+                                                        .map(child => [child.childCfsSupervisorFullName, {
+                                                            supervisorName: child.childCfsSupervisorFullName,
+                                                            supervisorPhone: child.childCfsSupervisorNumber || "N/A",
+                                                            supervisorEmail: child.childCfsSupervisorEmail || "N/A"
+                                                        }])
+                                                ).values()
+                                            );
+
+                                            return uniqueSupervisors.length > 0 ? (
+                                                <table className="table table-striped table-bordered">
+                                                    {/* Table header */}
+                                                    <thead className="table-dark">
+                                                        <tr>
+                                                            <th>Supervisor Name</th>
+                                                            <th>Phone</th>
+                                                            <th>Email</th>
+                                                        </tr>
+                                                    </thead>
+
+                                                    {/* Body of the table with the data of the unique supervisors*/}
+                                                    <tbody>
+                                                        {uniqueSupervisors.map((supervisor, index) => (
+                                                            <tr key={index}>
+                                                                <td>{supervisor.supervisorName}</td>
+                                                                <td>{supervisor.supervisorPhone}</td>
+                                                                <td>{supervisor.supervisorEmail}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            ) : null;
+                                        })()}
+
+                                        <hr className="separator-line" />
+
+                                        <Row className={styles.group}>
+                                            <Col>
+                                                <label>How long have your children been in CFS care?</label>
+                                                <Field
+                                                    as="textarea"
+                                                    name="childrenInCareDuration"
+                                                    className={styles.textarea}
+                                                    disabled={!isEditing}
+                                                />
+                                                <ErrorMessage
+                                                    name="childrenInCareDuration"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                />
+                                            </Col>
+                                        </Row>
+
+                                        <Row className={styles.group}>
+                                            <Col>
+                                                <label> What was the reason given by CFS for apprehending your children?</label>
+                                                <Field
+                                                    as="textarea"
+                                                    name="cfsChildrenApprehesionReason"
+                                                    className={styles.textarea}
+                                                    disabled={!isEditing}
+                                                />
+                                                <ErrorMessage
+                                                    name="cfsChildrenApprehesionReason"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                />
+                                            </Col>
+                                        </Row>
+
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                                <div>
+                                                    <label>Are any of your children placed with family (Kinship Care)?</label>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="kinship" value="yes"  checked={values.kinship === "yes"} disabled={!isEditing} />
+                                                        <label className="form-check-label">Yes</label>
+                                                    </div>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="kinship" value="no" checked={values.kinship === "no"} disabled={!isEditing} />
+                                                        <label className="form-check-label">No</label>
+                                                    </div>
+                                                    <ErrorMessage name="kinship" component="div" className={styles.errorText} />
+                                                </div>
+                                            </Col>
+                                            {values.kinship === "yes" && (
+
+                                                <Col md={8}>
+                                                    <label>If yes, explain:</label>
+                                                    <Field as="textarea" name="kinshipExplained" className={styles.textarea} disabled={!isEditing} />
+                                                    <ErrorMessage name="kinshipExplained" component="div" className={styles.errorText} />
+                                                </Col>
+                                            )}
+                                        </Row>
+
+                                        {/* Family members or friends for Kinship Care */}
+                                        <Row className={styles.group}>
+                                            <h5 className="text-dark">Family Members or Friends </h5>
+                                            <Col md={8}>
+                                                <div>
+                                                    <label>Do you have any family members or friends that you can turn to for Kinship Care?</label>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="turnToKinshipCare" value="yes"  checked={values.turnToKinshipCare === "yes"} disabled={!isEditing} />
+                                                        <label className="form-check-label">Yes</label>
+                                                    </div>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="turnToKinshipCare" value="no" checked={values.turnToKinshipCare === "no"} disabled={!isEditing} />
+                                                        <label className="form-check-label">No</label>
+                                                    </div>
+                                                    <ErrorMessage name="turnToKinshipCare" component="div" className={styles.errorText} />
+                                                </div>
+                                            </Col>
+                                            {values.turnToKinshipCare === "yes" && (
+                                                <Row className="mt-3">
+
+                                                    <FieldArray name="family">
+                                                    {({ push, remove }) => (
+                                                        <div  className="bg-gray-100 p-2 rounded border border-light border-2">
+                                                        {values.family.map((member, index) => (
+                                                            <div key={`${member.family_and_friends_id}-${index}`} className={`${styles.bglightgrey} border rounded p-2 mb-3`}>
+                                                            <Row className="align-items-center">
+                                                                <Col md={4}>
+                                                                <InputField
+                                                                    name={`family.${index}.firstName`}
+                                                                    label="First Name:"
+                                                                    disabled={!isEditing}
+                                                                />
+                                                                </Col>
+
+                                                                <Col md={4}>
+                                                                <InputField
+                                                                    name={`family.${index}.lastName`}
+                                                                    label="Last Name:"
+                                                                    disabled={!isEditing}
+                                                                />
+                                                                </Col>
+
+                                                                <Col md={4}>
+                                                                <InputField
+                                                                    name={`family.${index}.relationshipToClient`}
+                                                                    label="Relationship:"
+                                                                    disabled={!isEditing}
+                                                                />
+                                                                </Col>
+                                                            </Row>
+
+                                                            <Row>
+                                                                <Col md={4}>
+                                                                    <div>
+                                                                    <label
+                                                                        htmlFor={`family.${index}.phoneNumber`}
+                                                                    >
+                                                                        Phone Number:
+                                                                    </label>
+                                                                    <Field
+                                                                        type="number"
+                                                                        id={`family.${index}.phoneNumber`}
+                                                                        name={`family.${index}.phoneNumber`}
+                                                                        component={PhoneNumberInput}
+                                                                        placeholder="(123) 456-7890"
+                                                                        disabled={!isEditing}
+                                                                    />
+                                                                    </div>
+                                                                </Col>
+                                                            </Row>
+
+                                                            <Row>
+                                                                <Col md={9}></Col>
+                                                                <Col md={3} className="d-flex align-items-end mt-2">
+                                                                <Button
+                                                                    className="w-100 btn btn-danger"
+                                                                    type="button"
+                                                                    onClick={() => remove(index)}
+                                                                    disabled={!isEditing}
+                                                                >
+                                                                    Delete
+                                                                </Button>
+                                                                </Col>
+                                                            </Row>
+                                                            </div>
+                                                        ))}
+                                                        <Button
+                                                            className="btn-dark"
+                                                            type="button"
+                                                            disabled={!isEditing}
+                                                            onClick={() =>
+                                                            push({
+                                                                firstName: "",
+                                                                lastName: "",
+                                                                relationshipToClient: "",
+                                                                phoneNumber: "",
+                                                            })
+                                                            }
+                                                        >
+                                                            + Add Member
+                                                        </Button>
+                                                        </div>
+                                                    )}
+                                                    </FieldArray>
+                                                </Row>
+                                            )}
+                                        </Row>
+                                        {/* END Family or friends for Kinship Care */}
+
+                                        <Row className={styles.group}>
+                                            <Col>
+                                                <label> Are there any concerns you have about the level of care your child(ren) are currently receiving?</label>
+                                                <Field
+                                                    as="textarea"
+                                                    name="anyConcerns"
+                                                    className={styles.textarea}
+                                                    disabled={!isEditing}
+                                                />
+                                                <ErrorMessage
+                                                    name="anyConcerns"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                />
+                                            </Col>
+                                        </Row>
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                            <div>
+                                                <label>Do you have a copy of your case plan(s)?</label>
+                                                <div className="form-check form-check-inline">
+                                                <Field
+                                                    className="form-check-input"
+                                                    type="radio"
+                                                    name="casePlanCopy"
+                                                    value="yes"
+                                                    disabled={!isEditing}
+                                                />
+                                                <label className="form-check-label">Yes</label>
+                                                </div>
+                                                <div className="form-check form-check-inline">
+                                                <Field
+                                                    className="form-check-input"
+                                                    type="radio"
+                                                    name="casePlanCopy"
+                                                    value="no"
+                                                    disabled={!isEditing}
+                                                />
+                                                <label className="form-check-label">No</label>
+                                                </div>
+                                                <ErrorMessage
+                                                    name="casePlanCopy"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                />
+                                            </div>
+                                            </Col>
+                                            {values.casePlanCopy === "no" && (
+                                            <Col md={8}>
+                                                <label>
+                                                If no, describe the last requests the agency asked you to
+                                                complete to get your children home:
+                                                </label>
+                                                <Field
+                                                    as="textarea"
+                                                    name="casePlanCopyDescribe"
+                                                    className={styles.textarea}
+                                                    disabled={!isEditing}
+                                                />
+                                                <ErrorMessage
+                                                    name="casePlanCopyDescribe"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                />
+                                            </Col>
+                                            )}
+                                        </Row>
+
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                                <div>
+                                                    <label>Did you receive any preventative supports to assist you with your children prior to their apprehension?</label>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="prentativeSupport" value="yes"  checked={values.prentativeSupport === "yes"} disabled={!isEditing} />
+                                                        <label className="form-check-label">Yes</label>
+                                                    </div>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="prentativeSupport" value="no" checked={values.prentativeSupport === "no"} disabled={!isEditing} />
+                                                        <label className="form-check-label">No</label>
+                                                    </div>
+                                                    <ErrorMessage name="prentativeSupport" component="div" className={styles.errorText} />
+                                                </div>
+                                            </Col>
+                                            {values.prentativeSupport === "yes" && (
+
+                                                <Col md={8}>
+                                                    <label>If yes, explain:</label>
+                                                    <Field as="textarea" name="prentativeSupportExplained" className={styles.textarea} disabled={!isEditing} />
+                                                    <ErrorMessage name="prentativeSupportExplained" component="div" className={styles.errorText} />
+                                                </Col>
+                                            )}
+                                        </Row>
+
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                                <div>
+                                                    <label>Do you currently have a Private Agreement or Safety Plan for any of your children?</label>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="privateAgreement" value="yes" checked={values.privateAgreement === "yes"} disabled={!isEditing} />
+                                                        <label className="form-check-label">Yes</label>
+                                                    </div>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="privateAgreement" value="no" checked={values.privateAgreement === "no"} disabled={!isEditing} />
+                                                        <label className="form-check-label">No</label>
+                                                    </div>
+                                                    <ErrorMessage name="privateAgreement" component="div" className={styles.errorText} />
+                                                </div>
+                                            </Col>
+                                            {values.privateAgreement === "yes" && (
+
+                                                <Col md={8}>
+                                                    <label>If yes, explain:</label>
+                                                    <Field as="textarea" name="privateAgreementExplained" className={styles.textarea} disabled={!isEditing} />
+                                                    <ErrorMessage name="privateAgreementExplained" component="div" className={styles.errorText} />
+                                                </Col>
+                                            )}
+                                        </Row>
+
+                                        <Row className={styles.group}>
+                                            <Col>
+                                                <div>
+                                                    <label>Did CFS accurately explain the process that was to be followed to get your children home?  </label>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="cfsExplain" value="yes" checked={values.cfsExplain === "yes"} disabled={!isEditing} />
+                                                        <label className="form-check-label">Yes</label>
+                                                    </div>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="cfsExplain" value="no" checked={values.cfsExplain === "no"} disabled={!isEditing} />
+                                                        <label className="form-check-label">No</label>
+                                                    </div>
+                                                    <ErrorMessage name="cfsExplain" component="div" className={styles.errorText} />
+                                                </div>
+                                            </Col>
+                                        </Row>
+
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                                <div>
+                                                    <label>Have you had previous involvement with CFS? </label>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="previousInvolvement" value="yes" checked={values.previousInvolvement === "yes"} disabled={!isEditing} />
+                                                        <label className="form-check-label">Yes</label>
+                                                    </div>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="previousInvolvement" value="no" checked={values.previousInvolvement === "no"} disabled={!isEditing} />
+                                                        <label className="form-check-label">No</label>
+                                                    </div>
+                                                    <ErrorMessage name="previousInvolvement" component="div" className={styles.errorText} />
+                                                </div>
+                                            </Col>
+                                            {values.previousInvolvement === "yes" && (
+
+                                                <Col md={8}>
+                                                    <label>If yes, explain:</label>
+                                                    <Field as="textarea" name="previousInvolvementExplain" className={styles.textarea} disabled={!isEditing} />
+                                                    <ErrorMessage name="previousInvolvementExplain" component="div" className={styles.errorText} />
+                                                </Col>
+                                            )}
+                                        </Row>
+
+                                        <Row className={styles.group}>
+                                            <Col >
+                                                <label>What is your current visitation schedule with your children? </label>
+                                                <Field as="textarea" name="visitsChildFrequency" className={styles.textarea} disabled={!isEditing} />
+                                                <ErrorMessage name="visitsChildFrequency" component="div" className={styles.errorText} />
+                                            </Col>
+                                        </Row>
+
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                                <div>
+                                                    <label>Have you had a Parental Capacity Assessment (PCA) done?</label>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="parentalCapacityDone" value="yes" checked={values.parentalCapacityDone === "yes"} disabled={!isEditing} />
+                                                        <label className="form-check-label">Yes</label>
+                                                    </div>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field  className="form-check-input" type="radio" name="parentalCapacityDone" value="no" checked={values.parentalCapacityDone === "no"} disabled={!isEditing} />
+                                                        <label className="form-check-label">No</label>
+                                                    </div>
+                                                    <ErrorMessage name="parentalCapacityDone" component="div" className={styles.errorText} />
+                                                </div>
+                                            </Col>
+                                            {values.parentalCapacityDone === "yes" && (
+
+                                                <Col md={8}>
+                                                    <label>If yes, explain:</label>
+                                                    <Field as="textarea" name="parentalCapacity" className={styles.textarea} disabled={!isEditing} />
+                                                    <ErrorMessage name="parentalCapacity" component="div" className={styles.errorText} />
+                                                </Col>
+                                            )}
+                                        </Row>
+
+
+                                    </TabPanel>
+                                    <TabPanel>
+                                        {/* Children Information Tab */}
+
+                                        {childrenData.length === 0 ? (
+                                                <p>No children found for this client.</p>
+                                        ):(
+                                            <>
+                                                <Row className="mt-1 mb-3">
+                                                    <Col md={4}>
+                                                        <RelationshipToChildrenSelect name="relationshipToChildren" label="What is your relationship to the child(ren)?" error={errors.relationshipToChildren} disabled={!isEditing} />
+                                                    </Col>
+                                                    <Col md={8}></Col>
+                                                </Row>
+                                                <Row className={styles.group}>
+                                                    <Col md={5}>
+                                                        <div>
+                                                            <label>Are there any other adults involved in your matter?</label>
+                                                            <div className="form-check form-check-inline">
+                                                                <Field  className="form-check-input" type="radio" name="otherAdultsInvolved" value="yes" checked={values.otherAdultsInvolved === "yes"} disabled={!isEditing}/>
+                                                                <label className="form-check-label">Yes</label>
+                                                            </div>
+                                                            <div className="form-check form-check-inline">
+                                                                <Field  className="form-check-input" type="radio" name="otherAdultsInvolved" value="no" checked={values.otherAdultsInvolved === "no"} disabled={!isEditing} />
+                                                                <label className="form-check-label">No</label>
+                                                            </div>
+                                                            <ErrorMessage name="otherAdultsInvolved" component="div" className={styles.errorText} />
+                                                        </div>
+                                                    </Col>
+                                                    {values.otherAdultsInvolved === "yes" && (
+
+                                                        <Col md={12}>
+                                                            <label>Please specify:</label>
+                                                            <Field as="textarea" name="otherAdultsInvolvedExplained" className={styles.textarea} disabled={!isEditing}/>
+                                                            <ErrorMessage name="otherAdultsInvolvedExplained" component="div" className={styles.errorText} />
+                                                        </Col>
+                                                    )}
+                                                </Row>
+                                            </>
+
+                                        )}
+
+                                        {/* list of children */}
+                                        <Row className="mb-3">
+                                            <h6 className="text-dark">Children’s Information (List all children, including those at home or in care):</h6>
 
                                             <FieldArray name="children">
                                                 {({ push, remove }) => (
@@ -1116,8 +1996,9 @@ function FullIntakeForm({client_id}){
                                                                     <Col md={6}>
                                                                         <InputField name={`children.${index}.lastName`} label="Last Name:" disabled={!isEditing} />
                                                                     </Col>
+
                                                                 </Row>
-                                                                <Row className="mb-4">
+                                                                <Row >
                                                                     <Col md={3}>
                                                                         <div>
                                                                             <label htmlFor={`children.${index}.birthDate`}>Date of Birth:</label>
@@ -1132,100 +2013,86 @@ function FullIntakeForm({client_id}){
                                                                         <FirstNationSelect name={`children.${index}.childNation`} label="First Nation Membership" error={errors.childNation} disabled={!isEditing}/>
                                                                     </Col>
                                                                     <Col md={3}>
+                                                                        <GenderSelect name={`children.${index}.gender`} label="Gender:" error={errors.gender} disabled={!isEditing}/>
+                                                                    </Col>
+                                                                </Row>
+                                                                <Row>
+                                                                    <Col md={6}>
                                                                         <InputField name={`children.${index}.childPlaced`} label="Place of Stay:" disabled={!isEditing} />
                                                                     </Col>
                                                                 </Row>
 
-                                    {/* Agency information */}
-                                    <div className="bg-light border border-light p-3 rounded">
-                                      <Row className="mt-2">
-                                        <h5 className="text-dark">
-                                          Agency Information
-                                        </h5>
-                                        <Col md={4}>
-                                          <InputField
-                                            name={`children.${index}.childCfsAgency`}
-                                            label="CFS Agency Name:"
-                                            disabled={!isEditing}
-                                          />
-                                        </Col>
-                                        <Col md={4}>
-                                          <InputField
-                                            name={`children.${index}.childCfsAgentFullName`}
-                                            label="Agency Worker’s Full Name:"
-                                            disabled={!isEditing}
-                                          />
-                                        </Col>
-                                        <Col md={4}>
-                                          <div>
-                                            <label
-                                              htmlFor={`children.${index}.childCfsAgentNumber`}
-                                            >
-                                              Phone Number:
-                                            </label>
-                                            <Field
-                                              type="number"
-                                              id={`children.${index}.childCfsAgentNumber`}
-                                              name={`children.${index}.childCfsAgentNumber`}
-                                              disabled={!isEditing}
-                                            />
-                                            <ErrorMessage
-                                              name={`children.${index}.childCfsAgentNumber`}
-                                              component={() => (
-                                                <p className={styles.errorText}>
-                                                  {
-                                                    errors.children?.[index]
-                                                      ?.childCfsAgentNumber
-                                                  }
-                                                </p>
-                                              )}
-                                            />
-                                          </div>
-                                        </Col>
-                                      </Row>
-                                      <Row>
-                                        <Col md={4}>
-                                          <div>
-                                            <label
-                                              htmlFor={`children.${index}.childCfsAgentEmail`}
-                                            >
-                                              Email:
-                                            </label>
-                                            <Field
-                                              type="email"
-                                              id={`children.${index}.childCfsAgentEmail`}
-                                              name={`children.${index}.childCfsAgentEmail`}
-                                              disabled={!isEditing}
-                                            />
-                                            <ErrorMessage
-                                              name={`children.${index}.childCfsAgentEmail`}
-                                              component={() => (
-                                                <p className={styles.errorText}>
-                                                  {
-                                                    errors.children?.[index]
-                                                      ?.childCfsAgentEmail
-                                                  }
-                                                </p>
-                                              )}
-                                            />
-                                          </div>
-                                        </Col>
-                                        <Col md={4}>
-                                          <CFSStatusManagement
-                                            name={`children.${index}.childStatusCfsFile`}
-                                            label="CFS File Status"
-                                            error={
-                                              errors.children?.[index]
-                                                ?.childStatusCfsFile
-                                            }
-                                            setFieldValue={setFieldValue}
-                                            disabled={!isEditing}
-                                          />
-                                        </Col>
-                                      </Row>
-                                    </div>
+                                                                {/* Agency information */}
+                                                                <hr className="separator-line" />
+                                                                <div className="bg-light border border-light p-3 rounded">
+                                                                    <Row>
+                                                                        <h5 className="text-dark">Agency Information</h5>
+                                                                        <Col md={4}>
+                                                                            <InputField name={`children.${index}.childCfsAgency`} label="CFS Agency Name:" disabled={!isEditing} />
+                                                                        </Col>
+                                                                        <Col  md={4}>
+                                                                            <StatusCFSFileSelect
+                                                                                name={`children.${index}.childStatusCfsFile`}
+                                                                                label="CFS File Status"
+                                                                                error={errors.children?.[index]?.childStatusCfsFile}
+                                                                                disabled={!isEditing}
+                                                                                onChange={(e) => setFieldValue(`children.${index}.childStatusCfsFile`, e.target.value)}
+                                                                            />
+                                                                        </Col>
+                                                                    </Row>
+                                                                    <Row>
+                                                                        <Col md={4}>
+                                                                            <InputField name={`children.${index}.childCfsAgentFullName`} label="Worker’s Full Name:" disabled={!isEditing} />
+                                                                        </Col>
+                                                                        <Col md={4}>
+                                                                            <div>
+                                                                                <label htmlFor={`children.${index}.childCfsAgentNumber`}>Worker’s Phone Number:</label>
+                                                                                <Field type="number" id={`children.${index}.childCfsAgentNumber`} name={`children.${index}.childCfsAgentNumber`} component={PhoneNumberInput} placeholder="(123) 456-7890" disabled={!isEditing} />
+                                                                                <ErrorMessage
+                                                                                    name={`children.${index}.childCfsAgentNumber`}
+                                                                                    component={() => <p className={styles.errorText}>{errors.children?.[index]?.childCfsAgentNumber}</p>} />
+                                                                            </div>
+                                                                        </Col>
+                                                                        <Col md={4}>
+                                                                            <div>
+                                                                                <label htmlFor={`children.${index}.childCfsAgentEmail`}>Worker’s Email:</label>
+                                                                                <Field type="email" id={`children.${index}.childCfsAgentEmail`} name={`children.${index}.childCfsAgentEmail`} disabled={!isEditing} />
+                                                                                <ErrorMessage
+                                                                                    name={`children.${index}.childCfsAgentEmail`}
+                                                                                    component={() => <p className={styles.errorText}>{errors.children?.[index]?.childCfsAgentEmail}</p>} />
+                                                                            </div>
+                                                                        </Col>
 
-                                    {/* END Agency information */}
+                                                                    </Row>
+
+                                                                    {/* CFS Supervisor's information */}
+                                                                    <Row>
+                                                                        <Col md={4}>
+                                                                            <InputField name={`children.${index}.childCfsSupervisorFullName`} label="Supervisor's Full Name:" disabled={!isEditing} />
+                                                                        </Col>
+                                                                        <Col md={4}>
+                                                                            <div>
+                                                                                <label htmlFor={`children.${index}.childCfsSupervisorNumber`}>Supervisor's Phone Number:</label>
+                                                                                <Field type="number" id={`children.${index}.childCfsSupervisorNumber`} name={`children.${index}.childCfsSupervisorNumber`} component={PhoneNumberInput} placeholder="(123) 456-7890" disabled={!isEditing} />
+                                                                                <ErrorMessage
+                                                                                    name={`children.${index}.childCfsSupervisorNumber`}
+                                                                                    component={() => <p className={styles.errorText}>{errors.children?.[index]?.childCfsSupervisorNumber}</p>} />
+                                                                            </div>
+                                                                        </Col>
+                                                                        <Col md={4}>
+                                                                            <div>
+                                                                                <label htmlFor={`children.${index}.childCfsSupervisorEmail`}>Supervisor's Email:</label>
+                                                                                <Field type="email" id={`children.${index}.childCfsSupervisorEmail`} name={`children.${index}.childCfsSupervisorEmail`} disabled={!isEditing} />
+                                                                                <ErrorMessage
+                                                                                    name={`children.${index}.childCfsSupervisorEmail`}
+                                                                                    component={() => <p className={styles.errorText}>{errors.children?.[index]?.childCfsSupervisorEmail}</p>} />
+                                                                            </div>
+                                                                        </Col>
+                                                                    </Row>
+
+                                                                </div>
+                                                                {/* END Agency information */}
+
 
                                                                 <Row>
                                                                     <Col md={9}></Col>
@@ -1243,12 +2110,16 @@ function FullIntakeForm({client_id}){
                                                                 lastName: "",
                                                                 birthDate: "",
                                                                 childNation: "",
+                                                                gender:"",
                                                                 childPlaced: "",
                                                                 childCfsAgency:"",
                                                                 childCfsAgentFullName:"",
                                                                 childCfsAgentNumber:"",
                                                                 childCfsAgentEmail:"",
-                                                                childStatusCfsFile:""
+                                                                childStatusCfsFile:"",
+                                                                childCfsSupervisorFullName:"",
+                                                                childCfsSupervisorNumber:"",
+                                                                childCfsSupervisorEmail:""
                                                             })} disabled={!isEditing}>
                                                             + Add Child
                                                         </Button>
@@ -1259,22 +2130,123 @@ function FullIntakeForm({client_id}){
                                     </TabPanel>
                                     <TabPanel>
                                         {/* Health and Wellness Tab */}
+                                        <Row>
+                                            <label>Have you ever been diagnosed with any of the following? (Please check all that apply)</label>
+                                        </Row>
+                                        <div className={styles.group}>
+                                            {[
+                                                { name: "FASD", label: "FASD" },
+                                                { name: "ADHD", label: "ADHD" },
+                                                { name: "PTSD", label: "PTSD" },
+                                                { name: "depression", label: "Depression" },
+                                                { name: "cancerAutoimmuneCondition", label: "Cancer Autoimmune Condition" },
+                                                { name: "otherMentalCondition", label: "Other Mental Health Condition" }
+                                            ].map(({ name, label }) => (
+                                                <Row key={name} className={styles.checkboxRow}>
+                                                    <Col md={1}></Col>
+                                                    <Col className={styles.checkboxWrapper} md={4}>
+                                                        <label htmlFor={name}>
+                                                            <span style={{ marginRight: "7px", fontSize: "1.2em" }}>•</span>
+                                                            {label}
+                                                        </label>
+                                                    </Col>
+                                                    <Col md={1}>
+                                                        <Field
+                                                            type="checkbox"
+                                                            name={name}
+                                                            checked={Boolean(values[name])}
+                                                            onChange={(e) => setFieldValue(name, Boolean(e.target.checked))}
+                                                            disabled={!isEditing}
+                                                        />
+                                                    </Col>
+                                                </Row>
+                                            ))}
+                                        </div>
+
+
+                                        {values.otherMentalCondition && (
+                                        <Row className={styles.group}>
+                                            <Col>
+                                                <label> Explain Other Mental Health Condition:</label>
+                                                <Field
+                                                    as="textarea"
+                                                    name="otherMentalConditionExplained"
+                                                    className={styles.textarea}
+                                                    disabled={!isEditing}
+                                                />
+                                                <ErrorMessage
+                                                    name="otherMentalConditionExplained"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                />
+                                            </Col>
+                                        </Row>
+                                        )}
 
                                         <Row className={styles.group}>
                                             <Col>
-                                            <label>How do you maintain your mental, emotional, spiritual and physical wellbeing? </label>
+                                            <label htmlFor="diagnosedFollowingExplain">If you have checked any of the above, please describe the supports you have received to address their effects. </label>
                                             <Field
                                                 as="textarea"
-                                                name="seekingAdvocacy"
+                                                name="diagnosedFollowingExplain"
                                                 className={styles.textarea}
                                                 disabled={!isEditing}
                                             />
                                             <ErrorMessage
-                                                name="seekingAdvocacy"
+                                                name="diagnosedFollowingExplain"
                                                 component="div"
                                                 className={styles.errorText}
                                             />
                                             </Col>
+                                        </Row>
+
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                            <div>
+                                                <label>Do you feel that you may struggle with using negative coping skills from to time?</label>
+                                                <div className="form-check form-check-inline">
+                                                    <Field
+                                                        className="form-check-input"
+                                                        type="radio"
+                                                        name="negativeCopingSkills"
+                                                        value="yes"
+                                                        disabled={!isEditing}
+                                                    />
+                                                    <label className="form-check-label">Yes</label>
+                                                </div>
+                                                <div className="form-check form-check-inline">
+                                                    <Field
+                                                        className="form-check-input"
+                                                        type="radio"
+                                                        name="negativeCopingSkills"
+                                                        value="no"
+                                                        disabled={!isEditing}
+                                                    />
+                                                    <label className="form-check-label">No</label>
+                                                </div>
+                                                <ErrorMessage
+                                                    name="negativeCopingSkills"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                />
+                                            </div>
+                                            </Col>
+                                            {values.negativeCopingSkills === "yes" && (
+                                            <Col md={8}>
+                                                <label> If yes, please explain:</label>
+                                                <Field
+                                                    as="textarea"
+                                                    name="negativeCopingSkillsExplain"
+                                                    className={styles.textarea}
+                                                    disabled={!isEditing}
+                                                />
+                                                <ErrorMessage
+                                                    name="negativeCopingSkillsExplain"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                />
+                                            </Col>
+                                            )}
                                         </Row>
 
                                         <Row className={styles.group}>
@@ -1287,7 +2259,7 @@ function FullIntakeForm({client_id}){
                                                 disabled={!isEditing}
                                             />
                                             <ErrorMessage
-                                                name="seekingAdvocacy"
+                                                name="drugsImpact"
                                                 component="div"
                                                 className={styles.errorText}
                                             />
@@ -1304,11 +2276,108 @@ function FullIntakeForm({client_id}){
                                                 disabled={!isEditing}
                                             />
                                             <ErrorMessage
-                                                name="seekingAdvocacy"
+                                                name="lastTimeUsed"
                                                 component="div"
                                                 className={styles.errorText}
                                             />
                                             </Col>
+                                        </Row>
+
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                            <div>
+                                                <label>Do you have any educational goals we can support you to achieve?</label>
+                                                <div className="form-check form-check-inline">
+                                                    <Field
+                                                        className="form-check-input"
+                                                        type="radio"
+                                                        name="educationalGoals"
+                                                        value="yes"
+                                                        disabled={!isEditing}
+                                                    />
+                                                    <label className="form-check-label">Yes</label>
+                                                </div>
+                                                <div className="form-check form-check-inline">
+                                                    <Field
+                                                        className="form-check-input"
+                                                        type="radio"
+                                                        name="educationalGoals"
+                                                        value="no"
+                                                        disabled={!isEditing}
+                                                    />
+                                                    <label className="form-check-label">No</label>
+                                                </div>
+                                                <ErrorMessage
+                                                name="educationalGoals"
+                                                component="div"
+                                                className={styles.errorText}
+                                                />
+                                            </div>
+                                            </Col>
+                                            {values.educationalGoals === "yes" && (
+                                            <Col md={8}>
+                                                <label> If yes, please explain:</label>
+                                                <Field
+                                                    as="textarea"
+                                                    name="educationalGoalsExplained"
+                                                    className={styles.textarea}
+                                                    disabled={!isEditing}
+                                                />
+                                                <ErrorMessage
+                                                name="educationalGoalsExplained"
+                                                component="div"
+                                                className={styles.errorText}
+                                                />
+                                            </Col>
+                                            )}
+                                        </Row>
+                                        <Row className={styles.group}>
+                                            <Col md={4}>
+                                                <div>
+                                                    <label>Do you have access to an Elder or counsellor?</label>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field
+                                                            className="form-check-input"
+                                                            type="radio"
+                                                            name="accessElder"
+                                                            value="yes"
+                                                            disabled={!isEditing}
+                                                        />
+                                                        <label className="form-check-label">Yes</label>
+                                                    </div>
+                                                    <div className="form-check form-check-inline">
+                                                        <Field
+                                                            className="form-check-input"
+                                                            type="radio"
+                                                            name="accessElder"
+                                                            value="no"
+                                                            disabled={!isEditing}
+                                                        />
+                                                        <label className="form-check-label">No</label>
+                                                    </div>
+                                                    <ErrorMessage
+                                                    name="accessElder"
+                                                    component="div"
+                                                    className={styles.errorText}
+                                                    />
+                                                </div>
+                                            </Col>
+                                            {values.accessElder === "yes" && (
+                                            <Col md={8}>
+                                                <label> If yes, please describe:</label>
+                                                <Field
+                                                    as="textarea"
+                                                    name="accessElderExplained"
+                                                    className={styles.textarea}
+                                                    disabled={!isEditing}
+                                                />
+                                                <ErrorMessage
+                                                name="accessElderExplained"
+                                                component="div"
+                                                className={styles.errorText}
+                                                />
+                                            </Col>
+                                            )}
                                         </Row>
 
                                     </TabPanel>
@@ -1335,13 +2404,12 @@ function FullIntakeForm({client_id}){
                                                             {[...notesData].sort((a, b) => a.note_id - b.note_id).map((note) => (
                                                                 <tr key={note.note_id}>
                                                                     <td>{note.note_id}</td>
-                                                                    <td>{note.createdAt}</td>
+                                                                    <td><FormattedDate dateString={note.createdAt}/></td>
                                                                     <td>{note.type}</td>
                                                                     <td>
                                                                         <Button
                                                                             className="btn btn-primary btn-sm"
                                                                             onClick={() => handleShowNoteDetails(note)}
-
                                                                         >
                                                                             See Note
                                                                         </Button>
@@ -1356,12 +2424,12 @@ function FullIntakeForm({client_id}){
                                                 {selectedNote && (
                                                     <div className="note-details">
                                                         <Row className="mb-2">
-                                                            <Col md={9}>
+                                                            <Col md={8}>
                                                                 <h5>Note ID: {selectedNote.note_id}</h5>
                                                             </Col>
-                                                            <Col md={3}>
+                                                            <Col md={4}>
                                                                 <div>
-                                                                    <label><strong>Created At:</strong> {selectedNote.createdAt}</label>
+                                                                    <label><strong>Created At: </strong>{new Date(selectedNote.createdAt).toLocaleString()}</label>
                                                                 </div>
                                                             </Col>
                                                         </Row>
@@ -1448,7 +2516,15 @@ function FullIntakeForm({client_id}){
 
                                                 {/* Show add new note details */}
                                                 {!showNewNoteForm && (
-                                                    <Button onClick={() => handleAddNoteClick(values, setFieldValue)} disabled={!isEditing} >Add Note</Button>
+                                                    // <Button onClick={() => handleAddNoteClick(values, setFieldValue)} disabled={!isEditing} >Add Note</Button>
+                                                    <FieldArray name="notes">
+                                                        {({ push }) => (
+                                                            <Button onClick={() => handleAddNoteClick(values, push)} disabled={!isEditing}>
+                                                                Add Note
+                                                            </Button>
+                                                        )}
+                                                    </FieldArray>
+
                                                 )}
                                                 {showNewNoteForm && (
                                                     <div style={{ backgroundColor: "#dbdbdb", padding: "15px", borderRadius: "8px", border: "0.5px solid #ccc" }} >
@@ -1500,6 +2576,7 @@ function FullIntakeForm({client_id}){
                                 </Tabs>
                             </div>
                         </Row>
+
 
                         {/* Action buttons */}
                         <Row className="mt-3">

@@ -19,8 +19,8 @@ export default function Header() {
         <header className="bg-black text-white">
           <div className="flex justify-between items-center p-4">
             {/* Logo */}
-            <Link href="/user-dashboard">
-              <img src="/logoDataHub.png" alt="logo" />
+            <Link href="/user-home">
+              <img src="/logo.png" alt="logo" />
             </Link>
 
             {/* Navigation links and auth button */}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import supabase from "@/app/lib/supabase";
 
-const ManageCfsStatus = ({ name, value, setFieldValue, disabled }) => {
+const StatusCFSFileSelect  = ({ name, value, onChange, disabled }) => {
   const [statuses, setStatuses] = useState([]);
 
   useEffect(() => {
@@ -21,7 +21,12 @@ const ManageCfsStatus = ({ name, value, setFieldValue, disabled }) => {
   }, []);
 
   const handleChange = (event) => {
-    setFieldValue(name, event.target.value);
+    // setFieldValue(name, event.target.value);
+    if (typeof onChange === "function") {
+      onChange(event);
+    } else {
+      console.warn("⚠️ onChange is not a function:", onChange);
+    }
   };
 
   return (
@@ -46,4 +51,4 @@ const ManageCfsStatus = ({ name, value, setFieldValue, disabled }) => {
   );
 };
 
-export default ManageCfsStatus;
+export default StatusCFSFileSelect;
