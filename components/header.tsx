@@ -19,22 +19,12 @@ export default function Header() {
         <header className="bg-black text-white">
           <div className="flex justify-between items-center p-4">
             {/* Logo */}
-            <Link href="/user-home">
+            <Link href="/user-dashboard">
               <img src="/logo.png" alt="logo" />
             </Link>
 
             {/* Navigation links and auth button */}
             <div className="flex items-center space-x-6">
-              {/* <Link href="/" className="text-white hover:text-gray-300 mr-4">
-                Home
-              </Link>
-              <Link
-                href="/user-dashboard"
-                className="text-white hover:text-gray-300"
-              >
-                Dashboard
-              </Link> */}
-
               {/* Authenticated user button */}
               <UserButton />
             </div>

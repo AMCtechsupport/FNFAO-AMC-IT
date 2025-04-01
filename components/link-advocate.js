@@ -30,30 +30,30 @@ const LinkAdvocate = () => {
       .limit(1);
 
     if (checkError) {
-      console.error("Error checking advocate existence:", checkError.message);
+      console.error("Error checking User ID :", checkError.message);
     }
 
     // If advocate already exists, prevent linking again
     if (data && data.length > 0) {
-      setError("You are already registered as an advocate.");
+      setError("Your User ID is already registered.");
       return;
     }
 
     try {
       // Proceed to link advocate if not already linked
       const data = await linkAdvocate(firstName, lastName, email);
-      setSuccess("Advocate linked successfully!");
-      console.log("Advocate linked successfully:", data);
+      setSuccess("User ID linked successfully!");
+      console.log("User ID  linked successfully:", data);
     } catch (error) {
-      setError("Error linking advocate: " + error.message);
-      console.error("Error linking advocate:", error);
+      setError("Error linking User ID : " + error.message);
+      console.error("Error linking User ID :", error);
     }
   };
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-lg mt-10">
       <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">
-        Link Advocate
+        Link User ID
       </h2>
 
       {error && <p className="text-red-600 text-center mb-4">{error}</p>}
@@ -116,7 +116,7 @@ const LinkAdvocate = () => {
           type="submit"
           className="w-full py-2 bg-blue-500 text-white rounded-md font-semibold hover:bg-blue-600 transition"
         >
-          Link Advocate
+          Link User ID
         </button>
       </form>
     </div>
