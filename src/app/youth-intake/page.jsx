@@ -495,9 +495,12 @@ function PreIntakeForm() {
     >
       {({ values, errors, setFieldValue }) => (
         <Form className={styles.form}>
-          <h2 className={styles.centeredTitle}>YOUTH INTAKE FORM</h2>
+          <div className={styles.titleContainer}>
+              <img src="/youth-intake logo.png" alt="Logo youth-intake" className={styles.logo} />
+              <h2 className={styles.centeredTitle}>YOUTH INTAKE FORM</h2>
+          </div>
+          <hr className="separator-line" />
           <Row>
-            <h4 className="text-dark">General Information</h4>
             <Col md={8} />
             <Col md={4}>
               <ReferredBySelect
@@ -508,6 +511,7 @@ function PreIntakeForm() {
             </Col>
           </Row>
 
+          <h4 className="text-dark">General Information</h4>
           <Row>
             <Col md={3}>
               <InputField
@@ -534,7 +538,7 @@ function PreIntakeForm() {
               />
             </Col>
 
-            <Col md={2}>
+            <Col md={3}>
               <PronounSelect
                 name="province"
                 label="Preferred Pronouns:"
@@ -624,6 +628,34 @@ function PreIntakeForm() {
             </Col>
           </Row>
 
+          <Row>
+            <Col md={4}>
+              <Field
+                name="firstNationMembership"
+                component={FirstNationSelect}
+                label="First Nation Membership"
+                error={errors.firstNationMembership}
+              />
+            </Col>
+
+            <Col md={4}>
+              <InputField
+                name="treatyNumber"
+                label="Treaty Number:"
+                placeholder=""
+                error={errors.treatyNumber}
+              />
+            </Col>
+            <Col md={4}>
+              <Field
+                name="otherFirstNation"
+                component={FirstNationSelect}
+                label="Other First Nation Membership"
+                error={errors.otherFirstNation}
+              />
+            </Col>
+          </Row>
+          <hr className="separator-line" />
           <Row className={styles.group}>
             <h6>Emergency Contact</h6>
             <Col>
@@ -656,36 +688,8 @@ function PreIntakeForm() {
             </Col>
           </Row>
 
-          <Row>
-            <Col md={4}>
-              <Field
-                name="firstNationMembership"
-                component={FirstNationSelect}
-                label="First Nation Membership"
-                error={errors.firstNationMembership}
-              />
-            </Col>
-
-            <Col md={4}>
-              <InputField
-                name="treatyNumber"
-                label="Treaty Number:"
-                placeholder=""
-                error={errors.treatyNumber}
-              />
-            </Col>
-            <Col md={4}>
-              <Field
-                name="otherFirstNation"
-                component={FirstNationSelect}
-                label="Other First Nation Membership"
-                error={errors.otherFirstNation}
-              />
-            </Col>
-          </Row>
-
           {/* Agency information */}
-          <Row>
+          <div className={styles.group}>
             <h4 className="text-dark">Agency Information</h4>
 
             <Row className={styles.group}>
@@ -736,108 +740,61 @@ function PreIntakeForm() {
                 />
               </Col>
             </Row>
-
-            <Col md={4}>
-              <Field
-                name="cfsAgency"
-                value="cfsAgency"
-                component={ManageCfsAgencies}
-                label="CFS Agency"
-                error={errors.cfsAgency}
-              />
-            </Col>
-          </Row>
-
-          <Row>
-            <Col md={4}>
-              <Field
-                name="cfsAgentNumber"
-                label="CFS Agent Number:"
-                component={PhoneNumberInput}
-                placeholder="(123) 456-7890"
-              />
-            </Col>
-            <Col md={4}>
-              <div>
-                <label htmlFor="cfsAgentEmail">Email:</label>
-                <Field type="email" id="cfsAgentEmail" name="cfsAgentEmail" />
-                <ErrorMessage
-                  name="cfsAgentEmail"
-                  component={() => (
-                    <p className={styles.errorText}>{errors.cfsAgentEmail}</p>
-                  )}
-                />
-              </div>
-            </Col>
-          </Row>
-
-          <Row>
-            <h4 className="text-dark">Biological Parent's Information: </h4>
-          </Row>
-          <Row>
-            <Col md={3}>
-              <div>
-                <label htmlFor="motherFirstName">Mother's First Name:</label>
-                <Field
-                  id="motherFirstName"
-                  name="motherFirstName"
-                  component={ValidNameInput}
-                  placeholder="Mary"
-                />
-              </div>
-            </Col>
-
-            <Col md={3}>
-              <div>
-                <label htmlFor="motherMiddleName">Mother's Middle Name:</label>
-                <Field
-                  id="motherMiddleName"
-                  name="motherMiddleName"
-                  component={ValidNameInput}
-                />
-              </div>
-            </Col>
-
-            <Col md={4}>
-              <div>
-                <label htmlFor="motherLastName">Mother's Last Name:</label>
-                <Field
-                  id="motherLastName"
-                  name="motherLastName"
-                  component={ValidNameInput}
-                />
-              </div>
-            </Col>
-            <Col md={4}>
-              <Field
-                name="motherNation"
-                component={FirstNationSelect}
-                label="Mother's First Nation Membership"
-                error={errors.motherNation}
-              />
-            </Col>
-
             <Row>
-              <Col md={3}>
+              <Col md={4}>
+                <Field
+                  name="cfsAgency"
+                  value="cfsAgency"
+                  component={ManageCfsAgencies}
+                  label="CFS Agency"
+                  error={errors.cfsAgency}
+                />
+              </Col>
+
+              <Col md={4}>
+                <Field
+                  name="cfsAgentNumber"
+                  label="CFS Agent Number:"
+                  component={PhoneNumberInput}
+                  placeholder="(123) 456-7890"
+                />
+              </Col>
+              <Col md={4}>
                 <div>
-                  <label htmlFor="fatherFirstName">Father's First Name:</label>
+                  <label htmlFor="cfsAgentEmail">Email:</label>
+                  <Field type="email" id="cfsAgentEmail" name="cfsAgentEmail" />
+                  <ErrorMessage
+                    name="cfsAgentEmail"
+                    component={() => (
+                      <p className={styles.errorText}>{errors.cfsAgentEmail}</p>
+                    )}
+                  />
+                </div>
+              </Col>
+            </Row>
+          </div>
+
+          <div className={styles.group}>
+            <h4 className="text-dark">Biological Parent's Information: </h4>
+            <Row>
+              <Col md={4}>
+                <div>
+                  <label htmlFor="motherFirstName">Mother's First Name:</label>
                   <Field
-                    id="fatherFirstName"
-                    name="fatherFirstName"
+                    id="motherFirstName"
+                    name="motherFirstName"
                     component={ValidNameInput}
-                    placeholder="Jones"
+                    placeholder="Mary"
                   />
                 </div>
               </Col>
 
-              <Col md={3}>
+              <Col md={4}>
                 <div>
-                  <label htmlFor="fatherMiddleName">
-                    Father's Middle Name:
-                  </label>
+                  <label htmlFor="motherMiddleName">Mother's Middle Name:</label>
                   <Field
-                    id="fatherMiddleName"
-                    name="fatherMiddleName"
+                    id="motherMiddleName"
+                    name="motherMiddleName"
                     component={ValidNameInput}
                   />
                 </div>
@@ -845,24 +802,69 @@ function PreIntakeForm() {
 
               <Col md={4}>
                 <div>
-                  <label htmlFor="fatherLastName">Father's Last Name:</label>
+                  <label htmlFor="motherLastName">Mother's Last Name:</label>
                   <Field
-                    id="fatherLastName"
-                    name="fatherLastName"
+                    id="motherLastName"
+                    name="motherLastName"
                     component={ValidNameInput}
                   />
                 </div>
               </Col>
               <Col md={4}>
                 <Field
-                  name="fatherNation"
+                  name="motherNation"
                   component={FirstNationSelect}
-                  label="Father's First Nation Membership"
-                  error={errors.fatherNation}
+                  label="Mother's First Nation Membership"
+                  error={errors.motherNation}
                 />
               </Col>
             </Row>
-          </Row>
+              <Row>
+                <Col md={4}>
+                  <div>
+                    <label htmlFor="fatherFirstName">Father's First Name:</label>
+                    <Field
+                      id="fatherFirstName"
+                      name="fatherFirstName"
+                      component={ValidNameInput}
+                      placeholder="Jones"
+                    />
+                  </div>
+                </Col>
+
+                <Col md={4}>
+                  <div>
+                    <label htmlFor="fatherMiddleName">
+                      Father's Middle Name:
+                    </label>
+                    <Field
+                      id="fatherMiddleName"
+                      name="fatherMiddleName"
+                      component={ValidNameInput}
+                    />
+                  </div>
+                </Col>
+
+                <Col md={4}>
+                  <div>
+                    <label htmlFor="fatherLastName">Father's Last Name:</label>
+                    <Field
+                      id="fatherLastName"
+                      name="fatherLastName"
+                      component={ValidNameInput}
+                    />
+                  </div>
+                </Col>
+                <Col md={4}>
+                  <Field
+                    name="fatherNation"
+                    component={FirstNationSelect}
+                    label="Father's First Nation Membership"
+                    error={errors.fatherNation}
+                  />
+                </Col>
+              </Row>
+          </div>
 
           <Row>
             <h4 className="text-dark">Housing Situation: </h4>
@@ -977,7 +979,8 @@ function PreIntakeForm() {
                 </ErrorMessage>
               </Col>
             </Row>
-            <Row>
+
+            <div className={styles.group}>
               <h4 className="text-dark">People at Home</h4>
               <FieldArray name="homeMembers">
                 {({ push, remove }) => (
@@ -1094,7 +1097,7 @@ function PreIntakeForm() {
                   </div>
                 )}
               </FieldArray>
-            </Row>
+            </div>
           </Row>
 
           {/* Education */}
@@ -1319,7 +1322,7 @@ function PreIntakeForm() {
                       className={`${styles.bglightgrey} border rounded p-2 mb-3`}
                     >
                       <Row className="align-items-center">
-                        <Col md={3}>
+                        <Col md={4}>
                           <div>
                             <label
                               htmlFor={`educationalPersons.${index}.firstName`}
@@ -1334,7 +1337,7 @@ function PreIntakeForm() {
                           </div>
                         </Col>
 
-                        <Col md={3}>
+                        <Col md={4}>
                           <div>
                             <label
                               htmlFor={`educationalPersons.${index}.middleName`}
@@ -1378,7 +1381,7 @@ function PreIntakeForm() {
                             />
                           </div>
                         </Col>
-                        <Col md={3}>
+                        <Col md={4}>
                           <Field
                             name={`educationalPersons.${index}.phoneNumber`}
                             label="Phone Number:"
@@ -1389,7 +1392,7 @@ function PreIntakeForm() {
                             }
                           />
                         </Col>
-                        <Col md={3}>
+                        <Col md={4}>
                           <Field
                             name={`educationalPersons.${index}.email`}
                             label="Email Address:"
@@ -1433,106 +1436,109 @@ function PreIntakeForm() {
             </FieldArray>
           </Row>
 
-          <Row>
-            <h4 className="text-dark">Financial Information:</h4>
-          </Row>
+          <div className={styles.group}>
 
-          <Row className={styles.group}>
-            <Col md={4}>
-              <div>
-                <label>Do you have a Bank Account?</label>
-                <div className="form-check form-check-inline">
-                  <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="bankAccount"
-                    value="yes"
-                  />
-                  <label className="form-check-label">Yes</label>
-                </div>
-                <div className="form-check form-check-inline">
-                  <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="bankAccount"
-                    value="no"
-                  />
-                  <label className="form-check-label">No</label>
-                </div>
-              </div>
-            </Col>
-          </Row>
+              <h4 className="text-dark">Financial Information:</h4>
 
-          <Row className={styles.group}>
-            <Col md={4}>
-              <div>
-                <label>Are you on Employment and Income Assistance?</label>
-                <div className="form-check form-check-inline">
-                  <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="incomeAssistance"
-                    value="yes"
-                  />
-                  <label className="form-check-label">Yes</label>
-                </div>
-                <div className="form-check form-check-inline">
-                  <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="incomeAssistance"
-                    value="no"
-                  />
-                  <label className="form-check-label">No</label>
-                </div>
-              </div>
-            </Col>
-          </Row>
 
-          <Row>
-            <Col md={4}>
-              <div>
-                <label htmlFor="caseWorkerFullName">
-                  Case Worker's Full Name:
-                </label>
-                <Field
-                  id="caseWorkerFullName"
-                  name="caseWorkerFullName"
-                  component={ValidNameInput}
-                  placeholder="Jimmy"
-                />
-              </div>
-            </Col>
-          </Row>
+            <Row className={styles.group}>
+              <Col md={4}>
+                <div>
+                  <label>Do you have a Bank Account?</label>
+                  <div className="form-check form-check-inline">
+                    <Field
+                      className="form-check-input"
+                      type="radio"
+                      name="bankAccount"
+                      value="yes"
+                    />
+                    <label className="form-check-label">Yes</label>
+                  </div>
+                  <div className="form-check form-check-inline">
+                    <Field
+                      className="form-check-input"
+                      type="radio"
+                      name="bankAccount"
+                      value="no"
+                    />
+                    <label className="form-check-label">No</label>
+                  </div>
+                </div>
+              </Col>
 
-          <Row>
-            <Col md={4}>
-              <div>
-                <Field
-                  name="caseWorkerPhoneNumber"
-                  label="Case Worker Phone Number:"
-                  component={PhoneNumberInput}
-                  placeholder="(123) 456-7890"
-                />
-              </div>
-            </Col>
-            <Col md={4}>
-              <div>
-                <label htmlFor="caseWorkerEmail">Case Worker Email:</label>
-                <Field
-                  type="email"
-                  id="caseWorkerEmail"
-                  name="caseWorkerEmail"
-                />
-                <ErrorMessage
-                  name="caseWorkerEmail"
-                  component={() => (
-                    <p className={styles.errorText}>{errors.caseWorkerEmail}</p>
-                  )}
-                />
-              </div>
-            </Col>
-          </Row>
+
+
+              <Col md={5}>
+                <div>
+                  <label>Are you on Employment and Income Assistance?</label>
+                  <div className="form-check form-check-inline">
+                    <Field
+                      className="form-check-input"
+                      type="radio"
+                      name="incomeAssistance"
+                      value="yes"
+                    />
+                    <label className="form-check-label">Yes</label>
+                  </div>
+                  <div className="form-check form-check-inline">
+                    <Field
+                      className="form-check-input"
+                      type="radio"
+                      name="incomeAssistance"
+                      value="no"
+                    />
+                    <label className="form-check-label">No</label>
+                  </div>
+                </div>
+              </Col>
+
+            </Row>
+            <Row>
+              <Col md={4}>
+                <div>
+                  <label htmlFor="caseWorkerFullName">
+                    Case Worker's Full Name:
+                  </label>
+                  <Field
+                    id="caseWorkerFullName"
+                    name="caseWorkerFullName"
+                    component={ValidNameInput}
+                    placeholder="Jimmy"
+                  />
+                </div>
+              </Col>
+
+
+
+              <Col md={4}>
+                <div>
+                  <Field
+                    name="caseWorkerPhoneNumber"
+                    label="Case Worker Phone Number:"
+                    component={PhoneNumberInput}
+                    placeholder="(123) 456-7890"
+                  />
+                </div>
+              </Col>
+              <Col md={4}>
+                <div>
+                  <label htmlFor="caseWorkerEmail">Case Worker Email:</label>
+                  <Field
+                    type="email"
+                    id="caseWorkerEmail"
+                    name="caseWorkerEmail"
+                  />
+                  <ErrorMessage
+                    name="caseWorkerEmail"
+                    component={() => (
+                      <p className={styles.errorText}>{errors.caseWorkerEmail}</p>
+                    )}
+                  />
+                </div>
+              </Col>
+            </Row>
+          </div>
+
 
           <Row>
             <h4 className="text-dark">Other Information:</h4>

@@ -19,7 +19,7 @@
   width: 100%; /* Width relative to the container */
   max-width: 1000px; /* Maximum width for larger screens */
   margin-top: 50px;
-  background: #fff;
+  background: #dbdbdb;
   border-radius: 5px;
   padding: 20px;
   box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
@@ -185,3 +185,16 @@ select:disabled {
     height: 1rem !important;
   }
 }
+
+.titleContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Centers content horizontally*/
+  gap: 10px; /* Space between the logo and the title */
+}
+
+.logo {
+  width: 60px;
+  height: auto;
+}
+

@@ -397,9 +397,14 @@ function PreIntakeForm() {
     >
       {({ values, setFieldValue, errors, touched }) => (
         <Form className={styles.form}>
-          <h2 className={styles.centeredTitle}>PRE-INTAKE FORM</h2>
+
+          <div className={styles.titleContainer}>
+              <img src="/pre-intake logo.png" alt="Logo pre-intake" className={styles.logo} />
+              <h2 className={styles.centeredTitle}>PRE-INTAKE FORM</h2>
+          </div>
+          <hr className="separator-line" />
           <Row>
-            <h4 className="text-dark">General Information</h4>
+
             <Col md={8} />
             <Col md={4}>
               <ReferredBySelect
@@ -409,7 +414,8 @@ function PreIntakeForm() {
               />
             </Col>
           </Row>
-
+          <h4 className="text-dark">General Information</h4>
+          {/* <div className="bg- p-2 rounded border border-light border-1"> */}
           <Row>
             <Col md={3}>
               <InputField
@@ -870,6 +876,7 @@ function PreIntakeForm() {
                           <Col md={4}>
                             <ManageCfsAgencies
                               name={`children.${index}.childCfsAgency`}
+                              label="CFS Agency"
                               value={values.children[index].childCfsAgency}
                               setFieldValue={setFieldValue}
                             />

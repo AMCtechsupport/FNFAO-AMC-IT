@@ -33,7 +33,15 @@ const ManageCfsAgencies = ({
       <label htmlFor={name}>{label}:</label>
 
       {/* Use Formik's Field component for binding with the form */}
-      <Field as="select" name="cfsAgency">
+      <Field
+        as="select"
+        name={name}
+        disabled={disabled}
+        value={value}  // <-- Asegurar que use el valor actual
+        onChange={(e) => {
+          onChange?.(e);  // <-- Llamar onChange si se pasa como prop
+        }}
+      >
         <option value="">Select an agency</option>
         {agencies.map((agency) => (
           <option key={agency.agency_id} value={agency.agencyName}>

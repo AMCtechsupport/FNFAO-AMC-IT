@@ -107,7 +107,8 @@
 
 /* Background color for InputFields and textares disabled */
 .form input:disabled:not([type="radio"]):not([type="checkbox"]),
-.form textarea:disabled {
+.form textarea:disabled,
+.form select:disabled {
   background-color: #f0f0f0;
   cursor: not-allowed;
 }
