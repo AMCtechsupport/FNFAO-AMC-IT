@@ -410,6 +410,8 @@ function FullIntakeForm({client_id}){
                         lawyerPhoneNumber:originalData?.lawyerPhoneNumber || "",
                         lawyerEmail: originalData?.lawyerEmail || "",
 
+
+
                         // children: childrenData.length > 0 ? childrenData : [{}],
                         children: childrenData.map(child => ({
                             firstName: child.firstName || "",
@@ -427,6 +429,8 @@ function FullIntakeForm({client_id}){
                             childCfsSupervisorFullName: child.childCfsSupervisorFullName || "",
                             childCfsSupervisorNumber: child.childCfsSupervisorNumber !== null && child.childCfsSupervisorNumber !== undefined ? child.childCfsSupervisorNumber : "",
                             childCfsSupervisorEmail: child.childCfsSupervisorEmail || "",
+                            childMedicalNeeds: originalData?.childMedicalNeeds ? "yes" : (originalData?.childMedicalNeeds === false ? "no" : null),
+                            childMedicalNeedsExplained: originalData?.childMedicalNeedsExplained || "",
                        })) || [],
                         notes: notesData || [],
                         caseNotes: caseNotes || [],
@@ -584,7 +588,7 @@ function FullIntakeForm({client_id}){
                         }
 
                         console.log("Updating Clients with values:", values);
-                        const { children, notes, actionPlan, description, type, subType, advocate_id, family, homeMembers, EIA, caseNotes, legalNotes,  ...clientValues } = values; // Extract 'children', 'notes', etc  and leave only the 'Clients' values
+                        const { children, notes, actionPlan, description, type, subType, advocate_id, family, homeMembers, EIA, caseNotes, legalNotes, childMedicalNeeds, childMedicalNeedsExplained,  ...clientValues } = values; // Extract 'children', 'notes', etc  and leave only the 'Clients' values
 
                         // console.log("Values before updating Clients:", JSON.stringify(clientValues, null, 2)); //quitar
                         // console.log("Updating client_id:", client_id);//quitar
@@ -674,7 +678,7 @@ function FullIntakeForm({client_id}){
                 <>
                     <Form className={styles.form}>
                     <div className={styles.titleContainer}>
-                        <img src="/full-intake logo.png" alt="Logo" className={styles.logo} />
+                        {/* <img src="/full-intake logo.png" alt="Logo" className={styles.logo} /> */}
                         <h2 className={styles.centeredTitle}>FULL-INTAKE FORM</h2>
                     </div>
                     <hr className="separator-line" />
@@ -1283,7 +1287,7 @@ function FullIntakeForm({client_id}){
                                         <Row className={styles.group}>
                                             <Col md={4}>
                                             <div>
-                                                <label>Need youth support for you/your children?</label>
+                                                <label>Do you or do any of your children require youth support?</label>
                                                 <div className="form-check form-check-inline">
                                                 <Field
                                                     className="form-check-input"
@@ -1418,7 +1422,7 @@ function FullIntakeForm({client_id}){
                                         <Row className={styles.group}>
                                             <Col md={4}>
                                             <div>
-                                                <label>Are you seeking support for custody-related issues? </label>
+                                                <label>Are you seeking support for custody related issues? </label>
                                                 <div className="form-check form-check-inline">
                                                 <Field
                                                     className="form-check-input"
@@ -1732,7 +1736,7 @@ function FullIntakeForm({client_id}){
                                         <hr className="separator-line" />
 
                                         {/* Agency Worker’s table */}
-                                        <h5 className="text-dark">Agency Worker’s </h5>
+                                        <h5 className="text-dark">Agency Worker </h5>
                                         {childrenData.length > 0 && (() => {
                                             // Extract unique agents from childrenData
                                             const uniqueAgents = Array.from(
@@ -1756,7 +1760,6 @@ function FullIntakeForm({client_id}){
                                                             <th>Full Name</th>
                                                             <th>Phone</th>
                                                             <th>Email</th>
-                                                            <th>Supervisor</th>
                                                         </tr>
                                                     </thead>
 
@@ -1767,7 +1770,6 @@ function FullIntakeForm({client_id}){
                                                                 <td>{agent.fullName}</td>
                                                                 <td>{agent.phone}</td>
                                                                 <td>{agent.email}</td>
-                                                                <td>{agent.supervisorName}</td>
                                                             </tr>
                                                         ))}
                                                     </tbody>
@@ -1778,7 +1780,7 @@ function FullIntakeForm({client_id}){
                                         <hr className="separator-line" />
 
                                         {/* Supervisor’s table */}
-                                        <h5 className="text-dark">Supervisor’s</h5>
+                                        <h5 className="text-dark">Supervisor</h5>
                                         {childrenData.length > 0 && (() => {
                                             // Extract unique supervisors from childrenData
                                             const uniqueSupervisors = Array.from(
@@ -2337,14 +2339,14 @@ function FullIntakeForm({client_id}){
 
                                                                     </Row>
 
-                                                                    {/* CFS Supervisor's information */}
+                                                                    {/* CFS Supervisor information */}
                                                                     <Row>
                                                                         <Col md={4}>
-                                                                            <InputField name={`children.${index}.childCfsSupervisorFullName`} label="Supervisor's Full Name:" disabled={!isEditing} />
+                                                                            <InputField name={`children.${index}.childCfsSupervisorFullName`} label="Supervisor Full Name:" disabled={!isEditing} />
                                                                         </Col>
                                                                         <Col md={4}>
                                                                             <div>
-                                                                                <label htmlFor={`children.${index}.childCfsSupervisorNumber`}>Supervisor's Phone Number:</label>
+                                                                                <label htmlFor={`children.${index}.childCfsSupervisorNumber`}>Supervisor Phone Number:</label>
                                                                                 <Field type="number" id={`children.${index}.childCfsSupervisorNumber`} name={`children.${index}.childCfsSupervisorNumber`} component={PhoneNumberInput} placeholder="(123) 456-7890" disabled={!isEditing} />
                                                                                 <ErrorMessage
                                                                                     name={`children.${index}.childCfsSupervisorNumber`}
@@ -2353,7 +2355,7 @@ function FullIntakeForm({client_id}){
                                                                         </Col>
                                                                         <Col md={4}>
                                                                             <div>
-                                                                                <label htmlFor={`children.${index}.childCfsSupervisorEmail`}>Supervisor's Email:</label>
+                                                                                <label htmlFor={`children.${index}.childCfsSupervisorEmail`}>Supervisor Email:</label>
                                                                                 <Field type="email" id={`children.${index}.childCfsSupervisorEmail`} name={`children.${index}.childCfsSupervisorEmail`} disabled={!isEditing} />
                                                                                 <ErrorMessage
                                                                                     name={`children.${index}.childCfsSupervisorEmail`}
@@ -2365,6 +2367,36 @@ function FullIntakeForm({client_id}){
                                                                 </div>
                                                                 {/* END Agency information */}
 
+                                                                {/* Child medical condition */}
+                                                                <hr className="separator-line" />
+                                                                <div className="bg-light border border-light p-3 rounded">
+                                                                    <h5>Child's Medical Information</h5>
+                                                                    <Row className={styles.group}>
+                                                                        <Col md={5}>
+                                                                            <div>
+                                                                                <label>Does your child have any medical needs?</label>
+                                                                                <div className="form-check form-check-inline">
+                                                                                    <Field  className="form-check-input" type="radio" name={`children.${index}.childMedicalNeeds`} value="yes" checked={values.children[index].childMedicalNeeds === "yes"} disabled={!isEditing}/>
+                                                                                    <label className="form-check-label">Yes</label>
+                                                                                </div>
+                                                                                <div className="form-check form-check-inline">
+                                                                                    <Field  className="form-check-input" type="radio" name={`children.${index}.childMedicalNeeds`} value="no" checked={values.children[index].childMedicalNeeds === "no"} disabled={!isEditing} />
+                                                                                    <label className="form-check-label">No</label>
+                                                                                </div>
+                                                                                <ErrorMessage name={`children.${index}.childMedicalNeeds`} component="div" className={styles.errorText} />
+                                                                            </div>
+                                                                        </Col>
+                                                                        {values.children[index].childMedicalNeeds === "yes" && (
+
+                                                                            <Col md={12}>
+                                                                                <label>Please specify:</label>
+                                                                                <Field as="textarea" name={`children.${index}.childMedicalNeedsExplained`} className={styles.textarea} disabled={!isEditing}/>
+                                                                                <ErrorMessage name={`children.${index}.childMedicalNeedsExplained`} component="div" className={styles.errorText} />
+                                                                            </Col>
+                                                                        )}
+                                                                    </Row>
+                                                                </div>
+                                                                {/* END Child medical condition */}
 
                                                                 <Row>
                                                                     <Col md={9}></Col>
@@ -2391,7 +2423,9 @@ function FullIntakeForm({client_id}){
                                                                 childStatusCfsFile:"",
                                                                 childCfsSupervisorFullName:"",
                                                                 childCfsSupervisorNumber:"",
-                                                                childCfsSupervisorEmail:""
+                                                                childCfsSupervisorEmail:"",
+                                                                childMedicalNeeds:"",
+                                                                childMedicalNeedsExplained:""
                                                             })} disabled={!isEditing}>
                                                             + Add Child
                                                         </Button>
@@ -2696,9 +2730,6 @@ function FullIntakeForm({client_id}){
                                                 {selectedNote && (
                                                     <div className="note-details">
                                                         <Row className="mb-2">
-                                                            <Col md={8}>
-                                                                <h5>Note ID: {selectedNote.note_id}</h5>
-                                                            </Col>
                                                             <Col md={4}>
                                                                 <div>
                                                                     <label><strong>Created At: </strong>{new Date(selectedNote.createdAt).toLocaleString()}</label>
@@ -2887,9 +2918,6 @@ function FullIntakeForm({client_id}){
                                                 {selectedNote && (
                                                     <div className="note-details">
                                                         <Row className="mb-2">
-                                                            <Col md={8}>
-                                                                <h5>Note ID: {selectedNote.note_id}</h5>
-                                                            </Col>
                                                             <Col md={4}>
                                                                 <div>
                                                                     <label><strong>Created At: </strong>{new Date(selectedNote.createdAt).toLocaleString()}</label>

@@ -11,6 +11,7 @@ const TypeNoteSelect = ({name, label, error, disabled }) => {
                 <option value="initialMeeting">Initial Meeting</option>
                 <option value="agencyMeeting">Agency Meeting</option>
                 <option value="networkMeeting">Network Meeting</option>
+                <option value="court">Court</option>
                 <option value="otherType">Other</option>
             </Field>
         </>
