@@ -397,14 +397,11 @@ function PreIntakeForm() {
     >
       {({ values, setFieldValue, errors, touched }) => (
         <Form className={styles.form}>
-
           <div className={styles.titleContainer}>
-              <img src="/pre-intake logo.png" alt="Logo pre-intake" className={styles.logo} />
-              <h2 className={styles.centeredTitle}>PRE-INTAKE FORM</h2>
+            <h2 className={styles.centeredTitle}>PRE-INTAKE FORM</h2>
           </div>
           <hr className="separator-line" />
           <Row>
-
             <Col md={8} />
             <Col md={4}>
               <ReferredBySelect
@@ -1348,7 +1345,10 @@ function PreIntakeForm() {
           <Row className={styles.group}>
             <Col md={4}>
               <div>
-                <label> Do you have any criminal charges (past, active or pending)? *</label>
+                <label>
+                  {" "}
+                  Do you have any criminal charges (past, active or pending)? *
+                </label>
                 <div className="form-check form-check-inline">
                   <Field
                     className="form-check-input"

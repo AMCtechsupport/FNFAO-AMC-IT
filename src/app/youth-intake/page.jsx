@@ -496,8 +496,7 @@ function PreIntakeForm() {
       {({ values, errors, setFieldValue }) => (
         <Form className={styles.form}>
           <div className={styles.titleContainer}>
-              <img src="/youth-intake logo.png" alt="Logo youth-intake" className={styles.logo} />
-              <h2 className={styles.centeredTitle}>YOUTH INTAKE FORM</h2>
+            <h2 className={styles.centeredTitle}>YOUTH INTAKE FORM</h2>
           </div>
           <hr className="separator-line" />
           <Row>
@@ -791,7 +790,9 @@ function PreIntakeForm() {
 
               <Col md={4}>
                 <div>
-                  <label htmlFor="motherMiddleName">Mother's Middle Name:</label>
+                  <label htmlFor="motherMiddleName">
+                    Mother's Middle Name:
+                  </label>
                   <Field
                     id="motherMiddleName"
                     name="motherMiddleName"
@@ -819,51 +820,51 @@ function PreIntakeForm() {
                 />
               </Col>
             </Row>
-              <Row>
-                <Col md={4}>
-                  <div>
-                    <label htmlFor="fatherFirstName">Father's First Name:</label>
-                    <Field
-                      id="fatherFirstName"
-                      name="fatherFirstName"
-                      component={ValidNameInput}
-                      placeholder="Jones"
-                    />
-                  </div>
-                </Col>
-
-                <Col md={4}>
-                  <div>
-                    <label htmlFor="fatherMiddleName">
-                      Father's Middle Name:
-                    </label>
-                    <Field
-                      id="fatherMiddleName"
-                      name="fatherMiddleName"
-                      component={ValidNameInput}
-                    />
-                  </div>
-                </Col>
-
-                <Col md={4}>
-                  <div>
-                    <label htmlFor="fatherLastName">Father's Last Name:</label>
-                    <Field
-                      id="fatherLastName"
-                      name="fatherLastName"
-                      component={ValidNameInput}
-                    />
-                  </div>
-                </Col>
-                <Col md={4}>
+            <Row>
+              <Col md={4}>
+                <div>
+                  <label htmlFor="fatherFirstName">Father's First Name:</label>
                   <Field
-                    name="fatherNation"
-                    component={FirstNationSelect}
-                    label="Father's First Nation Membership"
-                    error={errors.fatherNation}
+                    id="fatherFirstName"
+                    name="fatherFirstName"
+                    component={ValidNameInput}
+                    placeholder="Jones"
                   />
-                </Col>
-              </Row>
+                </div>
+              </Col>
+
+              <Col md={4}>
+                <div>
+                  <label htmlFor="fatherMiddleName">
+                    Father's Middle Name:
+                  </label>
+                  <Field
+                    id="fatherMiddleName"
+                    name="fatherMiddleName"
+                    component={ValidNameInput}
+                  />
+                </div>
+              </Col>
+
+              <Col md={4}>
+                <div>
+                  <label htmlFor="fatherLastName">Father's Last Name:</label>
+                  <Field
+                    id="fatherLastName"
+                    name="fatherLastName"
+                    component={ValidNameInput}
+                  />
+                </div>
+              </Col>
+              <Col md={4}>
+                <Field
+                  name="fatherNation"
+                  component={FirstNationSelect}
+                  label="Father's First Nation Membership"
+                  error={errors.fatherNation}
+                />
+              </Col>
+            </Row>
           </div>
 
           <Row>
@@ -1437,9 +1438,7 @@ function PreIntakeForm() {
           </Row>
 
           <div className={styles.group}>
-
-              <h4 className="text-dark">Financial Information:</h4>
-
+            <h4 className="text-dark">Financial Information:</h4>
 
             <Row className={styles.group}>
               <Col md={4}>
@@ -1466,8 +1465,6 @@ function PreIntakeForm() {
                 </div>
               </Col>
 
-
-
               <Col md={5}>
                 <div>
                   <label>Are you on Employment and Income Assistance?</label>
@@ -1491,7 +1488,6 @@ function PreIntakeForm() {
                   </div>
                 </div>
               </Col>
-
             </Row>
             <Row>
               <Col md={4}>
@@ -1507,8 +1503,6 @@ function PreIntakeForm() {
                   />
                 </div>
               </Col>
-
-
 
               <Col md={4}>
                 <div>
@@ -1531,14 +1525,15 @@ function PreIntakeForm() {
                   <ErrorMessage
                     name="caseWorkerEmail"
                     component={() => (
-                      <p className={styles.errorText}>{errors.caseWorkerEmail}</p>
+                      <p className={styles.errorText}>
+                        {errors.caseWorkerEmail}
+                      </p>
                     )}
                   />
                 </div>
               </Col>
             </Row>
           </div>
-
 
           <Row>
             <h4 className="text-dark">Other Information:</h4>
