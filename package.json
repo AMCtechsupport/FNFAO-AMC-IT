@@ -23,6 +23,7 @@
     "react-input-mask": "^2.0.4",
     "react-tabs": "^6.1.0",
     "recharts": "^2.15.1",
+    "uuid": "^11.1.0",
     "validator": "^13.12.0",
     "yup": "^1.6.1"
   },

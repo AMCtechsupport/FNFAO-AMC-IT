@@ -212,4 +212,8 @@ select:disabled {
 .checkboxWrapper label {
   margin: 0; /* Remove any margins that might misalign the text */
 }
+.emergencyContact {
+  background-color: transparent;
+}
+
 

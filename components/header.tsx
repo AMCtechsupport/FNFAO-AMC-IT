@@ -1,7 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import useSyncClerkWithSupabase from "../components/useSyncClerkWithSupabase";
 
 export default function Header() {
+  useSyncClerkWithSupabase();
+
   return (
     <>
       {/* Header for unauthenticated users */}
@@ -25,21 +30,13 @@ export default function Header() {
 
             {/* Navigation links and auth button */}
             <div className="flex items-center space-x-6">
-              {/* <Link href="/" className="text-white hover:text-gray-300 mr-4">
-                Home
-              </Link>
-              <Link
-                href="/user-dashboard"
-                className="text-white hover:text-gray-300"
-              >
-                Dashboard
-              </Link> */}
-
               {/* Authenticated user button */}
               <UserButton />
             </div>
+
           </div>
         </header>
+
       </SignedIn>
     </>
   );

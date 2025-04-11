@@ -27,19 +27,37 @@ import { handleHomeMembersUpdate } from "../utils/homeMebersUpdate";
 import { handleEIAUpdate } from "../utils/EIAUpdates";
 
 import supabase from "../lib/supabase";
-
+import { useAuth } from "@clerk/nextjs";
+import { createClient } from '@supabase/supabase-js';
+import { v4 as uuidv4 } from 'uuid';
+import { isValidUUID } from '../utils/isValidUUID';
+import { useUser } from '@clerk/clerk-react';
 
 import { Tabs, TabList, Tab, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 
 export default function FullIntake({client_id}) {
     const testClientId = client_id || "61";
-    console.log("Client ID First:",client_id);
+    const { userId, getToken } = useAuth();
+
+    const { user } = useUser();
+
+    if (user) {
+
+        console.log('User ID:', user.id);
+        console.log('Email:', user.email);
+        console.log('Client ID:', user.client_id);
+        console.log('Roles:', user.roles);
+    }
+
     return (
         <UserHome>
             <div className={styles.fullIntakeContainer}>
                 <div className={styles.container}>
-                    <FullIntakeForm client_id = {testClientId} />
+                    <FullIntakeForm
+                        client_id = {testClientId}
+                        userId={userId}
+                        getToken={getToken} />
                 </div>
             </div>
         </UserHome>
@@ -135,12 +153,14 @@ const handleChildrenUpdate = async (children, client_id, setChildrenData ) => {
     }
 };
 
-function FullIntakeForm({client_id}){
+function FullIntakeForm({client_id, userId, getToken} ){
     const [originalData, setOriginalData] = useState(null);
     const [childrenData, setChildrenData] = useState([]); // State for children
     const [familyData, setFamilyData] = useState([]);
     const [homeMembersData, setHomeMembersData] = useState([]);
     const [EIAData, setEIAData] = useState([]);
+
+    const [emergencyContactData, setEmergencyContactData] = useState([]);
 
     const [notesData, setNotesData] = useState([]); // State for case notes
     const [caseNotes, setCaseNotes] = useState([]);
@@ -153,6 +173,12 @@ function FullIntakeForm({client_id}){
     const [selectedNote, setSelectedNote] = useState(null);
     const [showNewNoteForm, setShowNewNoteForm] = useState(false);
 
+    // const { userId, getToken } = useAuth();
+
+    // const { getToken } = useAuth();
+
+    console.log("Client ID First:",client_id);
+    console.log("de nuevo userId:", userId);
 
     const handleShowNoteDetails = (note) => {
         setSelectedNote(note); // Save the selected note
@@ -162,7 +188,7 @@ function FullIntakeForm({client_id}){
         setSelectedNote(null); // Close the note details
     };
 
-    const handleAddNoteClick = (values, push) => {
+    const handleAddNoteClick = (values, push, noteType) => {
         const newNote = {
             client_id: client_id,
             type: values.type || "General",  // Default value
@@ -172,6 +198,7 @@ function FullIntakeForm({client_id}){
             advocate_id: "19",
             createdAt: new Date().toISOString(),
             modifiedAt: new Date().toISOString(),
+            noteType: noteType,
         };
 
         // setFieldValue("notes", [...values.notes, newNote]); // Add the new note to the Formik array
@@ -303,9 +330,9 @@ function FullIntakeForm({client_id}){
                         province: originalData?.province || "",
                         postalCode: originalData?.postalCode || "",
                         email: originalData?.email || "",
-                        // emergencyContactFirstName: "",
-                        // emergencyContactLastName: "",
-                        // emergencyContactNumber: "",
+                        // emergencyContactFirstName: originalData?.emergencyContactFirstName || "",
+                        // emergencyContactLastName: originalData?.emergencyContactLastName || "",
+                        // emergencyContactNumber: originalData?.emergencyContactNumber || "",
                         // referredBy: "",
                         relationshipToChildren: originalData?.relationshipToChildren || "",
                         // otherAdultsInvolved: originalData?.otherAdultsInvolved === true ? "yes" : originalData?.otherAdultsInvolved === false ? "no" : "",
@@ -410,9 +437,6 @@ function FullIntakeForm({client_id}){
                         lawyerPhoneNumber:originalData?.lawyerPhoneNumber || "",
                         lawyerEmail: originalData?.lawyerEmail || "",
 
-
-
-                        // children: childrenData.length > 0 ? childrenData : [{}],
                         children: childrenData.map(child => ({
                             firstName: child.firstName || "",
                             middleName: child.middleName || "",
@@ -429,8 +453,11 @@ function FullIntakeForm({client_id}){
                             childCfsSupervisorFullName: child.childCfsSupervisorFullName || "",
                             childCfsSupervisorNumber: child.childCfsSupervisorNumber !== null && child.childCfsSupervisorNumber !== undefined ? child.childCfsSupervisorNumber : "",
                             childCfsSupervisorEmail: child.childCfsSupervisorEmail || "",
-                            childMedicalNeeds: originalData?.childMedicalNeeds ? "yes" : (originalData?.childMedicalNeeds === false ? "no" : null),
-                            childMedicalNeedsExplained: originalData?.childMedicalNeedsExplained || "",
+                            childMedicalNeeds: child?.childMedicalNeeds ? "yes" : (child?.childMedicalNeeds === false ? "no" : null),
+                            childMedicalNeedsExplained: child?.childMedicalNeedsExplained || "",
+                            biologicalParentFirstName:child.biologicalParentFirstName || "",
+                            biologicalParentLastName:child.biologicalParentLastName || "",
+                            biologicalParentFirstNation:child.biologicalParentFirstNation || "",
                        })) || [],
                         notes: notesData || [],
                         caseNotes: caseNotes || [],
@@ -451,114 +478,97 @@ function FullIntakeForm({client_id}){
                 validate={(values) => {
                     let errors = {};
 
-          if (!values.firstName) {
-            errors.firstName = "Please enter a name";
-          } else if (!/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.firstName)) {
-            errors.firstName = "The name can only contain letters and spaces";
-          }
+                // Validations
+                if (!values.firstName) {
+                    errors.firstName = "Please enter a name";
+                } else if (!/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.firstName)) {
+                    errors.firstName = "The name can only contain letters and spaces";
+                }
 
-          if (
-            values.middleName &&
-            !/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.middleName)
-          ) {
-            errors.middleName =
-              "The middle name can only contain letters and spaces";
-          }
+                if (
+                    values.middleName &&
+                    !/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.middleName)
+                ) {
+                    errors.middleName =
+                    "The middle name can only contain letters and spaces";
+                }
 
-          if (!values.lastName) {
-            errors.lastName = "Please enter a last name";
-          } else if (!/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.lastName)) {
-            errors.lastName =
-              "The last name can only contain letters and spaces";
-          }
+                if (!values.lastName) {
+                    errors.lastName = "Please enter a last name";
+                } else if (!/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.lastName)) {
+                    errors.lastName =
+                    "The last name can only contain letters and spaces";
+                }
 
-          if (!values.dateOfBirth) {
-            errors.dateOfBirth = "Please select a birth date";
-          } else {
-            const birthDate = new Date(values.dateOfBirth);
-            const currentYear = new Date().getFullYear();
-            const birthYear = birthDate.getFullYear();
+                if (!values.dateOfBirth) {
+                    errors.dateOfBirth = "Please select a birth date";
+                } else {
+                    const birthDate = new Date(values.dateOfBirth);
+                    const currentYear = new Date().getFullYear();
+                    const birthYear = birthDate.getFullYear();
 
-            // Year validation
-            if (birthYear > currentYear) {
-              errors.dateOfBirth = "Birth year cannot be in the future";
-            }
+                    // Year validation
+                    if (birthYear > currentYear) {
+                    errors.dateOfBirth = "Birth year cannot be in the future";
+                    }
 
-            // Month validation
-            const birthMonth = birthDate.getMonth() + 1;
-            if (birthMonth < 1 || birthMonth > 12) {
-              errors.dateOfBirth = "Birth month must be between 01 and 12";
-            }
+                    // Month validation
+                    const birthMonth = birthDate.getMonth() + 1;
+                    if (birthMonth < 1 || birthMonth > 12) {
+                    errors.dateOfBirth = "Birth month must be between 01 and 12";
+                    }
 
-            // Day validation
-            const birthDay = birthDate.getDate();
-            if (birthDay < 1 || birthDay > 31) {
-              errors.dateOfBirth = "Birth day must be between 01 and 31";
-            }
-          }
+                    // Day validation
+                    const birthDay = birthDate.getDate();
+                    if (birthDay < 1 || birthDay > 31) {
+                    errors.dateOfBirth = "Birth day must be between 01 and 31";
+                    }
+                }
 
-          if (!values.phoneNumber) {
-            errors.phoneNumber = "Please enter a phone number";
-          }
+                if (!values.phoneNumber) {
+                    errors.phoneNumber = "Please enter a phone number";
+                }
 
-          const addressRegex = /^[a-zA-Z0-9\s,.-]*$/;
-          if (!values.address) {
-            errors.address = "Please enter an address";
-          } else if (!addressRegex.test(values.address)) {
-            errors.address = "The address contains invalid characters";
-          }
+                const addressRegex = /^[a-zA-Z0-9\s,.-]*$/;
+                if (!values.address) {
+                    errors.address = "Please enter an address";
+                } else if (!addressRegex.test(values.address)) {
+                    errors.address = "The address contains invalid characters";
+                }
 
-          if (!values.city) {
-            errors.city = "Please enter a city";
-          } else if (!/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.city)) {
-            errors.city = "The city can only contain letters and spaces";
-          }
+                if (!values.city) {
+                    errors.city = "Please enter a city";
+                } else if (!/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.city)) {
+                    errors.city = "The city can only contain letters and spaces";
+                }
 
-          if (!values.province) {
-            errors.province = "Please select a province";
-          }
+                if (!values.province) {
+                    errors.province = "Please select a province";
+                }
 
-          if (
-            values.postalCode &&
-            !/^[A-Z]\d[A-Z] \d[A-Z]\d$/.test(values.postalCode)
-          ) {
-            errors.postalCode = "Invalid postal code format (e.g., A1A 1A1)";
-          }
+                if (
+                    values.postalCode &&
+                    !/^[A-Z]\d[A-Z] \d[A-Z]\d$/.test(values.postalCode)
+                ) {
+                    errors.postalCode = "Invalid postal code format (e.g., A1A 1A1)";
+                }
 
-          if (!values.email) {
-            errors.email = "Please enter an email";
-          } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
-            errors.email = "Invalid email format";
-          }
+                if (!values.email) {
+                    errors.email = "Please enter an email";
+                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
+                    errors.email = "Invalid email format";
+                }
 
-                    // if (!values.emergencyContactFirstName) {
-                    //     errors.emergencyContactFirstName = "Please provide an emergency contact first name.";
-                    // }
-
-                    // if (!values.emergencyContactLastName) {
-                    //     errors.emergencyContactLastName = "Please provide an emergency contact last name.";
-                    // }
-
-                    // if (!values.emergencyContactNumber) {
-                    //     errors.emergencyContactNumber = "Please provide an emergency contact phone.";
-                    // }
-
-                    // if (!values.relationshipToChildren) {
-                    //     errors.relationshipToChildren = "Please provide a relationship with the child(ren).";
-                    // }
-
-                    // if (values.otherAdultsInvolved === true && !values.otherAdultsInvolvedExplained.trim()) {
-                    //     errors.otherAdultsInvolvedExplained = "Please specify the other involved adult(s)";
-                    // }
-
-                    // if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.cfsAgentEmail)) {
-                    //     errors.cfsAgentEmail = "Invalid email format";
-                    // }
 
                     return errors;
                 }}
                 onSubmit={async (values, { resetForm }) => {
                     try {
+                        // const { getToken } = useAuth();
+                        const token = await getToken({ template: "supabase" });
+
+                        console.log("Token", token);
+
                         console.log("Form submitted with values:", values);
                         console.log("onSubmit values.notes:", values);
                         // Validate that client_id is valid
@@ -649,8 +659,11 @@ function FullIntakeForm({client_id}){
                                 console.error("Error update EIA data.");
                             }
 
+                            const token = await getToken({ template: "supabase" });
+                            console.log("userId antes de handleNotesUpdate:", userId);
+
                             // Call `handle Notes Update` to update the notes in the database
-                            const notesUpdateSuccess = await handleNotesUpdate(values.notes, client_id, setNotesData);
+                            const notesUpdateSuccess = await handleNotesUpdate(values.notes, client_id, setNotesData, supabase, userId);
                             console.log("Notes update result:", notesUpdateSuccess);
                             if (!notesUpdateSuccess){
                                 console.error("Error update notes data.");
@@ -686,11 +699,11 @@ function FullIntakeForm({client_id}){
 
                             <Row>
                                 <Col md={4}><label htmlFor="createdAt"> <strong> Created At: </strong> {values.createdAt}</label>
-                                    {/* <FormattedDate dateString={values.createdAt}/> */}
+
                                 </Col>
 
                                 <Col md={4}><label htmlFor="dateModified"> <strong> Last Updated: </strong> {values.dateModified}</label>
-                                    {/* <FormattedDate dateString={values.dateModified}/> */}
+
                                 </Col>
 
                                 <Col md={4}>
@@ -760,6 +773,46 @@ function FullIntakeForm({client_id}){
                                 </Col>
                             </Row>
                         </div>
+                        {/* Emrgency contact */}
+                        {/* <div className="p-2 rounded border border-light border-1 bg-transparent">
+
+                            <Row className={styles.emergencyContact}>
+                                <Col md={3}><label><strong>Emergency Contact</strong></label></Col>
+                                <Col md={3}>
+                                    <InputField
+                                        name="emergencyContactFirstName"
+                                        label="First Name:"
+                                        placeholder=""
+                                        error={errors.emergencyContactFirstName}
+                                        disabled={!isEditing}
+                                    />
+                                </Col>
+
+                                <Col md={3}>
+                                    <InputField
+                                        name="emergencyContactLastName"
+                                        label="Last Name:"
+                                        placeholder=""
+                                        error={errors.emergencyContactLastName}
+                                        disabled={!isEditing}
+                                    />
+                                </Col>
+
+                                <Col md={3}>
+                                    <div>
+                                        <label htmlFor="emergencyContactNumber">Phone Number:</label>
+                                        <Field
+                                        type="number"
+                                        id="emergencyContactNumber"
+                                        name="emergencyContactNumber"
+                                        component={PhoneNumberInput}
+                                        placeholder="(123) 456-7890"
+                                        disabled={!isEditing}
+                                        />
+                                    </div>
+                                </Col>
+                            </Row>
+                        </div> */}
                         <Row>
                             <div className="{styles.tabsContainer}">
                                 <Tabs >
@@ -789,7 +842,7 @@ function FullIntakeForm({client_id}){
                                                 <InputField name="treatyNumber" label="Treaty Number:" placeholder="" error={errors.treatyNumber} disabled={!isEditing} />
                                             </Col>
                                             <Col md={4}>
-                                                {/* <FirstNationSelect name="otherFirstnation" label="Other First Nation" error={errors.otherFirstnation} disabled={!isEditing}/> */}
+
                                                 <Field
                                                     name="otherFirstNation"
                                                     component={FirstNationSelect}
@@ -1336,88 +1389,6 @@ function FullIntakeForm({client_id}){
                                             </Col>
                                             )}
                                         </Row>
-                                        {/* <Row className={styles.group}>
-                                            <Col md={3}>
-                                            <div>
-                                                <label>Do you have a lawyer?</label>
-                                                <div className="form-check form-check-inline">
-                                                <Field
-                                                    className="form-check-input"
-                                                    type="radio"
-                                                    name="currentLawyer"
-                                                    value="yes"
-                                                    disabled={!isEditing}
-                                                />
-                                                <label className="form-check-label">Yes</label>
-                                                </div>
-                                                <div className="form-check form-check-inline">
-                                                <Field
-                                                    className="form-check-input"
-                                                    type="radio"
-                                                    name="currentLawyer"
-                                                    value="no"
-                                                    disabled={!isEditing}
-                                                />
-                                                <label className="form-check-label">No</label>
-                                                </div>
-                                                <ErrorMessage
-                                                    name="currentLawyer"
-                                                    component="div"
-                                                    className={styles.errorText}
-                                                />
-                                            </div>
-                                            </Col>
-                                            {values.currentLawyer === "no" && (
-                                            <>
-                                                <Col md={3}>
-                                                <div>
-                                                    <label>If no, need legal assistance?</label>
-                                                    <div className="form-check form-check-inline">
-                                                    <Field
-                                                        className="form-check-input"
-                                                        type="radio"
-                                                        name="legalAssistance"
-                                                        value="yes"
-                                                        disabled={!isEditing}
-                                                    />
-                                                    <label className="form-check-label">Yes</label>
-                                                    </div>
-                                                    <div className="form-check form-check-inline">
-                                                    <Field
-                                                        className="form-check-input"
-                                                        type="radio"
-                                                        name="legalAssistance"
-                                                        value="no"
-                                                        disabled={!isEditing}
-                                                    />
-                                                    <label className="form-check-label">No</label>
-                                                    </div>
-                                                    <ErrorMessage
-                                                        name="legalAssistance"
-                                                        component="div"
-                                                        className={styles.errorText}
-                                                    />
-                                                </div>
-                                                </Col>
-                                                {values.legalAssistance === "yes" && (
-                                                <Col md={6}>
-                                                    <label>If yes, specify:</label>
-                                                    <Field
-                                                        as="textarea"
-                                                        name="legalAssistanceSpecified"
-                                                        className={styles.textarea}
-                                                        disabled={!isEditing}
-                                                    />
-                                                    <ErrorMessage
-                                                        name="legalAssistanceSpecified"
-                                                        component="div"
-                                                        className={styles.errorText}
-                                                    />
-                                                </Col>
-                                                )}
-                                            </>
-                                            )}
-                                        </Row> */}
 
                                         <Row className={styles.group}>
                                             <Col md={4}>
@@ -2291,7 +2262,7 @@ function FullIntakeForm({client_id}){
                                                                     <Row>
                                                                         <h5 className="text-dark">Agency Information</h5>
                                                                         <Col md={4}>
-                                                                            {/* <InputField name={`children.${index}.childCfsAgency`} label="CFS Agency Name:" disabled={!isEditing} /> */}
+
                                                                             <Field
                                                                                 name={`children.${index}.childCfsAgency`}
                                                                                 component={ManageCfsAgencies}
@@ -2398,6 +2369,31 @@ function FullIntakeForm({client_id}){
                                                                 </div>
                                                                 {/* END Child medical condition */}
 
+                                                                {/* Another Biological Parent*/}
+                                                                <hr className="separator-line" />
+                                                                <div className="bg-light border border-light p-3 rounded">
+                                                                    <h5>Other Biological Parent Information</h5>
+                                                                    <Row className="align-items-center">
+                                                                        <Col md={3}>
+                                                                            <InputField name={`children.${index}.biologicalParentFirstName`} label="First Name:" disabled={!isEditing} />
+                                                                        </Col>
+                                                                        <Col md={3}>
+                                                                            <InputField name={`children.${index}.biologicalParentLastName`} label="Last Name:" disabled={!isEditing} />
+                                                                        </Col>
+                                                                        <Col md={6}>
+                                                                            <Field
+                                                                                name={`children.${index}.biologicalParentFirstNation`}
+                                                                                component={FirstNationSelect}
+                                                                                label="First Nation Membership"
+                                                                                error={errors.biologicalParentFirstNation}
+                                                                                disabled={!isEditing}
+                                                                            />
+                                                                        </Col>
+
+                                                                    </Row>
+                                                                </div>
+                                                                {/* END Another Biological Parent*/}
+
                                                                 <Row>
                                                                     <Col md={9}></Col>
                                                                     <Col md={3} className="d-flex align-items-end mt-2">
@@ -2425,7 +2421,10 @@ function FullIntakeForm({client_id}){
                                                                 childCfsSupervisorNumber:"",
                                                                 childCfsSupervisorEmail:"",
                                                                 childMedicalNeeds:"",
-                                                                childMedicalNeedsExplained:""
+                                                                childMedicalNeedsExplained:"",
+                                                                biologicalParentFirstName:"",
+                                                                biologicalParentLastName:"",
+                                                                biologicalParentFirstNation:"",
                                                             })} disabled={!isEditing}>
                                                             + Add Child
                                                         </Button>
@@ -2707,7 +2706,10 @@ function FullIntakeForm({client_id}){
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            {[...notesData].sort((a, b) => a.note_id - b.note_id).map((note) => (
+                                                            {[...notesData]
+                                                            .filter(note => note.noteType?.toLowerCase() === "case")
+                                                            .sort((a, b) => a.note_id - b.note_id)
+                                                            .map((note) => (
                                                                 <tr key={note.note_id}>
                                                                     <td>{note.note_id}</td>
                                                                     <td><FormattedDate dateString={note.createdAt}/></td>
@@ -2822,7 +2824,7 @@ function FullIntakeForm({client_id}){
                                                     // <Button onClick={() => handleAddNoteClick(values, setFieldValue)} disabled={!isEditing} >Add Note</Button>
                                                     <FieldArray name="notes">
                                                         {({ push }) => (
-                                                            <Button onClick={() => handleAddNoteClick(values, push)} disabled={!isEditing}>
+                                                            <Button onClick={() => handleAddNoteClick(values, push, "case")} disabled={!isEditing}>
                                                                 Add Case Note
                                                             </Button>
                                                         )}
@@ -3007,10 +3009,13 @@ function FullIntakeForm({client_id}){
 
                                                 {/* Show add new note details */}
                                                 {!showNewNoteForm && (
-                                                    // <Button onClick={() => handleAddNoteClick(values, setFieldValue)} disabled={!isEditing} >Add Note</Button>
+
                                                     <FieldArray name="notes">
                                                         {({ push }) => (
-                                                            <Button onClick={() => handleAddNoteClick(values, push)} disabled={!isEditing}>
+                                                            <Button
+                                                                onClick={() =>
+                                                                    handleAddNoteClick(values, push, "legal")}
+                                                                disabled={!isEditing}>
                                                                 Add Legal Note
                                                             </Button>
                                                         )}
@@ -3019,12 +3024,10 @@ function FullIntakeForm({client_id}){
                                                 )}
                                                 {showNewNoteForm && (
                                                     <div style={{ backgroundColor: "#dbdbdb", padding: "15px", borderRadius: "8px", border: "0.5px solid #ccc" }} >
-                                                        {/* Separating line */}
-                                                        {/* <hr className="my-3" /> */}
+
                                                         <h4>New Legal Note</h4>
                                                         <Row>
                                                             <Col>
-                                                                {/* <InputField name="treatyNumber" label="Treaty Number:" placeholder="" error={errors.treatyNumber} disabled={!isEditing} /> */}
                                                                 <TypeNoteSelect name={`notes.${values.notes.length - 1}.type`} label="Type" placeholder="" error={errors.type} disabled={!isEditing}/>
                                                             </Col>
                                                             <Col>
@@ -3034,14 +3037,14 @@ function FullIntakeForm({client_id}){
 
                                                         <label>Description:</label>
                                                         <Field
-                                                            // label="Description"
+
                                                             name={`notes.${values.notes.length - 1}.description`}
                                                             as="textarea"
                                                             rows={4}
                                                         />
                                                         <label>Action Plan:</label>
                                                         <Field
-                                                            // label="Action Plan"
+
                                                             name={`notes.${values.notes.length - 1}.actionPlan`}
                                                             as="textarea"
                                                             rows={4}
@@ -3088,3 +3091,4 @@ function FullIntakeForm({client_id}){
         </div>
     );
 }
+
