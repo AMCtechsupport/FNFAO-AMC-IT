@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import UserHome from "../user-home/page";
-import styles from "./fullIntake.module.css";
+import UserHome from "../../user-home/page";
+import styles from "./page.module.css";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { Button, Container, Row, Col, Modal } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -17,46 +17,40 @@ import MartialStatusSelect from "@/components/MartialStatusSelect";
 import TypeNoteSelect from "@/components/TypeNoteSelect";
 import SubTypeNoteSelect from "@/components/SubTypeNoteSelect"
 import GenderSelect from "@/components/GenderSelect";
-import YesNoSelect from "../../components/yesNoSelect";
+import YesNoSelect from "../../../components/yesNoSelect";
 import FormattedDate from "@/components/FormattedDate";
 import ManageCfsAgencies from "@/components/ManageCfsAgencies";
 
-import { handleNotesUpdate } from "../utils/notesUpdates"; // handles updates to the Notes table
-import { handleFamilyUpdate }  from "../utils/familyUpdates";
-import { handleHomeMembersUpdate } from "../utils/homeMebersUpdate";
-import { handleEIAUpdate } from "../utils/EIAUpdates";
+import { handleNotesUpdate } from "../../utils/notesUpdates"; // handles updates to the Notes table
+import { handleFamilyUpdate }  from "../../utils/familyUpdates";
+import { handleHomeMembersUpdate } from "../../utils/homeMebersUpdate";
+import { handleEIAUpdate } from "../../utils/EIAUpdates";
 
-import supabase from "../lib/supabase";
+import supabase from "../../lib/supabase";
 import { useAuth } from "@clerk/nextjs";
 import { createClient } from '@supabase/supabase-js';
 import { v4 as uuidv4 } from 'uuid';
-import { isValidUUID } from '../utils/isValidUUID';
+import { isValidUUID } from '../../utils/isValidUUID';
 import { useUser } from '@clerk/clerk-react';
 
 import { Tabs, TabList, Tab, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
+import { useParams } from 'next/navigation';
 
-export default function FullIntake({client_id}) {
-    const testClientId = client_id || "61";
-    const { userId, getToken } = useAuth();
+export default function FullIntake({}) {
+    const params = useParams(); // e.g., { client: ['190'] }
+    const clientArray = params?.client;
 
-    const { user } = useUser();
+    const client_id = Array.isArray(clientArray) ? clientArray[0] : '61';
 
-    // if (user) {
-
-    //     console.log('User ID:', user.id);
-    //     console.log('Email:', user.email);
-    //     console.log('Client ID:', user.client_id);
-    //     console.log('Roles:', user.roles);
-    // }
+    const { getToken } = useAuth();
 
     return (
         <UserHome>
             <div className={styles.fullIntakeContainer}>
                 <div className={styles.container}>
                     <FullIntakeForm
-                        client_id = {testClientId}
-                        // userId={userId}
+                        client_id = {client_id}
                         getToken={getToken} />
                 </div>
             </div>

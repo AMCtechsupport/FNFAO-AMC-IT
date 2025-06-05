@@ -21,8 +21,8 @@ export default function UserHome({ children }: { children: ReactNode }) {
   useEffect(() => {
     setIsClient(true);
     // Set the user role after the component is mounted
-    if (user) {
-      setUserRole(user.publicMetadata?.role);
+    if (user?.publicMetadata?.role) {
+      setUserRole(user.publicMetadata.role as string);
     }
   }, [user]); // Only re-run when `user` changes
 

@@ -22,7 +22,7 @@ export default function Home() {
 
       <footer className="bg-black text-white text-center p-4">
         <p>&copy; All rights reserved. 2025 Assembly of Manitoba Chiefs </p>
-      </footer> */}
+      </footer>
     </div>
   );
 }

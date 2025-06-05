@@ -1,6 +1,16 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
+
+type UserRole =
+  | "admin"
+  | "advocate"
+  | "operational manager"
+  | "advocacy coordinator"
+  | "youth worker"
+  | undefined;
+
+
 // Define routes that are protected
 const isProtectedRoute = createRouteMatcher([
   "/user-home(.*)",
@@ -27,7 +37,7 @@ export default clerkMiddleware(async (auth, req) => {
 
     const { sessionClaims } = await auth();
 
-    const userRole = sessionClaims?.metadata?.role;
+    const userRole = sessionClaims?.metadata?.role as UserRole;
 
     // Check if the route requires admin role protection
     if (
