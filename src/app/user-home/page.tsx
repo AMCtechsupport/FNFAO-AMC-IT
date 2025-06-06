@@ -40,24 +40,24 @@ export default function UserHome({ children }: { children: ReactNode }) {
         {/* Sidebar */}
         <aside className="w-64 bg-black p-4 border-r">
           <nav className="space-y-4">
-            <a
+            <Link
               href="user-dashboard"
               className="block text-white hover:text-purple-600 hover:font-bold transition-colors p-2 rounded"
             >
               Dashboard
-            </a>
-            <a
+            </Link>
+            <Link
               href="profile"
               className="block text-white hover:text-gray-300 p-2 rounded"
             >
               Profile
-            </a>
-            <a
+            </Link>
+            <Link
               href="/settings"
               className="block text-white hover:text-gray-300 p-2 rounded"
             >
               Settings
-            </a>
+            </Link>
             <Link
               href="/full-intake"
               className="block text-white hover:font-bold no-underline transition-colors p-2 rounded"
