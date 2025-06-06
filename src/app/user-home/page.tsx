@@ -41,13 +41,13 @@ export default function UserHome({ children }: { children: ReactNode }) {
         <aside className="w-64 bg-black p-4 border-r">
           <nav className="space-y-4">
             <Link
-              href="user-dashboard"
+              href="/user-dashboard"
               className="block text-white hover:text-purple-600 hover:font-bold transition-colors p-2 rounded"
             >
               Dashboard
             </Link>
             <Link
-              href="profile"
+              href="/profile"
               className="block text-white hover:text-gray-300 p-2 rounded"
             >
               Profile
