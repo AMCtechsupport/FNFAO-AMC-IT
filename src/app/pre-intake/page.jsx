@@ -640,21 +640,23 @@ function PreIntakeForm() {
 
           <Row className={styles.group}>
             <Col md={4}>
-              <label>Personal Health Identification Numbers (9-Digit):</label>
-              <Field
-                type="number"
-                id="ninePersonalHealthNumber"
-                placeholder="000000000"
-                name="ninePersonalHealthNumber"
-              />
-              <ErrorMessage
-                name="ninePersonalHealthNumber"
-                component={() => (
-                  <p className={styles.errorText}>
-                    {errors.ninePersonalHealthNumber}
-                  </p>
-                )}
-              />
+              <div>
+                <label>Personal Health Identification Numbers (9-Digit):</label>
+                <Field
+                  type="number"
+                  id="ninePersonalHealthNumber"
+                  placeholder="000000000"
+                  name="ninePersonalHealthNumber"
+                />
+                <ErrorMessage
+                  name="ninePersonalHealthNumber"
+                  component={() => (
+                    <p className={styles.errorText}>
+                      {errors.ninePersonalHealthNumber}
+                    </p>
+                  )}
+                />
+              </div>
             </Col>
             <Col md={2}>
               <label>(6-Digit):</label>
@@ -871,17 +873,17 @@ function PreIntakeForm() {
                         <Row className="mt-2">
                           <h5 className="text-dark">Agency Information</h5>
                           <Col md={4}>
-                            <ManageCfsAgencies
+                            <Field
                               name={`children.${index}.childCfsAgency`}
+                              component={ManageCfsAgencies}
                               label="CFS Agency"
-                              value={values.children[index].childCfsAgency}
-                              setFieldValue={setFieldValue}
+                              error={errors.children?.[index]?.childCfsAgency}
                             />
                           </Col>
                           <Col md={4}>
                             <InputField
                               name={`children.${index}.childCfsAgentFullName`}
-                              label="Agency Worker’s Full Name:"
+                              label="Agency Worker's Full Name:"
                             />
                           </Col>
                           <Col md={4}>
@@ -928,13 +930,13 @@ function PreIntakeForm() {
                             </div>
                           </Col>
                           <Col md={4}>
-                            <StatusCFSFileSelect
+                            <Field
                               name={`children.${index}.childStatusCfsFile`}
+                              component={StatusCFSFileSelect}
                               label="CFS File Status"
                               error={
                                 errors.children?.[index]?.childStatusCfsFile
                               }
-                              setFieldValue={setFieldValue}
                             />
                           </Col>
                         </Row>

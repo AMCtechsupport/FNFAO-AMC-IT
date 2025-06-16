@@ -19,7 +19,7 @@ const isProtectedRoute = createRouteMatcher([
   "/manager-dash(.*)",
   "/admin(.*)",
   "/user-logs(.*)",
-  "/youth-intake(.*)",
+  // "/youth-intake(.*)",
 ]);
 
 // Define the route that needs admin role protection
