@@ -1,3 +1,8 @@
+import supabase from "../lib/supabase";
+
+// const {data, error} = await supabase.auth.getSession();
+// console.log('Supabase session: ', data)
+
 const handleChildrenUpdate = async (children, client_id, setChildrenData ) => {
     try {
         // Gets the current children in the database

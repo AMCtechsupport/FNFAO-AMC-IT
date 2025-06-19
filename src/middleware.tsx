@@ -2,33 +2,18 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 
-type UserRole =
-  | "admin"
-  | "advocate"
-  | "operational manager"
-  | "advocacy coordinator"
-  | "youth worker"
-  | undefined;
+type UserRole = "admin" | "advocate" | undefined;
 
-
-// Define routes that are protected
+// Define routes that are protected(authenticated via clerk)
 const isProtectedRoute = createRouteMatcher([
   "/user-home(.*)",
   "/clients(.*)",
   "/pre-intake(.*)",
-  "/manager-dash(.*)",
+  "/full-intake(.*)",
   "/admin(.*)",
   "/user-logs(.*)",
-  // "/youth-intake(.*)",
 ]);
 
-// Define the route that needs admin role protection
-const isAdminRoute = createRouteMatcher(["/manager-dash(.*)"]);
-
-const isAdminOrAdvocacyCoordinator = createRouteMatcher([
-  "/advocacy-coordinator-dash(.*)",
-]);
-const isAdminOrYouthWorkerRoute = createRouteMatcher(["/youth-intake(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {
@@ -37,38 +22,8 @@ export default clerkMiddleware(async (auth, req) => {
 
     const { sessionClaims } = await auth();
 
-    const userRole = sessionClaims?.metadata?.role as UserRole;
+    // const userRole = sessionClaims?.metadata?.role as UserRole;
 
-    // Check if the route requires admin role protection
-    if (
-      isAdminRoute(req) &&
-      userRole !== "admin" &&
-      userRole !== "operational manager"
-    ) {
-      const url = new URL("/", req.url);
-      return NextResponse.redirect(url);
-    }
-
-    if (
-      isAdminOrAdvocacyCoordinator(req) &&
-      userRole !== "admin" &&
-      userRole !== "advocacy coordinator" &&
-      userRole !== "operational manager"
-    ) {
-      const url = new URL("/", req.url);
-      return NextResponse.redirect(url);
-    }
-
-    if (
-      isAdminOrYouthWorkerRoute(req) &&
-      userRole !== "admin" &&
-      userRole !== "advocacy coordinator" &&
-      userRole !== "operational manager" &&
-      userRole !== "youth worker"
-    ) {
-      const url = new URL("/", req.url);
-      return NextResponse.redirect(url);
-    }
   }
 });
 

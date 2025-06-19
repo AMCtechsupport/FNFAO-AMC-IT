@@ -282,7 +282,7 @@ function PreIntakeForm() {
             }
           }
 
-          console.log("Converted values:", convertedValues);
+          // console.log("Converted values:", convertedValues);
 
           // Get the current date in ISO 8601 format
           const currentDate = new Date().toISOString();
@@ -302,7 +302,7 @@ function PreIntakeForm() {
           clientData.dateModified = currentDate;
           clientData.clientType = "Pre-Intake";
 
-          console.log("Client data to insert:", clientData);
+          // console.log("Client data to insert:", clientData);
 
           // Insert client data into the 'Clients' table
           const { data: client, error: clientError } = await supabase
@@ -323,7 +323,7 @@ function PreIntakeForm() {
             throw clientError;
           }
 
-          console.log("Client inserted successfully:", client);
+          // console.log("Client inserted successfully:", client);
 
           // Get the inserted client's ID
           const clientId = client[0]?.client_id;
@@ -345,7 +345,7 @@ function PreIntakeForm() {
               throw childrenError;
             }
 
-            console.log("Children inserted successfully:", childrenData);
+            // console.log("Children inserted successfully:", childrenData);
           }
 
           // Insert emergency contact into  the 'Emergency Contact' table
@@ -380,10 +380,10 @@ function PreIntakeForm() {
               throw emergencyContactError;
             }
 
-            console.log(
-              "✅ Emergency contact inserted successfully:",
-              emergencyContactData
-            );
+            // console.log(
+            //   "✅ Emergency contact inserted successfully:",
+            //   emergencyContactData
+            // );
           }
 
           // Reset form and show success message

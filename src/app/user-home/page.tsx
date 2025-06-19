@@ -40,30 +40,49 @@ export default function UserHome({ children }: { children: ReactNode }) {
         {/* Sidebar */}
         <aside className="w-64 bg-black p-4 border-r">
           <nav className="space-y-4">
-            <Link
-              href="/user-dashboard"
-              className="block text-white hover:text-purple-600 hover:font-bold transition-colors p-2 rounded"
-            >
-              Dashboard
-            </Link>
+            {(userRole === "admin" ) && (
+              <Link
+                href="/admin"
+                className="block text-white hover:font-bold no-underline transition-colors p-2 rounded"
+              >
+                Admin
+              </Link>
+            )}
+
+           {userRole === "advocate" && (
+              <Link
+                href="/user-dashboard"
+                className="block text-white hover:text-purple-600 hover:font-bold transition-colors p-2 rounded"
+              >
+                Dashboard
+              </Link>
+            )}
+
+            {userRole != "advocate" && (
             <Link
               href="/profile"
               className="block text-white hover:text-gray-300 p-2 rounded"
             >
               Profile
             </Link>
+            )}
+
             <Link
               href="/settings"
               className="block text-white hover:text-gray-300 p-2 rounded"
             >
               Settings
             </Link>
+            
+            {userRole != "advocate" && (
             <Link
               href="/full-intake"
               className="block text-white hover:font-bold no-underline transition-colors p-2 rounded"
             >
               Full-Intake
             </Link>
+            )}
+
             <Link
               href="/pre-intake"
               className="block text-white hover:font-bold no-underline transition-colors p-2 rounded"
@@ -88,24 +107,6 @@ export default function UserHome({ children }: { children: ReactNode }) {
             >
               User Logs
             </Link>
-            {/* {(userRole === "operational manager" || userRole === "admin") && (
-              <Link
-                href="/manager-dash"
-                className="block text-white hover:font-bold no-underline transition-colors p-2 rounded"
-              >
-                Manager Dashboard
-              </Link>
-            )} */}
-            {(userRole === "operational manager" ||
-              userRole === "admin" ||
-              userRole === "advocacy coordinator") && (
-              <Link
-                href="/advocacy-coordinator-dash"
-                className="block text-white hover:font-bold no-underline transition-colors p-2 rounded"
-              >
-                Advocacy Coordinator Dash
-              </Link>
-            )}
           </nav>
         </aside>
 
