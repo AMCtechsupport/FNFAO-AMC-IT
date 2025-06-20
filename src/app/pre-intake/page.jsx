@@ -132,7 +132,7 @@ function PreIntakeForm() {
         }
 
         if (!values.dateOfBirth) {
-          errors.dateOfBirth = "Please select a birth date";
+          errors.dateOfBirth = "Please choose a valid birth date";
         } else {
           const birthDate = new Date(values.dateOfBirth);
           const currentYear = new Date().getFullYear();
@@ -282,7 +282,7 @@ function PreIntakeForm() {
             }
           }
 
-          console.log("Converted values:", convertedValues);
+          // console.log("Converted values:", convertedValues);
 
           // Get the current date in ISO 8601 format
           const currentDate = new Date().toISOString();
@@ -302,7 +302,7 @@ function PreIntakeForm() {
           clientData.dateModified = currentDate;
           clientData.clientType = "Pre-Intake";
 
-          console.log("Client data to insert:", clientData);
+          // console.log("Client data to insert:", clientData);
 
           // Insert client data into the 'Clients' table
           const { data: client, error: clientError } = await supabase
@@ -323,13 +323,13 @@ function PreIntakeForm() {
             throw clientError;
           }
 
-          console.log("Client inserted successfully:", client);
+          // console.log("Client inserted successfully:", client);
 
           // Get the inserted client's ID
           const clientId = client[0]?.client_id;
           if (!clientId) throw new Error("Failed to retrieve client ID.");
 
-          // If there are children, insert them into the 'Children' table
+          // If there are children, insert them into the 'Childs' table
           if (children && children.length > 0) {
             const childrenData = children.map((child) => ({
               ...child,
@@ -345,7 +345,7 @@ function PreIntakeForm() {
               throw childrenError;
             }
 
-            console.log("Children inserted successfully:", childrenData);
+            // console.log("Children inserted successfully:", childrenData);
           }
 
           // Insert emergency contact into  the 'Emergency Contact' table
@@ -380,10 +380,10 @@ function PreIntakeForm() {
               throw emergencyContactError;
             }
 
-            console.log(
-              "✅ Emergency contact inserted successfully:",
-              emergencyContactData
-            );
+            // console.log(
+            //   "✅ Emergency contact inserted successfully:",
+            //   emergencyContactData
+            // );
           }
 
           // Reset form and show success message
@@ -411,7 +411,7 @@ function PreIntakeForm() {
               />
             </Col>
           </Row>
-          <h4 className="text-dark">General Information</h4>
+          <h3 className="text-dark">General Information</h3>
           {/* <div className="bg- p-2 rounded border border-light border-1"> */}
           <Row>
             <Col md={3}>
@@ -507,7 +507,7 @@ function PreIntakeForm() {
             <Col md={4}>
               <div>
                 <label htmlFor="email">Email:</label>
-                <Field type="email" id="email" name="email" />
+                <Field type="email" id="email" name="email" placeholder="john123@example.com" />
                 <ErrorMessage
                   name="email"
                   component={() => (
@@ -555,7 +555,7 @@ function PreIntakeForm() {
 
           {/* About you */}
           <Row>
-            <h4 className="text-dark">About You</h4>
+            <h3 className="text-dark">About You</h3>
             <Col md={4}>
               <RelationshipToChildrenSelect
                 name="relationshipToChildren"
@@ -640,26 +640,34 @@ function PreIntakeForm() {
 
           <Row className={styles.group}>
             <Col md={4}>
-              <label>Personal Health Identification Numbers (9-Digit):</label>
-              <Field
-                type="number"
-                id="ninePersonalHealthNumber"
-                placeholder="000000000"
-                name="ninePersonalHealthNumber"
-              />
-              <ErrorMessage
-                name="ninePersonalHealthNumber"
-                component={() => (
-                  <p className={styles.errorText}>
-                    {errors.ninePersonalHealthNumber}
-                  </p>
-                )}
-              />
+              <div>
+                <label>Personal Health Identification Numbers (9-Digit):</label>
+                <Field
+                  type="text"
+                  inputMode="numeric"
+                  pattern="\d*"
+                  maxLength={9}
+                  id="ninePersonalHealthNumber"
+                  placeholder="123456789"
+                  name="ninePersonalHealthNumber"
+                />
+                <ErrorMessage
+                  name="ninePersonalHealthNumber"
+                  component={() => (
+                    <p className={styles.errorText}>
+                      {errors.ninePersonalHealthNumber}
+                    </p>
+                  )}
+                />
+              </div>
             </Col>
             <Col md={2}>
               <label>(6-Digit):</label>
               <Field
-                type="number"
+                type="text"
+                inputMode="numeric"
+                pattern="\d*"
+                maxLength={6}
                 id="sixPersonalHealthNumber"
                 placeholder="000000"
                 name="sixPersonalHealthNumber"
@@ -782,7 +790,7 @@ function PreIntakeForm() {
 
           {/* About your children */}
           <Row>
-            <h4 className="text-dark">About Your Children</h4>
+            <h3 className="text-dark">About Your Children</h3>
             <FieldArray name="children">
               {({ push, remove }) => (
                 <div>
@@ -871,17 +879,17 @@ function PreIntakeForm() {
                         <Row className="mt-2">
                           <h5 className="text-dark">Agency Information</h5>
                           <Col md={4}>
-                            <ManageCfsAgencies
+                            <Field
                               name={`children.${index}.childCfsAgency`}
+                              component={ManageCfsAgencies}
                               label="CFS Agency"
-                              value={values.children[index].childCfsAgency}
-                              setFieldValue={setFieldValue}
+                              error={errors.children?.[index]?.childCfsAgency}
                             />
                           </Col>
                           <Col md={4}>
                             <InputField
                               name={`children.${index}.childCfsAgentFullName`}
-                              label="Agency Worker’s Full Name:"
+                              label="Agency Worker's Full Name:"
                             />
                           </Col>
                           <Col md={4}>
@@ -928,13 +936,13 @@ function PreIntakeForm() {
                             </div>
                           </Col>
                           <Col md={4}>
-                            <StatusCFSFileSelect
+                            <Field
                               name={`children.${index}.childStatusCfsFile`}
+                              component={StatusCFSFileSelect}
                               label="CFS File Status"
                               error={
                                 errors.children?.[index]?.childStatusCfsFile
                               }
-                              setFieldValue={setFieldValue}
                             />
                           </Col>
                         </Row>
@@ -1092,7 +1100,7 @@ function PreIntakeForm() {
 
           {/* Other questions */}
           <Row>
-            <h4 className="text-dark">Other Questions</h4>
+            <h3 className="text-dark">Other Questions</h3>
           </Row>
           <Row className={styles.group}>
             <Col md={4}>
@@ -1481,6 +1489,7 @@ function PreIntakeForm() {
                   type="date"
                   id="activeInvestigationExplained"
                   name="activeInvestigationExplained"
+                  max={new Date().toISOString().split("T")[0]}
                 />
                 <ErrorMessage
                   name="activeInvestigationExplained"
@@ -1622,7 +1631,7 @@ function PreIntakeForm() {
             )}
           </Row>
           <Row>
-            <h4 className="text-dark">Staff Only</h4>
+            <h3 className="text-dark">Staff Only</h3>
             <Col>
               <label>
                 If we are unable to assist, please list why (Example: they do

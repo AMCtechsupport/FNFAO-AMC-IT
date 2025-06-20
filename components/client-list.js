@@ -88,7 +88,7 @@ export default function ClientsList({ initialClients, totalCount }) {
       <div className="mb-4">
         <input
           type="text"
-          placeholder="Search by ID, Name, Middle Name, or Last Name"
+          placeholder="Search by First Name or Last Name."
           value={search}
           onChange={handleSearchChange}
           className="p-2 border rounded-md w-full"
@@ -118,14 +118,14 @@ export default function ClientsList({ initialClients, totalCount }) {
           <ul className="divide-y divide-gray-600">
             {clients.map((client) => (
               <li key={client.client_id} className=" border-gray-600">
-                <div className="text-left p-2 border-2 border-gray-700 rounded-lg mb-4 shadow-sm bg-white">
-                  <ul className="text-lg font-bold text-gray-900">
+                <div className="text-left pt-1 border-2 border-gray-700 rounded-lg mb-2 shadow-sm bg-white">
+                  <ul className="text-xl font-bold text-gray-900 pt-2 mb-3">
                     <Link href={`clients/${client.client_id}`}>
                       {client.firstName} {client.middleName} {client.lastName}
                     </Link>
                   </ul>
 
-                  <p className="text-sm text-gray-700">
+                  {/* <p className="text-sm text-gray-700">
                     <span className="font-semibold">Client ID: </span>
                     {client.client_id}
                   </p>
@@ -136,14 +136,14 @@ export default function ClientsList({ initialClients, totalCount }) {
                   <p className="text-sm text-gray-700">
                     <span className="font-semibold">Email: </span>
                     {client.email}
-                  </p>
+                  </p> */}
                   <p className="text-sm text-gray-700">
                     <span className="font-semibold">
                       First Nation Membership:{" "}
                     </span>
                     {client.firstNationMembership}
                   </p>
-                  <p className="text-sm text-gray-700">
+                  {/* <p className="text-sm text-gray-700">
                     <span className="font-semibold">Address: </span>
                     {client.address}
                   </p>
@@ -158,7 +158,7 @@ export default function ClientsList({ initialClients, totalCount }) {
                       month: "long",
                       day: "numeric",
                     })}
-                  </p>
+                  </p> */}
                 </div>
               </li>
             ))}

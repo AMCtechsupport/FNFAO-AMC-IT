@@ -21,8 +21,8 @@ export default function UserHome({ children }: { children: ReactNode }) {
   useEffect(() => {
     setIsClient(true);
     // Set the user role after the component is mounted
-    if (user) {
-      setUserRole(user.publicMetadata?.role);
+    if (user?.publicMetadata?.role) {
+      setUserRole(user.publicMetadata.role as string);
     }
   }, [user]); // Only re-run when `user` changes
 
@@ -40,72 +40,73 @@ export default function UserHome({ children }: { children: ReactNode }) {
         {/* Sidebar */}
         <aside className="w-64 bg-black p-4 border-r">
           <nav className="space-y-4">
-            <a
-              href="user-dashboard"
-              className="block text-white hover:text-purple-600 hover:font-bold transition-colors p-2 rounded"
-            >
-              Dashboard
-            </a>
-            <a
-              href="profile"
-              className="block text-white hover:text-gray-300 p-2 rounded"
+            {(userRole === "admin" ) && (
+              <Link
+                href="/admin"
+                className="block bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
+              >
+                Admin
+              </Link>
+            )}
+
+           {userRole === "advocate" && (
+              <Link
+                href="/user-dashboard"
+                className="block bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
+              >
+                Dashboard
+              </Link>
+            )}
+
+            {userRole != "advocate" && (
+            <Link
+              href="/profile"
+              className="block bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
             >
               Profile
-            </a>
-            <a
+            </Link>
+            )}
+
+            <Link
               href="/settings"
-              className="block text-white hover:text-gray-300 p-2 rounded"
+              className="block bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
             >
               Settings
-            </a>
+            </Link>
+            
+            {userRole != "advocate" && (
             <Link
               href="/full-intake"
-              className="block text-white hover:font-bold no-underline transition-colors p-2 rounded"
+              className="block bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
             >
               Full-Intake
             </Link>
+            )}
+
             <Link
               href="/pre-intake"
-              className="block text-white hover:font-bold no-underline transition-colors p-2 rounded"
+              className="block bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
             >
               Pre-Intake
             </Link>
             <Link
               href="/youth-intake"
-              className="block text-white hover:font-bold no-underline transition-colors p-2 rounded"
+              className="block bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
             >
               Youth-Intake
             </Link>
             <Link
               href="/clients"
-              className="block text-white hover:font-bold no-underline transition-colors p-2 rounded"
+              className="block bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
             >
               Client List
             </Link>
             <Link
               href="/user-logs"
-              className="block text-white hover:font-bold no-underline transition-colors p-2 rounded"
+              className="block bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
             >
               User Logs
             </Link>
-            {(userRole === "operational manager" || userRole === "admin") && (
-              <Link
-                href="/manager-dash"
-                className="block text-white hover:font-bold no-underline transition-colors p-2 rounded"
-              >
-                Manager Dashboard
-              </Link>
-            )}
-            {(userRole === "operational manager" ||
-              userRole === "admin" ||
-              userRole === "advocacy coordinator") && (
-              <Link
-                href="/advocacy-coordinator-dash"
-                className="block text-white hover:font-bold no-underline transition-colors p-2 rounded"
-              >
-                Advocacy Coordinator Dash
-              </Link>
-            )}
           </nav>
         </aside>
 
