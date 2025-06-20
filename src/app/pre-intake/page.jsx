@@ -132,7 +132,7 @@ function PreIntakeForm() {
         }
 
         if (!values.dateOfBirth) {
-          errors.dateOfBirth = "Please select a birth date";
+          errors.dateOfBirth = "Please choose a valid birth date";
         } else {
           const birthDate = new Date(values.dateOfBirth);
           const currentYear = new Date().getFullYear();
@@ -329,7 +329,7 @@ function PreIntakeForm() {
           const clientId = client[0]?.client_id;
           if (!clientId) throw new Error("Failed to retrieve client ID.");
 
-          // If there are children, insert them into the 'Children' table
+          // If there are children, insert them into the 'Childs' table
           if (children && children.length > 0) {
             const childrenData = children.map((child) => ({
               ...child,
@@ -411,7 +411,7 @@ function PreIntakeForm() {
               />
             </Col>
           </Row>
-          <h4 className="text-dark">General Information</h4>
+          <h3 className="text-dark">General Information</h3>
           {/* <div className="bg- p-2 rounded border border-light border-1"> */}
           <Row>
             <Col md={3}>
@@ -507,7 +507,7 @@ function PreIntakeForm() {
             <Col md={4}>
               <div>
                 <label htmlFor="email">Email:</label>
-                <Field type="email" id="email" name="email" />
+                <Field type="email" id="email" name="email" placeholder="john123@example.com" />
                 <ErrorMessage
                   name="email"
                   component={() => (
@@ -555,7 +555,7 @@ function PreIntakeForm() {
 
           {/* About you */}
           <Row>
-            <h4 className="text-dark">About You</h4>
+            <h3 className="text-dark">About You</h3>
             <Col md={4}>
               <RelationshipToChildrenSelect
                 name="relationshipToChildren"
@@ -643,9 +643,12 @@ function PreIntakeForm() {
               <div>
                 <label>Personal Health Identification Numbers (9-Digit):</label>
                 <Field
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="\d*"
+                  maxLength={9}
                   id="ninePersonalHealthNumber"
-                  placeholder="000000000"
+                  placeholder="123456789"
                   name="ninePersonalHealthNumber"
                 />
                 <ErrorMessage
@@ -661,7 +664,10 @@ function PreIntakeForm() {
             <Col md={2}>
               <label>(6-Digit):</label>
               <Field
-                type="number"
+                type="text"
+                inputMode="numeric"
+                pattern="\d*"
+                maxLength={6}
                 id="sixPersonalHealthNumber"
                 placeholder="000000"
                 name="sixPersonalHealthNumber"
@@ -784,7 +790,7 @@ function PreIntakeForm() {
 
           {/* About your children */}
           <Row>
-            <h4 className="text-dark">About Your Children</h4>
+            <h3 className="text-dark">About Your Children</h3>
             <FieldArray name="children">
               {({ push, remove }) => (
                 <div>
@@ -1094,7 +1100,7 @@ function PreIntakeForm() {
 
           {/* Other questions */}
           <Row>
-            <h4 className="text-dark">Other Questions</h4>
+            <h3 className="text-dark">Other Questions</h3>
           </Row>
           <Row className={styles.group}>
             <Col md={4}>
@@ -1483,6 +1489,7 @@ function PreIntakeForm() {
                   type="date"
                   id="activeInvestigationExplained"
                   name="activeInvestigationExplained"
+                  max={new Date().toISOString().split("T")[0]}
                 />
                 <ErrorMessage
                   name="activeInvestigationExplained"
@@ -1624,7 +1631,7 @@ function PreIntakeForm() {
             )}
           </Row>
           <Row>
-            <h4 className="text-dark">Staff Only</h4>
+            <h3 className="text-dark">Staff Only</h3>
             <Col>
               <label>
                 If we are unable to assist, please list why (Example: they do
