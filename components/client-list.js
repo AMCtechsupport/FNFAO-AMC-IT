@@ -150,7 +150,7 @@ export default function ClientsList({ initialClients, totalCount }) {
                   <p className="text-sm text-gray-700">
                     <span className="font-semibold">Location: </span>
                     {client.city}, {client.province}
-                  </p>
+                  </p>*/}
                   <p className="text-sm text-gray-700">
                     <span className="font-semibold">Date of Birth: </span>
                     {new Date(client.dateOfBirth).toLocaleDateString("en-US", {
@@ -158,7 +158,7 @@ export default function ClientsList({ initialClients, totalCount }) {
                       month: "long",
                       day: "numeric",
                     })}
-                  </p> */}
+                  </p> 
                 </div>
               </li>
             ))}
