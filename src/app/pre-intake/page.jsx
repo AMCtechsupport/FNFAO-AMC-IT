@@ -229,6 +229,14 @@ function PreIntakeForm() {
           errors.ninePersonalHealthNumber = "Must be exactly 9 digits";
         }
 
+        if (
+          values.nineTreatyNumber &&
+          !/^\d{9}$/.test(values.nineTreatyNumber)
+        ) {
+          errors.nineTreatyNumber = "Treaty number must be exactly 9 digits";
+        }
+
+
         // Validation for 6 digits (only if the user enters something)
         if (
           values.sixPersonalHealthNumber &&
@@ -622,12 +630,36 @@ function PreIntakeForm() {
               />
             </Col>
             <Col md={4}>
-              <InputField
+             <div>
+                <label>TreatyNumber (9-Digit):</label>
+                <Field
+                  type="text"
+                  inputMode="numeric"
+                  pattern="\d*"
+                  maxLength={9}
+                  id="nineTreatyNumber"
+                  placeholder="123456789"
+                  name="nineTreatyNumber"
+                />
+                <ErrorMessage
+                  name="nineTreatyNumber"
+                  component={() => (
+                    <p className={styles.errorText}>
+                      {errors.nineTreatyNumber}
+                    </p>
+                  )}
+                />
+              </div>
+              {/* <InputField
+                type="text"
+                inputMode="numeric"
+                pattern="\d*"
+                maxLength={9}
                 name="treatyNumber"
                 label="Treaty Number:"
-                placeholder=""
+                placeholder="123456789"
                 error={errors.treatyNumber}
-              />
+              /> */}
             </Col>
             <Col md={4}>
               <FirstNationSelect
@@ -1354,7 +1386,6 @@ function PreIntakeForm() {
             <Col md={4}>
               <div>
                 <label>
-                  {" "}
                   Do you have any criminal charges (past, active or pending)? *
                 </label>
                 <div className="form-check form-check-inline">
