@@ -71,6 +71,7 @@ function PreIntakeForm() {
         otherAdultsInvolvedExplained: "",
         firstNationMembership: "",
         treatyNumber: "",
+        nineTreatyNumber: "", 
         otherFirstNation: "",
         ninePersonalHealthNumber: "",
         sixPersonalHealthNumber: "",
