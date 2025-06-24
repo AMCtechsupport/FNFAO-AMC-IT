@@ -257,7 +257,7 @@ function PreIntakeForm() {
         }
 
         if (
-          values.criminalCharges === "yes" &&
+          values.activeInvestigation  === "yes" &&
           !values.activeInvestigationExplained
         ) {
           errors.activeInvestigationExplained = "Please select a start date.";
@@ -269,6 +269,7 @@ function PreIntakeForm() {
         return errors;
       }}
       onSubmit={async (values, { resetForm }) => {
+        console.log("Submitting:", values);
         try {
           const convertedValues = {};
 
@@ -1385,9 +1386,7 @@ function PreIntakeForm() {
           <Row className={styles.group}>
             <Col md={4}>
               <div>
-                <label>
-                  Do you have any criminal charges (past, active or pending)? *
-                </label>
+                <label>Do you have any criminal charges (past, active or pending)? *</label>
                 <div className="form-check form-check-inline">
                   <Field
                     className="form-check-input"
