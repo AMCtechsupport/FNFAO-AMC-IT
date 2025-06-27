@@ -136,28 +136,22 @@ function PreIntakeForm() {
           errors.dateOfBirth = "Please choose a valid birth date";
         } else {
           const birthDate = new Date(values.dateOfBirth);
-          const currentYear = new Date().getFullYear();
-          const birthYear = birthDate.getFullYear();
           const today = new Date();
+          const minYear = today.getFullYear() - 150;
+          const maxYear = today.getFullYear() - 5;
 
-          if (birthDate > today) {
-            errors.dateOfBirth = "Birth date cannot be in the future";
-          }
-
-          if (birthYear > currentYear) {
-            errors.dateOfBirth = "Birth year cannot be in the future";
-          }
-
-          const birthMonth = birthDate.getMonth() + 1;
-          if (birthMonth < 1 || birthMonth > 12) {
-            errors.dateOfBirth = "Birth month must be between 01 and 12";
-          }
-
-          const birthDay = birthDate.getDate();
-          if (birthDay < 1 || birthDay > 31) {
-            errors.dateOfBirth = "Birth day must be between 01 and 31";
+          if (isNaN(birthDate.getTime())) {
+            errors.dateOfBirth = "Invalid date format";
+          } else if (birthDate > today) {
+            errors.dateOfBirth = "Date of birth cannot be in the future";
+          } else if (
+            birthDate.getFullYear() < minYear ||
+            birthDate.getFullYear() > maxYear
+          ) {
+            errors.dateOfBirth = `Date of birth must be between ${minYear} and ${maxYear}`;
           }
         }
+
         const phoneNumberError = validatePhoneNumber(values.phoneNumber);
         if (phoneNumberError) {
           errors.phoneNumber = phoneNumberError;
@@ -179,6 +173,21 @@ function PreIntakeForm() {
             if (!errors.children[index]) errors.children[index] = {};
             errors.children[index].childCfsAgentNumber =
               childCfsAgentNumberError;
+          }
+          // Validate Child's Date of Birth (optional, but within 0–17 years)
+          if (child.birthDate) {
+            const birthDate = new Date(child.birthDate);
+            const today = new Date();
+            const minDate = new Date(today.getFullYear() - 17, today.getMonth(), today.getDate());
+
+            if (!errors.children) errors.children = [];
+            if (!errors.children[index]) errors.children[index] = {};
+
+            if (birthDate > today) {
+              errors.children[index].birthDate = "Date of birth cannot be in the future";
+            } else if (birthDate < minDate) {
+              errors.children[index].birthDate = `Date of birth must be between ${minDate.getFullYear()} and ${today.getFullYear()}`;
+            }
           }
         });
 
@@ -261,6 +270,24 @@ function PreIntakeForm() {
         }
         if (values.activeOrders === "yes" && !values.activeOrdersExplained) {
           errors.activeOrdersExplained = "Please specify why.";
+        }
+
+        if (values.activeInvestigation === "yes") {
+          const dateStr = values.activeInvestigationExplained;
+
+          if (!dateStr) {
+            errors.activeInvestigationExplained = "Please provide the start date of the investigation";
+          } else {
+            const date = new Date(dateStr);
+            const today = new Date();
+            const eightyYearsAgo = new Date(today.getFullYear() - 80, today.getMonth(), today.getDate());
+
+            if (date > today) {
+              errors.activeInvestigationExplained = "Date cannot be in the future";
+            } else if (date < eightyYearsAgo) {
+              errors.activeInvestigationExplained = `Date must be within the last 80 years (${eightyYearsAgo.getFullYear()}–${today.getFullYear()})`;
+            }
+          }
         }
 
         return errors;
@@ -433,7 +460,7 @@ function PreIntakeForm() {
 
             <Col md={3}>
               <div>
-                <label htmlFor="dateOfBirth">Birth Date:*</label>
+                <label htmlFor="dateOfBirth">Date of Birth:*</label>
                 <Field type="date" id="dateOfBirth" name="dateOfBirth" />
                 <ErrorMessage
                   name="dateOfBirth"
@@ -1051,7 +1078,7 @@ function PreIntakeForm() {
             )}
           </Row>
           <Row className={styles.group}>
-            <Col md={4}>
+            <Col md={6}>
               <div>
                 <label>Do you have a copy of your case plan(s)?</label>
                 <div className="form-check form-check-inline">
