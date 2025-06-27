@@ -171,24 +171,30 @@ function PreIntakeForm() {
           if (childCfsAgentNumberError) {
             if (!errors.children) errors.children = [];
             if (!errors.children[index]) errors.children[index] = {};
-            errors.children[index].childCfsAgentNumber =
-              childCfsAgentNumberError;
+            errors.children[index].childCfsAgentNumber = childCfsAgentNumberError;
           }
-          // Validate Child's Date of Birth (optional, but within 0–17 years)
-          if (child.birthDate) {
-            const birthDate = new Date(child.birthDate);
-            const today = new Date();
-            const minDate = new Date(today.getFullYear() - 17, today.getMonth(), today.getDate());
 
-            if (!errors.children) errors.children = [];
-            if (!errors.children[index]) errors.children[index] = {};
+          // Validate Birth Date only if provided
+            if (child.birthDate) {
+              const birthDate = new Date(child.birthDate);
+              const today = new Date();
+              const minDate = new Date(today.getFullYear() - 17, today.getMonth(), today.getDate());
 
-            if (birthDate > today) {
-              errors.children[index].birthDate = "Date of birth cannot be in the future";
-            } else if (birthDate < minDate) {
-              errors.children[index].birthDate = `Date of birth must be between ${minDate.getFullYear()} and ${today.getFullYear()}`;
+              // Only initialize errors[index] if there's a problem
+              let birthDateError = null;
+
+              if (birthDate > today) {
+                birthDateError = "Date of birth cannot be in the future";
+              } else if (birthDate < minDate) {
+                birthDateError = "Child must be between 0 and 17 years old";
+              }
+
+              if (birthDateError) {
+                if (!errors.children) errors.children = [];
+                if (!errors.children[index]) errors.children[index] = {};
+                errors.children[index].birthDate = birthDateError;
+              }
             }
-          }
         });
 
         const addressRegex = /^[a-zA-Z0-9\s,.-]*$/;
