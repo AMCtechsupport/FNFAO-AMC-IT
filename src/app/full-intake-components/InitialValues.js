@@ -43,7 +43,10 @@ export const getFormInitialValues = ({
     custodySupport: originalData?.custodySupport !== undefined ? originalData.custodySupport : null,
     custodySupportSpecified: originalData?.custodySupportSpecified || "",
     criminalCharges: originalData?.criminalCharges !== undefined ? originalData.criminalCharges : null,
-    criminalChargesSpecified: originalData?.criminalChargesSpecified || "",
+
+    criminalChargesSpecified: originalData?.criminalChargesSpecified !== undefined ? originalData.criminalChargesSpecified : null,
+    // criminalChargesSpecified: originalData?.criminalChargesSpecified || "",
+    
     activeWarrant: originalData?.activeWarrant !== undefined ? originalData.activeWarrant : null,
     activeWarrantSpecified: originalData?.activeWarrantSpecified || "",
     activeInvestigation: originalData?.activeInvestigation !== undefined ? originalData.activeInvestigation : null,
