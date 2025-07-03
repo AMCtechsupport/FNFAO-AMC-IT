@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Field } from "formik";
 import supabase from "@/app/lib/supabase";
 
 const ManageCfsAgencies = ({
-  name,
+  field, // Formik field prop
+  form, // Formik form prop
   label,
   error,
-  value,
-  onChange,
   disabled,
 }) => {
   const [agencies, setAgencies] = useState([]);
@@ -30,17 +28,11 @@ const ManageCfsAgencies = ({
 
   return (
     <>
-      <label htmlFor={name}>{label}:</label>
+      <label>{label}:</label>
 
-      {/* Use Formik's Field component for binding with the form */}
-      <Field
-        as="select"
-        name={name}
+      <select
+        {...field} // Bind Formik's field props
         disabled={disabled}
-        value={value}  // <-- Asegurar que use el valor actual
-        onChange={(e) => {
-          onChange?.(e);  // <-- Llamar onChange si se pasa como prop
-        }}
       >
         <option value="">Select an agency</option>
         {agencies.map((agency) => (
@@ -48,7 +40,7 @@ const ManageCfsAgencies = ({
             {agency.agencyName}
           </option>
         ))}
-      </Field>
+      </select>
 
       {error && <div className="error">{error}</div>}
     </>

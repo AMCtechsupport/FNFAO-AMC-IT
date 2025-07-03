@@ -71,7 +71,6 @@ function PreIntakeForm() {
         otherAdultsInvolvedExplained: "",
         firstNationMembership: "",
         treatyNumber: "",
-        nineTreatyNumber: "", 
         otherFirstNation: "",
         ninePersonalHealthNumber: "",
         sixPersonalHealthNumber: "",
@@ -242,10 +241,10 @@ function PreIntakeForm() {
         }
 
         if (
-          values.nineTreatyNumber &&
-          !/^\d{9}$/.test(values.nineTreatyNumber)
+          values.treatyNumber &&
+          !/^\d{9}$/.test(values.treatyNumber)
         ) {
-          errors.nineTreatyNumber = "Treaty number must be exactly 9 digits";
+          errors.treatyNumber = "Treaty number must be exactly 9 digits";
         }
 
 
@@ -299,7 +298,6 @@ function PreIntakeForm() {
         return errors;
       }}
       onSubmit={async (values, { resetForm }) => {
-        // console.log("Submitting:", values);
         try {
           const convertedValues = {};
 
@@ -351,10 +349,6 @@ function PreIntakeForm() {
             .select();
 
           if (clientError) {
-            console.error("❌ Error inserting client:");
-            console.error("Message:", clientError.message || "No message");
-            console.error("Details:", clientError.details || "No details");
-            console.error("Code:", clientError.code || "No code");
             throw clientError;
           }
 
@@ -374,7 +368,6 @@ function PreIntakeForm() {
               .insert(childrenData);
 
             if (childrenError) {
-              console.error("Error inserting children:", childrenError);
               throw childrenError;
             }
           }
@@ -390,7 +383,7 @@ function PreIntakeForm() {
               lastName: emergencyContactLastName,
               phoneNumber: emergencyContactNumber,
               note: "",
-              client_id: clientId, // Associate emergency contact with the cliente
+              client_id: clientId, // Associate emergency contact with the client
             };
 
             const { error: emergencyContactError } = await supabase
@@ -398,16 +391,6 @@ function PreIntakeForm() {
               .insert([emergencyContactData]);
 
             if (emergencyContactError) {
-              console.error("❌ Error inserting emergency contact:");
-              console.error(
-                "Message:",
-                emergencyContactError.message || "No message"
-              );
-              console.error(
-                "Details:",
-                emergencyContactError.details || "No details"
-              );
-              console.error("Code:", emergencyContactError.code || "No code");
               throw emergencyContactError;
             }
           }
@@ -417,7 +400,7 @@ function PreIntakeForm() {
           resetForm();
           setTimeout(() => setFormSent(false), 5000);
         } catch (error) {
-          console.error("General error:", error);
+          // Optionally, handle error reporting here
         }
       }}
     >
@@ -640,8 +623,9 @@ function PreIntakeForm() {
 
           <Row>
             <Col md={4}>
-              <FirstNationSelect
+              <Field
                 name="firstNationMembership"
+                component={FirstNationSelect}
                 label="First Nation Membership"
                 error={errors.firstNationMembership}
               />
@@ -654,15 +638,15 @@ function PreIntakeForm() {
                   inputMode="numeric"
                   pattern="\d*"
                   maxLength={9}
-                  id="nineTreatyNumber"
+                  id="treatyNumber"
                   placeholder="123456789"
-                  name="nineTreatyNumber"
+                  name="treatyNumber"
                 />
                 <ErrorMessage
-                  name="nineTreatyNumber"
+                  name="treatyNumber"
                   component={() => (
                     <p className={styles.errorText}>
-                      {errors.nineTreatyNumber}
+                      {errors.treatyNumber}
                     </p>
                   )}
                 />
@@ -679,8 +663,9 @@ function PreIntakeForm() {
               /> */}
             </Col>
             <Col md={4}>
-              <FirstNationSelect
+              <Field
                 name="otherFirstNation"
+                component={FirstNationSelect}
                 label="Other First Nation"
                 error={errors.otherFirstNation}
               />
@@ -843,6 +828,11 @@ function PreIntakeForm() {
             <FieldArray name="children">
               {({ push, remove }) => (
                 <div>
+                  {/* Debug: Show current children count */}
+                  <div style={{display: 'none'}}>
+                    Debug: {values.children.length} children in form
+                  </div>
+                  
                   {values.children.map((child, index) => (
                     <div
                       key={index}
@@ -909,8 +899,9 @@ function PreIntakeForm() {
                           </div>
                         </Col>
                         <Col md={6}>
-                          <FirstNationSelect
+                          <Field
                             name={`children.${index}.childNation`}
+                            component={FirstNationSelect}
                             label="First Nation Membership"
                             error={errors.childNation}
                           />
@@ -1015,7 +1006,8 @@ function PreIntakeForm() {
                   <Button
                     className="btn-dark"
                     type="button"
-                    onClick={() =>
+                    onClick={() => {
+                      console.log("🔍 Adding child, current count:", values.children.length);
                       push({
                         firstName: "",
                         middleName: "",
@@ -1028,8 +1020,9 @@ function PreIntakeForm() {
                         childCfsAgentNumber: "",
                         childCfsAgentEmail: "",
                         childStatusCfsFile: "",
-                      })
-                    }
+                      });
+                      console.log("🔍 Child added, new count:", values.children.length + 1);
+                    }}
                   >
                     + Add Child
                   </Button>
@@ -1681,7 +1674,7 @@ function PreIntakeForm() {
             <Col>
               <label>
                 If we are unable to assist, please list why (Example: they do
-                not fit FNFAO’s mandate, etc.):
+                not fit FNFAO's mandate, etc.):
               </label>
               <Field
                 as="textarea"

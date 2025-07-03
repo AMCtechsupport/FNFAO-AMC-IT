@@ -108,7 +108,7 @@ function PreIntakeForm() {
         apprehendedOnReserve: false,
         transitionFromReserve: false,
         currentlyStaying: "",
-        currentlyStayingDuraton: "",
+        currentlyStayingDuration: "",
         peopleHome: 0,
         homeMembers: [
           {
@@ -380,7 +380,7 @@ function PreIntakeForm() {
             throw clientError;
           }
 
-          console.log("Client inserted successfully:", client);
+          // console.log("Client inserted successfully:", client);
 
           // Get the inserted client's ID
           const clientId = client[0]?.client_id;
@@ -405,7 +405,7 @@ function PreIntakeForm() {
                 throw childrenError;
               }
 
-              console.log("Children inserted successfully:", childrenData);
+              // console.log("Children inserted successfully:", childrenData);
             }
           }
 
@@ -443,7 +443,7 @@ function PreIntakeForm() {
                 throw homeMemberError;
               }
 
-              console.log("Home Members inserted successfully:", homeMembersData);
+              // console.log("Home Members inserted successfully:", homeMembersData);
             }
           }
 
@@ -484,10 +484,10 @@ function PreIntakeForm() {
                 throw educationalPersonsError;
               }
 
-              console.log(
-                "Educational support persons inserted successfully:",
-                educationalPersonsData
-              );
+              // console.log(
+              //   "Educational support persons inserted successfully:",
+              //   educationalPersonsData
+              // );
             }
           }
 
@@ -523,10 +523,10 @@ function PreIntakeForm() {
               throw emergencyContactError;
             }
 
-            console.log(
-              "✅ Emergency contact inserted successfully:",
-              emergencyContactData
-            );
+            // console.log(
+            //   "✅ Emergency contact inserted successfully:",
+            //   emergencyContactData
+            // );
           }
 
           // Reset form and show success message
@@ -786,13 +786,19 @@ function PreIntakeForm() {
             </Row>
             <Row>
               <Col md={4}>
-                <ManageCfsAgencies
+                <Field
+                  name="cfsAgency"
+                  component={ManageCfsAgencies}
+                  label="CFS Agency"
+                  error={errors.cfsAgency}
+                />
+                {/* <ManageCfsAgencies
                   name="cfsAgency"
                   value={values.cfsAgency}
                   setFieldValue={setFieldValue}
                   label="CFS Agency"
                   error={errors.cfsAgency}
-                />
+                /> */}
               </Col>
 
               <Col md={4}>
@@ -1012,7 +1018,7 @@ function PreIntakeForm() {
               <label>How long have you been staying there?</label>
               <Field
                 as="textarea"
-                name="currentlyStayingDuraton"
+                name="currentlyStayingDuration"
                 className={styles.textarea}
               />
             </Col>
@@ -1962,7 +1968,7 @@ function PreIntakeForm() {
 //         apprehendedOnReserve: false,
 //         transitionFromReserve: false,
 //         currentlyStaying: "",
-//         currentlyStayingDuraton: "",
+//         currentlyStayingDuration: "",
 //         peopleHome: 0,
 //         homeMembers: [
 //           {
