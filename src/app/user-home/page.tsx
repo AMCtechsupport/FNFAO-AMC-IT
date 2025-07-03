@@ -43,7 +43,7 @@ export default function UserHome({ children }: { children: ReactNode }) {
             {(userRole === "admin" ) && (
               <Link
                 href="/admin"
-                className="block bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
+                className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
               >
                 Admin
               </Link>
@@ -52,7 +52,7 @@ export default function UserHome({ children }: { children: ReactNode }) {
            {userRole === "advocate" && (
               <Link
                 href="/user-dashboard"
-                className="block bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
+                className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
               >
                 Dashboard
               </Link>
@@ -61,23 +61,16 @@ export default function UserHome({ children }: { children: ReactNode }) {
             {userRole != "advocate" && (
             <Link
               href="/profile"
-              className="block bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
+              className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
             >
               Profile
             </Link>
             )}
-
-            <Link
-              href="/settings"
-              className="block bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
-            >
-              Settings
-            </Link>
             
             {userRole != "advocate" && (
             <Link
               href="/full-intake"
-              className="block bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
+              className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
             >
               Full-Intake
             </Link>
@@ -85,27 +78,34 @@ export default function UserHome({ children }: { children: ReactNode }) {
 
             <Link
               href="/pre-intake"
-              className="block bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
+              className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
             >
               Pre-Intake
             </Link>
             <Link
               href="/youth-intake"
-              className="block bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
+              className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
             >
               Youth-Intake
             </Link>
             <Link
               href="/clients"
-              className="block bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
+              className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
             >
               Client List
             </Link>
             <Link
               href="/user-logs"
-              className="block bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
+              className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
             >
               User Logs
+            </Link>
+
+            <Link
+              href="/settings"
+              className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
+            >
+              Settings
             </Link>
           </nav>
         </aside>

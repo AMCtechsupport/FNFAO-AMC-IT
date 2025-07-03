@@ -166,7 +166,7 @@ export default function AssignAdvocate() {
           </label>
           <input
             type="text"
-            placeholder="Search by ID, Name"
+            placeholder="Search by Name"
             value={searchClient}
             onChange={handleSearchClientChange}
             className="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -192,7 +192,7 @@ export default function AssignAdvocate() {
                   </span>
                   <br />
                   <span className="text-sm text-gray-600">
-                    ID: {client.client_id} | {client.phoneNumber} |{" "}
+                    {client.phoneNumber} {" "}
                     {client.firstNationMembership} |{" "}
                     {new Date(client.dateOfBirth).toLocaleDateString("en-US", {
                       year: "numeric",

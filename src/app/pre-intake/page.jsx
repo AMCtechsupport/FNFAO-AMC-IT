@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import UserHome from "../user-home/page";
 import styles from "./preIntake.module.css";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
-import { Button, Container, Row, Col } from "react-bootstrap";
+import { Button, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 import ValidNameInput from "@/components/ValidNameInput";
@@ -37,7 +37,7 @@ function PreIntakeForm() {
 
   const validateRadio = (value) => {
     if (!value) {
-      return "Please select an option"; // Error message if there is no selection
+      return "Please select an option"; 
     }
   };
 
@@ -71,6 +71,7 @@ function PreIntakeForm() {
         otherAdultsInvolvedExplained: "",
         firstNationMembership: "",
         treatyNumber: "",
+        nineTreatyNumber: "", 
         otherFirstNation: "",
         ninePersonalHealthNumber: "",
         sixPersonalHealthNumber: "",
@@ -135,32 +136,22 @@ function PreIntakeForm() {
           errors.dateOfBirth = "Please choose a valid birth date";
         } else {
           const birthDate = new Date(values.dateOfBirth);
-          const currentYear = new Date().getFullYear();
-          const birthYear = birthDate.getFullYear();
           const today = new Date();
+          const minYear = today.getFullYear() - 150;
+          const maxYear = today.getFullYear() - 5;
 
-          // Verify that the date of birth is not in the future
-          if (birthDate > today) {
-            errors.dateOfBirth = "Birth date cannot be in the future";
-          }
-
-          // Year validation
-          if (birthYear > currentYear) {
-            errors.dateOfBirth = "Birth year cannot be in the future";
-          }
-
-          // Month validation
-          const birthMonth = birthDate.getMonth() + 1;
-          if (birthMonth < 1 || birthMonth > 12) {
-            errors.dateOfBirth = "Birth month must be between 01 and 12";
-          }
-
-          // Day validation
-          const birthDay = birthDate.getDate();
-          if (birthDay < 1 || birthDay > 31) {
-            errors.dateOfBirth = "Birth day must be between 01 and 31";
+          if (isNaN(birthDate.getTime())) {
+            errors.dateOfBirth = "Invalid date format";
+          } else if (birthDate > today) {
+            errors.dateOfBirth = "Date of birth cannot be in the future";
+          } else if (
+            birthDate.getFullYear() < minYear ||
+            birthDate.getFullYear() > maxYear
+          ) {
+            errors.dateOfBirth = `Date of birth must be between ${minYear} and ${maxYear}`;
           }
         }
+
         const phoneNumberError = validatePhoneNumber(values.phoneNumber);
         if (phoneNumberError) {
           errors.phoneNumber = phoneNumberError;
@@ -180,9 +171,30 @@ function PreIntakeForm() {
           if (childCfsAgentNumberError) {
             if (!errors.children) errors.children = [];
             if (!errors.children[index]) errors.children[index] = {};
-            errors.children[index].childCfsAgentNumber =
-              childCfsAgentNumberError;
+            errors.children[index].childCfsAgentNumber = childCfsAgentNumberError;
           }
+
+          // Validate Birth Date only if provided
+            if (child.birthDate) {
+              const birthDate = new Date(child.birthDate);
+              const today = new Date();
+              const minDate = new Date(today.getFullYear() - 17, today.getMonth(), today.getDate());
+
+              // Only initialize errors[index] if there's a problem
+              let birthDateError = null;
+
+              if (birthDate > today) {
+                birthDateError = "Date of birth cannot be in the future";
+              } else if (birthDate < minDate) {
+                birthDateError = "Child must be between 0 and 17 years old";
+              }
+
+              if (birthDateError) {
+                if (!errors.children) errors.children = [];
+                if (!errors.children[index]) errors.children[index] = {};
+                errors.children[index].birthDate = birthDateError;
+              }
+            }
         });
 
         const addressRegex = /^[a-zA-Z0-9\s,.-]*$/;
@@ -229,6 +241,14 @@ function PreIntakeForm() {
           errors.ninePersonalHealthNumber = "Must be exactly 9 digits";
         }
 
+        if (
+          values.nineTreatyNumber &&
+          !/^\d{9}$/.test(values.nineTreatyNumber)
+        ) {
+          errors.nineTreatyNumber = "Treaty number must be exactly 9 digits";
+        }
+
+
         // Validation for 6 digits (only if the user enters something)
         if (
           values.sixPersonalHealthNumber &&
@@ -249,7 +269,7 @@ function PreIntakeForm() {
         }
 
         if (
-          values.criminalCharges === "yes" &&
+          values.activeInvestigation  === "yes" &&
           !values.activeInvestigationExplained
         ) {
           errors.activeInvestigationExplained = "Please select a start date.";
@@ -258,9 +278,28 @@ function PreIntakeForm() {
           errors.activeOrdersExplained = "Please specify why.";
         }
 
+        if (values.activeInvestigation === "yes") {
+          const dateStr = values.activeInvestigationExplained;
+
+          if (!dateStr) {
+            errors.activeInvestigationExplained = "Please provide the start date of the investigation";
+          } else {
+            const date = new Date(dateStr);
+            const today = new Date();
+            const eightyYearsAgo = new Date(today.getFullYear() - 80, today.getMonth(), today.getDate());
+
+            if (date > today) {
+              errors.activeInvestigationExplained = "Date cannot be in the future";
+            } else if (date < eightyYearsAgo) {
+              errors.activeInvestigationExplained = `Date must be within the last 80 years (${eightyYearsAgo.getFullYear()}–${today.getFullYear()})`;
+            }
+          }
+        }
+
         return errors;
       }}
       onSubmit={async (values, { resetForm }) => {
+        // console.log("Submitting:", values);
         try {
           const convertedValues = {};
 
@@ -282,8 +321,6 @@ function PreIntakeForm() {
             }
           }
 
-          // console.log("Converted values:", convertedValues);
-
           // Get the current date in ISO 8601 format
           const currentDate = new Date().toISOString();
 
@@ -301,8 +338,6 @@ function PreIntakeForm() {
           clientData.createdAt = currentDate;
           clientData.dateModified = currentDate;
           clientData.clientType = "Pre-Intake";
-
-          // console.log("Client data to insert:", clientData);
 
           // Insert client data into the 'Clients' table
           const { data: client, error: clientError } = await supabase
@@ -323,8 +358,6 @@ function PreIntakeForm() {
             throw clientError;
           }
 
-          // console.log("Client inserted successfully:", client);
-
           // Get the inserted client's ID
           const clientId = client[0]?.client_id;
           if (!clientId) throw new Error("Failed to retrieve client ID.");
@@ -344,8 +377,6 @@ function PreIntakeForm() {
               console.error("Error inserting children:", childrenError);
               throw childrenError;
             }
-
-            // console.log("Children inserted successfully:", childrenData);
           }
 
           // Insert emergency contact into  the 'Emergency Contact' table
@@ -379,11 +410,6 @@ function PreIntakeForm() {
               console.error("Code:", emergencyContactError.code || "No code");
               throw emergencyContactError;
             }
-
-            // console.log(
-            //   "✅ Emergency contact inserted successfully:",
-            //   emergencyContactData
-            // );
           }
 
           // Reset form and show success message
@@ -412,7 +438,6 @@ function PreIntakeForm() {
             </Col>
           </Row>
           <h3 className="text-dark">General Information</h3>
-          {/* <div className="bg- p-2 rounded border border-light border-1"> */}
           <Row>
             <Col md={3}>
               <InputField
@@ -441,7 +466,7 @@ function PreIntakeForm() {
 
             <Col md={3}>
               <div>
-                <label htmlFor="dateOfBirth">Birth Date:*</label>
+                <label htmlFor="dateOfBirth">Date of Birth:*</label>
                 <Field type="date" id="dateOfBirth" name="dateOfBirth" />
                 <ErrorMessage
                   name="dateOfBirth"
@@ -556,7 +581,7 @@ function PreIntakeForm() {
           {/* About you */}
           <Row>
             <h3 className="text-dark">About You</h3>
-            <Col md={4}>
+            <Col md={6}>
               <RelationshipToChildrenSelect
                 name="relationshipToChildren"
                 label="What is your relationship to the child(ren)?"
@@ -566,7 +591,7 @@ function PreIntakeForm() {
           </Row>
 
           <Row className={styles.group}>
-            <Col md={4}>
+            <Col md={6}>
               <div>
                 <label>
                   Are there any other adults involved in your matter?
@@ -622,12 +647,36 @@ function PreIntakeForm() {
               />
             </Col>
             <Col md={4}>
-              <InputField
+             <div>
+                <label>TreatyNumber (9-Digit):</label>
+                <Field
+                  type="text"
+                  inputMode="numeric"
+                  pattern="\d*"
+                  maxLength={9}
+                  id="nineTreatyNumber"
+                  placeholder="123456789"
+                  name="nineTreatyNumber"
+                />
+                <ErrorMessage
+                  name="nineTreatyNumber"
+                  component={() => (
+                    <p className={styles.errorText}>
+                      {errors.nineTreatyNumber}
+                    </p>
+                  )}
+                />
+              </div>
+              {/* <InputField
+                type="text"
+                inputMode="numeric"
+                pattern="\d*"
+                maxLength={9}
                 name="treatyNumber"
                 label="Treaty Number:"
-                placeholder=""
+                placeholder="123456789"
                 error={errors.treatyNumber}
-              />
+              /> */}
             </Col>
             <Col md={4}>
               <FirstNationSelect
@@ -639,7 +688,7 @@ function PreIntakeForm() {
           </Row>
 
           <Row className={styles.group}>
-            <Col md={4}>
+            <Col md={5}>
               <div>
                 <label>Personal Health Identification Numbers (9-Digit):</label>
                 <Field
@@ -877,7 +926,7 @@ function PreIntakeForm() {
                       {/* Agency information */}
                       <div className="bg-light border border-light p-3 rounded">
                         <Row className="mt-2">
-                          <h5 className="text-dark">Agency Information</h5>
+                          <h4 className="text-dark mb-4">Agency Information</h4>
                           <Col md={4}>
                             <Field
                               name={`children.${index}.childCfsAgency`}
@@ -990,7 +1039,7 @@ function PreIntakeForm() {
           </Row>
 
           <Row className={styles.group}>
-            <Col md={4}>
+            <Col md={6}>
               <div>
                 <label>Do you currently have visits with your children?</label>
                 <div className="form-check form-check-inline">
@@ -1035,7 +1084,7 @@ function PreIntakeForm() {
             )}
           </Row>
           <Row className={styles.group}>
-            <Col md={4}>
+            <Col md={6}>
               <div>
                 <label>Do you have a copy of your case plan(s)?</label>
                 <div className="form-check form-check-inline">
@@ -1251,7 +1300,7 @@ function PreIntakeForm() {
           </Row>
 
           <Row className={styles.group}>
-            <Col md={4}>
+            <Col md={6}>
               <div>
                 <label>Need youth support for you/your children?</label>
                 <div className="form-check form-check-inline">
@@ -1351,12 +1400,9 @@ function PreIntakeForm() {
           </Row>
 
           <Row className={styles.group}>
-            <Col md={4}>
+            <Col md={8}>
               <div>
-                <label>
-                  {" "}
-                  Do you have any criminal charges (past, active or pending)? *
-                </label>
+                <label>Do you have any criminal charges (past, active or pending)? *</label>
                 <div className="form-check form-check-inline">
                   <Field
                     className="form-check-input"
@@ -1402,7 +1448,7 @@ function PreIntakeForm() {
           </Row>
 
           <Row className={styles.group}>
-            <Col md={4}>
+            <Col md={6}>
               <div>
                 <label>Do you currently have an active arrest warrant? *</label>
                 <div className="form-check form-check-inline">
@@ -1450,7 +1496,7 @@ function PreIntakeForm() {
           </Row>
 
           <Row className={styles.group}>
-            <Col md={4}>
+            <Col md={6}>
               <div>
                 <label>
                   Are you currently under child abuse investigation? *
@@ -1504,7 +1550,7 @@ function PreIntakeForm() {
           </Row>
 
           <Row className={styles.group}>
-            <Col md={4}>
+            <Col md={6}>
               <div>
                 <label>
                   Any active No Contact Orders or Protection Orders? *
