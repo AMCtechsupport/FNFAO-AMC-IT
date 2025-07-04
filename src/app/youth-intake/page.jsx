@@ -304,6 +304,14 @@ function PreIntakeForm() {
           errors.caseWorkerPhoneNumber = caseWorkerPhoneNumberError;
         }
 
+        // Treaty Number validation - must be exactly 9 digits
+        if (
+          values.treatyNumber &&
+          !/^\d{9}$/.test(values.treatyNumber)
+        ) {
+          errors.treatyNumber = "Treaty number must be exactly 9 digits";
+        }
+
         return errors;
       }}
       onSubmit={async (values, { resetForm }) => {
@@ -741,6 +749,7 @@ function PreIntakeForm() {
                 label="Treaty Number:"
                 placeholder=""
                 error={errors.treatyNumber}
+                maxLength={9}
               />
             </Col>
             <Col md={4}>
