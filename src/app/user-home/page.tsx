@@ -66,15 +66,6 @@ export default function UserHome({ children }: { children: ReactNode }) {
               Profile
             </Link>
             )}
-            
-            {userRole != "advocate" && (
-            <Link
-              href="/full-intake"
-              className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
-            >
-              Full-Intake
-            </Link>
-            )}
 
             <Link
               href="/pre-intake"
@@ -88,6 +79,16 @@ export default function UserHome({ children }: { children: ReactNode }) {
             >
               Youth-Intake
             </Link>
+
+            {userRole != "advocate" && (
+            <Link
+              href="/full-intake"
+              className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
+            >
+              Full-Intake
+            </Link>
+            )}
+            
             <Link
               href="/clients"
               className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
@@ -106,6 +107,13 @@ export default function UserHome({ children }: { children: ReactNode }) {
               className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
             >
               Settings
+            </Link>
+
+            <Link
+              href="/export"
+              className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
+            >
+              Export
             </Link>
           </nav>
         </aside>

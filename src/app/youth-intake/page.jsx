@@ -608,13 +608,12 @@ function PreIntakeForm() {
               />
             </Col>
           </Row>
-
-          <h4 className="text-dark">General Information</h4>
+          <h3 className="text-dark">General Information</h3>
           <Row>
             <Col md={3}>
               <InputField
                 name="firstName"
-                label="First Name:"
+                label="First Name: *"
                 placeholder="John"
                 error={errors.firstName}
               />
@@ -630,7 +629,7 @@ function PreIntakeForm() {
             <Col md={3}>
               <InputField
                 name="lastName"
-                label="Last Name:"
+                label="Last Name: *"
                 placeholder="Connor"
                 error={errors.lastName}
               />
@@ -646,7 +645,7 @@ function PreIntakeForm() {
 
             <Col md={3}>
               <div>
-                <label htmlFor="dateOfBirth">Birth Date:</label>
+                <label htmlFor="dateOfBirth">Birth Date: *</label>
                 <Field type="date" id="dateOfBirth" name="dateOfBirth" />
                 <ErrorMessage
                   name="dateOfBirth"
@@ -788,7 +787,7 @@ function PreIntakeForm() {
 
           {/* Agency information */}
           <div className={styles.group}>
-            <h4 className="text-dark">Agency Information</h4>
+            <h3 className="text-dark">Agency Information</h3>
 
             <Row className={styles.group}>
               <Col md={3}>
@@ -893,7 +892,7 @@ function PreIntakeForm() {
           </div>
 
           <div className={styles.group}>
-            <h4 className="text-dark">Biological Parent's Information: </h4>
+            <h3 className="text-dark">Biological Parent's Information: </h3>
             <Row>
               <Col md={4}>
                 <div>
@@ -987,7 +986,7 @@ function PreIntakeForm() {
           </div>
 
           <Row>
-            <h4 className="text-dark">Housing Situation: </h4>
+            <h3 className="text-dark">Housing Situation: </h3>
           </Row>
           <Row className={styles.group}>
             <Col md={4}>
@@ -1101,7 +1100,7 @@ function PreIntakeForm() {
             </Row>
 
             <div className={styles.group}>
-              <h4 className="text-dark">People at Home</h4>
+              <h3 className="text-dark">People at Home</h3>
               <FieldArray name="homeMembers">
                 {({ push, remove }) => (
                   <div>
@@ -1222,7 +1221,7 @@ function PreIntakeForm() {
 
           {/* Education */}
           <Row>
-            <h4 className="text-dark">Education:</h4>
+            <h3 className="text-dark">Education:</h3>
           </Row>
           <Row className={styles.group}>
             <Col md={4}>
@@ -1557,7 +1556,7 @@ function PreIntakeForm() {
           </Row>
 
           <div className={styles.group}>
-            <h4 className="text-dark">Financial Information:</h4>
+            <h3 className="text-dark">Financial Information:</h3>
 
             <Row className={styles.group}>
               <Col md={4}>
@@ -1655,7 +1654,7 @@ function PreIntakeForm() {
           </div>
 
           <Row>
-            <h4 className="text-dark">Other Information:</h4>
+            <h3 className="text-dark">Other Information:</h3>
           </Row>
 
           <Row className={styles.group}>
