@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import UserHome from "../user-home/page";
 import styles from "./preIntake.module.css";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
@@ -24,11 +25,27 @@ import { useUser } from "@clerk/clerk-react";
 import supabase from "../lib/supabase";
 
 export default function YouthIntake() {
+  const searchParams = useSearchParams();
+  const editClientId = searchParams.get('edit');
+  const isEditMode = !!editClientId;
+
   return (
     <UserHome>
       <div className={styles.fullIntakeContainer}>
         <div className={styles.container}>
-          <PreIntakeForm />
+          {isEditMode && (
+            <div style={{
+              backgroundColor: '#dbeafe',
+              border: '1px solid #93c5fd',
+              borderRadius: '6px',
+              padding: '12px',
+              marginBottom: '20px',
+              textAlign: 'center'
+            }}>
+              <strong>Edit Mode:</strong> You are editing an existing youth client record.
+            </div>
+          )}
+          <PreIntakeForm editClientId={editClientId} isEditMode={isEditMode} />
         </div>
       </div>
     </UserHome>
@@ -71,105 +88,259 @@ function validatePhoneNumber(value) {
   return undefined;
 }
 
-function PreIntakeForm() {
+function PreIntakeForm({ editClientId, isEditMode }) {
   const { user } = useUser();
+  const router = useRouter();
   const [formSent, setFormSent] = useState(false);
-
-  return (
-    <Formik
-      initialValues={{
+  const [initialValues, setInitialValues] = useState({
+    firstName: "",
+    middleName: "",
+    lastName: "",
+    pronouns: "",
+    dateOfBirth: "",
+    phoneNumber: "",
+    socialMedia: "",
+    address: "",
+    city: "",
+    province: "",
+    postalCode: "",
+    email: "",
+    emergencyContactFirstName: "",
+    emergencyContactLastName: "",
+    emergencyContactNumber: "",
+    referredBy: "",
+    firstNationMembership: "",
+    treatyNumber: "",
+    otherFirstNation: "",
+    inCare: "",
+    statusCFSFile: "",
+    lastFaceToFace: "",
+    cfsAgency: "",
+    cfsAgentFullName: "",
+    cfsAgentNumber: "",
+    cfsAgentEmail: "",
+    onReserve: "",
+    apprehendedOnReserve: "",
+    transitionFromReserve: "",
+    currentlyStaying: "",
+    currentlyStayingDuration: "",
+    peopleHome: 0,
+    homeMembers: [
+      {
         firstName: "",
         middleName: "",
         lastName: "",
-        pronouns: "",
-        dateOfBirth: "",
+        relationship: "",
         phoneNumber: "",
-        socialMedia: "",
-        address: "",
-        city: "",
-        province: "",
-        postalCode: "",
         email: "",
-        emergencyContactFirstName: "",
-        emergencyContactLastName: "",
-        emergencyContactNumber: "",
-        referredBy: "",
-        firstNationMembership: "",
-        treatyNumber: "",
-        otherFirstNation: "",
-        inCare: false,
-        statusCFSFile: "",
-        lastFaceToFace: "",
-        cfsAgency: "",
-        cfsAgentFullName: "",
-        cfsAgentNumber: "",
-        cfsAgentEmail: "",
-        onReserve: false,
-        apprehendedOnReserve: false,
-        transitionFromReserve: false,
-        currentlyStaying: "",
-        currentlyStayingDuration: "",
-        peopleHome: 0,
-        homeMembers: [
-          {
-            firstName: "",
-            middleName: "",
-            lastName: "",
-            relationship: "",
-            phoneNumber: "",
-            email: "",
-          },
-        ],
-        educationalPersons: [
-          {
-            firstName: "",
-            middleName: "",
-            lastName: "",
-            relationship: "",
-            phoneNumber: "",
-            email: "",
-          },
-        ],
+      },
+    ],
+    educationalPersons: [
+      {
+        firstName: "",
+        middleName: "",
+        lastName: "",
+        relationship: "",
+        phoneNumber: "",
+        email: "",
+      },
+    ],
+    inSchool: "",
+    schoolAttending: "",
+    currentGrade: "",
+    fullStudent: "",
+    schoolSchedule: "",
+    birthCertificate: false,
+    driversLicense: false,
+    healthCard: false,
+    statusCard: false,
+    enhancedID: false,
+    studentID: false,
+    bankAccount: "",
+    incomeAssistance: "",
+    caseWorkerFullName: "",
+    caseWorkerPhoneNumber: "",
+    caseWorkerEmail: "",
+    youthJustice: "",
+    custodySupportSpecified: "",
+    accessElder: "",
+    speakingOffice: "",
+    youthWorkshops: "",
+    disabilities: "",
+    disabilitiesExplained: "",
+    careExperience: "",
+    kindSupport: "",
+    personalGoals: "",
+    additionalInformation: "",
+    motherNation: "",
+    accessElderExplained: "",
+    connectedCommunity: "",
+    connectedCommunityExplained: "",
+    motherFirstName: "",
+    motherMiddleName: "",
+    motherLastName: "",
+    fatherFirstName: "",
+    fatherMiddleName: "",
+    fatherLastName: "",
+    fatherNation: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
 
-        inSchool: false,
-        schoolAttending: "",
-        currentGrade: "",
-        fullStudent: false,
-        schoolSchedule: "",
-        birthCertificate: false,
-        driversLicense: false,
-        healthCard: false,
-        statusCard: false,
-        enhancedID: false,
-        studentID: false,
-        bankAccount: false,
-        incomeAssistance: false,
-        caseWorkerFullName: "",
-        caseWorkerPhoneNumber: "",
-        caseWorkerEmail: "",
-        youthJustice: false,
-        custodySupportSpecified: "",
-        accessElder: false,
-        speakingOffice: false,
-        youthWorkshops: false,
-        disabilities: false,
-        disabilitiesExplained: "",
-        careExperience: "",
-        kindSupport: "",
-        personalGoals: "",
-        additionalInformation: "",
-        motherNation: "",
-        accessElderExplained: "",
-        connectedCommunity: false,
-        connectedCommunityExplained: "",
-        motherFirstName: "",
-        motherMiddleName: "",
-        motherLastName: "",
-        fatherFirstName: "",
-        fatherMiddleName: "",
-        fatherLastName: "",
-        fatherNation: "",
-      }}
+  // Fetch existing client data when in edit mode
+  useEffect(() => {
+    const fetchClientData = async () => {
+      if (!isEditMode || !editClientId) return;
+
+      try {
+        setIsLoading(true);
+        
+        // Fetch main client data
+        const { data: clientData, error: clientError } = await supabase
+          .from("Clients")
+          .select("*")
+          .eq("client_id", editClientId)
+          .single();
+
+        if (clientError) {
+          console.error("Error fetching client data:", clientError);
+          alert("Error loading client data. Please try again.");
+          return;
+        }
+
+        // Fetch home members
+        const { data: homeMembers, error: homeMembersError } = await supabase
+          .from("Home Members")
+          .select("*")
+          .eq("client_id", editClientId);
+
+        // Fetch educational persons
+        const { data: educationalPersons, error: educationalError } = await supabase
+          .from("Educational Support Persons")
+          .select("*")
+          .eq("client_id", editClientId);
+
+        // Fetch emergency contact
+        const { data: emergencyContact, error: emergencyError } = await supabase
+          .from("Emergency Contacts")
+          .select("*")
+          .eq("client_id", editClientId)
+          .single();
+
+        // Helper function to decode HTML entities
+        const decodeHtmlEntities = (text) => {
+          if (!text) return "";
+          const textarea = document.createElement('textarea');
+          textarea.innerHTML = text;
+          return textarea.value;
+        };
+
+        // Decode HTML entities for main client text fields
+        const decodedClientData = {};
+        for (const [key, value] of Object.entries(clientData)) {
+          if (typeof value === 'string') {
+            decodedClientData[key] = decodeHtmlEntities(value);
+          } else {
+            decodedClientData[key] = value;
+          }
+        }
+
+        // Populate form with fetched data
+        const populatedValues = {
+          ...decodedClientData,
+          // Format date for HTML date input (YYYY-MM-DD)
+          dateOfBirth: clientData.dateOfBirth ? 
+            new Date(clientData.dateOfBirth).toISOString().split('T')[0] : "",
+          // Handle pronouns case conversion (already decoded in decodedClientData)
+          pronouns: decodedClientData.pronouns ? decodedClientData.pronouns.toLowerCase() : "",
+          // Map emergency contact data (decode HTML entities)
+          emergencyContactFirstName: decodeHtmlEntities(emergencyContact?.firstName) || "",
+          emergencyContactLastName: decodeHtmlEntities(emergencyContact?.lastName) || "",
+          emergencyContactNumber: decodeHtmlEntities(emergencyContact?.phoneNumber) || "",
+          // Handle home members (ensure at least one empty entry if none exist)
+          homeMembers: homeMembers && homeMembers.length > 0 
+            ? homeMembers.map(member => ({
+                firstName: member.firstName || "",
+                middleName: member.middleName || "",
+                lastName: member.lastName || "",
+                relationship: member.relationship || "",
+                phoneNumber: member.phoneNumber || "",
+                email: member.email || "",
+              }))
+            : [{
+                firstName: "",
+                middleName: "",
+                lastName: "",
+                relationship: "",
+                phoneNumber: "",
+                email: "",
+              }],
+          // Handle educational persons (ensure at least one empty entry if none exist)
+          educationalPersons: educationalPersons && educationalPersons.length > 0
+            ? educationalPersons.map(person => ({
+                firstName: person.firstName || "",
+                middleName: person.middleName || "",
+                lastName: person.lastName || "",
+                relationship: person.relationship || "",
+                phoneNumber: person.phoneNumber || "",
+                email: person.email || "",
+              }))
+            : [{
+                firstName: "",
+                middleName: "",
+                lastName: "",
+                relationship: "",
+                phoneNumber: "",
+                email: "",
+              }],
+          // Convert boolean fields to proper formats
+          // Checkbox fields (keep as boolean)
+          birthCertificate: clientData.birthCertificate || false,
+          driversLicense: clientData.driversLicense || false,
+          healthCard: clientData.healthCard || false,
+          statusCard: clientData.statusCard || false,
+          enhancedID: clientData.enhancedID || false,
+          studentID: clientData.studentID || false,
+          // Radio button fields (convert boolean to "yes"/"no" strings)
+          inCare: clientData.inCare ? "yes" : (clientData.inCare === false ? "no" : ""),
+          onReserve: clientData.onReserve ? "yes" : (clientData.onReserve === false ? "no" : ""),
+          apprehendedOnReserve: clientData.apprehendedOnReserve ? "yes" : (clientData.apprehendedOnReserve === false ? "no" : ""),
+          transitionFromReserve: clientData.transitionFromReserve ? "yes" : (clientData.transitionFromReserve === false ? "no" : ""),
+          inSchool: clientData.inSchool ? "yes" : (clientData.inSchool === false ? "no" : ""),
+          fullStudent: clientData.fullStudent ? "yes" : (clientData.fullStudent === false ? "no" : ""),
+          bankAccount: clientData.bankAccount ? "yes" : (clientData.bankAccount === false ? "no" : ""),
+          incomeAssistance: clientData.incomeAssistance ? "yes" : (clientData.incomeAssistance === false ? "no" : ""),
+          youthJustice: clientData.youthJustice ? "yes" : (clientData.youthJustice === false ? "no" : ""),
+          accessElder: clientData.accessElder ? "yes" : (clientData.accessElder === false ? "no" : ""),
+          speakingOffice: clientData.speakingOffice ? "yes" : (clientData.speakingOffice === false ? "no" : ""),
+          youthWorkshops: clientData.youthWorkshops ? "yes" : (clientData.youthWorkshops === false ? "no" : ""),
+          disabilities: clientData.disabilities ? "yes" : (clientData.disabilities === false ? "no" : ""),
+          connectedCommunity: clientData.connectedCommunity ? "yes" : (clientData.connectedCommunity === false ? "no" : ""),
+        };
+
+        setInitialValues(populatedValues);
+      } catch (error) {
+        console.error("Unexpected error:", error);
+        alert("An unexpected error occurred. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchClientData();
+  }, [isEditMode, editClientId]);
+
+  if (isLoading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '50px' }}>
+        <h3>Loading client data...</h3>
+      </div>
+    );
+  }
+
+  return (
+    <Formik
+      initialValues={initialValues}
+      enableReinitialize={true}
       validationSchema={validationSchema}
       validate={(values) => {
         let errors = {};
@@ -318,99 +489,17 @@ function PreIntakeForm() {
       }}
       onSubmit={async (values, { resetForm }) => {
         try {
-          // Debug: Log the raw form values
-          console.log("🔍 Raw form values:", values);
-          console.log("🔍 Raw homeMembers values:", values.homeMembers);
-          console.log("🔍 Raw educationalPersons values:", values.educationalPersons);
-
-          // Debug: Log all individual fields
-          console.log("🔍 === FIELD DEBUGGING ===");
-          console.log("🔍 Personal Info:", {
-            firstName: values.firstName,
-            middleName: values.middleName,
-            lastName: values.lastName,
-            pronouns: values.pronouns,
-            dateOfBirth: values.dateOfBirth,
-            phoneNumber: values.phoneNumber,
-            socialMedia: values.socialMedia,
-            email: values.email
-          });
-          console.log("🔍 Address:", {
-            address: values.address,
-            city: values.city,
-            province: values.province,
-            postalCode: values.postalCode
-          });
-          console.log("🔍 Emergency Contact:", {
-            emergencyContactFirstName: values.emergencyContactFirstName,
-            emergencyContactLastName: values.emergencyContactLastName,
-            emergencyContactNumber: values.emergencyContactNumber
-          });
-          console.log("🔍 First Nation Info:", {
-            firstNationMembership: values.firstNationMembership,
-            treatyNumber: values.treatyNumber,
-            otherFirstNation: values.otherFirstNation
-          });
-          console.log("🔍 Agency Info:", {
-            inCare: values.inCare,
-            statusCFSFile: values.statusCFSFile,
-            lastFaceToFace: values.lastFaceToFace,
-            cfsAgency: values.cfsAgency,
-            cfsAgentFullName: values.cfsAgentFullName,
-            cfsAgentNumber: values.cfsAgentNumber,
-            cfsAgentEmail: values.cfsAgentEmail
-          });
-          console.log("🔍 School Info:", {
-            inSchool: values.inSchool,
-            schoolAttending: values.schoolAttending,
-            currentGrade: values.currentGrade,
-            fullStudent: values.fullStudent,
-            schoolSchedule: values.schoolSchedule
-          });
-          console.log("🔍 IDs & Docs:", {
-            birthCertificate: values.birthCertificate,
-            driversLicense: values.driversLicense,
-            healthCard: values.healthCard,
-            statusCard: values.statusCard,
-            enhancedID: values.enhancedID,
-            studentID: values.studentID,
-            bankAccount: values.bankAccount,
-            incomeAssistance: values.incomeAssistance
-          });
-          console.log("🔍 Case Worker Info:", {
-            caseWorkerFullName: values.caseWorkerFullName,
-            caseWorkerPhoneNumber: values.caseWorkerPhoneNumber,
-            caseWorkerEmail: values.caseWorkerEmail
-          });
-          console.log("🔍 Other Info:", {
-            youthJustice: values.youthJustice,
-            custodySupportSpecified: values.custodySupportSpecified,
-            accessElder: values.accessElder,
-            speakingOffice: values.speakingOffice,
-            youthWorkshops: values.youthWorkshops,
-            disabilities: values.disabilities,
-            disabilitiesExplained: values.disabilitiesExplained,
-            careExperience: values.careExperience,
-            kindSupport: values.kindSupport,
-            personalGoals: values.personalGoals,
-            additionalInformation: values.additionalInformation,
-            motherNation: values.motherNation,
-            accessElderExplained: values.accessElderExplained,
-            connectedCommunity: values.connectedCommunity,
-            connectedCommunityExplained: values.connectedCommunityExplained,
-            motherFirstName: values.motherFirstName,
-            motherMiddleName: values.motherMiddleName,
-            motherLastName: values.motherLastName,
-            fatherFirstName: values.fatherFirstName,
-            fatherMiddleName: values.fatherMiddleName,
-            fatherLastName: values.fatherLastName,
-            fatherNation: values.fatherNation
-          });
-          console.log("🔍 === END FIELD DEBUGGING ===");
-
           const sanitizedValues = sanitizeValues(values);
 
           const convertedValues = {};
+
+          // Define which fields are radio buttons that need special handling
+          const radioBooleanFields = [
+            'inCare', 'onReserve', 'apprehendedOnReserve', 'transitionFromReserve',
+            'inSchool', 'fullStudent', 'bankAccount', 'incomeAssistance',
+            'youthJustice', 'accessElder', 'speakingOffice', 'youthWorkshops',
+            'disabilities', 'connectedCommunity'
+          ];
 
           // Loop through all fields in the 'values' object
           // to convert them from "yes/no" to true/false
@@ -419,12 +508,16 @@ function PreIntakeForm() {
               convertedValues[key] = true;
             } else if (sanitizedValues[key] === "no") {
               convertedValues[key] = false;
+            } else if (radioBooleanFields.includes(key) && sanitizedValues[key] === "") {
+              // Convert empty strings to null for radio button fields
+              convertedValues[key] = null;
             } else {
               convertedValues[key] = sanitizedValues[key];
             }
           }
 
-          console.log("Converted values:", convertedValues);
+          // Debug: Log converted values to verify conversion
+          console.log("🔍 DEBUG - Converted values for database:", convertedValues);
 
           // Get the current date in ISO 8601 format
           const currentDate = new Date().toISOString();
@@ -439,39 +532,62 @@ function PreIntakeForm() {
             ...clientData
           } = convertedValues;
 
-          // Add date fields before inserting
-          clientData.createdAt = currentDate;
-          clientData.dateModified = currentDate;
-          clientData.clientType = "Youth Intake";
+          let clientId;
 
-          console.log("Client data to insert:", clientData);
+          if (isEditMode && editClientId) {
+            // UPDATE existing client
+            clientData.dateModified = currentDate;
 
-          // Insert client data into the 'Clients' table
-          const { data: client, error: clientError } = await supabase
-            .from("Clients")
-            .insert([
-              {
-                ...clientData,
-                createdBy: user.id,
-              },
-            ])
-            .select();
+            const { error: clientError } = await supabase
+              .from("Clients")
+              .update(clientData)
+              .eq("client_id", editClientId);
 
-          if (clientError) {
-            console.error("❌ Error inserting client:");
-            console.error("Message:", clientError.message || "No message");
-            console.error("Details:", clientError.details || "No details");
-            console.error("Code:", clientError.code || "No code");
-            throw clientError;
+            if (clientError) {
+              console.error("❌ Error updating client:");
+              console.error("Message:", clientError.message || "No message");
+              console.error("Details:", clientError.details || "No details");
+              console.error("Code:", clientError.code || "No code");
+              throw clientError;
+            }
+
+            clientId = editClientId;
+
+            // Delete existing related data before inserting new ones
+            await supabase.from("Home Members").delete().eq("client_id", clientId);
+            await supabase.from("Educational Support Persons").delete().eq("client_id", clientId);
+            await supabase.from("Emergency Contacts").delete().eq("client_id", clientId);
+
+          } else {
+            // CREATE new client
+            clientData.createdAt = currentDate;
+            clientData.dateModified = currentDate;
+            clientData.clientType = "Youth Intake";
+
+            // Debug: Log final client data being sent to database
+            console.log("🔍 DEBUG - Final clientData for database:", clientData);
+
+            const { data: client, error: clientError } = await supabase
+              .from("Clients")
+              .insert([
+                {
+                  ...clientData,
+                  createdBy: user.id,
+                },
+              ])
+              .select();
+
+            if (clientError) {
+              console.error("❌ Error inserting client:");
+              console.error("Message:", clientError.message || "No message");
+              console.error("Details:", clientError.details || "No details");
+              console.error("Code:", clientError.code || "No code");
+              throw clientError;
+            }
+
+            clientId = client[0]?.client_id;
+            if (!clientId) throw new Error("Failed to retrieve client ID.");
           }
-
-          // console.log("Client inserted successfully:", client);
-
-          // Get the inserted client's ID
-          const clientId = client[0]?.client_id;
-          if (!clientId) throw new Error("Failed to retrieve client ID.");
-
-
 
           // If there are homeMembers, insert them into the 'Home Members' table
           if (homeMembers && homeMembers.length > 0) {
@@ -595,8 +711,113 @@ function PreIntakeForm() {
 
           // Reset form and show success message
           setFormSent(true);
+          
+          // Reset initialValues back to empty state
+          setInitialValues({
+            firstName: "",
+            middleName: "",
+            lastName: "",
+            pronouns: "",
+            dateOfBirth: "",
+            phoneNumber: "",
+            socialMedia: "",
+            address: "",
+            city: "",
+            province: "",
+            postalCode: "",
+            email: "",
+            emergencyContactFirstName: "",
+            emergencyContactLastName: "",
+            emergencyContactNumber: "",
+            referredBy: "",
+            firstNationMembership: "",
+            treatyNumber: "",
+            otherFirstNation: "",
+            inCare: "",
+            statusCFSFile: "",
+            lastFaceToFace: "",
+            cfsAgency: "",
+            cfsAgentFullName: "",
+            cfsAgentNumber: "",
+            cfsAgentEmail: "",
+            onReserve: "",
+            apprehendedOnReserve: "",
+            transitionFromReserve: "",
+            currentlyStaying: "",
+            currentlyStayingDuration: "",
+            peopleHome: 0,
+            homeMembers: [
+              {
+                firstName: "",
+                middleName: "",
+                lastName: "",
+                relationship: "",
+                phoneNumber: "",
+                email: "",
+              },
+            ],
+            educationalPersons: [
+              {
+                firstName: "",
+                middleName: "",
+                lastName: "",
+                relationship: "",
+                phoneNumber: "",
+                email: "",
+              },
+            ],
+            inSchool: "",
+            schoolAttending: "",
+            currentGrade: "",
+            fullStudent: "",
+            schoolSchedule: "",
+            birthCertificate: false,
+            driversLicense: false,
+            healthCard: false,
+            statusCard: false,
+            enhancedID: false,
+            studentID: false,
+            bankAccount: "",
+            incomeAssistance: "",
+            caseWorkerFullName: "",
+            caseWorkerPhoneNumber: "",
+            caseWorkerEmail: "",
+            youthJustice: "",
+            custodySupportSpecified: "",
+            accessElder: "",
+            speakingOffice: "",
+            youthWorkshops: "",
+            disabilities: "",
+            disabilitiesExplained: "",
+            careExperience: "",
+            kindSupport: "",
+            personalGoals: "",
+            additionalInformation: "",
+            motherNation: "",
+            accessElderExplained: "",
+            connectedCommunity: "",
+            connectedCommunityExplained: "",
+            motherFirstName: "",
+            motherMiddleName: "",
+            motherLastName: "",
+            fatherFirstName: "",
+            fatherMiddleName: "",
+            fatherLastName: "",
+            fatherNation: "",
+          });
+          
           resetForm();
-          setTimeout(() => setFormSent(false), 3000);
+          
+          // Handle post-submission behavior
+          if (isEditMode) {
+            // For edit mode, redirect to client list after successful update
+            setTimeout(() => {
+              router.push('/clients');
+            }, 1500);
+          } else {
+            // For new submissions, show success message temporarily
+            setTimeout(() => setFormSent(false), 3000);
+          }
         } catch (error) {
           console.error("General error:", error);
         }
@@ -826,9 +1047,10 @@ function PreIntakeForm() {
               </Col>
               {values.inCare === "yes" && (
                 <Col md={8}>
-                  <StatusCFSFileSelect
+                  <Field
                     name="statusCFSFile"
-                    label="CFS File Status:"
+                    component={StatusCFSFileSelect}
+                    label="CFS File Status"
                     error={errors.statusCFSFile}
                   />
                 </Col>
@@ -1898,11 +2120,11 @@ function PreIntakeForm() {
           </Row>
 
           <button type="submit" className={styles.submitButton}>
-            Submit Youth Intake
+            {isEditMode ? "Update Youth Client" : "Submit Youth Intake"}
           </button>
           {formSent && (
             <p className={styles.successfulText}>
-              Youth Intake sent successfully
+              {isEditMode ? "Youth client updated successfully" : "Youth Intake sent successfully"}
             </p>
           )}
         </Form>
@@ -1910,3 +2132,6 @@ function PreIntakeForm() {
     </Formik>
   );
 }
+
+// Export the PreIntakeForm component for use in other pages
+export { PreIntakeForm };

@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import supabase from "../src/app/lib/supabase";
-import Link from "next/link";
 
 export default function ClientsList({ initialClients, totalCount }) {
   const [clients, setClients] = useState(initialClients);
@@ -74,9 +73,15 @@ export default function ClientsList({ initialClients, totalCount }) {
 
   // Handle edit button click
   const handleEdit = (client) => {
-    // Redirect all clients (Youth and Adult) to the full-intake form for editing
-    // The full-intake form already handles editing by client ID
-    router.push(`/clients/${client.client_id}`);
+    const clientType = getClientTypeLabel(client);
+    
+    if (clientType === "Youth") {
+      // Redirect Youth clients to youth-clients form for editing
+      router.push(`/youth-clients/${client.client_id}`);
+    } else {
+      // Redirect Adult clients to full-intake form for editing
+      router.push(`/clients/${client.client_id}`);
+    }
   };
 
   // Handle delete button click
@@ -357,7 +362,24 @@ export default function ClientsList({ initialClients, totalCount }) {
                   backgroundColor: '#f9fafb',
                   padding: '16px',
                   borderRadius: '6px',
-                  border: '1px solid #e5e7eb'
+                  border: '1px solid #e5e7eb',
+                  transition: 'all 0.2s ease-in-out'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#f3f4f6';
+                  const buttons = e.target.querySelector('[data-buttons="true"]');
+                  if (buttons) {
+                    buttons.style.opacity = '1';
+                    buttons.style.visibility = 'visible';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = '#f9fafb';
+                  const buttons = e.target.querySelector('[data-buttons="true"]');
+                  if (buttons) {
+                    buttons.style.opacity = '0';
+                    buttons.style.visibility = 'hidden';
+                  }
                 }}>
                   <div style={{ 
                     display: 'flex',
@@ -371,15 +393,7 @@ export default function ClientsList({ initialClients, totalCount }) {
                         marginBottom: '8px',
                         fontSize: '16px'
                       }}>
-                        <Link 
-                          href={`/clients/${client.client_id}`}
-                          style={{ 
-                            textDecoration: 'none',
-                            color: '#111827'
-                          }}
-                        >
-                          {client.firstName} {client.lastName}
-                        </Link>
+                        {client.firstName} {client.lastName}
                       </div>
                       <div style={{ 
                         fontSize: '14px',
@@ -401,11 +415,14 @@ export default function ClientsList({ initialClients, totalCount }) {
                         })}
                       </div>
                     </div>
-                    <div style={{ 
+                    <div data-buttons="true" style={{ 
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '8px',
-                      marginLeft: '16px'
+                      marginLeft: '16px',
+                      opacity: '0',
+                      visibility: 'hidden',
+                      transition: 'opacity 0.2s ease-in-out, visibility 0.2s ease-in-out'
                     }}>
                       <button
                         onClick={() => handleEdit(client)}
@@ -497,7 +514,24 @@ export default function ClientsList({ initialClients, totalCount }) {
                   backgroundColor: '#f9fafb',
                   padding: '16px',
                   borderRadius: '6px',
-                  border: '1px solid #e5e7eb'
+                  border: '1px solid #e5e7eb',
+                  transition: 'all 0.2s ease-in-out'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#f3f4f6';
+                  const buttons = e.target.querySelector('[data-buttons="true"]');
+                  if (buttons) {
+                    buttons.style.opacity = '1';
+                    buttons.style.visibility = 'visible';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = '#f9fafb';
+                  const buttons = e.target.querySelector('[data-buttons="true"]');
+                  if (buttons) {
+                    buttons.style.opacity = '0';
+                    buttons.style.visibility = 'hidden';
+                  }
                 }}>
                   <div style={{ 
                     display: 'flex',
@@ -511,15 +545,7 @@ export default function ClientsList({ initialClients, totalCount }) {
                         marginBottom: '8px',
                         fontSize: '16px'
                       }}>
-                        <Link 
-                          href={`/clients/${client.client_id}`}
-                          style={{ 
-                            textDecoration: 'none',
-                            color: '#111827'
-                          }}
-                        >
-                          {client.firstName} {client.lastName}
-                        </Link>
+                        {client.firstName} {client.lastName}
                       </div>
                       <div style={{ 
                         fontSize: '14px',
@@ -541,11 +567,14 @@ export default function ClientsList({ initialClients, totalCount }) {
                         })}
                       </div>
                     </div>
-                    <div style={{ 
+                    <div data-buttons="true" style={{ 
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '8px',
-                      marginLeft: '16px'
+                      marginLeft: '16px',
+                      opacity: '0',
+                      visibility: 'hidden',
+                      transition: 'opacity 0.2s ease-in-out, visibility 0.2s ease-in-out'
                     }}>
                       <button
                         onClick={() => handleEdit(client)}
