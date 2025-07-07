@@ -1324,80 +1324,72 @@ function PreIntakeForm() {
                   What Personal Identification do you have? (Check all that
                   apply)
                 </label>
-                <div className="form-check">
-                  <label className="form-check-label">Birth Certificate</label>
-                  <Field
-                    className="form-check-input"
-                    type="checkbox"
-                    name="birthCertificate"
-                    onChange={({ target: { checked } }) => {
-                      setFieldValue("birthCertificate", checked);
-                    }}
-                  />
-                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '10px 0' }}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <label style={{ margin: 0, whiteSpace: 'nowrap', width: '200px' }}>Birth Certificate</label>
+                    <Field
+                      type="checkbox"
+                      name="birthCertificate"
+                      onChange={({ target: { checked } }) => {
+                        setFieldValue("birthCertificate", checked);
+                      }}
+                    />
+                  </div>
 
-                <div className="form-check">
-                  <label className="form-check-label">Driver's License</label>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <label style={{ margin: 0, whiteSpace: 'nowrap', width: '200px' }}>Driver's License</label>
+                    <Field
+                      type="checkbox"
+                      name="driversLicense"
+                      onChange={({ target: { checked } }) => {
+                        setFieldValue("driversLicense", checked);
+                      }}
+                    />
+                  </div>
 
-                  <Field
-                    className="form-check-input"
-                    type="checkbox"
-                    name="driversLicense"
-                    onChange={({ target: { checked } }) => {
-                      setFieldValue("driversLicense", checked);
-                    }}
-                  />
-                </div>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <label style={{ margin: 0, whiteSpace: 'nowrap', width: '200px' }}>Manitoba Health Card</label>
+                    <Field
+                      type="checkbox"
+                      name="healthCard"
+                      onChange={({ target: { checked } }) => {
+                        setFieldValue("healthCard", checked);
+                      }}
+                    />
+                  </div>
 
-                <div className="form-check">
-                  <label className="form-check-label">
-                    Manitoba Health Card
-                  </label>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <label style={{ margin: 0, whiteSpace: 'nowrap', width: '200px' }}>Status Card</label>
+                    <Field
+                      type="checkbox"
+                      name="statusCard"
+                      onChange={({ target: { checked } }) => {
+                        setFieldValue("statusCard", checked);
+                      }}
+                    />
+                  </div>
 
-                  <Field
-                    className="form-check-input"
-                    type="checkbox"
-                    name="healthCard"
-                    onChange={({ target: { checked } }) => {
-                      setFieldValue("healthCard", checked);
-                    }}
-                  />
-                </div>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <label style={{ margin: 0, whiteSpace: 'nowrap', width: '200px' }}>Enhanced I.D.</label>
+                    <Field
+                      type="checkbox"
+                      name="enhancedID"
+                      onChange={({ target: { checked } }) => {
+                        setFieldValue("enhancedID", checked);
+                      }}
+                    />
+                  </div>
 
-                <div className="form-check">
-                  <label className="form-check-label">Status Card</label>
-                  <Field
-                    className="form-check-input"
-                    type="checkbox"
-                    name="statusCard"
-                    onChange={({ target: { checked } }) => {
-                      setFieldValue("statusCard", checked);
-                    }}
-                  />
-                </div>
-
-                <div className="form-check">
-                  <label className="form-check-label">Enhanced I.D.</label>
-                  <Field
-                    className="form-check-input"
-                    type="checkbox"
-                    name="enhancedID"
-                    onChange={({ target: { checked } }) => {
-                      setFieldValue("enhancedID", checked);
-                    }}
-                  />
-                </div>
-
-                <div className="form-check">
-                  <label className="form-check-label">Student I.D.</label>
-                  <Field
-                    className="form-check-input"
-                    type="checkbox"
-                    name="studentID"
-                    onChange={({ target: { checked } }) => {
-                      setFieldValue("studentID", checked);
-                    }}
-                  />
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <label style={{ margin: 0, whiteSpace: 'nowrap', width: '200px' }}>Student I.D.</label>
+                    <Field
+                      type="checkbox"
+                      name="studentID"
+                      onChange={({ target: { checked } }) => {
+                        setFieldValue("studentID", checked);
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
             </Col>
