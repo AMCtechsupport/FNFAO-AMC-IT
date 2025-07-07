@@ -67,18 +67,29 @@ export default function UserHome({ children }: { children: ReactNode }) {
             </Link>
             )}
 
-            <Link
-              href="/pre-intake"
-              className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
-            >
-              Pre-Intake
-            </Link>
-            <Link
-              href="/youth-intake"
-              className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
-            >
-              Youth-Intake
-            </Link>
+            {/* New Client Section */}
+            <div className="mt-6">
+              <h3 className="text-gray-300 text-sm font-semibold uppercase tracking-wide px-3 pb-2 border-b border-gray-700">
+                New Client
+              </h3>
+              <div className="mt-3 space-y-2">
+                <Link
+                  href="/pre-intake"
+                  className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md ml-4 text-sm"
+                >
+                  Pre-Intake
+                </Link>
+                <Link
+                  href="/youth-intake"
+                  className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md ml-4 text-sm"
+                >
+                  Youth-Intake
+                </Link>
+              </div>
+            </div>
+
+            {/* Separator line */}
+            <hr className="my-6 border-gray-700" />
 
             {userRole != "advocate" && (
             <Link

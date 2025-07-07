@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import supabase from "../src/app/lib/supabase";
 import Link from "next/link";
 
@@ -8,11 +9,164 @@ export default function ClientsList({ initialClients, totalCount }) {
   const [clients, setClients] = useState(initialClients);
   const [search, setSearch] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
+  const [deletingClientId, setDeletingClientId] = useState(null);
+  
+  // New state for total counts from database
+  const [totalYouthClients, setTotalYouthClients] = useState(0);
+  const [totalAdultClients, setTotalAdultClients] = useState(0);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(Math.ceil(totalCount / 10));
   const [clientsPerPage, setClientsPerPage] = useState(10);
   const clientsPerPageOptions = [5, 10, 15, 20];
+
+  const router = useRouter();
+
+  // Determine if client is Youth or Adult based on clientType
+  const getClientTypeLabel = (client) => {
+    if (client.clientType === "Youth Intake") {
+      return "Youth";
+    } else if (client.clientType === "Pre-Intake") {
+      return "Adult";
+    } else {
+      // Fallback: determine by age if clientType is not set
+      const today = new Date();
+      const birthDate = new Date(client.dateOfBirth);
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      return age <= 20 ? "Youth" : "Adult";
+    }
+  };
+
+  // Fetch total counts from database
+  const fetchTotalCounts = async () => {
+    try {
+      // Get total Youth clients (clientType = "Youth Intake")
+      const { count: youthCount, error: youthError } = await supabase
+        .from("Clients")
+        .select("*", { count: "exact", head: true })
+        .eq("clientType", "Youth Intake");
+
+      if (youthError) {
+        console.error("Error fetching youth count:", youthError);
+      } else {
+        setTotalYouthClients(youthCount || 0);
+      }
+
+      // Get total Adult clients (clientType = "Pre-Intake")
+      const { count: adultCount, error: adultError } = await supabase
+        .from("Clients")
+        .select("*", { count: "exact", head: true })
+        .eq("clientType", "Pre-Intake");
+
+      if (adultError) {
+        console.error("Error fetching adult count:", adultError);
+      } else {
+        setTotalAdultClients(adultCount || 0);
+      }
+    } catch (err) {
+      console.error("Unexpected error fetching total counts:", err);
+    }
+  };
+
+  // Handle edit button click
+  const handleEdit = (client) => {
+    // Redirect all clients (Youth and Adult) to the full-intake form for editing
+    // The full-intake form already handles editing by client ID
+    router.push(`/clients/${client.client_id}`);
+  };
+
+  // Handle delete button click
+  const handleDelete = async (client) => {
+    const confirmDelete = window.confirm(
+      `Are you sure you want to permanently delete ${client.firstName} ${client.lastName}? This action cannot be undone.`
+    );
+
+    if (!confirmDelete) return;
+
+    setDeletingClientId(client.client_id);
+
+    try {
+      // Delete related data first (foreign key constraints)
+      
+      // Delete Emergency Contacts
+      await supabase
+        .from("Emergency Contacts")
+        .delete()
+        .eq("client_id", client.client_id);
+
+      // Delete Home Members
+      await supabase
+        .from("Home Members")
+        .delete()
+        .eq("client_id", client.client_id);
+
+      // Delete Educational Support Persons (if exists for youth clients)
+      await supabase
+        .from("Educational Support Persons")
+        .delete()
+        .eq("client_id", client.client_id);
+
+      // Delete Children (if exists for adult clients)
+      await supabase
+        .from("Childs")
+        .delete()
+        .eq("client_id", client.client_id);
+
+      // Delete Notes
+      await supabase
+        .from("Notes")
+        .delete()
+        .eq("client_id", client.client_id);
+
+      // Delete Important Family and Friends
+      await supabase
+        .from("Important Family and Friends")
+        .delete()
+        .eq("client_id", client.client_id);
+
+      // Delete EIA Workers
+      await supabase
+        .from("EIA Workers")
+        .delete()
+        .eq("client_id", client.client_id);
+
+      // Delete Assigned Advocates
+      await supabase
+        .from("Assigned Advocates")
+        .delete()
+        .eq("client_id", client.client_id);
+
+      // Finally, delete the client
+      const { error: clientError } = await supabase
+        .from("Clients")
+        .delete()
+        .eq("client_id", client.client_id);
+
+      if (clientError) {
+        throw clientError;
+      }
+
+      // Remove client from local state
+      setClients(prevClients => 
+        prevClients.filter(c => c.client_id !== client.client_id)
+      );
+
+      // Refresh total counts after deletion
+      fetchTotalCounts();
+
+      alert(`${client.firstName} ${client.lastName} has been successfully deleted.`);
+
+    } catch (error) {
+      console.error("Error deleting client:", error);
+      alert(`Failed to delete client: ${error.message}`);
+    } finally {
+      setDeletingClientId(null);
+    }
+  };
 
   // Fetch clients for the current page and search term
   const fetchClients = async (
@@ -61,6 +215,11 @@ export default function ClientsList({ initialClients, totalCount }) {
     fetchClients(currentPage, search, dateOfBirth);
   }, [currentPage, search, dateOfBirth, clientsPerPage]);
 
+  // Fetch total counts on component mount
+  useEffect(() => {
+    fetchTotalCounts();
+  }, []);
+
   const handleSearchChange = (event) => {
     setSearch(event.target.value);
     setCurrentPage(1);
@@ -83,130 +242,454 @@ export default function ClientsList({ initialClients, totalCount }) {
   };
 
   return (
-    <div>
-      {/* Main Search Bar */}
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search by First Name or Last Name."
-          value={search}
-          onChange={handleSearchChange}
-          className="p-2 border rounded-md w-full"
-        />
-      </div>
-
-      {/* Date Picker for Date of Birth */}
-      <div className="mb-4">
-        <label
-          htmlFor="dateOfBirth"
-          className="text-left block text-sm font-semibold text-gray-300"
-        >
-          Filter by Date of Birth
-        </label>
-        <input
-          id="dateOfBirth"
-          type="date"
-          value={dateOfBirth}
-          onChange={handleDateOfBirthChange}
-          className="p-2 border rounded-md w-full mt-2"
-        />
-      </div>
-
-      {/* Display Clients List */}
-      {clients.length > 0 ? (
-        <>
-          <ul className="divide-y divide-gray-600">
-            {clients.map((client) => (
-              <li key={client.client_id} className=" border-gray-600">
-                <div className="text-left pt-1 border-2 border-gray-700 rounded-lg mb-2 shadow-sm bg-white">
-                  <ul className="text-xl font-bold text-gray-900 pt-2 mb-3">
-                    <Link href={`clients/${client.client_id}`}>
-                      {client.firstName} {client.middleName} {client.lastName}
-                    </Link>
-                  </ul>
-
-                  {/* <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Client ID: </span>
-                    {client.client_id}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Phone: </span>
-                    {client.phoneNumber}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Email: </span>
-                    {client.email}
-                  </p> */}
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">
-                      First Nation Membership:{" "}
-                    </span>
-                    {client.firstNationMembership}
-                  </p>
-                  {/* <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Address: </span>
-                    {client.address}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Location: </span>
-                    {client.city}, {client.province}
-                  </p>*/}
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Date of Birth: </span>
-                    {new Date(client.dateOfBirth).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </p> 
-                </div>
-              </li>
+    <div style={{ 
+      padding: '24px',
+      maxWidth: '1280px',
+      margin: '0 auto'
+    }}>
+      <h1 style={{ 
+        fontSize: '30px',
+        fontWeight: 'bold',
+        marginBottom: '32px',
+        color: '#1f2937'
+      }}>
+        List of Clients
+      </h1>
+      
+      {/* Search and Filter Section */}
+      <div style={{ 
+        marginBottom: '32px',
+        backgroundColor: 'white',
+        padding: '24px',
+        borderRadius: '8px',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+        border: '1px solid #e5e7eb'
+      }}>
+        <h2 style={{ 
+          fontSize: '20px',
+          fontWeight: '600',
+          marginBottom: '16px',
+          color: '#374151'
+        }}>
+          Search & Filter Options
+        </h2>
+        <div style={{ 
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '16px',
+          justifyContent: 'center'
+        }}>
+          <input
+            type="text"
+            placeholder="Search by name or ID..."
+            value={search}
+            onChange={handleSearchChange}
+            style={{
+              padding: '8px 16px',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              fontSize: '14px',
+              minWidth: '200px',
+              outline: 'none'
+            }}
+          />
+          <input
+            type="date"
+            placeholder="Search by Date of Birth"
+            value={dateOfBirth}
+            onChange={handleDateOfBirthChange}
+            style={{
+              padding: '8px 16px',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              fontSize: '14px',
+              outline: 'none'
+            }}
+          />
+          <select
+            value={clientsPerPage}
+            onChange={handleClientsPerPageChange}
+            style={{
+              padding: '8px 16px',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              fontSize: '14px',
+              outline: 'none'
+            }}
+          >
+            {clientsPerPageOptions.map((option) => (
+              <option key={option} value={option}>
+                {option} per page
+              </option>
             ))}
-          </ul>
+          </select>
+        </div>
+      </div>
 
-          {/* Clients per page selector */}
-          <div className="mb-4">
-            <label className="mr-2">Clients per page:</label>
-            <select
-              value={clientsPerPage}
-              onChange={handleClientsPerPageChange}
-              className="p-2 border rounded-md"
-            >
-              {clientsPerPageOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
+      {/* Two Column Layout */}
+      <div style={{ 
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))',
+        gap: '32px'
+      }}>
+        {/* Youth Clients Column */}
+        <div style={{ 
+          backgroundColor: 'white',
+          padding: '24px',
+          borderRadius: '8px',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+          border: '1px solid #e5e7eb'
+        }}>
+          <h2 style={{ 
+            fontSize: '20px',
+            fontWeight: '600',
+            marginBottom: '24px',
+            color: '#1d4ed8',
+            textAlign: 'center'
+          }}>
+            Total Youth Clients ({totalYouthClients})
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {clients
+              .filter(client => getClientTypeLabel(client) === "Youth")
+              .map((client) => (
+                <div key={client.client_id} style={{ 
+                  backgroundColor: '#f9fafb',
+                  padding: '16px',
+                  borderRadius: '6px',
+                  border: '1px solid #e5e7eb'
+                }}>
+                  <div style={{ 
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start'
+                  }}>
+                    <div style={{ flex: '1' }}>
+                      <div style={{ 
+                        fontWeight: '600',
+                        color: '#111827',
+                        marginBottom: '8px',
+                        fontSize: '16px'
+                      }}>
+                        <Link 
+                          href={`/clients/${client.client_id}`}
+                          style={{ 
+                            textDecoration: 'none',
+                            color: '#111827'
+                          }}
+                        >
+                          {client.firstName} {client.lastName}
+                        </Link>
+                      </div>
+                      <div style={{ 
+                        fontSize: '14px',
+                        color: '#6b7280',
+                        marginBottom: '4px'
+                      }}>
+                        <span style={{ fontWeight: '500' }}>First Nation:</span>{" "}
+                        {client.firstNationMembership || 'N/A'}
+                      </div>
+                      <div style={{ 
+                        fontSize: '14px',
+                        color: '#6b7280'
+                      }}>
+                        <span style={{ fontWeight: '500' }}>DOB:</span>{" "}
+                        {new Date(client.dateOfBirth).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </div>
+                    </div>
+                    <div style={{ 
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px',
+                      marginLeft: '16px'
+                    }}>
+                      <button
+                        onClick={() => handleEdit(client)}
+                        style={{
+                          padding: '6px 12px',
+                          backgroundColor: '#3b82f6',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          fontWeight: '500'
+                        }}
+                        onMouseOver={(e) => {
+                          e.target.style.backgroundColor = '#2563eb';
+                        }}
+                        onMouseOut={(e) => {
+                          e.target.style.backgroundColor = '#3b82f6';
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(client)}
+                        disabled={deletingClientId === client.client_id}
+                        style={{
+                          padding: '6px 12px',
+                          backgroundColor: deletingClientId === client.client_id ? '#9ca3af' : '#dc2626',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: deletingClientId === client.client_id ? 'not-allowed' : 'pointer',
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          opacity: deletingClientId === client.client_id ? 0.6 : 1
+                        }}
+                        onMouseOver={(e) => {
+                          if (deletingClientId !== client.client_id) {
+                            e.target.style.backgroundColor = '#b91c1c';
+                          }
+                        }}
+                        onMouseOut={(e) => {
+                          if (deletingClientId !== client.client_id) {
+                            e.target.style.backgroundColor = '#dc2626';
+                          }
+                        }}
+                      >
+                        {deletingClientId === client.client_id ? 'Deleting...' : 'Delete'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
               ))}
-            </select>
+            {clients.filter(client => getClientTypeLabel(client) === "Youth").length === 0 && (
+              <div style={{ 
+                textAlign: 'center',
+                color: '#6b7280',
+                fontStyle: 'italic',
+                padding: '32px'
+              }}>
+                No youth clients found
+              </div>
+            )}
           </div>
+        </div>
 
-          {/* Pagination Controls */}
-          <div className="mt-4 flex justify-between items-center space-x-4">
+        {/* Adult Clients Column */}
+        <div style={{ 
+          backgroundColor: 'white',
+          padding: '24px',
+          borderRadius: '8px',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+          border: '1px solid #e5e7eb'
+        }}>
+          <h2 style={{ 
+            fontSize: '20px',
+            fontWeight: '600',
+            marginBottom: '24px',
+            color: '#059669',
+            textAlign: 'center'
+          }}>
+            Total Adult Clients ({totalAdultClients})
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {clients
+              .filter(client => getClientTypeLabel(client) === "Adult")
+              .map((client) => (
+                <div key={client.client_id} style={{ 
+                  backgroundColor: '#f9fafb',
+                  padding: '16px',
+                  borderRadius: '6px',
+                  border: '1px solid #e5e7eb'
+                }}>
+                  <div style={{ 
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start'
+                  }}>
+                    <div style={{ flex: '1' }}>
+                      <div style={{ 
+                        fontWeight: '600',
+                        color: '#111827',
+                        marginBottom: '8px',
+                        fontSize: '16px'
+                      }}>
+                        <Link 
+                          href={`/clients/${client.client_id}`}
+                          style={{ 
+                            textDecoration: 'none',
+                            color: '#111827'
+                          }}
+                        >
+                          {client.firstName} {client.lastName}
+                        </Link>
+                      </div>
+                      <div style={{ 
+                        fontSize: '14px',
+                        color: '#6b7280',
+                        marginBottom: '4px'
+                      }}>
+                        <span style={{ fontWeight: '500' }}>First Nation:</span>{" "}
+                        {client.firstNationMembership || 'N/A'}
+                      </div>
+                      <div style={{ 
+                        fontSize: '14px',
+                        color: '#6b7280'
+                      }}>
+                        <span style={{ fontWeight: '500' }}>DOB:</span>{" "}
+                        {new Date(client.dateOfBirth).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </div>
+                    </div>
+                    <div style={{ 
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px',
+                      marginLeft: '16px'
+                    }}>
+                      <button
+                        onClick={() => handleEdit(client)}
+                        style={{
+                          padding: '6px 12px',
+                          backgroundColor: '#16a34a',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          fontWeight: '500'
+                        }}
+                        onMouseOver={(e) => {
+                          e.target.style.backgroundColor = '#15803d';
+                        }}
+                        onMouseOut={(e) => {
+                          e.target.style.backgroundColor = '#16a34a';
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(client)}
+                        disabled={deletingClientId === client.client_id}
+                        style={{
+                          padding: '6px 12px',
+                          backgroundColor: deletingClientId === client.client_id ? '#9ca3af' : '#dc2626',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: deletingClientId === client.client_id ? 'not-allowed' : 'pointer',
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          opacity: deletingClientId === client.client_id ? 0.6 : 1
+                        }}
+                        onMouseOver={(e) => {
+                          if (deletingClientId !== client.client_id) {
+                            e.target.style.backgroundColor = '#b91c1c';
+                          }
+                        }}
+                        onMouseOut={(e) => {
+                          if (deletingClientId !== client.client_id) {
+                            e.target.style.backgroundColor = '#dc2626';
+                          }
+                        }}
+                      >
+                        {deletingClientId === client.client_id ? 'Deleting...' : 'Delete'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            {clients.filter(client => getClientTypeLabel(client) === "Adult").length === 0 && (
+              <div style={{ 
+                textAlign: 'center',
+                color: '#6b7280',
+                fontStyle: 'italic',
+                padding: '32px'
+              }}>
+                No adult clients found
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Pagination Controls */}
+      {clients.length > 0 && (
+        <div style={{ 
+          marginTop: '32px',
+          backgroundColor: 'white',
+          padding: '16px',
+          borderRadius: '8px',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+          border: '1px solid #e5e7eb'
+        }}>
+          <div style={{ 
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '16px'
+          }}>
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="px-4 py-2 text-black rounded-md disabled:bg-gray-700 disabled:opacity-50 hover:bg-gray-800"
+              style={{
+                padding: '8px 16px',
+                backgroundColor: currentPage === 1 ? '#f3f4f6' : '#f9fafb',
+                color: currentPage === 1 ? '#9ca3af' : '#374151',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}
+              onMouseOver={(e) => {
+                if (currentPage !== 1) {
+                  e.target.style.backgroundColor = '#f3f4f6';
+                }
+              }}
+              onMouseOut={(e) => {
+                if (currentPage !== 1) {
+                  e.target.style.backgroundColor = '#f9fafb';
+                }
+              }}
             >
               Previous
             </button>
-
-            {/* Current Page Indicator */}
-            <span className="self-center text-gray-700">
+            <span style={{ 
+              fontSize: '14px',
+              color: '#6b7280',
+              padding: '0 16px'
+            }}>
               Page {currentPage} of {totalPages}
             </span>
-
-            {/* Next Button */}
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="px-4 py-2 text-black rounded-md disabled:bg-gray-700 disabled:opacity-50 hover:bg-gray-800"
+              style={{
+                padding: '8px 16px',
+                backgroundColor: currentPage === totalPages ? '#f3f4f6' : '#f9fafb',
+                color: currentPage === totalPages ? '#9ca3af' : '#374151',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}
+              onMouseOver={(e) => {
+                if (currentPage !== totalPages) {
+                  e.target.style.backgroundColor = '#f3f4f6';
+                }
+              }}
+              onMouseOut={(e) => {
+                if (currentPage !== totalPages) {
+                  e.target.style.backgroundColor = '#f9fafb';
+                }
+              }}
             >
               Next
             </button>
           </div>
-        </>
-      ) : (
-        <p className="text-center text-gray-500">No clients found.</p>
+        </div>
       )}
     </div>
   );
