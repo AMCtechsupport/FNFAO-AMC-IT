@@ -91,14 +91,14 @@ export default function UserHome({ children }: { children: ReactNode }) {
             {/* Separator line */}
             <hr className="my-6 border-gray-700" />
 
-            {userRole != "advocate" && (
+            {/* {userRole != "advocate" && (
             <Link
               href="/full-intake"
               className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
             >
               Full-Intake
             </Link>
-            )}
+            )} */}
             
             <Link
               href="/clients"

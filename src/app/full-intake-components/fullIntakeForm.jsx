@@ -38,7 +38,7 @@ import "react-tabs/style/react-tabs.css";
 import { FormInitialValue, getFormInitialValues } from "./InitialValues";
 import handleChildrenUpdate from "./childrenUpdate";
 
-export default function FullIntakeForm({client_id, userId, getToken} ){
+export default function FullIntakeForm({client_id, userId, getToken, isEditMode = false} ){
     const [originalData, setOriginalData] = useState(null);
     const [childrenData, setChildrenData] = useState([]); // State for children
     const [familyData, setFamilyData] = useState([]);
@@ -52,7 +52,7 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
     const [legalNotes, setLegalNotes] = useState([]);
 
     const [loading, setLoading] = useState(true);
-    const [isEditing, setIsEditing] = useState(false); // state to enable/disable fields
+    const [isEditing, setIsEditing] = useState(isEditMode); // state to enable/disable fields - start in edit mode if isEditMode is true
     const [formSent, setFormSent] = useState(false);
 
     const [selectedNote, setSelectedNote] = useState(null);
@@ -112,7 +112,9 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
                 console.error("Error fetching client data:", clientError.message || clientError);
             } else {
                 setOriginalData(clientData);
-                // console.log("Original data:", clientData);
+                                console.log("🔍 RAW DATABASE DATA (originalData):");
+                console.log(JSON.stringify(clientData, null, 2));
+                console.log("🔍 SPECIFIC FIELD CHECK - relationshipToChildren:", clientData?.relationshipToChildren);
             }
 
             // Gets the children associated with the client
@@ -200,16 +202,62 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
     return(
         <div className="form-container">
             <Formik
-                initialValues={getFormInitialValues({
-                    originalData,
-                    childrenData,
-                    notesData,
-                    caseNotes,
-                    legalNotes,
-                    familyData,
-                    EIAData,
-                    homeMembersData,
-                })}
+                initialValues={(() => {
+                    const formInitialValues = getFormInitialValues({
+                        originalData,
+                        childrenData,
+                        notesData,
+                        caseNotes,
+                        legalNotes,
+                        familyData,
+                        EIAData,
+                        homeMembersData,
+                    });
+                    
+                    console.log("📊 FORM INITIAL VALUES (after conversion):");
+                    console.log(JSON.stringify(formInitialValues, null, 2));
+                    
+                    console.log("🔍 RADIO BUTTON FIELD COMPARISON:");
+                    console.log("Field Name | Database Value | Form Value");
+                    console.log("----------------------------------------");
+                    
+                    // Radio button fields comparison
+                    const radioFields = [
+                        'onReserve', 'transitionFromReserve', 'previousFNFAOClient', 'casePlanCopy',
+                        'prenatalSupport', 'housingSupport', 'addictionsSupport', 'youthSupport',
+                        'custodySupport', 'criminalCharges', 'criminalChargesSpecified', 'activeWarrant',
+                        'activeInvestigation', 'activeOrders', 'currentLawyer', 'legalAssistance',
+                        'residentialSchool', 'negativeCopingSkills', 'educationalGoals', 'accessElder',
+                        'kinship', 'prentativeSupport', 'privateAgreement', 'previousInvolvement',
+                        'parentalCapacityDone', 'cfsExplain', 'turnToKinshipCare'
+                    ];
+                    
+                    radioFields.forEach(field => {
+                        const dbValue = originalData?.[field];
+                        const formValue = formInitialValues[field];
+                        console.log(`${field} | ${dbValue} | ${formValue}`);
+                    });
+                    
+                    console.log("\n🔍 TEXT FIELD COMPARISON:");
+                    console.log("Field Name | Database Value | Form Value");
+                    console.log("----------------------------------------");
+                    
+                    // Text field comparison
+                    const textFields = [
+                        'firstName', 'middleName', 'lastName', 'dateOfBirth', 'phoneNumber',
+                        'address', 'city', 'province', 'postalCode', 'email', 'firstNationMembership',
+                        'treatyNumber', 'otherFirstNation', 'ninePersonalHealthNumber', 'sixPersonalHealthNumber',
+                        'martialStatus', 'sourceIncome', 'lawyerFullName', 'lawyerPhoneNumber', 'lawyerEmail'
+                    ];
+                    
+                    textFields.forEach(field => {
+                        const dbValue = originalData?.[field];
+                        const formValue = formInitialValues[field];
+                        console.log(`${field} | "${dbValue}" | "${formValue}"`);
+                    });
+                    
+                    return formInitialValues;
+                })()}
                 enableReinitialize
                 validate={(values) => {
                     let errors = {};
