@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import styles from "../pre-intake/preIntake.module.css";
+import styles from "../../pre-intake/preIntake.module.css";
 import { Field, ErrorMessage} from "formik";
 import { Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -9,7 +9,7 @@ import InputField from "@/components/InputField";
 import ReferredBySelect from "@/components/ReferredBySelect";
 import ProvincesSelect from "@/components/ProvincesSelect";
 
-const PreIntakeGeneralInfo = ({ errors }) => {
+const PreIntakeGeneralInfo = ( { errors } ) => {
     return(
         <>
             <Row>

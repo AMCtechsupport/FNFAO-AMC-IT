@@ -1,3 +1,6 @@
+"use client";
+import "bootstrap/dist/css/bootstrap.min.css";
+
 function validatePhoneNumber(value) {
     const phoneNumberPattern = /^\(\d{3}\) \d{3}-\d{4}$/;
     if (value && !phoneNumberPattern.test(value)) {

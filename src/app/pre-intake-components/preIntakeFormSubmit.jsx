@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 import supabase from "../lib/supabase";
 
-const usePreIntakeFormSubmit = () => {
+const PreIntakeFormSubmit = () => {
     const { user } = useUser();
     const [formSent, setFormSent] = useState(false);
     const onSubmitPreIntake = async (values, { resetForm }) => {
@@ -115,4 +115,4 @@ const usePreIntakeFormSubmit = () => {
     return { onSubmitPreIntake, formSent};
 };
 
-export default usePreIntakeFormSubmit;
+export default PreIntakeFormSubmit;
