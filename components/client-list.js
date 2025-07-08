@@ -10,14 +10,17 @@ export default function ClientsList({ initialClients, totalCount }) {
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [deletingClientId, setDeletingClientId] = useState(null);
   
-  // New state for total counts from database
+    // New state for total counts from database
   const [totalYouthClients, setTotalYouthClients] = useState(0);
   const [totalAdultClients, setTotalAdultClients] = useState(0);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(Math.ceil(totalCount / 10));
-  const [clientsPerPage, setClientsPerPage] = useState(10);
-  const clientsPerPageOptions = [5, 10, 15, 20];
+  const [currentYouthPage, setCurrentYouthPage] = useState(1);
+  const [currentAdultPage, setCurrentAdultPage] = useState(1);
+  const [totalYouthPages, setTotalYouthPages] = useState(1);
+  const [totalAdultPages, setTotalAdultPages] = useState(1);
+  const [youthClients, setYouthClients] = useState([]);
+  const [adultClients, setAdultClients] = useState([]);
+  const clientsPerPage = 10;
 
   const router = useRouter();
 
@@ -173,8 +176,8 @@ export default function ClientsList({ initialClients, totalCount }) {
     }
   };
 
-  // Fetch clients for the current page and search term
-  const fetchClients = async (
+  // Fetch youth clients for the current page and search term
+  const fetchYouthClients = async (
     page = 1,
     searchQuery = "",
     dateOfBirthQuery = ""
@@ -183,6 +186,7 @@ export default function ClientsList({ initialClients, totalCount }) {
       let query = supabase
         .from("Clients")
         .select("*", { count: "exact" })
+        .eq("clientType", "Youth Intake")
         .range((page - 1) * clientsPerPage, page * clientsPerPage - 1)
         .order("createdAt", { ascending: false });
 
@@ -206,19 +210,64 @@ export default function ClientsList({ initialClients, totalCount }) {
       const { data, error, count } = await query;
 
       if (error) {
-        console.error("Error fetching data:", error.message);
+        console.error("Error fetching youth data:", error.message);
       } else {
-        setClients(data);
-        setTotalPages(Math.ceil(count / clientsPerPage));
+        setYouthClients(data || []);
+        setTotalYouthPages(Math.ceil(count / clientsPerPage));
       }
     } catch (err) {
-      console.error("Unexpected error:", err);
+      console.error("Unexpected error fetching youth clients:", err);
+    }
+  };
+
+  // Fetch adult clients for the current page and search term
+  const fetchAdultClients = async (
+    page = 1,
+    searchQuery = "",
+    dateOfBirthQuery = ""
+  ) => {
+    try {
+      let query = supabase
+        .from("Clients")
+        .select("*", { count: "exact" })
+        .eq("clientType", "Pre-Intake")
+        .range((page - 1) * clientsPerPage, page * clientsPerPage - 1)
+        .order("createdAt", { ascending: false });
+
+      if (searchQuery) {
+        const isNumeric = !isNaN(searchQuery);
+
+        if (isNumeric) {
+          query = query.eq("client_id", parseInt(searchQuery, 10));
+        } else {
+          query = query.or(
+            `firstName.ilike.%${searchQuery}%,middleName.ilike.%${searchQuery}%,lastName.ilike.%${searchQuery}%`
+          );
+        }
+      }
+
+      // Handle Date of Birth search query (only if provided)
+      if (dateOfBirthQuery) {
+        query = query.eq("dateOfBirth", dateOfBirthQuery);
+      }
+
+      const { data, error, count } = await query;
+
+      if (error) {
+        console.error("Error fetching adult data:", error.message);
+      } else {
+        setAdultClients(data || []);
+        setTotalAdultPages(Math.ceil(count / clientsPerPage));
+      }
+    } catch (err) {
+      console.error("Unexpected error fetching adult clients:", err);
     }
   };
 
   useEffect(() => {
-    fetchClients(currentPage, search, dateOfBirth);
-  }, [currentPage, search, dateOfBirth, clientsPerPage]);
+    fetchYouthClients(currentYouthPage, search, dateOfBirth);
+    fetchAdultClients(currentAdultPage, search, dateOfBirth);
+  }, [currentYouthPage, currentAdultPage, search, dateOfBirth]);
 
   // Fetch total counts on component mount
   useEffect(() => {
@@ -227,23 +276,26 @@ export default function ClientsList({ initialClients, totalCount }) {
 
   const handleSearchChange = (event) => {
     setSearch(event.target.value);
-    setCurrentPage(1);
+    setCurrentYouthPage(1);
+    setCurrentAdultPage(1);
   };
 
   const handleDateOfBirthChange = (event) => {
     setDateOfBirth(event.target.value);
-    setCurrentPage(1);
+    setCurrentYouthPage(1);
+    setCurrentAdultPage(1);
   };
 
-  const handlePageChange = (page) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
+  const handleYouthPageChange = (page) => {
+    if (page >= 1 && page <= totalYouthPages) {
+      setCurrentYouthPage(page);
     }
   };
 
-  const handleClientsPerPageChange = (event) => {
-    setClientsPerPage(parseInt(event.target.value));
-    setCurrentPage(1);
+  const handleAdultPageChange = (page) => {
+    if (page >= 1 && page <= totalAdultPages) {
+      setCurrentAdultPage(page);
+    }
   };
 
   return (
@@ -311,23 +363,7 @@ export default function ClientsList({ initialClients, totalCount }) {
               outline: 'none'
             }}
           />
-          <select
-            value={clientsPerPage}
-            onChange={handleClientsPerPageChange}
-            style={{
-              padding: '8px 16px',
-              border: '1px solid #d1d5db',
-              borderRadius: '6px',
-              fontSize: '14px',
-              outline: 'none'
-            }}
-          >
-            {clientsPerPageOptions.map((option) => (
-              <option key={option} value={option}>
-                {option} per page
-              </option>
-            ))}
-          </select>
+
         </div>
       </div>
 
@@ -355,9 +391,7 @@ export default function ClientsList({ initialClients, totalCount }) {
             Total Youth Clients ({totalYouthClients})
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {clients
-              .filter(client => getClientTypeLabel(client) === "Youth")
-              .map((client) => (
+            {youthClients.map((client) => (
                 <div key={client.client_id} style={{ 
                   backgroundColor: '#f9fafb',
                   padding: '16px',
@@ -476,7 +510,7 @@ export default function ClientsList({ initialClients, totalCount }) {
                   </div>
                 </div>
               ))}
-            {clients.filter(client => getClientTypeLabel(client) === "Youth").length === 0 && (
+            {youthClients.length === 0 && (
               <div style={{ 
                 textAlign: 'center',
                 color: '#6b7280',
@@ -484,6 +518,57 @@ export default function ClientsList({ initialClients, totalCount }) {
                 padding: '32px'
               }}>
                 No youth clients found
+              </div>
+            )}
+
+            {/* Youth Pagination */}
+            {youthClients.length > 0 && (
+              <div style={{ 
+                marginTop: '16px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '12px'
+              }}>
+                <button
+                  onClick={() => handleYouthPageChange(currentYouthPage - 1)}
+                  disabled={currentYouthPage === 1}
+                  style={{
+                    padding: '6px 12px',
+                    backgroundColor: currentYouthPage === 1 ? '#f3f4f6' : '#1d4ed8',
+                    color: currentYouthPage === 1 ? '#9ca3af' : 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: currentYouthPage === 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '12px',
+                    fontWeight: '500'
+                  }}
+                >
+                  Previous
+                </button>
+                <span style={{ 
+                  fontSize: '12px',
+                  color: '#6b7280',
+                  padding: '0 8px'
+                }}>
+                  Page {currentYouthPage} of {totalYouthPages}
+                </span>
+                <button
+                  onClick={() => handleYouthPageChange(currentYouthPage + 1)}
+                  disabled={currentYouthPage === totalYouthPages}
+                  style={{
+                    padding: '6px 12px',
+                    backgroundColor: currentYouthPage === totalYouthPages ? '#f3f4f6' : '#1d4ed8',
+                    color: currentYouthPage === totalYouthPages ? '#9ca3af' : 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: currentYouthPage === totalYouthPages ? 'not-allowed' : 'pointer',
+                    fontSize: '12px',
+                    fontWeight: '500'
+                  }}
+                >
+                  Next
+                </button>
               </div>
             )}
           </div>
@@ -507,9 +592,7 @@ export default function ClientsList({ initialClients, totalCount }) {
             Total Adult Clients ({totalAdultClients})
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {clients
-              .filter(client => getClientTypeLabel(client) === "Adult")
-              .map((client) => (
+            {adultClients.map((client) => (
                 <div key={client.client_id} style={{ 
                   backgroundColor: '#f9fafb',
                   padding: '16px',
@@ -628,7 +711,7 @@ export default function ClientsList({ initialClients, totalCount }) {
                   </div>
                 </div>
               ))}
-            {clients.filter(client => getClientTypeLabel(client) === "Adult").length === 0 && (
+            {adultClients.length === 0 && (
               <div style={{ 
                 textAlign: 'center',
                 color: '#6b7280',
@@ -638,88 +721,60 @@ export default function ClientsList({ initialClients, totalCount }) {
                 No adult clients found
               </div>
             )}
-          </div>
+
+            {/* Adult Pagination */}
+            {adultClients.length > 0 && (
+              <div style={{ 
+                marginTop: '16px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '12px'
+              }}>
+                <button
+                  onClick={() => handleAdultPageChange(currentAdultPage - 1)}
+                  disabled={currentAdultPage === 1}
+                  style={{
+                    padding: '6px 12px',
+                    backgroundColor: currentAdultPage === 1 ? '#f3f4f6' : '#059669',
+                    color: currentAdultPage === 1 ? '#9ca3af' : 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: currentAdultPage === 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '12px',
+                    fontWeight: '500'
+                  }}
+                >
+                  Previous
+                </button>
+                <span style={{ 
+                  fontSize: '12px',
+                  color: '#6b7280',
+                  padding: '0 8px'
+                }}>
+                  Page {currentAdultPage} of {totalAdultPages}
+                </span>
+                <button
+                  onClick={() => handleAdultPageChange(currentAdultPage + 1)}
+                  disabled={currentAdultPage === totalAdultPages}
+                  style={{
+                    padding: '6px 12px',
+                    backgroundColor: currentAdultPage === totalAdultPages ? '#f3f4f6' : '#059669',
+                    color: currentAdultPage === totalAdultPages ? '#9ca3af' : 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: currentAdultPage === totalAdultPages ? 'not-allowed' : 'pointer',
+                    fontSize: '12px',
+                    fontWeight: '500'
+                  }}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+                    </div>
         </div>
       </div>
-
-      {/* Pagination Controls */}
-      {clients.length > 0 && (
-        <div style={{ 
-          marginTop: '32px',
-          backgroundColor: 'white',
-          padding: '16px',
-          borderRadius: '8px',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-          border: '1px solid #e5e7eb'
-        }}>
-          <div style={{ 
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: '16px'
-          }}>
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: currentPage === 1 ? '#f3f4f6' : '#f9fafb',
-                color: currentPage === 1 ? '#9ca3af' : '#374151',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                fontSize: '14px',
-                fontWeight: '500'
-              }}
-              onMouseOver={(e) => {
-                if (currentPage !== 1) {
-                  e.target.style.backgroundColor = '#f3f4f6';
-                }
-              }}
-              onMouseOut={(e) => {
-                if (currentPage !== 1) {
-                  e.target.style.backgroundColor = '#f9fafb';
-                }
-              }}
-            >
-              Previous
-            </button>
-            <span style={{ 
-              fontSize: '14px',
-              color: '#6b7280',
-              padding: '0 16px'
-            }}>
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: currentPage === totalPages ? '#f3f4f6' : '#f9fafb',
-                color: currentPage === totalPages ? '#9ca3af' : '#374151',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                fontSize: '14px',
-                fontWeight: '500'
-              }}
-              onMouseOver={(e) => {
-                if (currentPage !== totalPages) {
-                  e.target.style.backgroundColor = '#f3f4f6';
-                }
-              }}
-              onMouseOut={(e) => {
-                if (currentPage !== totalPages) {
-                  e.target.style.backgroundColor = '#f9fafb';
-                }
-              }}
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

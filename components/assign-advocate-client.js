@@ -175,7 +175,7 @@ export default function AssignAdvocate() {
 
         {/* Display search results for clients */}
         {clients.length > 0 && (
-          <div className="mt-4 border-2  rounded-lg p-4 max-h-48 bg-gray-200 overflow-y-auto">
+          <div className="mt-4 border-2  rounded-lg p-4 max-h-96 bg-gray-200 overflow-y-auto">
             <ul>
               {clients.map((client) => (
                 <li
@@ -239,7 +239,7 @@ export default function AssignAdvocate() {
 
         {/* Display search results for advocates */}
         {advocates.length > 0 && (
-          <div className="mt-4 border-2 rounded-lg p-4 max-h-48 overflow-y-auto bg-gray-200">
+          <div className="mt-4 border-2 rounded-lg p-4 max-h-96 overflow-y-auto bg-gray-200">
             <ul>
               {advocates.map((advocate) => (
                 <li
@@ -256,7 +256,7 @@ export default function AssignAdvocate() {
                   </span>
                   <br />
                   <span className="text-sm text-gray-600">
-                    ID: {advocate.advocate_id}
+                    Email: {advocate.email}
                   </span>
                 </li>
               ))}

@@ -225,7 +225,7 @@ export default function FullIntakeForm({client_id, userId, getToken, isEditMode 
                     const radioFields = [
                         'onReserve', 'transitionFromReserve', 'previousFNFAOClient', 'casePlanCopy',
                         'prenatalSupport', 'housingSupport', 'addictionsSupport', 'youthSupport',
-                        'custodySupport', 'criminalCharges', 'criminalChargesSpecified', 'activeWarrant',
+                        'custodySupport', 'criminalCharges', 'activeWarrant',
                         'activeInvestigation', 'activeOrders', 'currentLawyer', 'legalAssistance',
                         'residentialSchool', 'negativeCopingSkills', 'educationalGoals', 'accessElder',
                         'kinship', 'prentativeSupport', 'privateAgreement', 'previousInvolvement',
@@ -390,6 +390,31 @@ export default function FullIntakeForm({client_id, userId, getToken, isEditMode 
 
                         // Add dateModified field with the current date and time
                         clientValues.dateModified = new Date().toISOString();
+
+                        // Sanitize boolean fields - convert empty strings and "yes"/"no" strings to proper boolean values
+                        const booleanFields = [
+                            'onReserve', 'transitionFromReserve', 'previousFNFAOClient', 'casePlanCopy', 
+                            'prenatalSupport', 'housingSupport', 'addictionsSupport', 'youthSupport', 
+                            'custodySupport', 'criminalCharges', 'activeWarrant', 
+                            'activeInvestigation', 'activeOrders', 'currentLawyer', 'legalAssistance',
+                            'residentialSchool', 'cfsCare', 'adoptedScoop', 'experiencedSuicide', 
+                            'MMIWG2S', 'familyViolence', 'FASD', 'ADHD', 'PTSD', 'depression', 
+                            'cancerAutoimmuneCondition', 'otherMentalCondition', 'negativeCopingSkills',
+                            'educationalGoals', 'accessElder', 'kinship', 'prentativeSupport', 
+                            'privateAgreement', 'previousInvolvement', 'parentalCapacityDone', 
+                            'cfsExplain', 'turnToKinshipCare'
+                        ];
+
+                        booleanFields.forEach(field => {
+                            const value = clientValues[field];
+                            if (value === "yes" || value === true) {
+                                clientValues[field] = true;
+                            } else if (value === "no" || value === false) {
+                                clientValues[field] = false;
+                            } else if (value === "" || value === null || value === undefined) {
+                                clientValues[field] = null;
+                            }
+                        });
 
                         // Updates data in Supabase
                         const { data, error} = await supabase
@@ -842,7 +867,6 @@ export default function FullIntakeForm({client_id, userId, getToken, isEditMode 
                                                                     label="Living Together?"
                                                                     error={errors.homeMembers?.[index]?.livingTogether}
                                                                     disabled={!isEditing}
-                                                                    onChange={(e) => setFieldValue(`homeMembers.${index}.livingTogether`, e.target.value)}
                                                                 />
                                                             </Col>
 
@@ -874,7 +898,7 @@ export default function FullIntakeForm({client_id, userId, getToken, isEditMode 
                                                             relationship: "",
                                                             phoneNumber: "",
                                                             email:"",
-                                                            livingTogether:""
+                                                            livingTogether: null
                                                         })}>
                                                         + Add Member
                                                     </Button>

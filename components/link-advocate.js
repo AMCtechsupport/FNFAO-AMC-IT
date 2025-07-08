@@ -1,78 +1,96 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useUser } from "@clerk/clerk-react";
-import { linkAdvocate } from "../src/app/lib/link-advocate-server";
-import supabase from "@/app/lib/supabase";
+import { useState } from "react";
+import { createAdvocate } from "../src/app/lib/create-advocate-server";
 
 const LinkAdvocate = () => {
-  const { user } = useUser();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleLinkAdvocate = async (e) => {
+  const handleCreateAdvocate = async (e) => {
     e.preventDefault();
 
-    // Make sure the user is logged in before checking the database
-    if (!user) {
-      setError("User is not authenticated.");
+    if (!firstName.trim() || !lastName.trim() || !email.trim()) {
+      setError("Please fill in all required fields.");
       return;
     }
 
-    // Check if the email or clerk_user_id already exists in the database
-    const { data, error: checkError } = await supabase
-      .from("Advocates")
-      .select("advocate_id")
-      .eq("clerk_user_id", user.id)
-      .limit(1);
-
-    if (checkError) {
-      console.error("Error checking User ID :", checkError.message);
-    }
-
-    // If advocate already exists, prevent linking again
-    if (data && data.length > 0) {
-      setError("Your User ID is already registered.");
-      return;
-    }
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
 
     try {
-      // Proceed to link advocate if not already linked
-      const data = await linkAdvocate(firstName, lastName, email);
-      setSuccess("User ID linked successfully!");
-      console.log("User ID  linked successfully:", data);
+      const result = await createAdvocate({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim()
+      });
+
+      if (result.success) {
+        let successMsg = `Advocate ${firstName} ${lastName} has been successfully created! An invitation has been sent to ${email}.`;
+        
+        // In development, show the invitation URL since emails might not be sent
+        if (result.invitationUrl && process.env.NODE_ENV === 'development') {
+          successMsg += ` Since you're in development mode, use this link to accept the invitation: ${result.invitationUrl}`;
+        }
+        
+        setSuccess(successMsg);
+        // Clear form
+        clearForm();
+      }
     } catch (error) {
-      setError("Error linking User ID : " + error.message);
-      console.error("Error linking User ID :", error);
+      setError("Error creating advocate: " + error.message);
+      console.error("Error creating advocate:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
+  const clearForm = () => {
+    setFirstName("");
+    setLastName("");
+    setEmail("");
+    setError(null);
+    // Don't clear success message - let user see it
+  };
+
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-lg mt-10">
-      <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">
-        Link User ID
-      </h2>
+    <div>
+      {/* Title moved to header - removed duplicate */}
 
-      {error && <p className="text-red-600 text-center mb-4">{error}</p>}
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
+      )}
 
-      {success && <p className="text-green-600 text-center mb-4">{success}</p>}
+      {success && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+          {success}
+        </div>
+      )}
 
-      <form onSubmit={handleLinkAdvocate} className="space-y-6">
+      <form onSubmit={handleCreateAdvocate} className="space-y-6">
         <div>
           <label
             htmlFor="firstName"
             className="block text-lg font-medium text-gray-700 mb-2"
           >
-            First Name:
+            First Name: <span className="text-red-500">*</span>
           </label>
           <input
             id="firstName"
             type="text"
             value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
+            onChange={(e) => {
+              setFirstName(e.target.value);
+              if (success) setSuccess(null); // Clear success message when user starts typing
+            }}
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -83,13 +101,16 @@ const LinkAdvocate = () => {
             htmlFor="lastName"
             className="block text-lg font-medium text-gray-700 mb-2"
           >
-            Last Name:
+            Last Name: <span className="text-red-500">*</span>
           </label>
           <input
             id="lastName"
             type="text"
             value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
+            onChange={(e) => {
+              setLastName(e.target.value);
+              if (success) setSuccess(null); // Clear success message when user starts typing
+            }}
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -100,25 +121,53 @@ const LinkAdvocate = () => {
             htmlFor="email"
             className="block text-lg font-medium text-gray-700 mb-2"
           >
-            Email:
+            Email: <span className="text-red-500">*</span>
           </label>
           <input
             id="email"
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (success) setSuccess(null); // Clear success message when user starts typing
+            }}
             required
-            className="w-full px-4 py-2 border mb-4 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+        </div>
+
+        {/* Clerk Account Options */}
+        <div className="space-y-3 p-4 bg-gray-50 border border-gray-200 rounded-md">
+        
+          
+          <div className="flex items-center">
+            <label htmlFor="createClerkAccount" className="ml-2 text-sm text-gray-700">
+              Create user account (allows advocate to login)
+            </label>
+          </div>
+          
+          <div className="flex items-center">
+            <label htmlFor="sendInvitation" className="ml-2 text-sm text-gray-700">
+              Send invitation email to set up their password
+            </label>
+          </div>
         </div>
 
         <button
           type="submit"
-          className="w-full py-2 bg-blue-500 text-white rounded-md font-semibold hover:bg-blue-600 transition"
+          disabled={loading}
+          className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg border border-blue-600 font-semibold hover:bg-blue-700 hover:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Link User ID
+          {loading ? "Creating..." : "Create Advocate"}
         </button>
       </form>
+      
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+        <p className="text-sm text-blue-700">
+          <strong>Note:</strong> This creates a new advocate record that can be assigned to clients. 
+          An invitation will be sent to their email address to set up their account.
+        </p>
+      </div>
     </div>
   );
 };

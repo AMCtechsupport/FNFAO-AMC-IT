@@ -50,9 +50,7 @@ export const getFormInitialValues = ({
     custodySupport: convertBooleanToYesNo(originalData?.custodySupport),
     custodySupportSpecified: originalData?.custodySupportSpecified || "",
     criminalCharges: convertBooleanToYesNo(originalData?.criminalCharges),
-
-    criminalChargesSpecified: convertBooleanToYesNo(originalData?.criminalChargesSpecified),
-    
+    criminalChargesSpecified: originalData?.criminalChargesSpecified || "",
     activeWarrant: convertBooleanToYesNo(originalData?.activeWarrant),
     activeWarrantSpecified: originalData?.activeWarrantSpecified || "",
     activeInvestigation: convertBooleanToYesNo(originalData?.activeInvestigation),
@@ -139,7 +137,14 @@ export const getFormInitialValues = ({
         phoneNumber: worker.phoneNumber || "",
         EIACaseNumber: worker.EIACaseNumber || "",
     })) || [],
-    homeMembers: homeMembersData || [],
+    homeMembers: homeMembersData.map(member => ({
+        firstName: member.firstName || "",
+        lastName: member.lastName || "",
+        relationship: member.relationship || "",
+        phoneNumber: member.phoneNumber || "",
+        email: member.email || "",
+        livingTogether: member.livingTogether
+    })) || [],
     });
 
 
