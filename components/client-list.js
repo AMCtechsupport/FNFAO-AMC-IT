@@ -188,7 +188,7 @@ export default function ClientsList({ initialClients, totalCount }) {
         .select("*", { count: "exact" })
         .eq("clientType", "Youth Intake")
         .range((page - 1) * clientsPerPage, page * clientsPerPage - 1)
-        .order("createdAt", { ascending: false });
+        .order("dateModified", { ascending: false });
 
       if (searchQuery) {
         const isNumeric = !isNaN(searchQuery);
@@ -232,7 +232,7 @@ export default function ClientsList({ initialClients, totalCount }) {
         .select("*", { count: "exact" })
         .eq("clientType", "Pre-Intake")
         .range((page - 1) * clientsPerPage, page * clientsPerPage - 1)
-        .order("createdAt", { ascending: false });
+        .order("dateModified", { ascending: false });
 
       if (searchQuery) {
         const isNumeric = !isNaN(searchQuery);

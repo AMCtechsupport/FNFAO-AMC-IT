@@ -20,7 +20,7 @@ export default async function AssignPage() {
         {/* Left side: AssignAdvocate component */}
         <div className="flex-1 p-4 bg-gray-100 border border-gray-300 rounded-md shadow-sm">
           <h2 className="text-xl font-semibold mb-4">
-            Assign Advocate to Client
+            Assign Client to Advocate
           </h2>
           {/* Pass clients and advocates data as props to the AssignAdvocate component */}
           <AssignAdvocate clients={clientsData} advocates={advocatesData} />

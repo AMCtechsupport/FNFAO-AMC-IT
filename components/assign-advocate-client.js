@@ -21,7 +21,7 @@ export default function AssignAdvocate() {
         .from("Clients")
         .select("*")
         .limit(5)
-        .order("createdAt", { ascending: false });
+        .order("dateModified", { ascending: false });
 
       if (searchQuery) {
         const isNumeric = !isNaN(searchQuery);
@@ -155,7 +155,7 @@ export default function AssignAdvocate() {
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg border ">
       <h2 className="text-2xl font-bold mb-4 text-gray-800">
-        Assign Advocate to Client
+        Assign Client to Advocate
       </h2>
 
       <form onSubmit={handleAssignAdvocate} className="space-y-6">

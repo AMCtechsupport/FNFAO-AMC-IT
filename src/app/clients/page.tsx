@@ -31,7 +31,8 @@ async function fetchClientsData(page: number) {
     const { data, error, count } = await supabase
       .from("Clients")
       .select("*", { count: "exact" })
-      .range((page - 1) * 10, page * 10 - 1);
+      .range((page - 1) * 10, page * 10 - 1)
+      .order("dateModified", { ascending: false });
 
     if (error) {
       console.error("Error fetching data:", error.message);
