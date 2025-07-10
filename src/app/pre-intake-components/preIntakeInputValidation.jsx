@@ -79,7 +79,7 @@ const PreIntakeInputValidation=
         if (child.birthDate) {
             const birthDate = new Date(child.birthDate);
             const today = new Date();
-            const minDate = new Date(today.getFullYear() - 17, today.getMonth(), today.getDate());
+            const minDate = new Date(today.getFullYear() - 20, today.getMonth(), today.getDate());
 
             // Only initialize errors[index] if there's a problem
             let birthDateError = null;
@@ -87,7 +87,7 @@ const PreIntakeInputValidation=
             if (birthDate > today) {
             birthDateError = "Date of birth cannot be in the future";
             } else if (birthDate < minDate) {
-            birthDateError = "Child must be between 0 and 17 years old";
+            birthDateError = "Child must be between 0 and 20 years old";
             }
 
             if (birthDateError) {
@@ -185,15 +185,15 @@ const PreIntakeInputValidation=
         if (!dateStr) {
         errors.activeInvestigationExplained = "Please provide the start date of the investigation";
         } else {
-        const date = new Date(dateStr);
-        const today = new Date();
-        const eightyYearsAgo = new Date(today.getFullYear() - 80, today.getMonth(), today.getDate());
+            const date = new Date(dateStr);
+            const today = new Date();
+            const eightyYearsAgo = new Date(today.getFullYear() - 80, today.getMonth(), today.getDate());
 
-        if (date > today) {
-            errors.activeInvestigationExplained = "Date cannot be in the future";
-        } else if (date < eightyYearsAgo) {
-            errors.activeInvestigationExplained = `Date must be within the last 80 years (${eightyYearsAgo.getFullYear()}–${today.getFullYear()})`;
-        }
+            if (date > today) {
+                errors.activeInvestigationExplained = "Date cannot be in the future";
+            } else if (date < eightyYearsAgo) {
+                errors.activeInvestigationExplained = `Date must be within the last 80 years (${eightyYearsAgo.getFullYear()}–${today.getFullYear()})`;
+            }
         }
     }
 

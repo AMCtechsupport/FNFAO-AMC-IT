@@ -33,11 +33,11 @@ const PreIntakeFormSubmit = () => {
             // Extract 'children', 'emergencyContactFirstName', 'emergencyContactLastName' and 'emergencyContactNumber'
             // from convertedValues and keep the rest as client data
             const {
-            children,
-            emergencyContactFirstName,
-            emergencyContactLastName,
-            emergencyContactNumber,
-            ...clientData
+                children,
+                emergencyContactFirstName,
+                emergencyContactLastName,
+                emergencyContactNumber,
+                ...clientData
             } = convertedValues;
 
             // Add date fields before inserting
@@ -81,37 +81,35 @@ const PreIntakeFormSubmit = () => {
             }
 
             // Insert emergency contact into  the 'Emergency Contact' table
-            if (
-            emergencyContactFirstName &&
-            emergencyContactLastName &&
-            emergencyContactNumber
-            ) {
-            const emergencyContactData = {
-                firstName: emergencyContactFirstName,
-                lastName: emergencyContactLastName,
-                phoneNumber: emergencyContactNumber,
-                note: "",
-                client_id: clientId, // Associate emergency contact with the client
-            };
+            if  ( emergencyContactFirstName && 
+                  emergencyContactLastName && 
+                  emergencyContactNumber ) {
+                    const emergencyContactData = {
+                        firstName: emergencyContactFirstName,
+                        lastName: emergencyContactLastName,
+                        phoneNumber: emergencyContactNumber,
+                        note: "",
+                        client_id: clientId, // Associate emergency contact with the client
+                    };
 
-            const { error: emergencyContactError } = await supabase
-                .from("Emergency Contacts")
-                .insert([emergencyContactData]);
+                    const { error: emergencyContactError } = await supabase
+                        .from("Emergency Contacts")
+                        .insert([emergencyContactData]);
 
-            if (emergencyContactError) {
-                throw emergencyContactError;
-            }
-            }
+                    if (emergencyContactError) {
+                        throw emergencyContactError;
+                    }
+                }
 
-            // Reset form and show success message
-            setFormSent(true);
-            resetForm();
-            setTimeout(() => setFormSent(false), 5000);
-        } catch (error) {
-        // Optionally, handle error reporting here
-    }
-    
-};
+                // Reset form and show success message
+                setFormSent(true);
+                resetForm();
+                setTimeout(() => setFormSent(false), 5000);
+            } catch (error) {
+            // Optionally, handle error reporting here
+        }
+        
+    };
     return { onSubmitPreIntake, formSent};
 };
 
