@@ -59,7 +59,6 @@ const PreIntakeOtherQuestions = ( { values, validateRadio, errors } ) => {
               </Col>
             )}
           </Row>
-
           <Row className={styles.group}>
             <Col md={4}>
               <div>
@@ -108,7 +107,6 @@ const PreIntakeOtherQuestions = ( { values, validateRadio, errors } ) => {
               </Col>
             )}
           </Row>
-
           <Row className={styles.group}>
             <Col md={4}>
               <div>
@@ -305,7 +303,6 @@ const PreIntakeOtherQuestions = ( { values, validateRadio, errors } ) => {
               </Col>
             )}
           </Row>
-
           <Row className={styles.group}>
             <Col md={6}>
               <div>
@@ -353,7 +350,6 @@ const PreIntakeOtherQuestions = ( { values, validateRadio, errors } ) => {
               </Col>
             )}
           </Row>
-
           <Row className={styles.group}>
             <Col md={6}>
               <div>
@@ -407,7 +403,6 @@ const PreIntakeOtherQuestions = ( { values, validateRadio, errors } ) => {
               </Col>
             )}
           </Row>
-
           <Row className={styles.group}>
             <Col md={6}>
               <div>
@@ -457,7 +452,6 @@ const PreIntakeOtherQuestions = ( { values, validateRadio, errors } ) => {
               </Col>
             )}
           </Row>
-
           <Row className={styles.group}>
             <Col md={3}>
               <div>

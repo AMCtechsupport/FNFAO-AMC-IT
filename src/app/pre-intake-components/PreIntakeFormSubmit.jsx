@@ -12,19 +12,19 @@ const PreIntakeFormSubmit = () => {
             // Loop through all fields in the 'values' object
             // to convert them from "yes/no" to true/false
             for (let key in values) {
-            if (values[key] === "yes") {
-                convertedValues[key] = true;
-            } else if (values[key] === "no") {
-                convertedValues[key] = false;
-            } else if (
-                values[key] === "" ||
-                values[key] === undefined ||
-                values[key] === null
-            ) {
-                convertedValues[key] = null; // Assigns null if nothing is selected
-            } else {
-                convertedValues[key] = values[key];
-            }
+                if (values[key] === "yes") {
+                    convertedValues[key] = true;
+                } else if (values[key] === "no") {
+                    convertedValues[key] = false;
+                } else if (
+                    values[key] === "" ||
+                    values[key] === undefined ||
+                    values[key] === null
+                ) {
+                    convertedValues[key] = null; // Assigns null if nothing is selected
+                } else {
+                    convertedValues[key] = values[key];
+                }
             }
 
             // Get the current date in ISO 8601 format
