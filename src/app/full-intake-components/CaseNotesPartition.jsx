@@ -149,62 +149,62 @@ const CaseNotesPartition = ({
                             </Row>
                         </div>
                     )}
-
-                    {/* Show add new note details */}
-                    {!showNewNoteForm && (
-                        // <Button onClick={() => handleAddNoteClick(values, setFieldValue)} disabled={!isEditing} >Add Note</Button>
-                        <FieldArray name="notes">
-                            {({ push }) => (
-                                <Button onClick={() => handleAddNoteClick(values, push, "case")} disabled={!isEditing}>
-                                    Add Case Note
-                                </Button>
-                            )}
-                        </FieldArray>
-
-                    )}
-                    {showNewNoteForm && (
-                        <div style={{ backgroundColor: "#dbdbdb", padding: "15px", borderRadius: "8px", border: "0.5px solid #ccc" }} >
-
-                            <h4>New Case Note</h4>
-                            <Row>
-                                <Col>
-                                    <TypeNoteSelect name={`notes.${values.notes.length - 1}.type`} label="Type" placeholder="" error={errors.type} disabled={!isEditing}/>
-                                </Col>
-                                <Col>
-                                    <SubTypeNoteSelect name={`notes.${values.notes.length - 1}.subType`} label="Subtype" placeholder="" error={errors.subType} disabled={!isEditing}/>
-                                </Col>
-                            </Row>
-
-                            <label>Description:</label>
-                            <Field
-                                // label="Description"
-                                name={`notes.${values.notes.length - 1}.description`}
-                                as="textarea"
-                                rows={4}
-                            />
-                            <label>Action Plan:</label>
-                            <Field
-                                // label="Action Plan"
-                                name={`notes.${values.notes.length - 1}.actionPlan`}
-                                as="textarea"
-                                rows={4}
-                            />
-
-                            {/* Input to upload file */}
-                            <label>Attach File:</label>
-                            <input
-                                type="file"
-                                accept="image/*,.pdf,.doc,.docx"
-                                onChange={(event) => {
-                                    const file = event.currentTarget.files[0];
-                                    setFieldValue(`notes.${values.notes.length - 1}.file`, file);
-                                }}
-                            />
-                        </div>
-                    )}
-
                 </>
             )}
+
+            {/* Show add new note details */}
+            {!showNewNoteForm && (
+                // <Button onClick={() => handleAddNoteClick(values, setFieldValue)} disabled={!isEditing} >Add Note</Button>
+                <FieldArray name="notes">
+                    {({ push }) => (
+                        <Button onClick={() => handleAddNoteClick(values, push, "case")} disabled={!isEditing}>
+                            Add Case Note
+                        </Button>
+                    )}
+                </FieldArray>
+
+            )}
+            {showNewNoteForm && (
+                <div style={{ backgroundColor: "#dbdbdb", padding: "15px", borderRadius: "8px", border: "0.5px solid #ccc" }} >
+
+                    <h4>New Case Note</h4>
+                    <Row>
+                        <Col>
+                            <TypeNoteSelect name={`notes.${values.notes.length - 1}.type`} label="Type" placeholder="" error={errors.type} disabled={!isEditing}/>
+                        </Col>
+                        <Col>
+                            <SubTypeNoteSelect name={`notes.${values.notes.length - 1}.subType`} label="Subtype" placeholder="" error={errors.subType} disabled={!isEditing}/>
+                        </Col>
+                    </Row>
+
+                    <label>Description:</label>
+                    <Field
+                        // label="Description"
+                        name={`notes.${values.notes.length - 1}.description`}
+                        as="textarea"
+                        rows={4}
+                    />
+                    <label>Action Plan:</label>
+                    <Field
+                        // label="Action Plan"
+                        name={`notes.${values.notes.length - 1}.actionPlan`}
+                        as="textarea"
+                        rows={4}
+                    />
+
+                    {/* Input to upload file */}
+                    <label>Attach File:</label>
+                    <input
+                        type="file"
+                        accept="image/*,.pdf,.doc,.docx"
+                        onChange={(event) => {
+                            const file = event.currentTarget.files[0];
+                            setFieldValue(`notes.${values.notes.length - 1}.file`, file);
+                        }}
+                    />
+                </div>
+            )}
+
         </>
     );
 };
