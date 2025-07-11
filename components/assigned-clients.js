@@ -9,12 +9,9 @@ export default function AssignedClientsToAdvocate({ advocateId }) {
   const [assignedClients, setAssignedClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalClients, setTotalClients] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
-  const clientsPerPage = 5;
 
-  // Fetch the clients assigned to the selected advocate with pagination
+  // Fetch all clients assigned to the selected advocate
   useEffect(() => {
     const fetchAssignedClients = async () => {
       setLoading(true);
@@ -40,21 +37,8 @@ export default function AssignedClientsToAdvocate({ advocateId }) {
           }
         }
 
-        // Get the total number of clients assigned to the advocate
-        const { count, error: countError } = await query.select(
-          "*, Clients(*)",
-          { count: "exact" }
-        );
-
-        if (countError) throw new Error(countError.message);
-
-        setTotalClients(count);
-
-        // Get clients for the current page
-        const { data, error } = await query.range(
-          (currentPage - 1) * clientsPerPage,
-          currentPage * clientsPerPage - 1
-        );
+        // Get all clients (no pagination)
+        const { data, error } = await query;
 
         if (error) throw new Error(error.message);
 
@@ -69,7 +53,7 @@ export default function AssignedClientsToAdvocate({ advocateId }) {
     if (advocateId) {
       fetchAssignedClients();
     }
-  }, [advocateId, currentPage, searchQuery]);
+  }, [advocateId, searchQuery]);
 
   // Handle unassignment
   const handleUnassign = (clientId) => {
@@ -80,20 +64,7 @@ export default function AssignedClientsToAdvocate({ advocateId }) {
     );
   };
 
-  // Pagination control handlers
-  const totalPages = Math.ceil(totalClients / clientsPerPage);
 
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
 
   return (
     <div className="assigned-clients-container">
@@ -184,26 +155,7 @@ export default function AssignedClientsToAdvocate({ advocateId }) {
         <p>No clients found that match your search.</p>
       )}
 
-      {/* Pagination Controls */}
-      <div className="flex justify-between items-center mt-4">
-        <button
-          onClick={handlePrevPage}
-          disabled={currentPage === 1}
-          className="px-4 py-2 text-black rounded-md disabled:bg-gray-500"
-        >
-          Previous
-        </button>
-        <span className="text-gray-700">
-          Page {currentPage} of {totalPages}
-        </span>
-        <button
-          onClick={handleNextPage}
-          disabled={currentPage === totalPages}
-          className="px-4 py-2 text-black rounded-md disabled:bg-gray-500"
-        >
-          Next
-        </button>
-      </div>
+
     </div>
   );
 }

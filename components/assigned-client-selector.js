@@ -35,7 +35,7 @@ export default function AssignClientSelector({ advocates }) {
 
       {/* Display filtered advocates */}
       {filteredAdvocates.length > 0 && (
-        <div className="mt-4 border-2 rounded-lg p-4 max-h-48 bg-gray-200 overflow-y-auto">
+        <div className="mt-4 border-2 rounded-lg p-4 max-h-96 bg-gray-200 overflow-y-auto">
           <ul>
             {filteredAdvocates.map((advocate) => (
               <li
@@ -50,7 +50,7 @@ export default function AssignClientSelector({ advocates }) {
                 </span>
                 <br />
                 <span className="text-sm text-gray-600">
-                  ID: {advocate.advocate_id}
+                  Email: {advocate.email}
                 </span>
               </li>
             ))}

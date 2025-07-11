@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import UserHome from "../user-home/page";
 import styles from "../full-intake/fullIntake.module.css";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
@@ -38,7 +39,8 @@ import "react-tabs/style/react-tabs.css";
 import { FormInitialValue, getFormInitialValues } from "./InitialValues";
 import handleChildrenUpdate from "./childrenUpdate";
 
-export default function FullIntakeForm({client_id, userId, getToken} ){
+export default function FullIntakeForm({client_id, userId, getToken, isEditMode = false} ){
+    const router = useRouter();
     const [originalData, setOriginalData] = useState(null);
     const [childrenData, setChildrenData] = useState([]); // State for children
     const [familyData, setFamilyData] = useState([]);
@@ -52,7 +54,7 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
     const [legalNotes, setLegalNotes] = useState([]);
 
     const [loading, setLoading] = useState(true);
-    const [isEditing, setIsEditing] = useState(false); // state to enable/disable fields
+    const [isEditing, setIsEditing] = useState(isEditMode); // state to enable/disable fields - start in edit mode if isEditMode is true
     const [formSent, setFormSent] = useState(false);
 
     const [selectedNote, setSelectedNote] = useState(null);
@@ -90,9 +92,9 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
     };
 
     const validateRadio = (value) => {
-        if (!value) {
-          return "Please select an option"; // Error message if there is no selection
-        }
+        // Radio buttons are now optional - no validation required
+        // Users can submit the form without selecting radio options
+        return undefined;
     };
 
     // Load client and children data when opening the form
@@ -112,7 +114,9 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
                 console.error("Error fetching client data:", clientError.message || clientError);
             } else {
                 setOriginalData(clientData);
-                // console.log("Original data:", clientData);
+                                console.log("🔍 RAW DATABASE DATA (originalData):");
+                console.log(JSON.stringify(clientData, null, 2));
+                console.log("🔍 SPECIFIC FIELD CHECK - relationshipToChildren:", clientData?.relationshipToChildren);
             }
 
             // Gets the children associated with the client
@@ -200,20 +204,66 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
     return(
         <div className="form-container">
             <Formik
-                initialValues={getFormInitialValues({
-                    originalData,
-                    childrenData,
-                    notesData,
-                    caseNotes,
-                    legalNotes,
-                    familyData,
-                    EIAData,
-                    homeMembersData,
-                })}
+                initialValues={(() => {
+                    const formInitialValues = getFormInitialValues({
+                        originalData,
+                        childrenData,
+                        notesData,
+                        caseNotes,
+                        legalNotes,
+                        familyData,
+                        EIAData,
+                        homeMembersData,
+                    });
+                    
+                    console.log("📊 FORM INITIAL VALUES (after conversion):");
+                    console.log(JSON.stringify(formInitialValues, null, 2));
+                    
+                    console.log("🔍 RADIO BUTTON FIELD COMPARISON:");
+                    console.log("Field Name | Database Value | Form Value");
+                    console.log("----------------------------------------");
+                    
+                    // Radio button fields comparison
+                    const radioFields = [
+                        'onReserve', 'transitionFromReserve', 'previousFNFAOClient', 'casePlanCopy',
+                        'prenatalSupport', 'housingSupport', 'addictionsSupport', 'youthSupport',
+                        'custodySupport', 'criminalCharges', 'activeWarrant',
+                        'activeInvestigation', 'activeOrders', 'currentLawyer', 'legalAssistance',
+                        'residentialSchool', 'negativeCopingSkills', 'educationalGoals', 'accessElder',
+                        'kinship', 'prentativeSupport', 'privateAgreement', 'previousInvolvement',
+                        'parentalCapacityDone', 'cfsExplain', 'turnToKinshipCare'
+                    ];
+                    
+                    radioFields.forEach(field => {
+                        const dbValue = originalData?.[field];
+                        const formValue = formInitialValues[field];
+                        console.log(`${field} | ${dbValue} | ${formValue}`);
+                    });
+                    
+                    console.log("\n🔍 TEXT FIELD COMPARISON:");
+                    console.log("Field Name | Database Value | Form Value");
+                    console.log("----------------------------------------");
+                    
+                    // Text field comparison
+                    const textFields = [
+                        'firstName', 'middleName', 'lastName', 'dateOfBirth', 'phoneNumber',
+                        'address', 'city', 'province', 'postalCode', 'email', 'firstNationMembership',
+                        'treatyNumber', 'otherFirstNation', 'ninePersonalHealthNumber', 'sixPersonalHealthNumber',
+                        'martialStatus', 'sourceIncome', 'lawyerFullName', 'lawyerPhoneNumber', 'lawyerEmail'
+                    ];
+                    
+                    textFields.forEach(field => {
+                        const dbValue = originalData?.[field];
+                        const formValue = formInitialValues[field];
+                        console.log(`${field} | "${dbValue}" | "${formValue}"`);
+                    });
+                    
+                    return formInitialValues;
+                })()}
                 enableReinitialize
                 validate={(values) => {
                     let errors = {};
-                // Validations
+                // Validations - Only require essential fields
                 if (!values.firstName) {
                     errors.firstName = "Please enter a name";
                 } else if (!/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.firstName)) {
@@ -235,9 +285,8 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
                     "The last name can only contain letters and spaces";
                 }
 
-                if (!values.dateOfBirth) {
-                    errors.dateOfBirth = "Please select a birth date";
-                } else {
+                // Optional field validations - only validate format if provided
+                if (values.dateOfBirth) {
                     const birthDate = new Date(values.dateOfBirth);
                     const currentYear = new Date().getFullYear();
                     const birthYear = birthDate.getFullYear();
@@ -260,27 +309,23 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
                     }
                 }
 
-                if (!values.phoneNumber) {
-                    errors.phoneNumber = "Please enter a phone number";
-                }
+                // Phone number - optional, but validate format if provided
+                // Note: Remove the required validation
 
+                // Address - optional, but validate format if provided
                 const addressRegex = /^[a-zA-Z0-9\s,.-]*$/;
-                if (!values.address) {
-                    errors.address = "Please enter an address";
-                } else if (!addressRegex.test(values.address)) {
+                if (values.address && !addressRegex.test(values.address)) {
                     errors.address = "The address contains invalid characters";
                 }
 
-                if (!values.city) {
-                    errors.city = "Please enter a city";
-                } else if (!/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.city)) {
+                // City - optional, but validate format if provided
+                if (values.city && !/^[a-zA-ZÀ-ÿ\s]{1,40}$/.test(values.city)) {
                     errors.city = "The city can only contain letters and spaces";
                 }
 
-                if (!values.province) {
-                    errors.province = "Please select a province";
-                }
+                // Province - optional, no validation needed
 
+                // Postal code - optional, but validate format if provided
                 if (
                     values.postalCode &&
                     !/^[A-Z]\d[A-Z] \d[A-Z]\d$/.test(values.postalCode)
@@ -288,12 +333,10 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
                     errors.postalCode = "Invalid postal code format (e.g., A1A 1A1)";
                 }
 
-                if (!values.email) {
-                    errors.email = "Please enter an email";
-                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
+                // Email - optional, but validate format if provided
+                if (values.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
                     errors.email = "Invalid email format";
                 }
-
 
                     return errors;
                 }}
@@ -342,6 +385,31 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
 
                         // Add dateModified field with the current date and time
                         clientValues.dateModified = new Date().toISOString();
+
+                        // Sanitize boolean fields - convert empty strings and "yes"/"no" strings to proper boolean values
+                        const booleanFields = [
+                            'onReserve', 'transitionFromReserve', 'previousFNFAOClient', 'casePlanCopy', 
+                            'prenatalSupport', 'housingSupport', 'addictionsSupport', 'youthSupport', 
+                            'custodySupport', 'criminalCharges', 'activeWarrant', 
+                            'activeInvestigation', 'activeOrders', 'currentLawyer', 'legalAssistance',
+                            'residentialSchool', 'cfsCare', 'adoptedScoop', 'experiencedSuicide', 
+                            'MMIWG2S', 'familyViolence', 'FASD', 'ADHD', 'PTSD', 'depression', 
+                            'cancerAutoimmuneCondition', 'otherMentalCondition', 'negativeCopingSkills',
+                            'educationalGoals', 'accessElder', 'kinship', 'prentativeSupport', 
+                            'privateAgreement', 'previousInvolvement', 'parentalCapacityDone', 
+                            'cfsExplain', 'turnToKinshipCare'
+                        ];
+
+                        booleanFields.forEach(field => {
+                            const value = clientValues[field];
+                            if (value === "yes" || value === true) {
+                                clientValues[field] = true;
+                            } else if (value === "no" || value === false) {
+                                clientValues[field] = false;
+                            } else if (value === "" || value === null || value === undefined) {
+                                clientValues[field] = null;
+                            }
+                        });
 
                         // Updates data in Supabase
                         const { data, error} = await supabase
@@ -411,7 +479,11 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
                             setIsEditing(false);
                             setFormSent(true);
                             resetForm({ values });
-                            setTimeout(() => setFormSent(false), 3000);
+                            
+                            // Redirect to client list after successful update (like youth-intake form)
+                            setTimeout(() => {
+                                router.push('/clients');
+                            }, 1500);
                         } else {
                             console.warn("Warning: The update did not modify any data.");
                         }
@@ -608,7 +680,7 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
                                         <Row className={styles.group}>
                                             <Col md={4}>
                                                 <div>
-                                                    <label>Are you living on or off reserve?  </label>
+                                                    <label>Are you living on or off reserve?  </label>
                                                     <div className="form-check form-check-inline">
                                                         <Field  className="form-check-input" type="radio" name="onReserve" value="yes" checked={values.onReserve === "yes"} disabled={!isEditing} />
                                                         <label className="form-check-label">Yes</label>
@@ -794,7 +866,6 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
                                                                     label="Living Together?"
                                                                     error={errors.homeMembers?.[index]?.livingTogether}
                                                                     disabled={!isEditing}
-                                                                    onChange={(e) => setFieldValue(`homeMembers.${index}.livingTogether`, e.target.value)}
                                                                 />
                                                             </Col>
 
@@ -826,7 +897,7 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
                                                             relationship: "",
                                                             phoneNumber: "",
                                                             email:"",
-                                                            livingTogether:""
+                                                            livingTogether: null
                                                         })}>
                                                         + Add Member
                                                     </Button>
@@ -843,7 +914,7 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
                                             {[
                                                 { name: "residentialSchool", label: "Attended Residential School?" },
                                                 { name: "cfsCare", label: "Been in CFS Care?" },
-                                                { name: "adoptedScoop", label: "Adopted in the 60’s Scoop?" },
+                                                { name: "adoptedScoop", label: "Adopted in the 60's Scoop?" },
                                                 { name: "experiencedSuicide", label: "Experienced Suicide in your family?" },
                                                 { name: "MMIWG2S", label: "Connect with the MMIWG2S+ experience?" },
                                                 { name: "familyViolence", label: "Impacted by Family Violence?" }
@@ -1180,7 +1251,7 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
                                         <Row className={styles.group}>
                                             <Col md={4}>
                                             <div>
-                                                <label> Do you have any criminal charges (past, active or pending)? *</label>
+                                                <label> Do you have any criminal charges (past, active or pending)?</label>
                                                 <div className="form-check form-check-inline">
                                                 <Field
                                                     className="form-check-input"
@@ -1230,7 +1301,7 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
                                         <Row className={styles.group}>
                                             <Col md={4}>
                                             <div>
-                                                <label>Do you currently have an active arrest warrant? *</label>
+                                                <label>Do you currently have an active arrest warrant?</label>
                                                 <div className="form-check form-check-inline">
                                                 <Field
                                                     className="form-check-input"
@@ -1281,7 +1352,7 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
                                             <Col md={4}>
                                             <div>
                                                 <label>
-                                                Are you currently under child abuse investigation? *
+                                                Are you currently under child abuse investigation?
                                                 </label>
                                                 <div className="form-check form-check-inline">
                                                 <Field
@@ -1336,7 +1407,7 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
                                             <Col md={4}>
                                             <div>
                                                 <label>
-                                                Any active No Contact Orders or Protection Orders? *
+                                                Any active No Contact Orders or Protection Orders?
                                                 </label>
                                                 <div className="form-check form-check-inline">
                                                 <Field
@@ -1441,7 +1512,7 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
 
                                         <hr className="separator-line" />
 
-                                        {/* Agency Worker’s table */}
+                                        {/* Agency Worker's table */}
                                         <h5 className="text-dark">Agency Worker </h5>
                                         {childrenData.length > 0 && (() => {
                                             // Extract unique agents from childrenData
@@ -1485,7 +1556,7 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
 
                                         <hr className="separator-line" />
 
-                                        {/* Supervisor’s table */}
+                                        {/* Supervisor's table */}
                                         <h5 className="text-dark">Supervisor</h5>
                                         {childrenData.length > 0 && (() => {
                                             // Extract unique supervisors from childrenData
@@ -2022,11 +2093,11 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
                                                                     </Row>
                                                                     <Row>
                                                                         <Col md={4}>
-                                                                            <InputField name={`children.${index}.childCfsAgentFullName`} label="Worker’s Full Name:" disabled={!isEditing} />
+                                                                            <InputField name={`children.${index}.childCfsAgentFullName`} label="Worker's Full Name:" disabled={!isEditing} />
                                                                         </Col>
                                                                         <Col md={4}>
                                                                             <div>
-                                                                                <label htmlFor={`children.${index}.childCfsAgentNumber`}>Worker’s Phone Number:</label>
+                                                                                <label htmlFor={`children.${index}.childCfsAgentNumber`}>Worker's Phone Number:</label>
                                                                                 <Field type="number" id={`children.${index}.childCfsAgentNumber`} name={`children.${index}.childCfsAgentNumber`} component={PhoneNumberInput} placeholder="(123) 456-7890" disabled={!isEditing} />
                                                                                 <ErrorMessage
                                                                                     name={`children.${index}.childCfsAgentNumber`}
@@ -2035,7 +2106,7 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
                                                                         </Col>
                                                                         <Col md={4}>
                                                                             <div>
-                                                                                <label htmlFor={`children.${index}.childCfsAgentEmail`}>Worker’s Email:</label>
+                                                                                <label htmlFor={`children.${index}.childCfsAgentEmail`}>Worker's Email:</label>
                                                                                 <Field type="email" id={`children.${index}.childCfsAgentEmail`} name={`children.${index}.childCfsAgentEmail`} disabled={!isEditing} />
                                                                                 <ErrorMessage
                                                                                     name={`children.${index}.childCfsAgentEmail`}
@@ -2149,13 +2220,13 @@ export default function FullIntakeForm({client_id, userId, getToken} ){
                                                                 childPlaced: "",
                                                                 childCfsAgency:"",
                                                                 childCfsAgentFullName:"",
-                                                                childCfsAgentNumber:"",
+                                                                childCfsAgentNumber: null,
                                                                 childCfsAgentEmail:"",
                                                                 childStatusCfsFile:"",
                                                                 childCfsSupervisorFullName:"",
-                                                                childCfsSupervisorNumber:"",
+                                                                childCfsSupervisorNumber: null,
                                                                 childCfsSupervisorEmail:"",
-                                                                childMedicalNeeds:"",
+                                                                childMedicalNeeds: null,
                                                                 childMedicalNeedsExplained:"",
                                                                 biologicalParentFirstName:"",
                                                                 biologicalParentLastName:"",

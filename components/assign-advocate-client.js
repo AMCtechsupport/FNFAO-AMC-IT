@@ -21,7 +21,7 @@ export default function AssignAdvocate() {
         .from("Clients")
         .select("*")
         .limit(5)
-        .order("createdAt", { ascending: false });
+        .order("dateModified", { ascending: false });
 
       if (searchQuery) {
         const isNumeric = !isNaN(searchQuery);
@@ -155,7 +155,7 @@ export default function AssignAdvocate() {
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg border ">
       <h2 className="text-2xl font-bold mb-4 text-gray-800">
-        Assign Advocate to Client
+        Assign Client to Advocate
       </h2>
 
       <form onSubmit={handleAssignAdvocate} className="space-y-6">
@@ -175,7 +175,7 @@ export default function AssignAdvocate() {
 
         {/* Display search results for clients */}
         {clients.length > 0 && (
-          <div className="mt-4 border-2  rounded-lg p-4 max-h-48 bg-gray-200 overflow-y-auto">
+          <div className="mt-4 border-2  rounded-lg p-4 max-h-96 bg-gray-200 overflow-y-auto">
             <ul>
               {clients.map((client) => (
                 <li
@@ -239,7 +239,7 @@ export default function AssignAdvocate() {
 
         {/* Display search results for advocates */}
         {advocates.length > 0 && (
-          <div className="mt-4 border-2 rounded-lg p-4 max-h-48 overflow-y-auto bg-gray-200">
+          <div className="mt-4 border-2 rounded-lg p-4 max-h-96 overflow-y-auto bg-gray-200">
             <ul>
               {advocates.map((advocate) => (
                 <li
@@ -256,7 +256,7 @@ export default function AssignAdvocate() {
                   </span>
                   <br />
                   <span className="text-sm text-gray-600">
-                    ID: {advocate.advocate_id}
+                    Email: {advocate.email}
                   </span>
                 </li>
               ))}
