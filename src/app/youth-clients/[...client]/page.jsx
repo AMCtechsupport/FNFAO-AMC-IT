@@ -8,7 +8,8 @@ import supabase from "../../lib/supabase";
 
 import "react-tabs/style/react-tabs.css";
 import { useParams } from 'next/navigation';
-import { PreIntakeForm } from "../../youth-intake/page";
+import YouthIntakeForm  from "../../youth-intake-components/YouthIntakeForm"
+
 
 export default function YouthClientEdit({}) {
     const params = useParams(); // e.g., { client: ['301'] }
@@ -78,7 +79,7 @@ export default function YouthClientEdit({}) {
                             You are editing an existing youth client record (Name: {isLoading ? 'Loading...' : clientName})
                         </p>
                     </div>
-                    <PreIntakeForm
+                    <YouthIntakeForm
                         editClientId={client_id}
                         isEditMode={true}
                         getToken={getToken}

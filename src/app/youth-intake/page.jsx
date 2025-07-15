@@ -3,7 +3,7 @@ import { useSearchParams } from "next/navigation";
 import UserHome from "../user-home/page";
 import styles from "./preIntake.module.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import YouthIntakeForm from "../youth-intake-components/youthIntakeForm";
+import YouthIntakeForm from "../youth-intake-components/YouthIntakeForm";
 
 export default function YouthIntake() {
   const searchParams = useSearchParams();

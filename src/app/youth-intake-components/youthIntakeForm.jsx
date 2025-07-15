@@ -2,23 +2,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "../youth-intake/preIntake.module.css";
-import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
-import { Button, Row, Col } from "react-bootstrap";
+import { Formik, Form } from "formik";
 import "bootstrap/dist/css/bootstrap.min.css";
 import * as Yup from "yup";
 import validator from "validator";
-
-import ValidNameInput from "@/components/ValidNameInput";
-import PhoneNumberInput from "@/components/ValidPhoneNumber";
-import InputField from "@/components/InputField";
-import ReferredBySelect from "@/components/ReferredBySelect";
-import ProvincesSelect from "@/components/ProvincesSelect";
-import PronounSelect from "@/components/Pronouns";
-import StatusCFSFileSelect from "@/components/StatusCFSFileSelect";
-import FirstNationSelect from "@/components/FirstNationSelect";
-import ManageCfsAgencies from "@/components/ManageCfsAgencies";
-import EmailInput from "@/components/ValidEmailInput";
-
 import { useUser } from "@clerk/clerk-react";
 import supabase from "../lib/supabase";
 
@@ -60,8 +47,6 @@ function sanitizeValues(values) {
   }
   return sanitizedValues;
 }
-
-
 
 function YouthIntakeForm({ editClientId, isEditMode }) {
   const { user } = useUser();
@@ -661,18 +646,14 @@ function YouthIntakeForm({ editClientId, isEditMode }) {
           </div>
           <hr className="separator-line" />
 
-          {/* Start - General Information */}
           <YouthIntakeGeneralInfo
             errors={errors}
           />
-
-          {/* End - General Information */}
 
           <YouthIntakeEmergencyContact
             errors={errors}
           />
 
-          {}
           <YouthIntakeAgencyInfo
             values={values}
             errors={errors}
