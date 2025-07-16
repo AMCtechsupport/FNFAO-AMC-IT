@@ -1,6 +1,3 @@
-"use client";
-import "bootstrap/dist/css/bootstrap.min.css";
-
 function validatePhoneNumber(value) {
   const phoneNumberPattern = /^\(\d{3}\) \d{3}-\d{4}$/;
   if (value && !phoneNumberPattern.test(value)) {
@@ -9,7 +6,7 @@ function validatePhoneNumber(value) {
   return undefined;
 }
 
-const YouthIntakeInputValidation= (values) => {
+const youthIntakeInputValidation= (values) => {
     let errors = {};
 
     if (!values.firstName) {
@@ -154,4 +151,4 @@ const YouthIntakeInputValidation= (values) => {
 
     return errors;
 }
-export default YouthIntakeInputValidation;
+export default youthIntakeInputValidation;
