@@ -392,7 +392,7 @@ function YouthIntakeForm({ editClientId, isEditMode }) {
           setFormSent(true);
           
           // Reset initialValues back to empty state
-          setInitialValues(initialYouthForm);
+          resetForm(initialYouthForm);
           
           resetForm();
           
