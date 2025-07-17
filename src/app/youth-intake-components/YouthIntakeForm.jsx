@@ -394,8 +394,6 @@ function YouthIntakeForm({ editClientId, isEditMode }) {
           // Reset initialValues back to empty state
           resetForm(initialYouthForm);
           
-          resetForm();
-          
           // Handle post-submission behavior
           if (isEditMode) {
             // For edit mode, redirect to client list after successful update
