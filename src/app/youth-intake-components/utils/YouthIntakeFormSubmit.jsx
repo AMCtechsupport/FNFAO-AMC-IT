@@ -1,7 +1,7 @@
 "use client";
 import "bootstrap/dist/css/bootstrap.min.css";
 import validator from "validator";
-import supabase from "../lib/supabase";
+import supabase from "../../lib/supabase";
 import youthIntakeDefaultValues from "./youthIntakeDefaultValues";
 
 function sanitizeInput(input) {

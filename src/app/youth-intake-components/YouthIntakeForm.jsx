@@ -5,9 +5,7 @@ import styles from "../youth-intake/preIntake.module.css";
 import { Formik, Form } from "formik";
 import "bootstrap/dist/css/bootstrap.min.css";
 import * as Yup from "yup";
-import validator from "validator";
 import { useUser } from "@clerk/clerk-react";
-import supabase from "../lib/supabase";
 
 import youthIntakeInputValidation from "./utils/youthIntakeInputValidation";
 
@@ -24,100 +22,8 @@ import YouthIntakeGeneralInfo from "./form-sections/YouthIntakeGeneralInfo";
 
 // Imported external functions.
 import YouthIntakeFetchClientData from "./utils/YouthIntakeFetchClientData";
-import YouthIntakeFormSubmit from "./YouthIntakeFormSubmit";
-
-const initialYouthForm = {
-      firstName: "",
-      middleName: "",
-      lastName: "",
-      pronouns: "",
-      dateOfBirth: "",
-      phoneNumber: "",
-      socialMedia: "",
-      address: "",
-      city: "",
-      province: "",
-      postalCode: "",
-      email: "",
-      emergencyContactFirstName: "",
-      emergencyContactLastName: "",
-      emergencyContactNumber: "",
-      referredBy: "",
-      firstNationMembership: "",
-      treatyNumber: "",
-      otherFirstNation: "",
-      inCare: "",
-      statusCFSFile: "",
-      lastFaceToFace: "",
-      cfsAgency: "",
-      cfsAgentFullName: "",
-      cfsAgentNumber: "",
-      cfsAgentEmail: "",
-      onReserve: "",
-      apprehendedOnReserve: "",
-      transitionFromReserve: "",
-      currentlyStaying: "",
-      currentlyStayingDuration: "",
-      peopleHome: 0,
-      homeMembers: [
-        {
-          firstName: "",
-          middleName: "",
-          lastName: "",
-          relationship: "",
-          phoneNumber: "",
-          email: "",
-        },
-      ],
-      educationalPersons: [
-        {
-          firstName: "",
-          middleName: "",
-          lastName: "",
-          relationship: "",
-          phoneNumber: "",
-          email: "",
-        },
-      ],
-      inSchool: "",
-      schoolAttending: "",
-      currentGrade: "",
-      fullStudent: "",
-      schoolSchedule: "",
-      birthCertificate: false,
-      driversLicense: false,
-      healthCard: false,
-      statusCard: false,
-      enhancedID: false,
-      studentID: false,
-      bankAccount: "",
-      incomeAssistance: "",
-      caseWorkerFullName: "",
-      caseWorkerPhoneNumber: "",
-      caseWorkerEmail: "",
-      youthJustice: "",
-      custodySupportSpecified: "",
-      accessElder: "",
-      speakingOffice: "",
-      youthWorkshops: "",
-      disabilities: "",
-      disabilitiesExplained: "",
-      careExperience: "",
-      kindSupport: "",
-      personalGoals: "",
-      additionalInformation: "",
-      motherNation: "",
-      accessElderExplained: "",
-      connectedCommunity: "",
-      connectedCommunityExplained: "",
-      motherFirstName: "",
-      motherMiddleName: "",
-      motherLastName: "",
-      fatherFirstName: "",
-      fatherMiddleName: "",
-      fatherLastName: "",
-      fatherNation: "",
-};
+import YouthIntakeFormSubmit from "./utils/YouthIntakeFormSubmit";
+import youthIntakeDefaultValues from "./utils/youthIntakeDefaultValues";
 
 const validationSchema = Yup.object({
   homeMembers: Yup.array().of(
@@ -136,7 +42,7 @@ function YouthIntakeForm({ editClientId, isEditMode }) {
   const { user } = useUser();
   const router = useRouter();
   const [formSent, setFormSent] = useState(false);
-  const {initialValues, isLoading} = YouthIntakeFetchClientData(initialYouthForm,  isEditMode, editClientId);
+  const {initialValues, isLoading} = YouthIntakeFetchClientData(youthIntakeDefaultValues,  isEditMode, editClientId);
 
   if (isLoading) {
     return (
