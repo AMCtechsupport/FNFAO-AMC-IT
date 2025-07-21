@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useUser } from "@clerk/clerk-react";
-import supabase from "../lib/supabase";
+import supabase from "../../lib/supabase";
 
 const PreIntakeFormSubmit = () => {
     const { user } = useUser();
