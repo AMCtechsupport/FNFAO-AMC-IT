@@ -1,5 +1,5 @@
 "use client";
-import styles from "../full-intake/fullIntake.module.css"
+import styles from "../../full-intake/fullIntake.module.css"
 import { Field, ErrorMessage } from "formik";
 import { Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
