@@ -14,7 +14,8 @@ const GeneralInformationPartition = ({
     errors,
     isEditing,
     values,
-    validateRadio
+    validateRadio,
+    setFieldValue,
 }) => {
     return (
         <>
