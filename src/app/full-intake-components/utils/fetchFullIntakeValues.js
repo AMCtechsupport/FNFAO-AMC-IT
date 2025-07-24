@@ -1,4 +1,4 @@
-import { getFormInitialValues } from "../../full-intake-components/InitialValues";
+import { getFormInitialValues } from "./InitialValues";
 
 function fullIntakeInitialValues ({
     originalData,

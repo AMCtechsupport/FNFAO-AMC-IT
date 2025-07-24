@@ -28,8 +28,8 @@ import GeneralInformationPartition from "./form-sections/GeneralInformationParti
 import GeneralInformationHeader from "./form-sections/GeneralInformationHeader";
 
 // Utils
+import fetchFullIntakeValues from "./utils/fetchFullIntakeValues";
 import fullIntakeInputValidation from "./utils/fullIntakeInputValidation";
-import fullIntakeInitialValues from "./utils/fullIntakeInitialValues";
 
 export default function FullIntakeForm({client_id, userId, getToken, isEditMode = false} ){
     const router = useRouter();
@@ -196,7 +196,7 @@ export default function FullIntakeForm({client_id, userId, getToken, isEditMode 
     return(
         <div className="form-container">
             <Formik
-                initialValues={fullIntakeInitialValues({
+                initialValues={fetchFullIntakeValues({
                     originalData,
                     childrenData,
                     notesData,
