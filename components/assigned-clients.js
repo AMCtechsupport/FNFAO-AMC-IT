@@ -5,7 +5,7 @@ import supabase from "../src/app/lib/supabase";
 import Link from "next/link";
 import UnassignClient from "./unassign-advocate";
 
-export default function AssignedClientsToAdvocate({ advocateId }) {
+export default function AssignedClientsToAdvocate({ advocateId, onAssignmentChange }) {
   const [assignedClients, setAssignedClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -62,6 +62,11 @@ export default function AssignedClientsToAdvocate({ advocateId }) {
         (assignment) => assignment.Clients.client_id !== clientId
       )
     );
+    
+    // Notify parent to refresh data
+    if (onAssignmentChange) {
+      onAssignmentChange();
+    }
   };
 
 
@@ -89,11 +94,6 @@ export default function AssignedClientsToAdvocate({ advocateId }) {
                     {assignment.Clients.firstName} {assignment.Clients.lastName}
                   </Link>
                 </ul>
-
-                <p className="text-sm text-gray-700">
-                  <span className="font-semibold">Client ID: </span>
-                  {assignment.Clients.client_id}
-                </p>
                 <p className="text-sm text-gray-700">
                   <span className="font-semibold">Phone: </span>
                   {assignment.Clients.phoneNumber}

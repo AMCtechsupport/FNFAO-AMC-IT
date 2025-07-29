@@ -4,7 +4,7 @@ import { updateClientStatus } from "./client-active";
 import { useState, useEffect } from "react";
 import supabase from "../src/app/lib/supabase";
 
-export default function AssignAdvocate() {
+export default function AssignAdvocate({ onAssignmentChange }) {
   const [clients, setClients] = useState([]);
   const [advocates, setAdvocates] = useState([]);
   const [searchClient, setSearchClient] = useState("");
@@ -15,14 +15,21 @@ export default function AssignAdvocate() {
   const [showPopup, setShowPopup] = useState(false);
   const [isAssigned, setIsAssigned] = useState(false);
 
+  // Fetch initial data on component mount
+  useEffect(() => {
+    fetchClients("");
+    fetchAdvocates("");
+  }, []);
+
   const fetchClients = async (searchQuery = "") => {
     try {
       let query = supabase
         .from("Clients")
         .select("*")
-        .limit(5)
-        .order("dateModified", { ascending: false });
+        .order("client_id", { ascending: false })
+        .eq("clientStatus", "Inactive"); // Filter for inactive clients
 
+      // If there's a search query, add search conditions
       if (searchQuery) {
         const isNumeric = !isNaN(searchQuery);
         if (isNumeric) {
@@ -48,7 +55,7 @@ export default function AssignAdvocate() {
 
   const fetchAdvocates = async (searchQuery = "") => {
     try {
-      let query = supabase.from("Advocates").select("*").limit(5);
+      let query = supabase.from("Advocates").select("*");
 
       if (searchQuery) {
         query = query.or(
@@ -99,26 +106,29 @@ export default function AssignAdvocate() {
         .eq("advocate_id", selectedAdvocate);
 
       if (error) {
-        console.error("Error checking for existing assignment:", error.message);
-      }
-
-      // If data is not empty, that means the client is already assigned to this advocate
-      if (data.length > 0) {
-        setMessage("This client is already assigned to the selected advocate.");
+        console.error("Error checking existing assignment:", error);
+        setMessage("Error checking existing assignment: " + error.message);
         setShowPopup(true);
-        setIsAssigned(true);
         return;
       }
 
-      // Proceed with assigning if not already assigned
-      const { insertData, insertError } = await supabase
+      if (data && data.length > 0) {
+        setMessage("This client is already assigned to the selected advocate.");
+        setShowPopup(true);
+        return;
+      }
+
+      // Insert the new assignment
+      const { data: insertData, error: insertError } = await supabase
         .from("Assigned Advocates")
         .insert([
           {
             client_id: selectedClient.client_id,
             advocate_id: selectedAdvocate,
+            dateAssigned: new Date().toISOString(),
           },
-        ]);
+        ])
+        .select();
 
       if (insertError) {
         setMessage("Failed to assign advocate: " + insertError.message);
@@ -127,17 +137,22 @@ export default function AssignAdvocate() {
         setMessage("Client successfully assigned to the selected Advocate.");
         setShowPopup(true);
 
-        // Update client status to 'Active' after successful assignment
         await updateClientStatus(selectedClient.client_id);
 
-        // Reset selection and fetch fresh data
+        // Reset selection
         setSelectedClient(null);
         setSelectedAdvocate("");
-        fetchClients();
-        fetchAdvocates();
+
+        // Refresh local data and notify parent
+        fetchClients(searchClient);
+        fetchAdvocates(searchAdvocate);
+        if (onAssignmentChange) {
+          onAssignmentChange();
+        }
       }
     } catch (err) {
-      setMessage("Failed to assign advocate: " + err.message);
+      console.error("Unexpected error:", err);
+      setMessage("An unexpected error occurred: " + err.message);
       setShowPopup(true);
     }
   };
@@ -176,6 +191,17 @@ export default function AssignAdvocate() {
         {/* Display search results for clients */}
         {clients.length > 0 && (
           <div className="mt-4 border-2  rounded-lg p-4 max-h-96 bg-gray-200 overflow-y-auto">
+            <div className="mb-3 pb-2 border-b border-gray-300">
+              <h3 className="font-semibold text-gray-800">
+                {searchClient ? "Search Results (Inactive Clients Only)" : "Inactive Clients (Ready for Assignment)"}
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                {searchClient 
+                  ? "Showing inactive clients matching your search." 
+                  : "Showing only inactive clients. Use search to find specific inactive clients."
+                }
+              </p>
+            </div>
             <ul>
               {clients.map((client) => (
                 <li
@@ -192,17 +218,24 @@ export default function AssignAdvocate() {
                   </span>
                   <br />
                   <span className="text-sm text-gray-600">
-                    {client.phoneNumber} {" "}
-                    {client.firstNationMembership} |{" "}
-                    {new Date(client.dateOfBirth).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
+ 
+                    {client.firstNationMembership}
                   </span>
 
                   <span className="text-sm text-gray-600 block">
-                    Client Status: {client.clientStatus}
+                    Type: {client.clientType || "Not specified"}
+                  </span>
+
+                  <span className="text-sm text-gray-600 block">
+                    Status: {client.clientStatus}
+                  </span>
+
+                  <span className="text-sm text-gray-600 block">
+                    Created: {client.createdAt ? new Date(client.createdAt).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                    }) : "Not available"}
                   </span>
                 </li>
               ))}
@@ -216,9 +249,6 @@ export default function AssignAdvocate() {
             <p className="font-semibold text-blue-700">
               Selected Client: {selectedClient.firstName}{" "}
               {selectedClient.lastName}
-            </p>
-            <p className="text-sm text-gray-600">
-              Client ID: {selectedClient.client_id}
             </p>
           </div>
         )}

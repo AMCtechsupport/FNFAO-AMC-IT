@@ -143,10 +143,7 @@ export default function AssignedClientsList({ advocateId }) {
                     </Link>
                   </ul>
 
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Client ID: </span>
-                    {assignment.Clients.client_id}
-                  </p>
+
                   <p className="text-sm text-gray-700">
                     <span className="font-semibold">Phone: </span>
                     {assignment.Clients.phoneNumber}
