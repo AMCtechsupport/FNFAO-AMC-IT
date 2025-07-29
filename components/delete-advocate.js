@@ -158,9 +158,9 @@ const DeleteAdvocate = () => {
                   <div className="text-sm text-gray-600">
                     Email: {advocate.email}
                   </div>
-                  {/* <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-500">
                     ID: {advocate.advocate_id}
-                  </div> */}
+                  </div>
                 </li>
               ))}
             </ul>
@@ -174,7 +174,7 @@ const DeleteAdvocate = () => {
             <div className="text-gray-700">
               <p><strong>Name:</strong> {selectedAdvocate.firstName} {selectedAdvocate.lastName}</p>
               <p><strong>Email:</strong> {selectedAdvocate.email}</p>
-              {/* <p><strong>ID:</strong> {selectedAdvocate.advocate_id}</p> */}
+              <p><strong>ID:</strong> {selectedAdvocate.advocate_id}</p>
             </div>
           </div>
         )}

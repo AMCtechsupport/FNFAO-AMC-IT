@@ -95,7 +95,6 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, setFormS
         clientData.createdAt = currentDate;
         clientData.dateModified = currentDate;
         clientData.clientType = "Youth Intake";
-        clientData.clientStatus = "Inactive"; // Set default status to Inactive
 
         // Debug: Log final client data being sent to database
         console.log("🔍 DEBUG - Final clientData for database:", clientData);
@@ -255,11 +254,8 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, setFormS
             router.push('/clients');
         }, 1500);
         } else {
-        // For new submissions, redirect to client list after showing success message
-        setTimeout(() => {
-            setFormSent(false);
-            router.push('/clients');
-        }, 2000);
+        // For new submissions, show success message temporarily
+        setTimeout(() => setFormSent(false), 3000);
         }
     } catch (error) {
         console.error("General error:", error);

@@ -1,7 +1,8 @@
+import supabase from "../lib/supabase";
 import { v4 as uuidv4 } from 'uuid';
 import { isValidUUID } from '../utils/isValidUUID';
 
-export async function handleNotesUpdate (notes, client_id, setNotesData, supabaseClient, userId){
+export async function handleNotesUpdate (notes, client_id, setNotesData, supabase, userId){
     //const validUserId = isValidUUID(userId) ? userId : uuidv4();
     const cleanedUserId = userId.trim();  // Eliminar espacios
 
@@ -10,8 +11,11 @@ export async function handleNotesUpdate (notes, client_id, setNotesData, supabas
 
     try {
 
+        // supabase.auth.setAuth(token); //REQUIRED to use RLS with Clerk
+        // const { data: user, error } = await supabase.auth.signIn({ token });
+
         // Gets the current notes in the database
-        const { data: existingNotes, error: fetchError } = await supabaseClient
+        const { data: existingNotes, error: fetchError } = await supabase
             .from("Notes")
             .select("*")
             .eq("client_id", client_id);
@@ -33,116 +37,57 @@ export async function handleNotesUpdate (notes, client_id, setNotesData, supabas
                 updatedNotes.push(note);
                 receivedNotesIds.push(note.note_id);
             } else {
-                // Ensure all required fields are present for new notes
-                const newNote = { 
-                    ...note, 
-                    client_id,
-                    advocate_id: 19, // Use numeric advocate_id instead of string
-                    type: note.type || "General",
-                    subType: note.subType || "Uncategorized", 
-                    description: note.description || "No description provided",
-                    actionPlan: note.actionPlan || "No action plan provided",
-                    noteType: note.noteType ? (note.noteType.charAt(0).toUpperCase() + note.noteType.slice(1)) : "Case",
-                    createdAt: note.createdAt || new Date().toISOString(),
-                    modifiedAt: note.modifiedAt || new Date().toISOString()
-                };
-                
-                console.log("🔍 Processing new note:", newNote);
-                
-                // Remove any fields that might not exist in the database
-                // Only keep fields that we know exist in the Notes table
-                const allowedFields = [
-                    'client_id', 'advocate_id', 'type', 'subType', 'description', 
-                    'actionPlan', 'noteType', 'createdAt', 'modifiedAt'
-                ];
-                
-                // Clean the newNote object to only include allowed fields
-                const cleanedNote = {};
-                allowedFields.forEach(field => {
-                    if (newNote[field] !== undefined) {
-                        cleanedNote[field] = newNote[field];
+                newNotes.push({ ...note, client_id });
+
+                // If there is a file, we load it and record it in the Files table.
+                if (note.file) {
+                    const file = note.file;
+                    const uniqueFilename = `${uuidv4()}-${file.name}`;
+                    const filePath = `client_${client_id}/${uniqueFilename}`;
+
+                    console.log("📎 Archivo seleccionado:", file);
+                    console.log("🆔 Nombre de archivo único generado:", uniqueFilename);
+                    console.log("📁 Ruta donde se subirá el archivo en Supabase Storage:", filePath);
+
+                    const { data: uploadData, error: uploadError } = await supabase
+                        .storage
+                        .from("attachments")
+                        .upload(filePath, file, { upsert: false });
+
+                    if (uploadError) {
+                        console.error("❌ Error subiendo archivo a Supabase Storage:", uploadError.message);
+                        return false;
                     }
-                });
-                
-                // Add the file for processing, but it will be removed before database insertion
-                if (newNote.file) {
-                    cleanedNote.file = newNote.file;
+
+                    const publicUrl = supabase
+                        .storage
+                        .from("attachments")
+                        .getPublicUrl(filePath).data.publicUrl;
+
+                    note.file_url = publicUrl;
+                    note.file_name = file.name;
+
+
                 }
-                
-                // Replace newNote with cleanedNote
-                Object.assign(newNote, cleanedNote);
-                
-                console.log("🧹 Cleaned note for database:", newNote);
-                
-                newNotes.push(newNote);
             }
         }//);
 
         // Detect deleted notes
         const deletedNotesIds = existingNotesIds.filter(id => !receivedNotesIds.includes(id));
 
-        // Insert new notes and handle files with new system
+        // Insert new note
         if (newNotes.length > 0) {
-            // Process each new note individually to get note_id for file upload
-            for (const noteWithFile of newNotes) {
-                // Prepare note data for database (remove file field)
-                const { file, ...cleanNote } = noteWithFile;
-                
-                console.log("🔍 Attempting to insert new note:", cleanNote);
-                
-                // Insert note and get the returned note_id
-                const { data: insertData, error: insertError } = await supabaseClient
-                    .from("Notes")
-                    .insert([cleanNote])
-                    .select(); // Return the inserted note with note_id
-                
-                if (insertError) {
-                    console.error("❌ Error inserting new note:", insertError);
-                    console.error("❌ Error details:", JSON.stringify(insertError, null, 2));
-                    return false;
-                }
-                
-                console.log("✅ New note inserted successfully:", insertData);
-                
-                // If there was a file, upload it using the new note_id
-                if (file && insertData && insertData[0]) {
-                    const noteId = insertData[0].note_id;
-                    console.log("📎 Uploading file for note_id:", noteId);
-
-                    try {
-                        // Create FormData for API upload with noteId
-                        const formData = new FormData();
-                        formData.append('file', file);
-                        formData.append('clientId', client_id);
-                        formData.append('noteId', noteId); // Use the new note_id
-
-                        // Upload via API route
-                        const response = await fetch('/api/upload-file', {
-                            method: 'POST',
-                            body: formData
-                        });
-
-                        const result = await response.json();
-
-                        if (!response.ok || !result.success) {
-                            console.error("❌ API upload failed:", result.error);
-                            return false;
-                        }
-
-                        console.log("✅ File uploaded to new system path successfully:", result);
-                        console.log("📄 File uploaded to:", result.file_path);
-
-                    } catch (error) {
-                        console.error("❌ Error uploading file via API:", error.message);
-                        return false;
-                    }
-                }
+            const { error: insertError } = await supabase.from("Notes").insert(newNotes);
+            if (insertError) {
+                console.error("Error inserting new note:", insertError);
+                return false;
             }
+            console.log("New note inserted:", newNotes);
         }
 
         // Update existing notes
         for (const note of updatedNotes) {
-            const { error: updateError } = await supabaseClient
+            const { error: updateError } = await supabase
                 .from("Notes")
                 .update(note)
                 .eq("note_id", note.note_id);
@@ -156,7 +101,7 @@ export async function handleNotesUpdate (notes, client_id, setNotesData, supabas
 
         // Delete removed note
         if (deletedNotesIds.length > 0) {
-            const { error: deleteError } = await supabaseClient
+            const { error: deleteError } = await supabase
                 .from("Notes")
                 .delete()
                 .in("note_id", deletedNotesIds);
@@ -169,7 +114,7 @@ export async function handleNotesUpdate (notes, client_id, setNotesData, supabas
         }
 
         // Gets updated note again after modifications
-        const { data: updatedNotesList, error: fetchUpdatedNotesError } = await supabaseClient
+        const { data: updatedNotesList, error: fetchUpdatedNotesError } = await supabase
         .from("Notes")
         .select("*")
         .eq("client_id", client_id);

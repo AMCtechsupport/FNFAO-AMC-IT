@@ -23,8 +23,6 @@ export async function insertPreIntake(formData){
         completedBy, assignedStaff
     } = Object.fromEntries(formData);
 
-    const currentDate = new Date().toISOString();
-    
     const {data, error} = await supabase
     .from ("Clients")
     .insert([{firstName, middleName, lastName, dateOfBirth, address,
@@ -42,11 +40,7 @@ export async function insertPreIntake(formData){
         custodySupport, custodySupportSpecified, criminalCharges, criminalChargesSpecified,
         activeWarrant, activeWarrantSpecified, activeInvestigation, activeInvestigationExplained,
         activeOrders, activeOrdersExplained, unableToAssistExplained, referForSupport,
-        completedBy, assignedStaff,
-        createdAt: currentDate,
-        dateModified: currentDate,
-        clientType: "Pre-Intake",
-        clientStatus: "Inactive"}]);
+        completedBy, assignedStaff}]);
 
         if (error) {
             console.error("Error inserting data:", error.message);

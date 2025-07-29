@@ -11,7 +11,7 @@ const LogTable = ({ logs, loading, onLogClick }) => {
           <tr>
             <th className="py-3 px-6 font-medium text-gray-800">Log ID</th>
             <th className="py-3 px-6 font-medium text-gray-800">Created At</th>
-            {/* <th className="py-3 px-6 font-medium text-gray-800">Client ID</th> */}
+            <th className="py-3 px-6 font-medium text-gray-800">Client ID</th>
             <th className="py-3 px-6 font-medium text-gray-800">Description</th>
             <th className="py-3 px-6 font-medium text-gray-800">Log Type</th>
             <th className="py-3 px-6 font-medium text-gray-800">
@@ -33,7 +33,7 @@ const LogTable = ({ logs, loading, onLogClick }) => {
                 <td className="py-4 px-6">
                   {new Date(log.createdAt).toLocaleString()}
                 </td>
-                {/* <td className="py-4 px-6">{log.client_id}</td> */}
+                <td className="py-4 px-6">{log.client_id}</td>
                 <td className="py-4 px-6">
                   <button
                     onClick={() => onLogClick(log)}

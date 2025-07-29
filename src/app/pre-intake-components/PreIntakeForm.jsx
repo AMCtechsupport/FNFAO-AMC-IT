@@ -5,9 +5,9 @@ import { Formik, Form} from "formik";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 // Imports which are utilized inside the <Formik>
-import preIntakeInitialValues from "./preIntakeInitialValues";
-import PreIntakeInputValidation from "./PreIntakeInputValidation";
-import PreIntakeFormSubmit from "./PreIntakeFormSubmit";
+import preIntakeInitialValues from "./utils/preIntakeInitialValues";
+import PreIntakeInputValidation from "./utils/PreIntakeInputValidation";
+import PreIntakeFormSubmit from "./utils/PreIntakeFormSubmit";
 
 // Imported Form Sections
 import PreIntakeGeneralInfo from "./form-sections/PreIntakeGeneralInfo";
@@ -31,7 +31,7 @@ export default function PreIntakeForm() {
       validate={PreIntakeInputValidation}
       onSubmit={onSubmitPreIntake}
     >
-      {({ values, setFieldValue, errors, touched }) => (
+      {({ values, errors}) => (
         <Form className={styles.form}>
           <div className={styles.titleContainer}>
             <h2 className={styles.centeredTitle}>PRE-INTAKE FORM</h2>
@@ -40,44 +40,30 @@ export default function PreIntakeForm() {
           
           {/* General Information Section */}
           <PreIntakeGeneralInfo
-            values={values}
-            setFieldValue={setFieldValue}
             errors={errors}
-            touched={touched}
           />
 
           {/* About You Section */}
           <PreIntakeAboutYou
             values={values}
-            setFieldValue={setFieldValue}
             errors={errors}
-            touched={touched}
           />
 
           {/* About Your Children Section */}
           <PreIntakeAboutYourChildren
             values={values}
-            setFieldValue={setFieldValue}
             errors={errors}
-            touched={touched}
           />
           
           {/* Other Questions Section*/}
           <PreIntakeOtherQuestions
             values={values}
-            setFieldValue={setFieldValue}
-            errors={errors}
-            touched={touched}
             validateRadio={validateRadio}
+            errors={errors}
           />
 
           {/* Staff Only Section */}
-          <PreIntakeStaffOnly
-            values={values}
-            setFieldValue={setFieldValue}
-            errors={errors}
-            touched={touched}
-          />
+          <PreIntakeStaffOnly/>
 
           <button type="submit" className={styles.submitButton}>
             Submit Pre-Intake

@@ -2,63 +2,21 @@
 
 import { useState, useEffect } from "react";
 import AssignedClientsToAdvocate from "./assigned-clients";
-import supabase from "@/app/lib/supabase";
 
-export default function AssignClientSelector({ advocates, onAssignmentChange }) {
+export default function AssignClientSelector({ advocates }) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredAdvocates, setFilteredAdvocates] = useState([]);
+  const [filteredAdvocates, setFilteredAdvocates] = useState(advocates);
   const [selectedAdvocate, setSelectedAdvocate] = useState(null);
-  const [advocatesWithClientCount, setAdvocatesWithClientCount] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // Fetch client counts for all advocates
-  useEffect(() => {
-    const fetchClientCounts = async () => {
-      try {
-        setLoading(true);
-        
-        // Get client counts for each advocate
-        const advocatesWithCounts = await Promise.all(
-          advocates.map(async (advocate) => {
-            const { count, error } = await supabase
-              .from("Assigned Advocates")
-              .select("*", { count: "exact" })
-              .eq("advocate_id", advocate.advocate_id);
-
-            if (error) {
-              console.error(`Error fetching client count for advocate ${advocate.advocate_id}:`, error);
-              return { ...advocate, clientCount: 0 };
-            }
-
-            return { ...advocate, clientCount: count || 0 };
-          })
-        );
-
-        // Sort advocates by client count (descending)
-        const sortedAdvocates = advocatesWithCounts.sort((a, b) => b.clientCount - a.clientCount);
-        setAdvocatesWithClientCount(sortedAdvocates);
-        setFilteredAdvocates(sortedAdvocates);
-      } catch (error) {
-        console.error("Error fetching client counts:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (advocates && advocates.length > 0) {
-      fetchClientCounts();
-    }
-  }, [advocates]);
 
   // Filter advocates based on the search term
   useEffect(() => {
-    const filtered = advocatesWithClientCount.filter((advocate) =>
+    const filtered = advocates.filter((advocate) =>
       `${advocate.firstName} ${advocate.lastName}`
         .toLowerCase()
         .includes(searchTerm.toLowerCase())
     );
     setFilteredAdvocates(filtered);
-  }, [searchTerm, advocatesWithClientCount]);
+  }, [searchTerm, advocates]);
 
   return (
     <div>
@@ -75,65 +33,34 @@ export default function AssignClientSelector({ advocates, onAssignmentChange }) 
         />
       </div>
 
-      {/* Display filtered advocates with client counts */}
-      {loading ? (
-        <div className="mt-4 p-4 text-center text-gray-600">
-          Loading advocate data...
-        </div>
-      ) : filteredAdvocates.length > 0 ? (
+      {/* Display filtered advocates */}
+      {filteredAdvocates.length > 0 && (
         <div className="mt-4 border-2 rounded-lg p-4 max-h-96 bg-gray-200 overflow-y-auto">
-          <div className="mb-3 pb-2 border-b border-gray-300">
-            <h3 className="font-semibold text-gray-800">Advocates (ordered by client count)</h3>
-          </div>
           <ul>
             {filteredAdvocates.map((advocate) => (
               <li
                 key={advocate.advocate_id}
                 onClick={() => setSelectedAdvocate(advocate.advocate_id)}
-                className={`p-3 cursor-pointer hover:bg-gray-100 rounded-md mb-2 transition-colors ${
-                  selectedAdvocate === advocate.advocate_id ? "bg-blue-100 border-l-4 border-blue-500" : "bg-white"
+                className={`p-2 cursor-pointer hover:bg-gray-100 ${
+                  selectedAdvocate === advocate.advocate_id ? "bg-gray-100" : ""
                 }`}
               >
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <span className="font-semibold text-gray-900">
-                      {advocate.firstName} {advocate.lastName}
-                    </span>
-                    <div className="text-sm text-gray-600 mt-1">
-                      <span className="font-medium">Email: </span>
-                      {advocate.email}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      <span className="font-medium">Phone: </span>
-                      {advocate.phoneNumber}
-                    </div>
-                  </div>
-                  <div className="flex items-center">
-                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                      advocate.clientCount > 0 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-gray-100 text-gray-600'
-                    }`}>
-                      {advocate.clientCount} {advocate.clientCount === 1 ? 'client' : 'clients'}
-                    </span>
-                  </div>
-                </div>
+                <span className="font-semibold">
+                  {advocate.firstName} {advocate.lastName}
+                </span>
+                <br />
+                <span className="text-sm text-gray-600">
+                  Email: {advocate.email}
+                </span>
               </li>
             ))}
           </ul>
         </div>
-      ) : (
-        <div className="mt-4 p-4 text-center text-gray-600">
-          No advocates found matching your search.
-        </div>
       )}
 
-      {/* Display assigned clients for the selected advocate */}
+      {/* If an advocate is selected, show their assigned clients */}
       {selectedAdvocate && (
-        <AssignedClientsToAdvocate 
-          advocateId={selectedAdvocate} 
-          onAssignmentChange={onAssignmentChange}
-        />
+        <AssignedClientsToAdvocate advocateId={selectedAdvocate} />
       )}
     </div>
   );

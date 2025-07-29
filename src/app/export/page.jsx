@@ -152,12 +152,12 @@ export default function ExportPage() {
               <input
                 type="radio"
                 name="format"
-                value="txt"
-                checked={selectedFormat === "txt"}
+                value="pdf"
+                checked={selectedFormat === "pdf"}
                 onChange={(e) => setSelectedFormat(e.target.value)}
                 className="mr-2"
               />
-              <span className="text-gray-700">TXT (Text report format)</span>
+              <span className="text-gray-700">PDF (Text report format)</span>
             </label>
           </div>
         </div>
@@ -227,7 +227,7 @@ export default function ExportPage() {
           <ul className="text-sm text-blue-700 space-y-2">
             <li>• <strong>JSON Format:</strong> Structured data format, best for data analysis and processing</li>
             <li>• <strong>CSV Format:</strong> Spreadsheet-compatible format, opens in Excel, Google Sheets, etc.</li>
-            <li>• <strong>TXT Format:</strong> Text-based report format, good for printing and sharing</li>
+            <li>• <strong>PDF Format:</strong> Text-based report format, good for printing and sharing</li>
             <li>• <strong>Export All Data:</strong> Downloads a comprehensive file with all database tables</li>
             <li>• <strong>Export Youth Intake Data:</strong> Downloads only Youth Intake clients and related records</li>
             <li>• <strong>Individual Tables:</strong> Export specific tables as separate files</li>

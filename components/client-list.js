@@ -338,7 +338,7 @@ export default function ClientsList({ initialClients, totalCount }) {
         }}>
           <input
             type="text"
-            placeholder="Search by name"
+            placeholder="Search by name or ID..."
             value={search}
             onChange={handleSearchChange}
             style={{
