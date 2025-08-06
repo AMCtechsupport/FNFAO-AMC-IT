@@ -30,7 +30,34 @@ const GeneralInformationPartition = ({
                     />
                 </Col>
                 <Col md={3}>
-                    <InputField name="treatyNumber" label="Treaty Number:" placeholder="" error={errors.treatyNumber} disabled={!isEditing} />
+                    {/* <InputField 
+                        name="treatyNumber" 
+                        label="Treaty Number:" 
+                        placeholder="" 
+                        error={errors.treatyNumber} 
+                        disabled={!isEditing} 
+                    /> */}
+                    <div>
+                        <label>TreatyNumber (9-Digit):</label>
+                        <Field
+                            type="text"
+                            inputMode="numeric"
+                            pattern="\d*"
+                            maxLength={9}
+                            id="treatyNumber"
+                            placeholder="123456789"
+                            name="treatyNumber"
+                            disabled={!isEditing} 
+                        />
+                        <ErrorMessage
+                            name="treatyNumber"
+                            component={() => (
+                            <p className={styles.errorText}>
+                                {errors.treatyNumber}
+                            </p>
+                            )}
+                        />
+                    </div>
                 </Col>
                 <Col md={4}>
 
@@ -46,14 +73,81 @@ const GeneralInformationPartition = ({
 
             <Row className="mt-3">
                 <Col md={5}>
-                    <label>Personal Health Identification Numbers (9-Digit):</label>
-                    <Field type="number" id="ninePersonalHealthNumber" placeholder="000000000" name="ninePersonalHealthNumber" disabled={!isEditing} />
-                    <ErrorMessage name="ninePersonalHealthNumber" component={() => <p className={styles.errorText}>{errors.ninePersonalHealthNumber}</p>} />
+                    {/* <label>Personal Health Identification Numbers (9-Digit):</label> */}
+                    {/* <Field 
+                        type="number" 
+                        id="ninePersonalHealthNumber" 
+                        placeholder="000000000" 
+                        name="ninePersonalHealthNumber" 
+                        disabled={!isEditing} 
+                    />
+                    <ErrorMessage 
+                        name="ninePersonalHealthNumber" 
+                        component={() => 
+                            <p 
+                                className={styles.errorText}>{errors.ninePersonalHealthNumber}
+                            </p>
+                        } 
+                    /> */}
+
+                    <div>
+                        <label>Personal Health Identification Numbers (9-Digit):</label>
+                        <Field
+                            type="text"
+                            inputMode="numeric"
+                            pattern="\d*"
+                            maxLength={9}
+                            id="ninePersonalHealthNumber"
+                            placeholder="123456789"
+                            name="ninePersonalHealthNumber"
+                            disabled={!isEditing}
+                        />
+                        <ErrorMessage
+                            name="ninePersonalHealthNumber"
+                            component={() => (
+                            <p className={styles.errorText}>
+                                {errors.ninePersonalHealthNumber}
+                            </p>
+                            )}
+                        />
+                    </div>
                 </Col>
                 <Col md={3}>
+                {/* <label>(6-Digit):</label>
+                    <Field 
+                        type="number" 
+                        id="sixPersonalHealthNumber" 
+                        placeholder="000000" 
+                        name="sixPersonalHealthNumber" 
+                        disabled={!isEditing} 
+                    />
+                    <ErrorMessage 
+                        name="sixPersonalHealthNumber" 
+                        component={() => 
+                            <p className={styles.errorText}>
+                                {errors.sixPersonalHealthNumber}
+                            </p>
+                        } 
+                    /> */}
                     <label>(6-Digit):</label>
-                    <Field type="number" id="sixPersonalHealthNumber" placeholder="000000" name="sixPersonalHealthNumber" disabled={!isEditing} />
-                    <ErrorMessage name="sixPersonalHealthNumber" component={() => <p className={styles.errorText}>{errors.sixPersonalHealthNumber}</p>} />
+                    <Field
+                        type="text"
+                        inputMode="numeric"
+                        pattern="\d*"
+                        maxLength={6}
+                        id="sixPersonalHealthNumber"
+                        placeholder="000000"
+                        name="sixPersonalHealthNumber"
+                        disabled={!isEditing} 
+                    />
+                    <ErrorMessage
+                        name="sixPersonalHealthNumber"
+                        component={() => (
+                            <p className={styles.errorText}>
+                                {errors.sixPersonalHealthNumber}
+                            </p>
+                        )}
+                    />
                 </Col>
                 <Col md={4}>
                     <MartialStatusSelect name="martialStatus" label="Marital Status" error={errors.martialStatus} disabled={!isEditing} />
