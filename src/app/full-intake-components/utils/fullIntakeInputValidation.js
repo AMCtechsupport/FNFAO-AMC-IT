@@ -75,6 +75,30 @@ const fullIntakeInputValidation= (values) => {
         errors.email = "Invalid email format";
     }
 
+    // Validation for 9 digits (only if the user enters something)
+    if (
+        values.ninePersonalHealthNumber &&
+        !/^\d{9}$/.test(values.ninePersonalHealthNumber)
+    ) {
+        errors.ninePersonalHealthNumber = "Must be exactly 9 digits";
+    }
+
+    if (
+        values.treatyNumber &&
+        !/^\d{9}$/.test(values.treatyNumber)
+    ) {
+        errors.treatyNumber = "Treaty number must be exactly 9 digits";
+    }
+
+
+    // Validation for 6 digits (only if the user enters something)
+    if (
+        values.sixPersonalHealthNumber &&
+        !/^\d{6}$/.test(values.sixPersonalHealthNumber)
+    ) {
+        errors.sixPersonalHealthNumber = "Must be exactly 6 digits";
+    }
+
     return errors;
 }
 
