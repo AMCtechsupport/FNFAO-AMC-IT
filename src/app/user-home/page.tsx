@@ -1,5 +1,7 @@
 "use client";
 
+// *** This is where the links for the application on the side go ***
+
 import { ReactNode, useState, useEffect } from "react";
 import Link from "next/link";
 import {
@@ -125,6 +127,13 @@ export default function UserHome({ children }: { children: ReactNode }) {
               className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
             >
               Export
+            </Link>
+
+            <Link
+              href="/report"
+              className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
+            >
+              Report
             </Link>
           </nav>
         </aside>
