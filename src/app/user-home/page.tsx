@@ -3,8 +3,8 @@
 // *** This is where the links for the application on the side go ***
 
 import { ReactNode, useState, useEffect } from "react";
-import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
+import UserHomeLink from "../../../components/user-home/user-home-link";
 
 export default function UserHome(props: {children: ReactNode} ) {
   const [isClient, setIsClient] = useState(false);
@@ -36,30 +36,24 @@ export default function UserHome(props: {children: ReactNode} ) {
         <aside className="w-64 bg-black p-4 border-r">
           <nav className="space-y-4">
             {(userRole === "admin" ) && (
-              <Link
-                href="/admin"
-                className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
-              >
-                Admin
-              </Link>
+              <UserHomeLink
+                name='Admin'
+                path='admin'
+              />
             )}
 
            {userRole === "advocate" && (
-              <Link
-                href="/user-dashboard"
-                className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
-              >
-                Dashboard
-              </Link>
+              <UserHomeLink
+                name='Dashboard'
+                path='user-dashboard'
+              />
             )}
 
             {userRole != "advocate" && (
-            <Link
-              href="/profile"
-              className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
-            >
-              Profile
-            </Link>
+              <UserHomeLink
+                name='Profile'
+                path='profile'
+              />
             )}
 
             {/* New Client Section */}
@@ -68,66 +62,46 @@ export default function UserHome(props: {children: ReactNode} ) {
                 New Client
               </h3>
               <div className="mt-3 space-y-2">
-                <Link
-                  href="/pre-intake"
-                  className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md ml-4 text-sm"
-                >
-                  Pre-Intake
-                </Link>
-                <Link
-                  href="/youth-intake"
-                  className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md ml-4 text-sm"
-                >
-                  Youth-Intake
-                </Link>
+
+                <UserHomeLink
+                  name='Pre-Intake'
+                  path='pre-intake'
+                />
+
+                <UserHomeLink
+                  name='Youth-Intake'
+                  path='youth-intake'
+                />
               </div>
             </div>
 
             {/* Separator line */}
             <hr className="my-6 border-gray-700" />
 
-            {/* {userRole != "advocate" && (
-            <Link
-              href="/full-intake"
-              className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
-            >
-              Full-Intake
-            </Link>
-            )} */}
-            
-            <Link
-              href="/clients"
-              className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
-            >
-              Client List
-            </Link>
-            <Link
-              href="/user-logs"
-              className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
-            >
-              User Logs
-            </Link>
+            <UserHomeLink
+              name='Client List'
+              path='clients'
+            />
 
-            <Link
-              href="/settings"
-              className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
-            >
-              Settings
-            </Link>
+            <UserHomeLink
+              name='User Logs'
+              path='user-logs'
+            />
 
-            <Link
-              href="/export"
-              className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
-            >
-              Export
-            </Link>
+            <UserHomeLink
+              name='Settings'
+              path='settings'
+            />
 
-            <Link
-              href="/report"
-              className="block no-underline bg-gray-800 text-white font-medium hover:bg-gray-700 hover:shadow-md transition p-3 rounded-md"
-            >
-              Report
-            </Link>
+            <UserHomeLink
+              name='Export'
+              path='export'
+            />
+
+            <UserHomeLink
+              name='Report'
+              path='report'
+            />
           </nav>
         </aside>
 
