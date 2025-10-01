@@ -2,12 +2,10 @@
 
 import UserHome from "../user-home/page"
 
-const ReportPage = () => {
+export default function ReportPage() {
     return (
         <UserHome>
             <div>This is a report page</div>
         </UserHome>
-    )
+    );
 }
-
-export default ReportPage;

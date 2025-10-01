@@ -4,16 +4,9 @@
 
 import { ReactNode, useState, useEffect } from "react";
 import Link from "next/link";
-import {
-  ClerkProvider,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-  useUser,
-} from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 
-export default function UserHome({ children }: { children: ReactNode }) {
+export default function UserHome(props: {children: ReactNode} ) {
   const [isClient, setIsClient] = useState(false);
 
   const { user } = useUser();
@@ -139,7 +132,7 @@ export default function UserHome({ children }: { children: ReactNode }) {
         </aside>
 
         {/* Main Section */}
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 p-6">{props.children}</main>
       </div>
     </div>
   );
