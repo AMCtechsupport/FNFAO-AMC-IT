@@ -1,5 +1,6 @@
 import Link from "next/link"
 
+// Creates Links for routes on user-home
 export default function UserHomeLink({name, path}) {
     return (
     <Link
