@@ -1,12 +1,10 @@
 "use client";
 
-// *** This is where the links for the application on the side go ***
-
 import { ReactNode, useState, useEffect } from "react";
-import { useUser } from "@clerk/nextjs";
-import UserHomeLink from "../../../components/user-home/user-home-link";
+import {useUser} from "@clerk/nextjs";
+import UserHomeLink from "../../../components/user-home/user-home-link"
 
-export default function UserHome(props: {children: ReactNode} ) {
+export default function UserHome(props: { children: ReactNode }) {
   const [isClient, setIsClient] = useState(false);
 
   const { user } = useUser();
@@ -27,7 +25,6 @@ export default function UserHome(props: {children: ReactNode} ) {
   }
 
   return (
-
     // Background color
     <div className="min-h-screen" style={{ backgroundColor: "#cccccc" }}>
 
@@ -37,24 +34,24 @@ export default function UserHome(props: {children: ReactNode} ) {
         <aside className="w-64 bg-black p-4 border-r">
           <nav className="space-y-4">
             {(userRole === "admin" ) && (
-              <UserHomeLink
-                name='Admin'
-                path='admin'
+              <UserHomeLink 
+                name="Admin" 
+                path="admin" 
               />
             )}
 
            {userRole === "advocate" && (
-              <UserHomeLink
-                name='Dashboard'
-                path='user-dashboard'
+              <UserHomeLink 
+                name="Dashboard" 
+                path="user-dashboard" 
               />
             )}
 
             {userRole != "advocate" && (
-              <UserHomeLink
-                name='Profile'
-                path='profile'
-              />
+            <UserHomeLink 
+              name="Profile" 
+              path="profile" 
+            />
             )}
 
             {/* New Client Section */}
@@ -63,47 +60,45 @@ export default function UserHome(props: {children: ReactNode} ) {
                 New Client
               </h3>
               <div className="mt-3 space-y-2">
+                  <UserHomeLink 
+                    name="Pre-Intake" 
+                    path="pre-intake" 
+                  />
 
-                <UserHomeLink
-                  name='Pre-Intake'
-                  path='pre-intake'
-                />
-
-                <UserHomeLink
-                  name='Youth-Intake'
-                  path='youth-intake'
-                />
+                  <UserHomeLink 
+                    name="Youth-Intake" 
+                    path="youth-intake" 
+                  />
               </div>
             </div>
 
             {/* Separator line */}
             <hr className="my-6 border-gray-700" />
 
-            <UserHomeLink
-              name='Client List'
-              path='clients'
+            <UserHomeLink 
+              name="Client List" 
+              path="clients" 
             />
 
-            <UserHomeLink
-              name='User Logs'
-              path='user-logs'
+            <UserHomeLink 
+              name="User Logs" 
+              path="user-logs" 
             />
 
-            <UserHomeLink
-              name='Settings'
-              path='settings'
+            <UserHomeLink 
+              name="Settings" 
+              path="settings" 
             />
 
-            <UserHomeLink
-              name='Export'
-              path='export'
+            <UserHomeLink 
+              name="Export" 
+              path="export" 
             />
 
-            <UserHomeLink
-              name='Report'
-              path='report'
+            <UserHomeLink 
+              name="Report" 
+              path="report" 
             />
-
           </nav>
         </aside>
 
