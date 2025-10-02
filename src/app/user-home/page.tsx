@@ -27,8 +27,9 @@ export default function UserHome(props: {children: ReactNode} ) {
   }
 
   return (
+
+    // Background color
     <div className="min-h-screen" style={{ backgroundColor: "#cccccc" }}>
-      {/* Background color */}
 
       {/* Main Content */}
       <div className="flex">
