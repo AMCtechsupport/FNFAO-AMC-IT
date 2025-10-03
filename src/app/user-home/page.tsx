@@ -38,6 +38,7 @@ export default function UserHome(props: { children: ReactNode }) {
                 name="Admin" 
                 path="admin" 
               />
+
             )}
 
            {userRole === "advocate" && (
@@ -94,11 +95,12 @@ export default function UserHome(props: { children: ReactNode }) {
               name="Export" 
               path="export" 
             />
-
+            {(userRole === "admin" ) && (
             <UserHomeLink 
               name="Report" 
               path="report" 
             />
+            )}
           </nav>
         </aside>
 
