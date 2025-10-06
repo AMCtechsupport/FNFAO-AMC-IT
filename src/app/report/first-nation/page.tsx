@@ -3,6 +3,7 @@
 import UserHome from "../../user-home/page";
 import FirstNationPage from "../../../../components/report/first-nation-page";
 import FirstNationFilters from "../../../../components/report/first-nation-filters";
+import DateFilterPage from "../../../../components/report/date-range-filter";
 
 export default function FirstNationsReportPage() {
   return (
@@ -27,6 +28,8 @@ export default function FirstNationsReportPage() {
                 array={["0-18", "19-35", "36-60", "60+"]} />
             </div>
 
+            {/*Date range */}
+             <DateFilterPage />
             {/* Buttons */}
             <div className="flex flex-col gap-3 mt-6 w-full max-w-sm mx-auto">
               <FirstNationPage
