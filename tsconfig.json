@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     "src/app/pre-intake/page.jsx",
     "src/app/user-home/page.jsx"
-, "src/app/clients/page.jsx"  ],
+, "src/app/clients/page.jsx", "components/report/date-range-filter.js"  ],
   "exclude": ["node_modules"]
 }
