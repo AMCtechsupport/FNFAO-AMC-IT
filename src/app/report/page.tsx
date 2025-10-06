@@ -16,7 +16,7 @@ export default function ReportPage() {
                     <ReportCategory
                         name="First Nations"
                         description="Generate report on the First Nation communities"
-                            path="../report/firstNation"   //link to first-nations page
+                        path="../report/first-nation" //link to first-nations page
                     />
 
                     <ReportCategory
