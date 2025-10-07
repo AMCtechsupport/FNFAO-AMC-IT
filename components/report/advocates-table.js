@@ -4,7 +4,7 @@ import { useState } from "react";
 
 export default function AdvocatesTable({ array }) {
   const [selectedAdvocate, setSelectedAdvocate] = useState(null);
-//made the row clickable
+
   const handleRowClick = (advocate) => {
     setSelectedAdvocate(advocate);
     console.log("Clicked advocate:", advocate);
@@ -15,7 +15,6 @@ export default function AdvocatesTable({ array }) {
       <table className="w-full border border-gray-200 rounded-xl">
         <thead className="bg-gray-100">
           <tr>
-          {/*table headings*/}
             <th className="text-left px-6 py-3 text-gray-700 font-semibold border-b">
               Advocate Name
             </th>
@@ -25,22 +24,37 @@ export default function AdvocatesTable({ array }) {
           </tr>
         </thead>
         <tbody>
-          {array.map((advocate, index) => (
-            <tr
-              key={index}
-              className="hover:bg-gray-50 transition cursor-pointer"
-              onClick={() => handleRowClick(advocate)}
-            >
-              <td className="bg-white px-6 py-3 border-b">{advocate.name}</td>
-              <td className="bg-white px-6 py-3 border-b">{advocate.client}</td>
-            </tr>
-          ))}
+          {array.map((advocate, index) => {
+            const isSelected = selectedAdvocate?.name === advocate.name;
+            return (
+              <tr
+                key={index}
+                onClick={() => handleRowClick(advocate)}
+                className={`cursor-pointer transition-colors duration-300 ${
+                  isSelected
+                    ? "bg-gradient-to-r from-purple-400 to-indigo-500 text-white"
+                    : "hover:bg-gray-50 text-gray-800"
+                }`}
+              >
+                <td className="px-6 py-3 border-b text-center">
+                  {advocate.name}
+                </td>
+                <td className="px-6 py-3 border-b text-center">
+                  {advocate.client}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
-    {/* show the selected advocate*/}
+
       {selectedAdvocate && (
-        <div className="mt-4 text-center text-gray-700">
-          Selected Advocate: {selectedAdvocate.name} ({selectedAdvocate.client} clients)
+        <div className="mt-4 text-center text-gray-700 font-medium">
+          Selected Advocate:{" "}
+          <span className="text-indigo-600 font-semibold">
+            {selectedAdvocate.name}
+          </span>{" "}
+          ({selectedAdvocate.client} clients)
         </div>
       )}
     </div>
