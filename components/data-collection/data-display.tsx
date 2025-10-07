@@ -5,7 +5,7 @@ type PageProps = {tableName: string};
 
 export const DataDisplay = (tableName: PageProps) => {
     const [fetchError, setFetchError] = useState<string | null>(null)
-    const [items, setItems] = useState<string[] | number[]| null>(null)
+    const [items, setItems] = useState<string[]| null>(null)
  
     useEffect(() => {
 
@@ -30,18 +30,22 @@ export const DataDisplay = (tableName: PageProps) => {
         fetchItems()
     }, [tableName])
 
+    // Check if items is and array
     if (!Array.isArray(items)) return null;
+
     return (
         <table>
             {fetchError && (<p>{fetchError}</p>)}
             <thead>
                 <tr>
+                    {/* Heading */}
                     {Object.keys(items[0]).map((key) => (
                         <th key={key}>{key}</th>
                     ))}
                 </tr>
             </thead>
             <tbody>
+                {/* Item Rows */}
                 {items.map((item, idx) => (
                     <tr key={idx}>
                         {Object.values(item).map((value, i) => (
