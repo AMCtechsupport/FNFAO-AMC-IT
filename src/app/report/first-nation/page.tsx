@@ -38,7 +38,7 @@ export default function FirstNationsReportPage() {
               />
               <FirstNationPage
                 name="Download All"
-                path=".*"
+                path="*"
               />
             </div>
           </div>
