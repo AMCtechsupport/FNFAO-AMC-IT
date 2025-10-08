@@ -28,11 +28,10 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "src/app/pre-intake/page.jsx",
-    "src/app/user-home/page.jsx"
-<<<<<<< HEAD
-, "src/app/clients/page.jsx", "components/report/date-range-filter.js"  ],
-=======
-, "src/app/clients/page.jsx", "components/data-collection/data-display.js"  ],
->>>>>>> 9e86a9a7f5ef30d35621a4a7334220d45f85e790
+    "src/app/user-home/page.jsx", 
+    "src/app/clients/page.jsx", 
+    "components/report/date-range-filter.js",
+    "src/app/clients/page.jsx", 
+    "components/data-collection/data-display.js"  ],
   "exclude": ["node_modules"]
 }
