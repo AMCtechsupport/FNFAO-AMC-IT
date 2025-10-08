@@ -22,7 +22,7 @@ export default function ReportPage() {
                     <ReportCategory
                         name="Advocates"
                         description="Generate report about the Advocates"
-                        path="#"
+                        path="../report/advocates" //link to advocates page
                     />
                 </div>
 
