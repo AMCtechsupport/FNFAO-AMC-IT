@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 
-export default function FirstNationPage({ name, path }) {
+export default function FirstNationPage({ name, path}) {
   const [isLoading, setIsLoading] = useState(false);
   
 
@@ -29,3 +29,5 @@ export default function FirstNationPage({ name, path }) {
     </div>
   );
 }
+
+
