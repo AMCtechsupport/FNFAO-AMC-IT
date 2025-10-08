@@ -1,5 +1,8 @@
-  
-  const ReportPreview =  ({ onClose, onDownload }) => {
+"use client";
+
+import React from "react";
+
+const ReportPreview = ({ onClose, onDownload }) => {
   const handleClose = (e) => {
     e.preventDefault();
     onClose();
@@ -17,7 +20,7 @@
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="relative z-50 w-full max-w-md mx-4 overflow-hidden rounded-lg shadow-xl bg-white p-6 flex flex-col max-h-[90vh]">
-        {/* Modal header with close button */}
+        {/* Modal header */}
         <div className="flex-shrink-0">
           <button
             onClick={handleClose}
@@ -26,12 +29,10 @@
           >
             &times;
           </button>
-          <h1 className="mb-6 text-2xl font-bold text-center">
-            Report Preview
-          </h1>
+          <h1 className="mb-6 text-2xl font-bold text-center">Report Preview</h1>
         </div>
-        
-        {/* Scrollable content on modal preview */}
+
+        {/* Modal content */}
         <div className="overflow-y-auto text-center flex-grow">
           <div className="my-8 space-y-4 text-gray-700">
             <h2 className="mb-6 text-2xl font-bold text-center" >Client Info:</h2>
@@ -71,8 +72,8 @@
             </p>
           </div>
         </div>
-        
-        {/* Modal bottom with download button */}
+
+        {/* Modal footer */}
         <div className="flex-shrink-0 flex justify-center mt-8">
           <button
             className="px-6 py-2 text-white transition rounded-lg bg-indigo-500 hover:bg-indigo-600"
@@ -87,5 +88,3 @@
 };
 
 export default ReportPreview;
-
-
