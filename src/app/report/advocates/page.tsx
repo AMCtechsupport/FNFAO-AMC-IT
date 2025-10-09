@@ -11,6 +11,11 @@ export default function AdvocatesReportPage() {
         { name: "Tic Tac", client: 16 },
         { name: "Tin Tra", client: 28 },
         { name: "Zig Zag", client: 23 },
+        { name: "Tom Tim", client: 65 },
+        { name: "Big Man", client: 45 },
+        { name: "Small Man", client: 25 },
+        { name: "Hit Hat", client: 96 },
+        { name: "This That", client: 26 },
     ];
 
     return (
