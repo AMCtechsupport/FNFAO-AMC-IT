@@ -48,9 +48,6 @@ const ReportPreview = ({onClose }) => {
         </div>
 
         {/* Modal content */}
-        {/* <div className="overflow-y-auto text-center flex-grow">
-          <AdvocatsTableData /> */}
-          
         <div className="overflow-y-auto text-center flex-grow" ref={contentRef}>
           <div className="my-8 space-y-4 text-gray-700">
             <h2>This is Dummy Text:</h2>
