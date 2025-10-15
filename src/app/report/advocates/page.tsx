@@ -2,6 +2,7 @@
 
 import UserHome from "../../user-home/page";
 import AdvocatesTable from "../../../../components/report/advocates-table";
+import AdvocatesTableFull from "../../../../components/report/advocates-table-full";
 import DateFilterPage from "../../../../components/report/date-range-filter";
 import FirstNationPage from "../../../../components/report/first-nation-page";
 import ReportPreview from "../../../../components/report/report-preview";
@@ -9,9 +10,8 @@ import { useState } from "react";
 
 export default function AdvocatesReportPage() {
     const [showPreview, setShowPreview] = useState(false);
-    const [selectedAdvocate, setSelectedAdvocate] = useState<{ advocate_id: number; name: string; clientCount: number } | null>(null);
-
-
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [selectedAdvocate, setSelectedAdvocate] = useState<{ advocate_id: string } | null>(null);
     const handleOpenPreview = () => setShowPreview(true);
     const handleClosePreview = () => setShowPreview(false);
 
@@ -23,8 +23,8 @@ export default function AdvocatesReportPage() {
                 </h1>
 
                 <div className="flex flex-col bg-white shadow-md w-full max-w-3xl mx-auto rounded-2xl p-6">
-                    {/*pass selected advocate */}
-                    <AdvocatesTable onSelect={setSelectedAdvocate} />
+
+                    <AdvocatesTable />
 
                     <div className="flex flex-col gap-2 mt-6 w-full max-w-lg mx-auto">
                         <DateFilterPage />
@@ -55,7 +55,10 @@ export default function AdvocatesReportPage() {
             </div>
 
             {showPreview && (
-                <ReportPreview onClose={handleClosePreview} onDownload={undefined} />
+                <ReportPreview onClose={handleClosePreview}>
+                    <h2>Download All - Advocates</h2>
+                    <AdvocatesTableFull />
+                </ReportPreview>
             )}
         </UserHome>
     );
