@@ -2,19 +2,33 @@
 
 import React from "react";
 
-const ReportPreview = ({ onClose, onDownload }) => {
+const ReportPreview = ({onClose}) => {
   const handleClose = (e) => {
     e.preventDefault();
     onClose();
   };
+    // Ref for the content to be converted to PDF
+    const contentRef = React.useRef(null);
 
-  const handleDownload = (e) => {
-    e.preventDefault();
-    if (onDownload) {
-      onDownload();
-    } else {
-      alert("Download PDF");
-    }
+    // Event handler to generate and download PDF
+    const handleDownload = async () => {
+    const html2pdf = (await import("html2pdf.js")).default;
+
+    // Ensure the contentRef is assigned else return nothing
+    if (!contentRef.current) return;
+
+    // Get the DOM element and set PDF options
+    const element = contentRef.current;
+    const options = {
+      margin: 1,
+      filename: "test.pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+    };
+
+    // Generate and save the PDF
+    html2pdf().set(options).from(element).save();
   };
 
   return (
@@ -33,7 +47,7 @@ const ReportPreview = ({ onClose, onDownload }) => {
         </div>
 
         {/* Modal content */}
-        <div className="overflow-y-auto text-center flex-grow">
+        <div className="overflow-y-auto text-center flex-grow" ref={contentRef}>
           <div className="my-8 space-y-4 text-gray-700">
             <h2 className="mb-6 text-2xl font-bold text-center" >Client Info:</h2>
             <p>
