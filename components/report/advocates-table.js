@@ -53,6 +53,7 @@ export default function AdvocatesTable() {
 
   const handleRowClick = (advocate) => {
     setSelectedAdvocate(advocate);
+    // if (onSelectAdvocate) onSelectAdvocate(advocate);
     console.log("Clicked advocate:", advocate);
   };
 

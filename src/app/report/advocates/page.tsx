@@ -10,6 +10,7 @@ import { useState } from "react";
 export default function AdvocatesReportPage() {
     const [showPreview, setShowPreview] = useState(false);
 
+    // const handleSelectedAdvocates = () =>
     const handleOpenPreview = () => setShowPreview(true);
     const handleClosePreview = () => setShowPreview(false);
 
@@ -47,7 +48,7 @@ export default function AdvocatesReportPage() {
             </div>
 
             {showPreview && (
-                <ReportPreview onClose={handleClosePreview} onDownload={undefined} />
+                <ReportPreview onClose={handleClosePreview}  />
             )}
         </UserHome>
     );
