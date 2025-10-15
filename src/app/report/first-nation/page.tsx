@@ -66,10 +66,7 @@ export default function FirstNationsReportPage() {
 
       {/* Report Preview Modal */}
       {showPreview && (
-        <ReportPreview onClose={handleClosePreview} >
-          <h2>This is a test</h2>
-          <p>Testing Documents</p>
-        </ReportPreview>
+        <ReportPreview onClose={handleClosePreview} />
       )}
     </UserHome>
   );
