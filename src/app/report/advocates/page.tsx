@@ -10,8 +10,9 @@ import { useState } from "react";
 
 export default function AdvocatesReportPage() {
     const [showPreview, setShowPreview] = useState(false);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [selectedAdvocate, setSelectedAdvocate] = useState<{ advocate_id: string } | null>(null);
+    const [selectedAdvocate, setSelectedAdvocate] = useState<{ advocate_id: number; name: string; clientCount: number } | null>(null);
+
+
     const handleOpenPreview = () => setShowPreview(true);
     const handleClosePreview = () => setShowPreview(false);
 
@@ -24,7 +25,9 @@ export default function AdvocatesReportPage() {
 
                 <div className="flex flex-col bg-white shadow-md w-full max-w-3xl mx-auto rounded-2xl p-6">
 
-                    <AdvocatesTable />
+                    {/*pass selected advocate */}
+                    <AdvocatesTable onSelect={setSelectedAdvocate} />
+
 
                     <div className="flex flex-col gap-2 mt-6 w-full max-w-lg mx-auto">
                         <DateFilterPage />
