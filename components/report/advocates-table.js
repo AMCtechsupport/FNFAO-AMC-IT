@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import supabase from "@/app/lib/supabase";
 
-export default function AdvocatesTable() {
+export default function AdvocatesTable({ onSelect }) { 
   const [advocates, setAdvocates] = useState([]);
   const [selectedAdvocate, setSelectedAdvocate] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -34,6 +34,7 @@ export default function AdvocatesTable() {
           ).length;
 
           return {
+            advocate_id: advocate.advocate_id, 
             name: `${advocate.firstName} ${advocate.lastName}`,
             clientCount: count,
           };
@@ -54,6 +55,7 @@ export default function AdvocatesTable() {
   const handleRowClick = (advocate) => {
     setSelectedAdvocate(advocate);
     console.log("Clicked advocate:", advocate);
+    if (onSelect) onSelect(advocate); 
   };
 
   if (loading)
@@ -107,7 +109,8 @@ export default function AdvocatesTable() {
           </tbody>
         </table>
       </div>
-         {/* show the selected advocate*/}
+
+      {/* show the selected advocate*/}
       {selectedAdvocate && (
         <div className="mt-4 text-center text-gray-700">
           Selected Advocate:{" "}
