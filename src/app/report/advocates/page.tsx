@@ -2,6 +2,7 @@
 
 import UserHome from "../../user-home/page";
 import AdvocatesTable from "../../../../components/report/advocates-table";
+import AdvocatesTableFull from "../../../../components/report/advocates-table-full";
 import DateFilterPage from "../../../../components/report/date-range-filter";
 import FirstNationPage from "../../../../components/report/first-nation-page";
 import ReportPreview from "../../../../components/report/report-preview";
@@ -47,7 +48,10 @@ export default function AdvocatesReportPage() {
             </div>
 
             {showPreview && (
-                <ReportPreview onClose={handleClosePreview} onDownload={undefined} />
+                <ReportPreview onClose={handleClosePreview}>
+                    <h2>Download All - Advocates</h2>
+                    <AdvocatesTableFull />
+                </ReportPreview>
             )}
         </UserHome>
     );

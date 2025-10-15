@@ -2,7 +2,7 @@
 
 import React from "react";
 
-const ReportPreview = ({onClose }) => {
+export default function ReportPreview({onClose, children }) {
   const handleClose = (e) => {
     e.preventDefault();
     onClose();
@@ -20,11 +20,11 @@ const ReportPreview = ({onClose }) => {
     // Get the DOM element and set PDF options
     const element = contentRef.current;
     const options = {
-      margin: 1,
+      margin: 0.5,
       filename: "test.pdf",
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { scale: 2 },
-      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+      jsPDF: { unit: "in", format: "letter", orientation: "landscape" },
     };
 
     // Generate and save the PDF
@@ -49,20 +49,7 @@ const ReportPreview = ({onClose }) => {
         {/* Modal content */}
         <div className="overflow-y-auto text-center flex-grow" ref={contentRef}>
           <div className="my-8 space-y-4 text-gray-700">
-            <h2>This is Dummy Text:</h2>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-              Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure 
-              dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non 
-              proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-            </p>
-            <h2>This is Dummy Text:</h2>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-              Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure 
-              dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non 
-              proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-            </p>
+            {children}
           </div>
         </div>
 
@@ -79,5 +66,3 @@ const ReportPreview = ({onClose }) => {
     </div>
   );
 };
-
-export default ReportPreview;
