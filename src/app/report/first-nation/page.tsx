@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import UserHome from "../../user-home/page";
-// import FirstNationPage from "../../../../components/report/first-nation-page";
 import FirstNationFilters from "../../../../components/report/first-nation-filters";
 import DateFilterPage from "../../../../components/report/date-range-filter";
 import ReportPreview from "../../../../components/report/report-preview";
@@ -14,7 +13,7 @@ export default function FirstNationsReportPage() {
   const [ageGroup, setAgeGroup] = useState("");
   const [validationError, setValidationError] = useState("");
 
-  // Handles opening the report preview modal
+  // It handles the Find button click validation
   const handleFind = () => {
     if (!community && !agency && !ageGroup) {
       setValidationError("Please select atleast one filter to find.");
@@ -23,7 +22,7 @@ export default function FirstNationsReportPage() {
     setValidationError("");
     setShowPreview(true);
   };
-
+  // It handles opening the report preview modal
    const handleOpenPreview = () => setShowPreview(true);
 
   // Handles closing the report preview modal
@@ -79,7 +78,7 @@ export default function FirstNationsReportPage() {
 
                 <button
                   type="button"
-                  onClick={handleFind}
+                  onClick={handleFind} // this will validate and open the preview
                   className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-md transition-colors"
                 >
                   Find
