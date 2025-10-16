@@ -10,6 +10,8 @@ import { useState } from "react";
 
 export default function AdvocatesReportPage() {
     const [showPreview, setShowPreview] = useState(false);
+    const [selectedAdvocate, setSelectedAdvocate] = useState<{ advocate_id: number; name: string; clientCount: number } | null>(null);
+
 
     // const handleSelectedAdvocates = () =>
     const handleOpenPreview = () => setShowPreview(true);
@@ -23,14 +25,22 @@ export default function AdvocatesReportPage() {
                 </h1>
 
                 <div className="flex flex-col bg-white shadow-md w-full max-w-3xl mx-auto rounded-2xl p-6">
-                    <AdvocatesTable />
+
+                    {/*pass selected advocate */}
+                    <AdvocatesTable onSelect={setSelectedAdvocate} />
+
 
                     <div className="flex flex-col gap-2 mt-6 w-full max-w-lg mx-auto">
                         <DateFilterPage />
                     </div>
 
                     <div className="flex flex-col gap-4 mt-6 w-full max-w-sm mx-auto">
-                        <FirstNationPage name="Find" path="#" />
+                        {/*updated to navigate to selected advocate */}
+                        <FirstNationPage
+                            name="Find"
+                            path={selectedAdvocate ? `../report/advocates/${selectedAdvocate.advocate_id}` : "#"}
+                        />
+
                         <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
                             <h2 className="text-xl font-semibold mb-4 text-gray-700">
                                 Download All
