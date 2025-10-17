@@ -3,7 +3,7 @@
 import { useState } from "react";
 import UserHome from "../../user-home/page";
 import FirstNationFilters from "../../../../components/report/first-nation-filters";
-import DateFilterPage from "../../../../components/report/date-range-filter";
+import DateFilterPage from "../../../../components/report/date-range-filter.js";
 import ReportPreview from "../../../../components/report/report-preview";
 
 export default function FirstNationsReportPage() {
@@ -11,11 +11,16 @@ export default function FirstNationsReportPage() {
   const [community, setCommunity] = useState("");
   const [agency, setAgency] = useState("");
   const [ageGroup, setAgeGroup] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [validationError, setValidationError] = useState("");
 
   // It handles the Find button click validation
   const handleFind = () => {
-    if (!community && !agency && !ageGroup) {
+    const selectedDate = startDate && endDate;
+    const selectedFilter = community || agency || ageGroup; 
+
+    if (!selectedDate && !selectedFilter) {
       setValidationError("Please select atleast one filter to find.");
       return;
     }
@@ -65,7 +70,7 @@ export default function FirstNationsReportPage() {
 
 
             {/* Imported Date range filter component */}
-            <DateFilterPage />
+            <DateFilterPage setStartDate={setStartDate} setEndDate={setEndDate} />
 
             {validationError && (
               <div className="text-red-500 text-center">{validationError}</div>
