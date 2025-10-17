@@ -12,17 +12,29 @@ export default function AdvocatesReportPage() {
     const [showPreview, setShowPreview] = useState(false);
     const [selectedAdvocate, setSelectedAdvocate] = useState<{ advocate_id: number; name: string; clientCount: number } | null>(null);
     const [validationError, setValidationError] = useState("");
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
     const router = useRouter();
 
     // It handles the Find button click validation
     const handleFind = () => {
-        if (!selectedAdvocate) {
-            setValidationError("Please select an advocate to find data.");
+        const selectedDate = startDate && endDate;
+        const selectedPresentAdvocate = !!selectedAdvocate;
+
+        if (!selectedDate && !selectedPresentAdvocate) {
+            setValidationError("Please select an advocate or filter.");
             return;
         }
         setValidationError("");
-        const path = `/report/advocates/${selectedAdvocate.advocate_id}`;
-        router.push(path);
+
+        if (selectedAdvocate) {
+            const path = `/report/advocates/${selectedAdvocate.advocate_id}`;
+            router.push(path);
+
+        } else {
+            
+            setShowPreview(true); 
+        }
     };
 
     const handleOpenPreview = () => setShowPreview(true);
@@ -42,7 +54,7 @@ export default function AdvocatesReportPage() {
 
 
                     <div className="flex flex-col gap-2 mt-6 w-full max-w-lg mx-auto">
-                        <DateFilterPage />
+                        <DateFilterPage setStartDate={setStartDate} setEndDate={setEndDate}/>
                     </div>
 
                     {/* showing the error message */}
