@@ -14,8 +14,8 @@ export default function ReportPage() {
                 {/* These are the options on the report page */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <ReportCategory
-                        name="First Nations"
-                        description="Generate report on the First Nation communities"
+                        name="Clients"
+                        description="Generate report on the Clients"
                         path="../report/first-nation" //link to first-nations page
                     />
 
