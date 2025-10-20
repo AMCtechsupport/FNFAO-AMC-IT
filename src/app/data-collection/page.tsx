@@ -6,8 +6,6 @@ import DataDisplay from "../../../components/data-collection/data-display"
 
 export default function ReportPage() {
 
-
-
     return (
         <UserHome>
             <div className="min-h-screen bg-gray-100 p-6">
@@ -18,9 +16,12 @@ export default function ReportPage() {
                     <DataDisplay
                         tableName="Clients"
                         selectColumn={["firstName", "lastName", "cfsAgency"]}
-                        selectQuery={["cfsAgency", "CFS Agency X"]}
+                        selectQuery={[
+                            {column:"cfsAgency", filter:"CFS Agency X"},
+                            {column:"lastName", filter:"Smith"}
+
+                        ]}
                     />
-                    
                 </div>
             </div>
         </UserHome>
