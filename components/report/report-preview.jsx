@@ -1,5 +1,6 @@
 "use client";
 
+// import AdvocatsTableData from "./advocates-table";
 import React from "react";
 
 export default function ReportPreview({onClose, children }) {
