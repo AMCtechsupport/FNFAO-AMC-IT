@@ -16,11 +16,9 @@ export default function ReportPage() {
                     <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Data</h1>
 
                     <DataDisplay
-                        tableName="Advocates"
-                    />
-
-                    <DataDisplay
                         tableName="Clients"
+                        selectColumn={["firstName", "lastName", "cfsAgency"]}
+                        selectQuery={["cfsAgency", "CFS Agency X"]}
                     />
                     
                 </div>

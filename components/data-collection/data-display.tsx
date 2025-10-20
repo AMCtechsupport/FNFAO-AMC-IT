@@ -1,18 +1,27 @@
 import supabase from "../../src/app/lib/supabase";
 import { useEffect, useState } from "react";
 
-type PageProps = {tableName: string};
+type PageProps = {
+    tableName: string,
+    selectColumn?: string[],
+    selectTable?: string[],
+    selectQuery?: string[],
+};
 
-export const DataDisplay = (tableName: PageProps) => {
+export const DataDisplay:React.FC<PageProps> = ({ tableName, selectColumn = [], selectQuery = []}) => {
     const [fetchError, setFetchError] = useState<string | null>(null)
     const [items, setItems] = useState<string[]| null>(null)
  
     useEffect(() => {
 
         const fetchItems = async () => {
+            const cols = selectColumn.length ? selectColumn.join(',') : "*";
             const { data, error } = await supabase
-            .from(`${tableName.tableName}`)
-            .select()
+            .from(`${tableName}`)
+            .select(cols)
+            .eq(selectQuery[0], selectQuery[0])
+
+
 
             if (error) {
                 setFetchError('Could not fetch the table')
@@ -28,7 +37,7 @@ export const DataDisplay = (tableName: PageProps) => {
         }
 
         fetchItems()
-    }, [tableName])
+    }, [tableName, selectColumn, selectQuery])
 
     // Check if items is and array
     if (!Array.isArray(items)) return null;
