@@ -51,7 +51,7 @@ export default function FirstNationsReportPage() {
       <main className="min-h-screen bg-gray-100 p-6">
         <section className="max-w-5xl mx-auto">
           <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
-            First Nations Report
+            Client&apos;s Report
           </h1>
 
           {/* Filters and actions */}
