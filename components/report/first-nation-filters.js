@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 export default function FirstNationFilters({ type, array, value, onChange, required }) {
 
   return (

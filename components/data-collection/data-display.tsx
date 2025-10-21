@@ -1,18 +1,36 @@
 import supabase from "../../src/app/lib/supabase";
 import { useEffect, useState } from "react";
 
-type PageProps = {tableName: string};
+type Filter = {column: string; filter: string}
 
-export const DataDisplay = (tableName: PageProps) => {
+type PageProps = {
+    tableName: string,
+    selectColumn?: string[],
+    selectQuery?: Filter[],
+};
+
+export const DataDisplay: React.FC<PageProps> = ({ 
+    tableName, 
+    selectColumn = [], 
+    selectQuery = []}) => {
+
     const [fetchError, setFetchError] = useState<string | null>(null)
-    const [items, setItems] = useState<string[]| null>(null)
+    const [items, setItems] = useState<string[] | null>(null)
  
     useEffect(() => {
-
         const fetchItems = async () => {
-            const { data, error } = await supabase
-            .from(`${tableName.tableName}`)
-            .select()
+            const cols = selectColumn.length ? selectColumn.join(',') : "*";
+
+            let query = supabase.from(tableName).select(cols)
+
+            if (selectQuery.length) {
+                selectQuery.map((filter) => {
+                    query = query.eq(filter.column, filter.filter)
+                })
+            }
+
+            const { data, error } = await query
+            
 
             if (error) {
                 setFetchError('Could not fetch the table')
@@ -26,21 +44,22 @@ export const DataDisplay = (tableName: PageProps) => {
                 console.log("working")
             }
         }
+    
 
         fetchItems()
-    }, [tableName])
+    }, [tableName, selectColumn, selectQuery])
 
     // Check if items is and array
     if (!Array.isArray(items)) return null;
 
     return (
-        <table>
+        <table className="w-full border border-gray-200 rounded-xl">
             {fetchError && (<p>{fetchError}</p>)}
-            <thead>
+            <thead className="bg-gray-100">
                 <tr>
                     {/* Heading */}
                     {Object.keys(items[0]).map((key) => (
-                        <th key={key}>{key}</th>
+                        <th key={key} className="text-center px-6 py-3 text-gray-700 font-semibold border-b">{key}</th>
                     ))}
                 </tr>
             </thead>
@@ -49,7 +68,7 @@ export const DataDisplay = (tableName: PageProps) => {
                 {items.map((item, idx) => (
                     <tr key={idx}>
                         {Object.values(item).map((value, i) => (
-                            <td key={i}>{value}</td>
+                            <td key={i} className="px-6 py-3 border-b text-center">{value}</td>
                         ))}
                     </tr>
                 ))}
