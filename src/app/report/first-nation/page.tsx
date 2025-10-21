@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import UserHome from "../../user-home/page";
 import FirstNationFilters from "../../../../components/report/first-nation-filters";
 import DateFilterPage from "../../../../components/report/date-range-filter.js";
@@ -14,6 +15,7 @@ export default function FirstNationsReportPage() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [validationError, setValidationError] = useState("");
+  const router = useRouter();
 
   // It handles the Find button click validation
   const handleFind = () => {
@@ -24,8 +26,12 @@ export default function FirstNationsReportPage() {
       setValidationError("Please select atleast one filter to find.");
       return;
     }
+    const filterParams = new URLSearchParams();
+    if (community) filterParams.set("community", community);
+    if (agency) filterParams.set("agency", agency);
+    if (ageGroup) filterParams.set("ageGroup", ageGroup);
+    router.push(`/report/first-nation/test?${filterParams.toString()}`);
     setValidationError("");
-    setShowPreview(true);
   };
   // It handles opening the report preview modal
    const handleOpenPreview = () => setShowPreview(true);
