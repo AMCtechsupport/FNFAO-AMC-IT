@@ -2,9 +2,25 @@
 
 import { useState } from "react";
 
-export default function DateFilterPage() {
+export default function DateFilterPage({ setStartDate, setEndDate }) {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+
+  const handleFromDateChange = (e) => {
+    const value = e.target.value;
+    setFromDate(value);
+    if (setStartDate) {
+      setStartDate(value);
+    }
+  };
+
+  const handleToDateChange = (e) => {
+    const value = e.target.value;
+    setToDate(value);
+    if (setEndDate) {
+      setEndDate(value);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-4 mb-4">
@@ -14,7 +30,7 @@ export default function DateFilterPage() {
           <input
             type="date"
             value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
+            onChange={handleFromDateChange}
             className="border rounded p-2 w-full"
           />
         </div>
@@ -23,7 +39,7 @@ export default function DateFilterPage() {
           <input
             type="date"
             value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
+            onChange={handleToDateChange}
             className="border rounded p-2 w-full"
           />
         </div>

@@ -4,14 +4,38 @@ import UserHome from "../../user-home/page";
 import AdvocatesTable from "../../../../components/report/advocates-table";
 import AdvocatesTableFull from "../../../../components/report/advocates-table-full";
 import DateFilterPage from "../../../../components/report/date-range-filter";
-import FirstNationPage from "../../../../components/report/first-nation-page";
 import ReportPreview from "../../../../components/report/report-preview";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function AdvocatesReportPage() {
     const [showPreview, setShowPreview] = useState(false);
     const [selectedAdvocate, setSelectedAdvocate] = useState<{ advocate_id: number; name: string; clientCount: number } | null>(null);
+    const [validationError, setValidationError] = useState("");
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+    const router = useRouter();
 
+    // It handles the Find button click validation
+    const handleFind = () => {
+        const selectedDate = startDate && endDate;
+        const selectedPresentAdvocate = !!selectedAdvocate;
+
+        if (!selectedDate && !selectedPresentAdvocate) {
+            setValidationError("Please select an advocate or filter.");
+            return;
+        }
+        setValidationError("");
+
+        if (selectedAdvocate) {
+            const path = `/report/advocates/${selectedAdvocate.advocate_id}`;
+            router.push(path);
+
+        } else {
+            
+            setShowPreview(true); 
+        }
+    };
 
     const handleOpenPreview = () => setShowPreview(true);
     const handleClosePreview = () => setShowPreview(false);
@@ -30,15 +54,27 @@ export default function AdvocatesReportPage() {
 
 
                     <div className="flex flex-col gap-2 mt-6 w-full max-w-lg mx-auto">
-                        <DateFilterPage />
+                        <DateFilterPage setStartDate={setStartDate} setEndDate={setEndDate}/>
                     </div>
+
+                    {/* showing the error message */}
+                        {validationError && (
+                            <div className="text-red-500 text-center">{validationError}</div>
+                            )}
 
                     <div className="flex flex-col gap-4 mt-6 w-full max-w-sm mx-auto">
                         {/*updated to navigate to selected advocate */}
-                        <FirstNationPage
-                            name="Find"
-                            path={selectedAdvocate ? `../report/advocates/${selectedAdvocate.advocate_id}` : "#"}
-                        />
+                        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                            <h2 className="text-xl font-semibold mb-4 text-gray-700">Find</h2>
+
+                            <button
+                            type="button"
+                            onClick={handleFind} // this will validate and open the preview
+                            className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-md transition-colors"
+                            >
+                            Find
+                            </button>
+                        </div>
 
                         <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
                             <h2 className="text-xl font-semibold mb-4 text-gray-700">
