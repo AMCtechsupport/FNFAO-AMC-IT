@@ -28,7 +28,6 @@ export default function DataColumn(tableName, selectColumn) {
                 setItems(data ?? [])
                 setFetchError(null)
             }
-            setLoading(false);
 
         }
         fetchItems();
