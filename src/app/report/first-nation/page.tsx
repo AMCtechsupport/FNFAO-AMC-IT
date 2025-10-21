@@ -6,6 +6,7 @@ import UserHome from "../../user-home/page";
 import FirstNationFilters from "../../../../components/report/first-nation-filters";
 import DateFilterPage from "../../../../components/report/date-range-filter.js";
 import ReportPreview from "../../../../components/report/report-preview";
+import DataColumn from "../../../../components/data-collection/data-column"
 
 export default function FirstNationsReportPage() {
   const [showPreview, setShowPreview] = useState(false);
@@ -15,6 +16,7 @@ export default function FirstNationsReportPage() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [validationError, setValidationError] = useState("");
+  
   const router = useRouter();
 
   // It handles the Find button click validation
@@ -26,11 +28,16 @@ export default function FirstNationsReportPage() {
       setValidationError("Please select atleast one filter to find.");
       return;
     }
+
+    // Sends selected values to next page
     const filterParams = new URLSearchParams();
     if (community) filterParams.set("community", community);
     if (agency) filterParams.set("agency", agency);
     if (ageGroup) filterParams.set("ageGroup", ageGroup);
+
+    // Change this path to desired path **
     router.push(`/report/first-nation/test?${filterParams.toString()}`);
+
     setValidationError("");
   };
   // It handles opening the report preview modal
@@ -53,14 +60,14 @@ export default function FirstNationsReportPage() {
             <div className="flex flex-col md:flex-row gap-4 max-w-4xl mx-auto">
               <FirstNationFilters
                 type="Community"
-                array={["Community 1", "Community 2"]}
+                array={DataColumn("First Nations", "firstNationMembership")}
                 value={community}
                 onChange={setCommunity}
                 required
               />
               <FirstNationFilters
                 type="Agency"
-                array={["Agency 1", "Agency 2"]}
+                array={DataColumn("CFS Agencies", "agencyName")}
                 value={agency}
                 onChange={setAgency}
                 required

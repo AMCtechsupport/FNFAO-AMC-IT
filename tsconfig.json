@@ -32,6 +32,6 @@
     "src/app/clients/page.jsx", 
     "components/report/date-range-filter.js",
     "src/app/clients/page.jsx", 
-    "components/data-collection/data-display.js"  ],
+    "components/data-collection/data-display.js", "components/data-collection/data-column.js"  ],
   "exclude": ["node_modules"]
 }

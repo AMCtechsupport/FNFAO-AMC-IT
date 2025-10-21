@@ -1,4 +1,6 @@
-// This is just for testing
+// This is just for testing and will be deleted after a proper page is put here
+
+// Keep code though **
 
 export default function FilterPage({
     searchParams

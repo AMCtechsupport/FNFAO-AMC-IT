@@ -1,10 +1,14 @@
 'use client'
 
+// Remove this page and folder before production
+
 import UserHome from "../user-home/page"
 import DataDisplay from "../../../components/data-collection/data-display"
 import DataColumn from "../../../components/data-collection/data-column"
 
 export default function ReportPage() {
+
+    const word = DataColumn("Clients", "cfsAgency")
 
     return (
         <UserHome>
@@ -13,10 +17,8 @@ export default function ReportPage() {
                     {/* This is the main heading */}
                     <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Data</h1>
 
-                    <DataColumn
-                        tableName="Clients"
-                        selectColumn="cfsAgency"
-                    />
+                    <p>{word}
+                    </p>
 
                     <DataDisplay
                         tableName="Clients"
