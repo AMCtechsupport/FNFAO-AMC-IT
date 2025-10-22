@@ -34,8 +34,7 @@ export default function AdvocatesReportPage() {
         setValidationError("");
 
         if (selectedAdvocate) {
-            const path = `/report/advocates/${selectedAdvocate.advocate_id}`;
-            router.push(path);
+            router.push(`/report/advocates/${selectedAdvocate.advocate_id}`);
 
         } else {
             

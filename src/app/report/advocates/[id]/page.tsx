@@ -41,6 +41,7 @@ const handleOpenPreview = () => setShowPreview(true);
             </p>
         );
 
+    // Get rid of this after we fix inputs regarding clientStatus from Clients table
     const setClientStatus = (status: string) => {
         if (status === "Active") {
             return "Active"
@@ -60,25 +61,24 @@ const handleOpenPreview = () => setShowPreview(true);
                 <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
                     {advocateName} Clients Report
                 </h1>
-                <div className="form-check">
-                    <input className="form-check-input" type="checkbox" onChange={e => setActiveCheck(e.target.checked)} checked={activeCheck} id="checkDefault"/>
-                    <label className="form-check-label" htmlFor="checkDefault">
-                        Active users
-                    </label>
-                    </div>
-                    <div className="form-check">
-                    <input className="form-check-input" type="checkbox" onChange={e => setInactiveCheck(e.target.checked)} checked={inactiveCheck} id="checkChecked"/>
-                    <label className="form-check-label" htmlFor="checkChecked">
-                        Inactive users
-                    </label>
-                    </div>
-
                 {clients.length === 0 ? (
                     <p className="text-center text-gray-600 text-lg">
                         No clients assigned.
                     </p>
                 ) : (
-                    <div className="flex flex-col bg-white shadow-md w-full max-w-3xl mx-auto rounded-2xl p-6">
+                    <div className="bg-white shadow-md w-full max-w-3xl mx-auto rounded-2xl p-6">
+                        <div className="form-check form-check-inline">
+                            <input className="form-check-input" type="checkbox" onChange={e => setActiveCheck(e.target.checked)} checked={activeCheck} id="activeCheck"/>
+                            <label className="form-check-label px-2 font-medium text-center" htmlFor="activeCheck">
+                            Active users
+                            </label>
+                        </div>
+                        <div className="form-check form-check-inline">
+                            <input className="form-check-input" type="checkbox" onChange={e => setInactiveCheck(e.target.checked)} checked={inactiveCheck} id="inactiveCheck"/>
+                            <label className="form-check-label px-2 font-medium text-center" htmlFor="inactiveCheck">
+                            Inactive users
+                            </label>
+                        </div>
                         <div
                             className="overflow-y-auto overflow-x-hidden border border-gray-200 rounded-xl"
                             style={{ maxHeight: "800px" }}
@@ -103,8 +103,8 @@ const handleOpenPreview = () => setShowPreview(true);
                                             if (activeCheck && inactiveCheck) return true;
                                             if (activeCheck) return isActive;
                                             if (inactiveCheck) return !isActive;
-                                            // if neither checkbox is checked, show all (change to `return false;` to show none)
-                                            return true;
+                                            // if neither checkbox is checked show none
+                                            return false;
                                         })
                                         .map((client) => (
                                             <tr
@@ -147,7 +147,7 @@ const handleOpenPreview = () => setShowPreview(true);
             {showPreview && (
                 <ReportPreview onClose={handleClosePreview}>
                     <h2>Download All - Clients</h2>
-                    <DetailedClientsTable advocateId={id} />
+                    <DetailedClientsTable advocateId={id} activeCheck={activeCheck} inactiveCheck={inactiveCheck} />
                 </ReportPreview>
             )}
         </UserHome>
