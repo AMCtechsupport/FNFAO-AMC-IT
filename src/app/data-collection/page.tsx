@@ -22,12 +22,11 @@ export default function ReportPage() {
 
                     <DataDisplay
                         tableName="Clients"
-                        selectColumn={["firstName", "lastName", "cfsAgency"]}
+                        selectColumn={["firstName", "lastName", "clientStatus"]}
                         selectQuery={[
-                            {column:"cfsAgency", filter:"CFS Agency X"},
-                            {column:"lastName", filter:"Smith"}
-
+                            {column: "clientStatus", filter: "Active"}
                         ]}
+                        
                     />
                 </div>
             </div>
