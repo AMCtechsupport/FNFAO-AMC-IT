@@ -18,7 +18,7 @@ export default function AdvocatesTable({ onSelect }) {
     totalPages,
     totalItems,
     setCurrentPage,
-  } = usePagination(advocates, 3);
+  } = usePagination(advocates, 20);
 
   useEffect(() => {
     const fetchAdvocates = async () => {
