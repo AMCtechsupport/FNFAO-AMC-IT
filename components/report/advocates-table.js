@@ -2,12 +2,23 @@
 
 import { useEffect, useState } from "react";
 import supabase from "@/app/lib/supabase";
+import Pagination from "./pages-pagination";
+import { usePagination } from "./pagination-hooks";
 
 export default function AdvocatesTable({ onSelect, active, inactive }) { 
   const [advocates, setAdvocates] = useState([]);
   const [selectedAdvocate, setSelectedAdvocate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
+
+  // Using pagination hook
+  const {
+    currentItems: currentAdvocates,
+    currentPage,
+    totalPages,
+    totalItems,
+    setCurrentPage,
+  } = usePagination(advocates, 20);
 
   function clientType() {
         if (active && inactive)
@@ -124,7 +135,8 @@ export default function AdvocatesTable({ onSelect, active, inactive }) {
             </tr>
           </thead>
           <tbody>
-            {advocates.map((advocate, index) => {
+            {/* To show only the selected advocates  for the current page */}
+            {currentAdvocates.map((advocate, index) => {
               const isSelected = selectedAdvocate?.name === advocate.name;
               return (
                 <tr
@@ -148,6 +160,18 @@ export default function AdvocatesTable({ onSelect, active, inactive }) {
           </tbody>
         </table>
       </div>
+
+      {/* Using Pagination Component */}
+      <Pagination 
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
+
+      {/* Showing information about the pages */}
+      <p className="text-center text-sm text-gray-600 mt-2">
+        Page {currentPage} of {totalPages} ({totalItems} total advocates)
+      </p>
 
       {/* show the selected advocate*/}
       {selectedAdvocate && (
