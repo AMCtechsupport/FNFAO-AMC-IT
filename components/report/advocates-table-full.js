@@ -37,33 +37,75 @@ export const downloadCSV = (data, filename = "advocates_report") => {
 };
 
 
-export default function AdvocatesTableFull({ onDataLoaded }) { 
+export default function AdvocatesTableFull({ onDataLoaded, active, inactive }) { 
   const [advocates, setAdvocates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
 
+  function clientType() {
+        if (active && inactive)
+            return null
+        if (active && !inactive)
+            return "Active"
+        if (!active && inactive)
+            return "Inactive"
+        return "__NONE__";
+  }
+
   useEffect(() => {
+
     const fetchAdvocates = async () => {
       setLoading(true);
       try {
+        // fetch advocates
         const { data: advocatesData, error: advocatesError } = await supabase
           .from("Advocates")
           .select("advocate_id, firstName, lastName");
 
         if (advocatesError) throw advocatesError;
 
+        // fetch assigned advocates
         const { data: assignmentsData, error: assignmentsError } = await supabase
           .from("Assigned Advocates")
           .select("advocate_id, client_id");
 
         if (assignmentsError) throw assignmentsError;
 
+        const status = clientType();
+        let clientsData = [];
+        let clientsError = null;
+
+        if (status === "__NONE__") {
+          // no clients
+          clientsData = [];
+        } else {
+          // return all clients
+          let clientsQuery = supabase
+            .from("Clients")
+            .select("client_id, clientStatus");
+
+        if (status) {
+          clientsQuery = clientsQuery.eq("clientStatus", status);
+        }
+          const clientsResult = await clientsQuery;
+          clientsData = clientsResult.data;
+          clientsError = clientsResult.error;
+        }
+
+        if (clientsError) throw clientsError;
+
+        // create a Set of active client IDs for fast lookup
+        const activeClientIds = new Set((clientsData || []).map((client) => client.client_id));
+        
+
+        // merge data and count clients
         const mergedData = advocatesData.map((advocate) => {
           const count = assignmentsData.filter(
-            (item) => item.advocate_id === advocate.advocate_id
+            (item) => item.advocate_id === advocate.advocate_id && activeClientIds.has(item.client_id)
           ).length;
 
           return {
+            advocate_id: advocate.advocate_id, 
             name: `${advocate.firstName} ${advocate.lastName}`,
             clientCount: count,
           };

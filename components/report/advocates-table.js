@@ -3,13 +3,24 @@
 import { useEffect, useState } from "react";
 import supabase from "@/app/lib/supabase";
 
-export default function AdvocatesTable({ onSelect }) { 
+export default function AdvocatesTable({ onSelect, active, inactive }) { 
   const [advocates, setAdvocates] = useState([]);
   const [selectedAdvocate, setSelectedAdvocate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
 
+  function clientType() {
+        if (active && inactive)
+            return null
+        if (active && !inactive)
+            return "Active"
+        if (!active && inactive)
+            return "Inactive"
+        return "__NONE__";
+  }
+
   useEffect(() => {
+
     const fetchAdvocates = async () => {
       setLoading(true);
       try {
@@ -27,10 +38,37 @@ export default function AdvocatesTable({ onSelect }) {
 
         if (assignmentsError) throw assignmentsError;
 
+        const status = clientType();
+        let clientsData = [];
+        let clientsError = null;
+
+        if (status === "__NONE__") {
+          // no clients
+          clientsData = [];
+        } else {
+          // return all clients
+          let clientsQuery = supabase
+            .from("Clients")
+            .select("client_id, clientStatus");
+
+        if (status) {
+          clientsQuery = clientsQuery.eq("clientStatus", status);
+        }
+          const clientsResult = await clientsQuery;
+          clientsData = clientsResult.data;
+          clientsError = clientsResult.error;
+        }
+
+        if (clientsError) throw clientsError;
+
+        // create a Set of active client IDs for fast lookup
+        const activeClientIds = new Set((clientsData || []).map((client) => client.client_id));
+        
+
         // merge data and count clients
         const mergedData = advocatesData.map((advocate) => {
           const count = assignmentsData.filter(
-            (item) => item.advocate_id === advocate.advocate_id
+            (item) => item.advocate_id === advocate.advocate_id && activeClientIds.has(item.client_id)
           ).length;
 
           return {
@@ -50,7 +88,7 @@ export default function AdvocatesTable({ onSelect }) {
     };
 
     fetchAdvocates();
-  }, []);
+  }, [active, inactive]);
 
   const handleRowClick = (advocate) => {
     setSelectedAdvocate(advocate);
