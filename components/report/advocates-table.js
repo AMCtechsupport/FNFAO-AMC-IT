@@ -20,6 +20,7 @@ export default function AdvocatesTable({ onSelect, active, inactive }) {
     setCurrentPage,
   } = usePagination(advocates, 20);
 
+  // Determine client type filter based on active/inactive
   function clientType() {
         if (active && inactive)
             return null
@@ -72,7 +73,7 @@ export default function AdvocatesTable({ onSelect, active, inactive }) {
 
         if (clientsError) throw clientsError;
 
-        // create a Set of active client IDs for fast lookup
+        // create organized set of client ids
         const activeClientIds = new Set((clientsData || []).map((client) => client.client_id));
         
 

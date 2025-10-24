@@ -143,7 +143,8 @@ export default function AdvocatesReportPage() {
           Advocates Report
         </h1>
 
-        <div className="flex flex-col bg-white shadow-md w-full max-w-3xl mx-auto rounded-2xl p-6">
+        <div className="bg-white shadow-md w-full max-w-3xl mx-auto rounded-2xl p-6">
+          {/* Checkboxes for active/inactive */}
           <div className="form-check form-check-inline">
             <input
               className="form-check-input"
