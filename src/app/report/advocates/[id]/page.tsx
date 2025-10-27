@@ -39,7 +39,7 @@ export default function AdvocateDetailsPage() {
 
     //new function to handle row click
     const handleRowClick = (clientId: string) => {
-        router.push(`/clients/${clientId}`);
+        router.push(`/report/clients-report/${clientId}`);
     };
 
     return (
