@@ -11,6 +11,7 @@ type Client = {
     client_id: string;
     firstName: string;
     lastName: string;
+    clientStatus: string;
     childCount: number;
 };
 
@@ -20,7 +21,10 @@ export default function AdvocateDetailsPage() {
     const [showPreview, setShowPreview] = useState(false);
     const { advocateName, clients, loading, error } = useAdvocateData(id);
 
-    const handleOpenPreview = () => setShowPreview(true);
+    const [activeCheck, setActiveCheck] = useState(true)
+    const [inactiveCheck, setInactiveCheck] = useState(false)
+
+const handleOpenPreview = () => setShowPreview(true);
     const handleClosePreview = () => setShowPreview(false);
 
     if (loading)
@@ -37,6 +41,15 @@ export default function AdvocateDetailsPage() {
             </p>
         );
 
+    // Get rid of this after we fix inputs regarding clientStatus from Clients table
+    const setClientStatus = (status: string) => {
+        if (status === "Active") {
+            return "Active"
+        } else {
+            return "Inactive"
+        }
+    }
+
     //new function to handle row click
     const handleRowClick = (clientId: string) => {
         router.push(`/report/clients-report/${clientId}`);
@@ -48,13 +61,24 @@ export default function AdvocateDetailsPage() {
                 <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
                     {advocateName} Clients Report
                 </h1>
-
                 {clients.length === 0 ? (
                     <p className="text-center text-gray-600 text-lg">
                         No clients assigned.
                     </p>
                 ) : (
-                    <div className="flex flex-col bg-white shadow-md w-full max-w-3xl mx-auto rounded-2xl p-6">
+                    <div className="bg-white shadow-md w-full max-w-3xl mx-auto rounded-2xl p-6">
+                        <div className="form-check form-check-inline">
+                            <input className="form-check-input" type="checkbox" onChange={e => setActiveCheck(e.target.checked)} checked={activeCheck} id="activeCheck"/>
+                            <label className="form-check-label px-2 font-medium text-center" htmlFor="activeCheck">
+                            Active users
+                            </label>
+                        </div>
+                        <div className="form-check form-check-inline">
+                            <input className="form-check-input" type="checkbox" onChange={e => setInactiveCheck(e.target.checked)} checked={inactiveCheck} id="inactiveCheck"/>
+                            <label className="form-check-label px-2 font-medium text-center" htmlFor="inactiveCheck">
+                            Inactive users
+                            </label>
+                        </div>
                         <div
                             className="overflow-y-auto overflow-x-hidden border border-gray-200 rounded-xl"
                             style={{ maxHeight: "800px" }}
@@ -64,25 +88,41 @@ export default function AdvocateDetailsPage() {
                                     <tr>
                                         <th className="px-6 py-3 font-medium">Client&apos;s Name</th>
                                         <th className="px-6 py-3 font-medium text-center">
+                                            Status
+                                        </th>
+                                        <th className="px-6 py-3 font-medium text-center">
                                             Number of Child
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {(clients as Client[]).map((client) => (
-                                        <tr
-                                            key={client.client_id}
-                                            onClick={() => handleRowClick(client.client_id)} // navigate on click
-                                            className="cursor-pointer hover:bg-indigo-50 transition"
-                                        >
-                                            <td className="px-6 py-3 border-t font-medium text-gray-800">
-                                                {client.firstName} {client.lastName}
-                                            </td>
-                                            <td className="px-6 py-3 border-t text-center">
-                                                {client.childCount}
-                                            </td>
-                                        </tr>
-                                    ))}
+                                    {(clients as Client[])
+                                        .filter((client) => {
+                                            // determine which clients to show based on checkboxes
+                                            const isActive = client.clientStatus === "Active";
+                                            if (activeCheck && inactiveCheck) return true;
+                                            if (activeCheck) return isActive;
+                                            if (inactiveCheck) return !isActive;
+                                            // if neither checkbox is checked show none
+                                            return false;
+                                        })
+                                        .map((client) => (
+                                            <tr
+                                                key={client.client_id}
+                                                onClick={() => handleRowClick(client.client_id)}
+                                                className="cursor-pointer hover:bg-indigo-50 transition"
+                                            >
+                                                <td className="px-6 py-3 border-t font-medium text-gray-800">
+                                                    {client.firstName} {client.lastName}
+                                                </td>
+                                                <td className="px-6 py-3 border-t text-center">
+                                                    {setClientStatus(client.clientStatus)}
+                                                </td>
+                                                <td className="px-6 py-3 border-t text-center">
+                                                    {client.childCount}
+                                                </td>
+                                            </tr>
+                                        ))}
                                 </tbody>
                             </table>
                         </div>
@@ -107,7 +147,7 @@ export default function AdvocateDetailsPage() {
             {showPreview && (
                 <ReportPreview onClose={handleClosePreview}>
                     <h2>Download All - Clients</h2>
-                    <DetailedClientsTable advocateId={id} />
+                    <DetailedClientsTable advocateId={id} activeCheck={activeCheck} inactiveCheck={inactiveCheck} />
                 </ReportPreview>
             )}
         </UserHome>

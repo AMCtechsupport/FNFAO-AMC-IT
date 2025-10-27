@@ -3,12 +3,57 @@
 import { useEffect, useState } from "react";
 import supabase from "@/app/lib/supabase";
 
-export default function AdvocatesTableFull() {
+export const downloadJSON = (data, filename = "advocates_report") => {
+  const jsonString = JSON.stringify(data, null, 2);
+  const blob = new Blob([jsonString], { type: "application/json" });
+  const href = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = href;
+  link.download = `${filename}.json`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(href);
+};
+
+export const downloadCSV = (data, filename = "advocates_report") => {
+  if (data.length === 0) return;
+
+  const headers = Object.keys(data[0]);
+  const csv = [
+    headers.join(","),
+    ...data.map(row => headers.map(fieldName => JSON.stringify(row[fieldName])).join(","))
+  ].join("\n");
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const href = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = href;
+  link.download = `${filename}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(href);
+};
+
+
+export default function AdvocatesTableFull({ onDataLoaded, active, inactive }) { 
   const [advocates, setAdvocates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
 
+  function clientType() {
+        if (active && inactive)
+            return null
+        if (active && !inactive)
+            return "Active"
+        if (!active && inactive)
+            return "Inactive"
+        return "__NONE__";
+  }
+
   useEffect(() => {
+
     const fetchAdvocates = async () => {
       setLoading(true);
       try {
@@ -26,19 +71,48 @@ export default function AdvocatesTableFull() {
 
         if (assignmentsError) throw assignmentsError;
 
+        const status = clientType();
+        let clientsData = [];
+        let clientsError = null;
+
+        if (status === "__NONE__") {
+          // no clients
+          clientsData = [];
+        } else {
+          // return all clients
+          let clientsQuery = supabase
+            .from("Clients")
+            .select("client_id, clientStatus");
+
+        if (status) {
+          clientsQuery = clientsQuery.eq("clientStatus", status);
+        }
+          const clientsResult = await clientsQuery;
+          clientsData = clientsResult.data;
+          clientsError = clientsResult.error;
+        }
+
+        if (clientsError) throw clientsError;
+
+        // create a Set of active client IDs for fast lookup
+        const activeClientIds = new Set((clientsData || []).map((client) => client.client_id));
+        
+
         // merge data and count clients
         const mergedData = advocatesData.map((advocate) => {
           const count = assignmentsData.filter(
-            (item) => item.advocate_id === advocate.advocate_id
+            (item) => item.advocate_id === advocate.advocate_id && activeClientIds.has(item.client_id)
           ).length;
 
           return {
+            advocate_id: advocate.advocate_id, 
             name: `${advocate.firstName} ${advocate.lastName}`,
             clientCount: count,
           };
         });
 
         setAdvocates(mergedData);
+        if (onDataLoaded) onDataLoaded(mergedData);
       } catch (err) {
         console.error("Error fetching advocates:", err);
         setFetchError("Failed to load advocates");
@@ -48,7 +122,7 @@ export default function AdvocatesTableFull() {
     };
 
     fetchAdvocates();
-  }, []);
+  }, []); 
 
   if (loading)
     return <p className="text-center text-gray-500">Loading advocates...</p>;

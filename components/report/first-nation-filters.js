@@ -1,6 +1,5 @@
 "use client";
 
-
 export default function FirstNationFilters({ type, array, value, onChange, required }) {
 
   return (
