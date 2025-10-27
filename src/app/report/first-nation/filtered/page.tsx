@@ -5,28 +5,51 @@ import React from "react";
 import { useSearchParams } from "next/navigation";
 import DataDisplay from "../../../../../components/data-collection/data-display";
 import supabase from "@/app/lib/supabase";
+import { useEffect, useState } from "react";
 
 export default function ClientFilterPage() {
     const filter = useSearchParams()
     const community = filter.get('community')
     const agency = filter.get('agency')
     const ageGroup = filter.get('ageGroup')
+    const [fetchError, setFetchError] = useState<string | null>(null);
+    const [items, setItems] = useState<string[] | null>(null);
 
-    const params = [{column: "firstNationMembership", search: community},{column: "cfsAgency", search: agency}]
+    
 
-    const fetchClients = async () => {
-        try {
+    useEffect(() => {
+        const fetchClients = async () => {
 
-            let query = supabase.from("Clients").select("firstName + lastName as Name, cfsAgency, firstNationMembership")
-            params.map((item) => (
-                if (item)
-                    query = query.eq()
-            ))
-            const {data: clientData, error: clientError} = await query
-        } catch(clientError) {
+            const params = [{column: "firstNationMembership", search: community},{column: "cfsAgency", search: agency}]
 
+            let query = supabase.from("Clients").select("firstName, lastName, cfsAgency, firstNationMembership")
+
+            if (params) {
+                params.forEach((filter) => {
+                    if (filter.search)
+                        query = query.eq(filter.column, filter.search)
+                });
+            }
+
+            const {data, error} = await query
+
+            if (error) {
+            setFetchError("Could not fetch the table");
+            setItems(null);
+            }
+            if (data) {
+            setItems(data);
+            setFetchError(null);
         }
-    }
+        }
+
+        fetchClients();
+    },[]);
+
+    // Check if items is and array
+    if (!Array.isArray(items)) return null;
+    if (items === null) return null;
+
 
     return (
         <UserHome>
@@ -40,15 +63,33 @@ export default function ClientFilterPage() {
                     <p className="badge text-bg-secondary">{ageGroup}</p>
                 </div>
 
-                <DataDisplay 
-                    tableName="Clients"
-                    selectColumn={[
-                        "firstName",
-                        "lastName",
-                        "cfsAgency",
-                        "firstNationMembership"
-                    ]}
-                />
+                <table>
+                    <thead>
+                        <tr>
+                        {/* Heading */}
+                        {Object.keys(items[0]).map((key) => (
+                        <th
+                        key={key}
+                        className="text-center px-6 py-3 text-gray-700 font-semibold border-b"
+                        >
+                        {key}
+                        </th>
+                        ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {/* Item Rows */}
+                        {items.map((item, idx) => (
+                        <tr key={idx}>
+                            {Object.values(item).map((value, i) => (
+                            <td key={i} className="px-6 py-3 border-b text-center">
+                                {value}
+                            </td>
+                            ))}
+                        </tr>
+                        ))}
+                    </tbody>
+                </table>
 
 
                 <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
