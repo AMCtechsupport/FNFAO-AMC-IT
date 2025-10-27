@@ -25,7 +25,7 @@ export const DataDisplay: React.FC<PageProps> = ({
 
       if (selectQuery.length) {
         selectQuery.map((filter) => {
-          query = query.eq(filter.column, filter.filter);
+          query = query.eq(filter.column, filter.filter)
         });
       }
 
@@ -50,6 +50,10 @@ export const DataDisplay: React.FC<PageProps> = ({
   if (!Array.isArray(items)) return null;
 
   return (
+    <div className="overflow-x-auto">
+      <div
+        className="overflow-y-auto overflow-x-hidden border border-gray-200 rounded-xl"
+      >
     <table className="w-full border border-gray-200 rounded-xl">
       {fetchError && <p>{fetchError}</p>}
       <thead className="bg-gray-100">
@@ -78,6 +82,8 @@ export const DataDisplay: React.FC<PageProps> = ({
         ))}
       </tbody>
     </table>
+    </div>
+    </div>
   );
 };
 

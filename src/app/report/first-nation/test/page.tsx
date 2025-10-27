@@ -2,13 +2,7 @@
 
 // Keep code though **
 
-export default function FilterPage({
-    searchParams
-} : {
-
-    searchParams?: {community?: string; agency?: string; ageGroup?: string};
-
-}) {
+export default function FilterPage({searchParams} : {searchParams?: {community?: string; agency?: string; ageGroup?: string};}) {
     const community = searchParams?.community ?? "";
     const agency = searchParams?.agency ?? "";
     const ageGroup = searchParams?.ageGroup ?? "";

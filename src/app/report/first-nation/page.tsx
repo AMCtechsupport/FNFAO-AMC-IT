@@ -36,7 +36,7 @@ export default function FirstNationsReportPage() {
     if (ageGroup) filterParams.set("ageGroup", ageGroup);
 
     // Change this path to desired path **
-    router.push(`/report/first-nation/test?${filterParams.toString()}`);
+    router.push(`/report/first-nation/filtered?${filterParams.toString()}`);
 
     setValidationError("");
   };

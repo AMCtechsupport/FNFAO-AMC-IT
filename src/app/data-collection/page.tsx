@@ -24,8 +24,7 @@ export default function ReportPage() {
             tableName="Advocates"
             selectColumn={[
               "firstName",
-              "lastName",
-              `"Assigned Advocates"(client_id, Clients(firstName, lastName))`,
+              "lastName"
             ]}
           />
         </div>
