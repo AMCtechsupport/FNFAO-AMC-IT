@@ -73,6 +73,9 @@ export default function AgeSelectionFilter() {
   const ageGroup = searchParams.get("ageGroup") || "";
   const minDOBParam = searchParams.get("minDOB") || "";
   const maxDOBParam = searchParams.get("maxDOB") || "";
+  const startDate = searchParams.get("startDate") || "";
+  const endDate = searchParams.get("endDate") || ""; 
+  const quarter = searchParams.get("quarter") || "";
 
   const derived = getDOBRangeFromAgeGroup(ageGroup);
   const effectiveMinDOB = minDOBParam || derived.minDOB;
@@ -86,10 +89,14 @@ export default function AgeSelectionFilter() {
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        let query = supabase.from("Clients").select("client_id, firstName, lastName, dateOfBirth");
+        let query = supabase.from("Clients").select("client_id, firstName, lastName, dateOfBirth, createdAt");
 
         if (effectiveMinDOB) query = query.gte("dateOfBirth", effectiveMinDOB);
         if (effectiveMaxDOB) query = query.lte("dateOfBirth", effectiveMaxDOB);
+
+        // Quarter/Date range filter on createdAt
+        if (startDate) query = query.gte("createdAt", startDate);
+        if (endDate) query = query.lte("createdAt", endDate);
 
         const { data, error: fetchError } = await query;
         if (fetchError) throw fetchError;
@@ -103,10 +110,16 @@ export default function AgeSelectionFilter() {
     };
 
     fetchClients();
-  }, [effectiveMinDOB, effectiveMaxDOB]);
+  }, [effectiveMinDOB, effectiveMaxDOB, startDate, endDate]);
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
+      {quarter && (
+        <div className="mb-4 bg-blue-50 p-4 rounded-lg">
+          <p className="text-blue-800 font-semibold">Filtered by: {quarter}</p>
+        </div>
+      )}
+
       {error && (
         <p className="text-red-600 font-medium mb-4 text-center">{error}</p>
       )}
