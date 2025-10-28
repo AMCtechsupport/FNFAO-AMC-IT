@@ -76,6 +76,9 @@ export default function ClientFilterPage() {
   const community = searchParams.get("community") || "";
   const agency = searchParams.get("agency") || "";
   const ageGroup = searchParams.get("ageGroup") || "";
+  const startDate = searchParams.get("startDate") || "";
+  const endDate = searchParams.get("endDate") || ""; 
+  const quarter = searchParams.get("quarter") || "";
 
   const { minDOB, maxDOB } = getDOBRangeFromAgeGroup(ageGroup);
 
@@ -89,7 +92,7 @@ export default function ClientFilterPage() {
         let query = supabase
           .from("Clients")
           .select(
-            "client_id, firstName, lastName, cfsAgency, firstNationMembership, dateOfBirth"
+            "client_id, firstName, lastName, cfsAgency, firstNationMembership, dateOfBirth, createdAt"
           );
 
         // Apply filters dynamically
@@ -97,6 +100,9 @@ export default function ClientFilterPage() {
         if (agency) query = query.eq("cfsAgency", agency);
         if (minDOB) query = query.gte("dateOfBirth", minDOB);
         if (maxDOB) query = query.lte("dateOfBirth", maxDOB);
+        // Quarter/Date range filter on createdAt
+        if (startDate) query = query.gte("createdAt", startDate);
+        if (endDate) query = query.lte("createdAt", endDate);
 
         const { data, error } = await query;
 
@@ -110,7 +116,7 @@ export default function ClientFilterPage() {
     };
 
     fetchClients();
-  }, [community, agency, ageGroup, minDOB, maxDOB]);
+  }, [community, agency, ageGroup, minDOB, maxDOB, startDate, endDate, quarter]);
 
   // Handles opening the report preview modal
   const handleOpenPreview = () => setShowPreview(true);
@@ -146,6 +152,11 @@ export default function ClientFilterPage() {
               Age Group: {ageGroup}
             </span>
           )}
+          {quarter && (
+        <div className="mb-4 bg-blue-50 p-4 rounded-lg">
+          <p className="text-blue-800 font-semibold">Filtered by: {quarter}</p>
+        </div>
+      )}
         </div>
 
         {fetchError && (
