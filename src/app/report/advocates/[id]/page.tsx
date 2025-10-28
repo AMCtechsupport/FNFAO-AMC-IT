@@ -86,7 +86,7 @@ const handleOpenPreview = () => setShowPreview(true);
                             <table className="w-full border border-gray-200 rounded-xl">
                                 <thead className="bg-indigo-500 text-white text-left">
                                     <tr>
-                                        <th className="px-6 py-3 font-medium">Client&apos;s Name</th>
+                                        <th className="px-6 py-3 font-medium text-center">Client&apos;s Name</th>
                                         <th className="px-6 py-3 font-medium text-center">
                                             Status
                                         </th>

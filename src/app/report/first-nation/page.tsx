@@ -24,7 +24,7 @@ export default function FirstNationsReportPage() {
   const [endDate, setEndDate] = useState("");
   const [quarter, setQuarter] = useState<QuarterSelection>(null); 
   const [validationError, setValidationError] = useState("");
-  
+
   const router = useRouter();
 
   // It handles the Find button click validation
@@ -59,12 +59,12 @@ export default function FirstNationsReportPage() {
       filterParams.set("endDate", endDate);
     }
 
-    router.push(`/report/first-nation/test?${filterParams.toString()}`);
+    router.push(`/report/first-nation/filtered?${filterParams.toString()}`);
 
     setValidationError("");
   };
   // It handles opening the report preview modal
-   const handleOpenPreview = () => setShowPreview(true);
+  const handleOpenPreview = () => setShowPreview(true);
 
   // Handles closing the report preview modal
   const handleClosePreview = () => setShowPreview(false);
@@ -124,7 +124,9 @@ export default function FirstNationsReportPage() {
             {/* Buttons */}
             <div className="flex flex-col gap-3 mt-6 w-full max-w-sm mx-auto">
               <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                <h2 className="text-xl font-semibold mb-4 text-gray-700">Find</h2>
+                <h2 className="text-xl font-semibold mb-4 text-gray-700">
+                  Find
+                </h2>
 
                 <button
                   type="button"
@@ -135,7 +137,9 @@ export default function FirstNationsReportPage() {
                 </button>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                <h2 className="text-xl font-semibold mb-4 text-gray-700">Download All</h2>
+                <h2 className="text-xl font-semibold mb-4 text-gray-700">
+                  Download All
+                </h2>
 
                 <button
                   type="button"
@@ -159,4 +163,3 @@ export default function FirstNationsReportPage() {
     </UserHome>
   );
 }
-
