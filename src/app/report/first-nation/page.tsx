@@ -6,7 +6,7 @@ import UserHome from "../../user-home/page";
 import FirstNationFilters from "../../../../components/report/first-nation-filters";
 import DateFilterPage from "../../../../components/report/date-range-filter.js";
 import ReportPreview from "../../../../components/report/report-preview";
-import DataColumn from "../../../../components/data-collection/data-column"
+import DataColumn from "../../../../components/data-collection/data-column";
 
 export default function FirstNationsReportPage() {
   const [showPreview, setShowPreview] = useState(false);
@@ -16,13 +16,13 @@ export default function FirstNationsReportPage() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [validationError, setValidationError] = useState("");
-  
+
   const router = useRouter();
 
   // It handles the Find button click validation
   const handleFind = () => {
     const selectedDate = startDate && endDate;
-    const selectedFilter = community || agency || ageGroup; 
+    const selectedFilter = community || agency || ageGroup;
 
     if (!selectedDate && !selectedFilter) {
       setValidationError("Please select atleast one filter to find.");
@@ -41,7 +41,7 @@ export default function FirstNationsReportPage() {
     setValidationError("");
   };
   // It handles opening the report preview modal
-   const handleOpenPreview = () => setShowPreview(true);
+  const handleOpenPreview = () => setShowPreview(true);
 
   // Handles closing the report preview modal
   const handleClosePreview = () => setShowPreview(false);
@@ -81,9 +81,11 @@ export default function FirstNationsReportPage() {
               />
             </div>
 
-
             {/* Imported Date range filter component */}
-            <DateFilterPage setStartDate={setStartDate} setEndDate={setEndDate} />
+            <DateFilterPage
+              setStartDate={setStartDate}
+              setEndDate={setEndDate}
+            />
 
             {validationError && (
               <div className="text-red-500 text-center">{validationError}</div>
@@ -92,7 +94,9 @@ export default function FirstNationsReportPage() {
             {/* Buttons */}
             <div className="flex flex-col gap-3 mt-6 w-full max-w-sm mx-auto">
               <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                <h2 className="text-xl font-semibold mb-4 text-gray-700">Find</h2>
+                <h2 className="text-xl font-semibold mb-4 text-gray-700">
+                  Find
+                </h2>
 
                 <button
                   type="button"
@@ -103,7 +107,9 @@ export default function FirstNationsReportPage() {
                 </button>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                <h2 className="text-xl font-semibold mb-4 text-gray-700">Download All</h2>
+                <h2 className="text-xl font-semibold mb-4 text-gray-700">
+                  Download All
+                </h2>
 
                 <button
                   type="button"
@@ -127,4 +133,3 @@ export default function FirstNationsReportPage() {
     </UserHome>
   );
 }
-
