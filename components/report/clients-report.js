@@ -10,7 +10,7 @@ function humanLabel(key) {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export default function ClientsReport({ clientId }) {
+export default function ClientsReport({ clientId, setReportData }) {
   const [client, setClient] = useState(null);
   const [children, setChildren] = useState([]);
   const [family, setFamily] = useState([]);
@@ -54,6 +54,17 @@ export default function ClientsReport({ clientId }) {
         const legalFiltered = notesData?.filter((n) => n.noteType === "Legal") || [];
         setCaseNotes(caseFiltered);
         setLegalNotes(legalFiltered);
+
+        // ✅ Pass report data upward for CSV/JSON download buttons if needed
+        if (setReportData) {
+          setReportData([
+            { section: "Client", data: clientData },
+            { section: "Children", data: childrenData },
+            { section: "Family", data: familyData },
+            { section: "Case Notes", data: caseFiltered },
+            { section: "Legal Notes", data: legalFiltered },
+          ]);
+        }
       } catch (err) {
         console.error(err);
         setError("Unable to load client report.");
@@ -63,7 +74,7 @@ export default function ClientsReport({ clientId }) {
     };
 
     fetchData();
-  }, [clientId]);
+  }, [clientId, setReportData]);
 
   const filterOutIds = (obj) =>
     Object.entries(obj).filter(([key]) => !key.toLowerCase().includes("id"));
@@ -78,7 +89,7 @@ export default function ClientsReport({ clientId }) {
 
   const renderSection = (title, dataArray) => (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 mb-6">
-      <h3 className="text-indigo-600 font-bold text-center  text-lg border-b border-indigo-200 pb-2 mb-4">
+      <h3 className="text-indigo-600 font-bold text-center text-lg border-b border-indigo-200 pb-2 mb-4">
         {title}
       </h3>
 
@@ -90,9 +101,7 @@ export default function ClientsReport({ clientId }) {
                 {title} #{i + 1}
               </h4>
             )}
-
-            {/* side by side grid within sections */}
-            <div className="grid grid-cols-1 border-b md:grid-cols-2 gap-x-8 gap-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 border-b">
               {filterOutIds(record).map(([key, value]) => (
                 <div key={key} className="flex justify-between border-b border-gray-100 py-1">
                   <span className="font-medium text-gray-600">{humanLabel(key)}:</span>
@@ -110,14 +119,10 @@ export default function ClientsReport({ clientId }) {
 
   return (
     <div className="max-w-5xl mx-auto mt-10 p-6 bg-gray-50 rounded-2xl shadow-md">
-      {/* Header */}
       <div className="text-center bg-indigo-50 border border-indigo-200 rounded-xl py-4 mb-8">
-        <h2 className="text-2xl font-bold text-indigo-600">
-          Report of {fullName}
-        </h2>
+        <h2 className="text-2xl font-bold text-indigo-600">Report of {fullName}</h2>
       </div>
 
-      {/* all sections */}
       {renderSection("General Information", [client])}
       {renderSection("Child Information", children)}
       {renderSection("Important Family and Friends", family)}

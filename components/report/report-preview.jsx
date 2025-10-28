@@ -3,7 +3,7 @@
 // import AdvocatsTableData from "./advocates-table";
 import React from "react";
 
-export default function ReportPreview({onClose, children }) {
+export default function ReportPreview({onClose, children, childrenDownloadButton }) {
   const handleClose = (e) => {
     e.preventDefault();
     onClose();
@@ -55,13 +55,9 @@ export default function ReportPreview({onClose, children }) {
         </div>
 
         {/* Modal footer */}
+        {/* Modal footer */}
         <div className="flex-shrink-0 flex justify-center mt-8">
-          <button
-            className="px-6 py-2 text-white transition rounded-lg bg-indigo-500 hover:bg-indigo-600"
-            onClick={handleDownload}
-          >
-            Download PDF
-          </button>
+          {childrenDownloadButton}
         </div>
       </div>
     </div>
