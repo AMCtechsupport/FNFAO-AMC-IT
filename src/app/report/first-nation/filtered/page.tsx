@@ -205,7 +205,7 @@ export default function ClientFilterPage() {
       </div>
       {/* Report Preview Modal */}
       {showPreview && (
-        <ReportPreview onClose={handleClosePreview}>
+        <ReportPreview onClose={handleClosePreview} childrenDownloadButton={undefined}>
           <h2>Download All - Filtered Clients</h2>
           <div className="flex flex-wrap gap-2 justify-center mb-6">
             {community && (

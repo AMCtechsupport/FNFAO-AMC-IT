@@ -126,7 +126,7 @@ export default function FirstNationsReportPage() {
 
       {/* Report Preview Modal */}
       {showPreview && (
-        <ReportPreview onClose={handleClosePreview}>
+        <ReportPreview onClose={handleClosePreview} childrenDownloadButton={undefined}>
           <h2>Download All - First Nations</h2>
         </ReportPreview>
       )}
