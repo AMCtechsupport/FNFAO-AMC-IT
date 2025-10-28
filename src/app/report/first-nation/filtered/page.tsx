@@ -153,8 +153,9 @@ export default function ClientFilterPage() {
             </span>
           )}
           {quarter && (
-        <div className="mb-4 bg-blue-50 p-4 rounded-lg">
-          <p className="text-blue-800 font-semibold">Filtered by: {quarter}</p>
+        <div className="flex flex-wrap gap-2 justify-center mb-6">
+          <p className="px-3 py-1 bg-gradient-to-r from-purple-400 to-indigo-600 text-white rounded-full">
+            Filtered by: {quarter}</p>
         </div>
       )}
         </div>
