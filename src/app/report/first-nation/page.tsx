@@ -10,6 +10,11 @@ import ReportPreview from "../../../../components/report/report-preview";
 import DataColumn from "../../../../components/data-collection/data-column";
 import { getQuarterDateRange } from "../../../../src/app/utils/quarter-utils";
 
+type QuarterSelection = {
+  year: string;
+  quarter: string;
+} | null;
+
 export default function FirstNationsReportPage() {
   const [showPreview, setShowPreview] = useState(false);
   const [community, setCommunity] = useState("");
@@ -17,7 +22,7 @@ export default function FirstNationsReportPage() {
   const [ageGroup, setAgeGroup] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [quarter, setQuarter] = useState(null); 
+  const [quarter, setQuarter] = useState<QuarterSelection>(null); 
   const [validationError, setValidationError] = useState("");
   
   const router = useRouter();
@@ -42,8 +47,8 @@ export default function FirstNationsReportPage() {
     // Handle quarter filter
     if (quarter) {
       const { startDate: qStart, endDate: qEnd } = getQuarterDateRange(
-        quarter.year as number,
-        quarter.quarter as number
+        quarter.year,
+        quarter.quarter 
       );
       filterParams.set("startDate", qStart);
       filterParams.set("endDate", qEnd);
