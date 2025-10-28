@@ -25,7 +25,7 @@ export default function ReportPreview({onClose, children, childrenDownloadButton
       filename: "test.pdf",
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { scale: 2 },
-      jsPDF: { unit: "in", format: "letter", orientation: "landscape" },
+      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
     };
 
     // Generate and save the PDF
@@ -34,7 +34,7 @@ export default function ReportPreview({onClose, children, childrenDownloadButton
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="relative z-50 w-full max-w-md mx-4 overflow-hidden rounded-lg shadow-xl bg-white p-6 flex flex-col max-h-[90vh]">
+      <div className="relative z-50 w-full max-w-xxl mx-4 overflow-hidden rounded-lg shadow-xl bg-white p-6 flex flex-col max-h-[90vh]">
         {/* Modal header */}
         <div className="flex-shrink-0">
           <button

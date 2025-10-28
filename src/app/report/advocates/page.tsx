@@ -77,7 +77,7 @@ export default function AdvocatesReportPage() {
       jsPDF: {
         unit: "in" as const,
         format: "letter" as const,
-        orientation: "landscape" as const,
+        orientation: "portrait" as const,
       },
     };
 
