@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import UserHome from "../../user-home/page";
 import FirstNationFilters from "../../../../components/report/first-nation-filters";
 import DateFilterPage from "../../../../components/report/date-range-filter.js";
+import QuarterFilter from "../../../../components/report/quarterly-dropdown";
 import ReportPreview from "../../../../components/report/report-preview";
-import DataColumn from "../../../../components/data-collection/data-column"
+import DataColumn from "../../../../components/data-collection/data-column";
+import { getQuarterDateRange } from "../../../../src/app/utils/quarter-utils";
 
 export default function FirstNationsReportPage() {
   const [showPreview, setShowPreview] = useState(false);
@@ -15,6 +17,7 @@ export default function FirstNationsReportPage() {
   const [ageGroup, setAgeGroup] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [quarter, setQuarter] = useState(null); 
   const [validationError, setValidationError] = useState("");
   
   const router = useRouter();
@@ -22,10 +25,11 @@ export default function FirstNationsReportPage() {
   // It handles the Find button click validation
   const handleFind = () => {
     const selectedDate = startDate && endDate;
+    const selectedQuarter = quarter !== null;
     const selectedFilter = community || agency || ageGroup; 
 
-    if (!selectedDate && !selectedFilter) {
-      setValidationError("Please select atleast one filter to find.");
+    if (!selectedDate && !selectedFilter && !selectedQuarter) {
+      setValidationError("Please select at least one filter to find.");
       return;
     }
 
@@ -35,7 +39,21 @@ export default function FirstNationsReportPage() {
     if (agency) filterParams.set("agency", agency);
     if (ageGroup) filterParams.set("ageGroup", ageGroup);
 
-    // Change this path to desired path **
+    // Handle quarter filter
+    if (quarter) {
+      const { startDate: qStart, endDate: qEnd } = getQuarterDateRange(
+        quarter.year as number,
+        quarter.quarter as number
+      );
+      filterParams.set("startDate", qStart);
+      filterParams.set("endDate", qEnd);
+      filterParams.set("quarter", `${quarter.quarter}-${quarter.year}`);
+    } else if (startDate && endDate) {
+      // Use manual date range if quarter not selected
+      filterParams.set("startDate", startDate);
+      filterParams.set("endDate", endDate);
+    }
+
     router.push(`/report/first-nation/test?${filterParams.toString()}`);
 
     setValidationError("");
@@ -81,9 +99,18 @@ export default function FirstNationsReportPage() {
               />
             </div>
 
+            {/* Quarter Filter */}
+            <div className="max-w-4xl mx-auto">
+              <h3 className="text-lg font-semibold text-gray-700 mb-3">
+                Filter by Quarter
+              </h3>
+              <QuarterFilter value={quarter} onChange={setQuarter} />
+            </div>
 
             {/* Imported Date range filter component */}
-            <DateFilterPage setStartDate={setStartDate} setEndDate={setEndDate} />
+            <div className="max-w-4xl mx-auto">
+              <DateFilterPage setStartDate={setStartDate} setEndDate={setEndDate} />
+            </div>
 
             {validationError && (
               <div className="text-red-500 text-center">{validationError}</div>
