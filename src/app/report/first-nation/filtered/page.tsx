@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import supabase from "@/app/lib/supabase";
 import UserHome from "@/app/user-home/page";
+import { useRouter } from "next/navigation";
 import ReportPreview from "../../../../../components/report/report-preview";
 
 // Convert Date YYYY-MM-DD
@@ -15,11 +17,11 @@ function formatYYYYMMDD(date: Date): string {
 }
 
 // Get the date N years ago
-function yearsAgo(n: number): Date {
+function yearsAgo(year: number): Date {
   const today = new Date();
   return new Date(
     Date.UTC(
-      today.getUTCFullYear() - n,
+      today.getUTCFullYear() - year,
       today.getUTCMonth(),
       today.getUTCDate()
     )
@@ -69,6 +71,7 @@ function calculateAge(dob?: string): number | string {
 
 export default function ClientFilterPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const community = searchParams.get("community") || "";
   const agency = searchParams.get("agency") || "";
@@ -115,6 +118,11 @@ export default function ClientFilterPage() {
   // Handles closing the report preview modal
   const handleClosePreview = () => setShowPreview(false);
 
+  //new function to handle row click
+    const handleRowClick = (clientId: string) => {
+        router.push(`/report/clients-report/${clientId}`);
+    };
+
   return (
     <UserHome>
       <div className="p-6 bg-gray-50 min-h-screen">
@@ -147,32 +155,32 @@ export default function ClientFilterPage() {
         )}
 
         {!fetchError && clients.length === 0 && (
-          <p className="text-gray-500 text-center">
+          <p className="text-center text-gray-600 text-lg">
             No matching clients found.
           </p>
         )}
 
         {clients.length > 0 && (
-          <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
-            <thead className="bg-indigo-100">
+          <table className="w-full border border-gray-200 rounded-xl">
+            <thead className="bg-indigo-500 text-white text-left">
               <tr>
-                <th className="px-4 py-2 border">Name</th>
-                <th className="px-4 py-2 border">Age</th>
-                <th className="px-4 py-2 border">CFS Agency</th>
-                <th className="px-4 py-2 border">First Nation</th>
+                <th className="px-6 py-3 font-medium text-center">Name</th>
+                <th className="px-6 py-3 font-medium text-center">Age</th>
+                <th className="px-6 py-3 font-medium text-center">CFS Agency</th>
+                <th className="px-6 py-3 font-medium text-center">First Nation</th>
               </tr>
             </thead>
             <tbody>
               {clients.map((client) => (
-                <tr key={client.client_id} className="text-center">
-                  <td className="px-4 py-2 border">
+                <tr key={client.client_id} className="cursor-pointer hover:bg-indigo-50 text-center transition" onClick={() => handleRowClick(client.client_id)}>
+                  <td className="px-6 py-3 border-t text-center">
                     {client.firstName} {client.lastName}
                   </td>
-                  <td className="px-4 py-2 border">
+                  <td className="px-6 py-3 border-t text-center">
                     {calculateAge(client.dateOfBirth)}
                   </td>
-                  <td className="px-4 py-2 border">{client.cfsAgency}</td>
-                  <td className="px-4 py-2 border">
+                  <td className="px-6 py-3 border-t text-center">{client.cfsAgency}</td>
+                  <td className="px-6 py-3 border-t text-center">
                     {client.firstNationMembership}
                   </td>
                 </tr>
@@ -230,13 +238,13 @@ export default function ClientFilterPage() {
           )}
 
           {clients.length > 0 && (
-            <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
+            <table className="w-full border border-gray-200 rounded-xl">
               <thead className="bg-indigo-100">
                 <tr>
-                  <th className="px-4 py-2 border">Name</th>
-                  <th className="px-4 py-2 border">Age</th>
-                  <th className="px-4 py-2 border">CFS Agency</th>
-                  <th className="px-4 py-2 border">First Nation</th>
+                  <th className="px-4 py-2 border-t">Name</th>
+                  <th className="px-4 py-2 border-t">Age</th>
+                  <th className="px-4 py-2 border-t">CFS Agency</th>
+                  <th className="px-4 py-2 border-t">First Nation</th>
                 </tr>
               </thead>
               <tbody>
