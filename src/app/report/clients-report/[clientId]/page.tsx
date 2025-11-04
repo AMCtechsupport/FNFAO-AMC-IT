@@ -115,11 +115,7 @@ export default function ClientReportPage() {
                 <ClientsReport clientId={clientId} setReportData={setReportData} />
 
                 {/* Download Section */}
-                <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 mt-10">
-                    <h2 className="text-xl font-semibold mb-4 text-gray-700">
-                        Download All
-                    </h2>
-
+                <div className="mt-8">
                     <DownloadDropdown
                         title="Download All"
                         onDownloadSelect={handleDownloadAll}
