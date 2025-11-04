@@ -70,7 +70,7 @@ export default function AdvocateDetailsPage() {
         filename: `${advocateName || "report"}.pdf`,
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2 },
-        jsPDF: { unit: "in", format: "letter", orientation: "landscape" },
+        jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
       })
       .from(contentRef.current)
       .save();
