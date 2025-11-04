@@ -27,6 +27,31 @@ export default function FirstNationsReportPage() {
 
   const router = useRouter();
 
+  // It will clear date range filter upon quarter selection
+    const handleQuarterChange = (selection: QuarterSelection) => {
+    setQuarter(selection);
+    if (selection) {
+      setStartDate("");
+      setEndDate("");
+    }
+    setValidationError("");
+  };
+
+  // It will clear quarter filter upon date range selection
+  const handleSetStartDate = (s: string) => {
+    setStartDate(s);
+    if (s) 
+    setQuarter(null);
+    setValidationError("");
+  };
+
+  const handleSetEndDate = (e: string) => {
+    setEndDate(e);
+    if (e) 
+    setQuarter(null);
+    setValidationError("");
+  };
+
   // It handles the Find button click validation
   const handleFind = () => {
     const selectedDate = startDate && endDate;
@@ -109,12 +134,12 @@ export default function FirstNationsReportPage() {
               <h3 className="text-lg font-semibold text-gray-700 mb-3">
                 Filter by Quarter
               </h3>
-              <QuarterFilter value={quarter} onChange={setQuarter} />
+              <QuarterFilter value={quarter} onChange={handleQuarterChange} />
             </div>
 
             {/* Imported Date range filter component */}
             <div className="max-w-4xl mx-auto">
-              <DateFilterPage setStartDate={setStartDate} setEndDate={setEndDate} />
+              <DateFilterPage setStartDate={handleSetStartDate} setEndDate={handleSetEndDate} />
             </div>
 
             {validationError && (
