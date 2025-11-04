@@ -7,10 +7,10 @@ export default function QuarterFilter({ value, onChange }) {
   const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
   const quarters = [
-    { label: "Q1 (Jan-Mar)", value: "Q1", months: [0, 1, 2] },
-    { label: "Q2 (Apr-Jun)", value: "Q2", months: [3, 4, 5] },
-    { label: "Q3 (Jul-Sep)", value: "Q3", months: [6, 7, 8] },
-    { label: "Q4 (Oct-Dec)", value: "Q4", months: [9, 10, 11] },
+    { label: "Q1 (Apr-Jun)", value: "Q1", months: [3, 4, 5] },
+    { label: "Q2 (Jul-Sep)", value: "Q2", months: [6, 7, 8] },
+    { label: "Q3 (Oct-Dec)", value: "Q3", months: [9, 10, 11] },
+    { label: "Q4 (Jan-Mar)", value: "Q4", months: [0, 1, 2] },
   ];
 
   const [selectedYear, setSelectedYear] = useState(currentYear.toString());
