@@ -114,18 +114,12 @@ export default function ClientReportPage() {
             <div style={{ padding: 20, background: "#f8fafc", minHeight: "100vh" }}>
                 <ClientsReport clientId={clientId} setReportData={setReportData} />
 
-                {/* Download Section */}
-                <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 mt-10">
-                    <h2 className="text-xl font-semibold mb-4 text-gray-700">
-                        Download All
-                    </h2>
-
+                {/* Download Section */}                  
                     <DownloadDropdown
                         title="Download All"
                         onDownloadSelect={handleDownloadAll}
                         defaultText={`Download All as ${downloadFormat.toUpperCase()}`}
                     />
-                </div>
 
                 {showPreview && (
                     <ReportPreview
