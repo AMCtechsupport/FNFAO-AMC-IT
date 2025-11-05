@@ -1,12 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import supabase from "@/app/lib/supabase";
 import UserHome from "@/app/user-home/page";
 import { useRouter } from "next/navigation";
 import ReportPreview from "../../../../../components/report/report-preview";
+import DownloadDropdown from "../../../../../components/report/download-dropdown";
+import { 
+  downloadCSV, 
+  downloadJSON 
+} from "../../../../../components/report/advocates-table-full";
+
 
 // Convert Date YYYY-MM-DD
 function formatYYYYMMDD(date: Date): string {
@@ -85,6 +91,9 @@ export default function ClientFilterPage() {
   const [showPreview, setShowPreview] = useState(false);
   const [clients, setClients] = useState<any[]>([]);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [downloadFormat, setDownloadFormat] = useState("pdf");
+
+  const contentRef = useRef(null);
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -129,6 +138,73 @@ export default function ClientFilterPage() {
         router.push(`/report/clients-report/${clientId}`);
     };
 
+  const handleDownloadAll = (format: string) => {
+    setDownloadFormat(format);
+    setShowPreview(true);
+  };
+
+  const generateAndDownloadPDF = async () => {
+    const html2pdf = (await import("html2pdf.js")).default;
+
+    if (!contentRef.current) return;
+
+    const element = contentRef.current;
+    const options = {
+      margin: 0.5,
+      filename: "filtered_clients_report.pdf",
+      image: { type: "jpeg" as const, quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: {
+        unit: "in" as const,
+        format: "letter" as const,
+        orientation: "portrait" as const,
+      },
+    };
+
+    await html2pdf().set(options).from(element).save();
+    handleClosePreview();
+  };
+
+  const handleFinalDownload = () => {
+    if (clients.length === 0) return;
+
+    if (downloadFormat === "csv") {
+      downloadCSV(clients);
+    } else if (downloadFormat === "json") {
+      downloadJSON(clients);
+    }
+
+    handleClosePreview();
+  };
+
+  const DynamicDownloadButton = () => {
+    if (clients.length === 0) {
+        return null;
+    }
+
+    if (downloadFormat === "pdf") {
+      return (
+        <button
+          type="button"
+          onClick={generateAndDownloadPDF}
+          className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-md transition-colors mt-4"
+        >
+          Download PDF
+        </button>
+      );
+    }
+
+    return (
+      <button
+        type="button"
+        onClick={handleFinalDownload}
+        className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-md transition-colors mt-4"
+      >
+        Download {downloadFormat.toUpperCase()}
+      </button>
+    );
+  };
+
   return (
     <UserHome>
       <div className="p-6 bg-gray-50 min-h-screen">
@@ -153,11 +229,10 @@ export default function ClientFilterPage() {
             </span>
           )}
           {quarter && (
-        <div className="flex flex-wrap gap-2 justify-center mb-6">
-          <p className="px-3 py-1 bg-gradient-to-r from-purple-400 to-indigo-600 text-white rounded-full">
-            Filtered by: {quarter}</p>
-        </div>
-      )}
+            <span className="px-3 py-1 bg-gradient-to-r from-purple-400 to-indigo-600 text-white rounded-full">
+              Filtered by: {quarter}
+            </span>
+          )}
         </div>
 
         {fetchError && (
@@ -173,69 +248,75 @@ export default function ClientFilterPage() {
         )}
 
         {clients.length > 0 && (
-          <table className="w-full border border-gray-200 rounded-xl">
-            <thead className="bg-indigo-500 text-white text-left">
-              <tr>
-                <th className="px-6 py-3 font-medium text-center">Name</th>
-                <th className="px-6 py-3 font-medium text-center">Age</th>
-                <th className="px-6 py-3 font-medium text-center">CFS Agency</th>
-                <th className="px-6 py-3 font-medium text-center">First Nation</th>
-              </tr>
-            </thead>
-            <tbody>
-              {clients.map((client) => (
-                <tr key={client.client_id} className="cursor-pointer hover:bg-indigo-50 text-center transition" onClick={() => handleRowClick(client.client_id)}>
-                  <td className="px-6 py-3 border-t text-center">
-                    {client.firstName} {client.lastName}
-                  </td>
-                  <td className="px-6 py-3 border-t text-center">
-                    {calculateAge(client.dateOfBirth)}
-                  </td>
-                  <td className="px-6 py-3 border-t text-center">{client.cfsAgency}</td>
-                  <td className="px-6 py-3 border-t text-center">
-                    {client.firstNationMembership}
-                  </td>
+          <>
+            <table className="w-full border border-gray-200 rounded-xl">
+              <thead className="bg-indigo-500 text-white text-left">
+                <tr>
+                  <th className="px-6 py-3 font-medium text-center">Name</th>
+                  <th className="px-6 py-3 font-medium text-center">Age</th>
+                  <th className="px-6 py-3 font-medium text-center">CFS Agency</th>
+                  <th className="px-6 py-3 font-medium text-center">First Nation</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {clients.map((client) => (
+                  <tr
+                    key={client.client_id}
+                    className="cursor-pointer hover:bg-indigo-50 text-center transition"
+                    onClick={() => handleRowClick(client.client_id)}
+                  >
+                    <td className="px-6 py-3 border-t text-center">
+                      {client.firstName} {client.lastName}
+                    </td>
+                    <td className="px-6 py-3 border-t text-center">
+                      {calculateAge(client.dateOfBirth)}
+                    </td>
+                    <td className="px-6 py-3 border-t text-center">
+                      {client.cfsAgency}
+                    </td>
+                    <td className="px-6 py-3 border-t text-center">
+                      {client.firstNationMembership}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            <div className="mt-8">
+              <DownloadDropdown
+                title="Download All"
+                onDownloadSelect={handleDownloadAll}
+                defaultText={`Download All as ${downloadFormat.toUpperCase()}`}
+              />
+            </div>
+          </>
         )}
-
-        <div className="mt-8 bg-white p-6 rounded-lg shadow-md border border-gray-200">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">
-            Download All
-          </h2>
-
-          <button
-            type="button"
-            onClick={handleOpenPreview}
-            className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-md transition-colors"
-          >
-            Download All
-          </button>
-        </div>
       </div>
       {/* Report Preview Modal */}
       {showPreview && (
-        <ReportPreview onClose={handleClosePreview} childrenDownloadButton={undefined}>
-          <h2>Download All - Filtered Clients</h2>
-          <div className="flex flex-wrap gap-2 justify-center mb-6">
-            {community && (
-              <span className="px-3 py-1 bg-gradient-to-r from-purple-400 to-indigo-600 text-white rounded-full">
-                Community: {community}
-              </span>
-            )}
-            {agency && (
-              <span className="px-3 py-1 bg-gradient-to-r from-purple-400 to-indigo-600 text-white rounded-full">
-                Agency: {agency}
-              </span>
-            )}
-            {ageGroup && (
-              <span className="px-3 py-1 bg-gradient-to-r from-purple-400 to-indigo-600 text-white rounded-full">
-                Age Group: {ageGroup}
-              </span>
-            )}
-          </div>
+        <ReportPreview
+          onClose={handleClosePreview}
+          childrenDownloadButton={<DynamicDownloadButton />}
+        >
+          <div ref={contentRef}>
+            <h2>Download All - Filtered Clients</h2>
+            <div className="flex flex-wrap gap-2 justify-center mb-6">
+              {community && (
+                <span className="px-3 py-1 bg-gradient-to-r from-purple-400 to-indigo-600 text-white rounded-full">
+                  Community: {community}
+                </span>
+              )}
+              {agency && (
+                <span className="px-3 py-1 bg-gradient-to-r from-purple-400 to-indigo-600 text-white rounded-full">
+                  Agency: {agency}
+                </span>
+              )}
+              {ageGroup && (
+                <span className="px-3 py-1 bg-gradient-to-r from-purple-400 to-indigo-600 text-white rounded-full">
+                  Age Group: {ageGroup}
+                </span>
+              )}
+            </div>
 
           {fetchError && (
             <p className="text-red-600 font-medium text-center mb-4">
@@ -277,6 +358,7 @@ export default function ClientFilterPage() {
               </tbody>
             </table>
           )}
+        </div>
         </ReportPreview>
       )}
     </UserHome>
