@@ -50,6 +50,7 @@ export default function ClientsReport({ clientId, setReportData }) {
            housingSupport,
            addictionsSupport,
            addictionsSupportSpecified,
+           youthSupport,
            youthSupportSpecified,
            legalAssistance,
            criminalCharges,
