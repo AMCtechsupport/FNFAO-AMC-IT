@@ -10,7 +10,7 @@ import useAdvocateData from "../../../../../components/report/use-advocate-data"
 import ReportPreviewAdvocates from "../../../../../components/report/report-preview-advocates";
 import DetailedClientsTable from "../../../../../components/report/detailed-clients-table";
 import DownloadDropdown from "../../../../../components/report/download-dropdown";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 type Client = {
     client_id: string;
@@ -24,15 +24,17 @@ export default function AdvocateDetailsPage() {
     const params = useParams<{ id: string }>();
     const id = params.id;
     const router = useRouter();
+    const searchParams = useSearchParams();
 
-    const [reportData, setReportData] = useState<Client[]>([]);
-    const [showPreview, setShowPreview] = useState(false);
-    const [downloadFormat, setDownloadFormat] = useState<"pdf" | "csv" | "json">(
-        "pdf"
-    );
-    const [activeCheck, setActiveCheck] = useState(true);
-    const [inactiveCheck, setInactiveCheck] = useState(false);
-    const contentRef = useRef<HTMLDivElement | null>(null);
+  const [reportData, setReportData] = useState<Client[]>([]);
+  const [showPreview, setShowPreview] = useState(false);
+  const [downloadFormat, setDownloadFormat] = useState<"pdf" | "csv" | "json">(
+    "pdf"
+  );
+  const activeCheck = (searchParams?.get("active") ?? "true") === "true";
+  const inactiveCheck = (searchParams?.get("inactive") ?? "false") === "true";
+
+  const contentRef = useRef<HTMLDivElement | null>(null);
 
     const { advocateName, clients, loading, error } = useAdvocateData(id);
 
@@ -147,86 +149,53 @@ export default function AdvocateDetailsPage() {
                     {advocateName} Clients Report
                 </h1>
 
-                {clients.length === 0 ? (
-                    <p className="text-center text-gray-600 text-lg">No clients assigned.</p>
-                ) : (
-                    <div className="bg-white shadow-md w-full max-w-3xl mx-auto rounded-2xl p-6">
-                        {/* Filter checkboxes */}
-                        <div className="form-check form-check-inline">
-                            <input
-                                className="form-check-input"
-                                type="checkbox"
-                                onChange={(e) => setActiveCheck(e.target.checked)}
-                                checked={activeCheck}
-                                id="activeCheck"
-                            />
-                            <label
-                                className="form-check-label px-2 font-medium text-center"
-                                htmlFor="activeCheck"
-                            >
-                                Active users
-                            </label>
-                        </div>
-
-                        <div className="form-check form-check-inline">
-                            <input
-                                className="form-check-input"
-                                type="checkbox"
-                                onChange={(e) => setInactiveCheck(e.target.checked)}
-                                checked={inactiveCheck}
-                                id="inactiveCheck"
-                            />
-                            <label
-                                className="form-check-label px-2 font-medium text-center"
-                                htmlFor="inactiveCheck"
-                            >
-                                Inactive users
-                            </label>
-                        </div>
-
-                        <div
-                            className="overflow-y-auto overflow-x-hidden border border-gray-200 rounded-xl mt-4"
-                            style={{ maxHeight: "800px" }}
-                        >
-                            <table className="w-full border border-gray-200 rounded-xl">
-                                <thead className="bg-indigo-500 text-white text-left">
-                                    <tr>
-                                        <th className="px-6 py-3 font-medium">Client&apos;s Name</th>
-                                        <th className="px-6 py-3 font-medium text-center">Status</th>
-                                        <th className="px-6 py-3 font-medium text-center">
-                                            Number of Children
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {(clients as Client[])
-                                        .filter((client) => {
-                                            const isActive = client.clientStatus === "Active";
-                                            if (activeCheck && inactiveCheck) return true;
-                                            if (activeCheck) return isActive;
-                                            if (inactiveCheck) return !isActive;
-                                            return false;
-                                        })
-                                        .map((client) => (
-                                            <tr
-                                                key={client.client_id}
-                                                onClick={() => handleRowClick(client.client_id)}
-                                                className="cursor-pointer hover:bg-indigo-50 transition"
-                                            >
-                                                <td className="px-6 py-3 border-t font-medium text-gray-800">
-                                                    {client.firstName} {client.lastName}
-                                                </td>
-                                                <td className="px-6 py-3 border-t text-center">
-                                                    {setClientStatus(client.clientStatus)}
-                                                </td>
-                                                <td className="px-6 py-3 border-t text-center">
-                                                    {client.childCount}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                </tbody>
-                            </table>
-                        </div>
+        {clients.length === 0 ? (
+          <p className="text-center text-gray-600 text-lg">No clients assigned.</p>
+        ) : (
+          <div className="bg-white shadow-md w-full max-w-3xl mx-auto rounded-2xl p-6">
+            <div
+              className="overflow-y-auto overflow-x-hidden border border-gray-200 rounded-xl mt-4"
+              style={{ maxHeight: "800px" }}
+            >
+              <table className="w-full border border-gray-200 rounded-xl">
+                <thead className="bg-indigo-500 text-white text-left">
+                  <tr>
+                    <th className="px-6 py-3 font-medium">Client&apos;s Name</th>
+                    <th className="px-6 py-3 font-medium text-center">Status</th>
+                    <th className="px-6 py-3 font-medium text-center">
+                      Number of Children
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(clients as Client[])
+                    .filter((client) => {
+                      const isActive = client.clientStatus === "Active";
+                      if (activeCheck && inactiveCheck) return true;
+                      if (activeCheck) return isActive;
+                      if (inactiveCheck) return !isActive;
+                      return false;
+                    })
+                    .map((client) => (
+                      <tr
+                        key={client.client_id}
+                        onClick={() => handleRowClick(client.client_id)}
+                        className="cursor-pointer hover:bg-indigo-50 transition"
+                      >
+                        <td className="px-6 py-3 border-t font-medium text-gray-800">
+                          {client.firstName} {client.lastName}
+                        </td>
+                        <td className="px-6 py-3 border-t text-center">
+                          {setClientStatus(client.clientStatus)}
+                        </td>
+                        <td className="px-6 py-3 border-t text-center">
+                          {client.childCount}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
 
                         {/* dropdown */}
                         <div className="mt-8 w-full max-w-sm mx-auto">

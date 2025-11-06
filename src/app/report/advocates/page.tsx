@@ -42,12 +42,14 @@ export default function AdvocatesReportPage() {
     }
     setValidationError("");
 
-    if (selectedAdvocate) {
-      router.push(`/report/advocates/${selectedAdvocate.advocate_id}`);
-    } else {
-      setShowPreview(true);
-    }
-  };
+    if (selectedAdvocate) {
+      router.push(
+        `/report/advocates/${selectedAdvocate.advocate_id}?active=${activeCheck}&inactive=${inactiveCheck}`
+      );
+    } else {
+      setShowPreview(true);
+    }
+  };
 
   const handleClosePreview = () => {
     setShowPreview(false);
