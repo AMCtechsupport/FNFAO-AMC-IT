@@ -46,7 +46,14 @@ export default function useAdvocateData(advocateId) {
         //fetch client details
         const { data: clientsData, error: clientsError } = await supabase
           .from("Clients")
-          .select("client_id, firstName, lastName, clientStatus")
+          .select(`client_id,
+                  firstName,
+                  lastName,
+                  dateOfBirth,
+                  cfsAgency,
+                  firstNationMembership,
+                  clientStatus,
+                  createdAt`)
           .in("client_id", clientIds);
 
         if (clientsError) throw clientsError;

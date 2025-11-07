@@ -3,6 +3,20 @@
 import { useEffect } from "react";
 import useAdvocateData from "../report/use-advocate-data";
 
+
+function calculateAge(dob) {
+  if (!dob) return "";
+  const birthDate = new Date(dob);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const month = today.getMonth() - birthDate.getMonth();
+
+  if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+}
+
 export default function DetailedClientsTable({
   advocateId,
   activeCheck,
@@ -44,23 +58,22 @@ export default function DetailedClientsTable({
 
   return (
     <div className="overflow-x-auto">
-      <div className="border border-gray-200 rounded-xl overflow-y-auto overflow-x-hidden mt-4">
         <h2 className="text-lg font-semibold text-center text-gray-800 py-3 bg-gray-50 rounded-t-xl">
           Clients Assigned to {advocateName}
         </h2>
         <table className="w-full border border-gray-200 rounded-xl">
-          <thead className="bg-gray-100">
+          <thead className="bg-indigo-100">
             <tr>
-              <th className="text-center px-6 py-3 text-gray-700 font-semibold border-b">
-                Client&apos;s Name
-              </th>
-              <th className="text-center px-6 py-3 text-gray-700 font-semibold border-b">
-                Status
-              </th>
-              <th className="text-center px-6 py-3 text-gray-700 font-semibold border-b">
-                Number of Children
-              </th>
-            </tr>
+                <th className="px-6 py-3 font-medium text-center">Name</th>
+                <th className="px-6 py-3 font-medium text-center">Age</th>
+                <th className="px-6 py-3 font-medium text-center">CFS Agency</th>
+                <th className="px-6 py-3 font-medium text-center">First Nation Membership</th>
+                <th className="px-6 py-3 font-medium text-center">Number of Children</th>
+                <th className="px-6 py-3 font-medium text-center">Status</th>
+                <th className="px-6 py-3 font-medium text-center">Date of Inactivity</th>
+                <th className="px-6 py-3 font-medium text-center">Reason for Inactivity</th>
+                <th className="px-6 py-3 font-medium text-center">Date Created</th>
+              </tr>
           </thead>
           <tbody>
             {clients
@@ -71,22 +84,21 @@ export default function DetailedClientsTable({
                 if (inactiveCheck) return !isActive;
                 return false;
               })
-              .map((client, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-6 py-3 border-b text-center">
-                    {client.firstName} {client.lastName}
-                  </td>
-                  <td className="px-6 py-3 border-b text-center">
-                    {setClientStatus(client.clientStatus)}
-                  </td>
-                  <td className="px-6 py-3 border-b text-center">
-                    {client.childCount}
-                  </td>
+              .map((client) => (
+                <tr key={client.client_id} className="text-center">
+                  <td className="px-6 py-3 border-t text-center">{client.firstName} {client.lastName}</td>
+                  <td className="px-6 py-3 border-t text-center">{calculateAge(client.dateOfBirth)}</td>
+                  <td className="px-6 py-3 border-t text-center">{client.cfsAgency}</td>
+                  <td className="px-6 py-3 border-t text-center">{client.firstNationMembership}</td>
+                  <td className="px-6 py-3 border-t text-center">{client.childCount}</td>
+                  <td className="px-6 py-3 border-t text-center">{setClientStatus(client.clientStatus)}</td>
+                  <td className="px-6 py-3 border-t text-center">-</td>
+                  <td className="px-6 py-3 border-t text-center">-</td>
+                  <td className="px-6 py-3 border-t text-center">{client.createdAt}</td>
                 </tr>
               ))}
           </tbody>
         </table>
       </div>
-    </div>
   );
 }

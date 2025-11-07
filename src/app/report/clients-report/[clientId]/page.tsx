@@ -121,7 +121,6 @@ export default function ClientReportPage() {
                         onDownloadSelect={handleDownloadAll}
                         defaultText={`Download All as ${downloadFormat.toUpperCase()}`}
                     />
-                </div>
 
                 {showPreview && (
                     <ReportPreview
@@ -139,6 +138,7 @@ export default function ClientReportPage() {
                         </div>
                     </ReportPreview>
                 )}
+            </div>
             </div>
         </UserHome>
     );

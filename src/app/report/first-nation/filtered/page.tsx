@@ -6,8 +6,8 @@ import { useSearchParams } from "next/navigation";
 import supabase from "@/app/lib/supabase";
 import UserHome from "@/app/user-home/page";
 import { useRouter } from "next/navigation";
-import ReportPreview from "../../../../../components/report/report-preview";
 import DownloadDropdown from "../../../../../components/report/download-dropdown";
+import ReportPreview from "../../../../../components/report/report-preview";
 import { 
   downloadCSV, 
   downloadJSON 
@@ -25,21 +25,18 @@ function formatYYYYMMDD(date: Date): string {
 // Get the date N years ago
 function yearsAgo(year: number): Date {
   const today = new Date();
-  return new Date(
-    Date.UTC(
-      today.getUTCFullYear() - year,
-      today.getUTCMonth(),
-      today.getUTCDate()
-    )
-  );
+  return new Date(Date.UTC(today.getUTCFullYear() - year, today.getUTCMonth(), today.getUTCDate()));
+}
+
+function setClientStatus(status?: string): string {
+  if (!status) return "Inactive";
+  return status === "Active" ? "Active" : "Inactive";
 }
 
 // Map age group Date of Birth
 function getDOBRangeFromAgeGroup(ageGroup: string) {
   const today = new Date();
-  const todayUTC = new Date(
-    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())
-  );
+  const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
 
   switch (ageGroup) {
     case "0-18":
@@ -70,8 +67,7 @@ function calculateAge(dob?: string): number | string {
   const today = new Date();
   let age = today.getFullYear() - birthDate.getFullYear();
   const month = today.getMonth() - birthDate.getMonth();
-  if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate()))
-    age--;
+  if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) age--;
   return age;
 }
 
@@ -83,15 +79,17 @@ export default function ClientFilterPage() {
   const agency = searchParams.get("agency") || "";
   const ageGroup = searchParams.get("ageGroup") || "";
   const startDate = searchParams.get("startDate") || "";
-  const endDate = searchParams.get("endDate") || ""; 
+  const endDate = searchParams.get("endDate") || "";
   const quarter = searchParams.get("quarter") || "";
 
   const { minDOB, maxDOB } = getDOBRangeFromAgeGroup(ageGroup);
 
   const [showPreview, setShowPreview] = useState(false);
+  const [downloadFormat, setDownloadFormat] = useState<"pdf" | "csv" | "json">(
+          "pdf"
+      );
   const [clients, setClients] = useState<any[]>([]);
   const [fetchError, setFetchError] = useState<string | null>(null);
-  const [downloadFormat, setDownloadFormat] = useState("pdf");
 
   const contentRef = useRef(null);
 
@@ -100,26 +98,38 @@ export default function ClientFilterPage() {
       try {
         let query = supabase
           .from("Clients")
-          .select(
-            "client_id, firstName, lastName, cfsAgency, firstNationMembership, dateOfBirth, createdAt"
-          );
+          .select(`
+            client_id,
+            firstName,
+            lastName,
+            cfsAgency,
+            firstNationMembership,
+            dateOfBirth,
+            createdAt,
+            clientStatus,
+            Childs(count)
+          `);
 
-        // Apply filters dynamically
+        // Filters
         if (community) query = query.eq("firstNationMembership", community);
         if (agency) query = query.eq("cfsAgency", agency);
         if (minDOB) query = query.gte("dateOfBirth", minDOB);
         if (maxDOB) query = query.lte("dateOfBirth", maxDOB);
-        // Quarter/Date range filter on createdAt
         if (startDate) query = query.gte("createdAt", startDate);
         if (endDate) query = query.lte("createdAt", endDate);
 
         const { data, error } = await query;
 
         if (error) throw error;
-        setClients(data || []);
+
+        const formatted = (data || []).map((client) => ({
+          ...client,
+          childCount: client.Childs?.[0]?.count ?? 0,
+        }));
+
+        setClients(formatted);
         setFetchError(null);
-      } catch (err: any) {
-        console.error("Error fetching clients:", err.message || err);
+      } catch {
         setFetchError("Failed to fetch clients. Please try again later.");
       }
     };
@@ -127,10 +137,6 @@ export default function ClientFilterPage() {
     fetchClients();
   }, [community, agency, ageGroup, minDOB, maxDOB, startDate, endDate, quarter]);
 
-  // Handles opening the report preview modal
-  const handleOpenPreview = () => setShowPreview(true);
-
-  // Handles closing the report preview modal
   const handleClosePreview = () => setShowPreview(false);
 
   //new function to handle row click
@@ -138,7 +144,7 @@ export default function ClientFilterPage() {
         router.push(`/report/clients-report/${clientId}`);
     };
 
-  const handleDownloadAll = (format: string) => {
+  const handleDownloadAll = (format: "pdf" | "csv" | "json") => {
     setDownloadFormat(format);
     setShowPreview(true);
   };
@@ -208,91 +214,65 @@ export default function ClientFilterPage() {
   return (
     <UserHome>
       <div className="p-6 bg-gray-50 min-h-screen">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
-          Generate Report
-        </h1>
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Generate Report</h1>
 
+        {/* Tags */}
         <div className="flex flex-wrap gap-2 justify-center mb-6">
-          {community && (
-            <span className="px-3 py-1 bg-gradient-to-r from-purple-400 to-indigo-600 text-white rounded-full">
-              Community: {community}
-            </span>
-          )}
-          {agency && (
-            <span className="px-3 py-1 bg-gradient-to-r from-purple-400 to-indigo-600 text-white rounded-full">
-              Agency: {agency}
-            </span>
-          )}
-          {ageGroup && (
-            <span className="px-3 py-1 bg-gradient-to-r from-purple-400 to-indigo-600 text-white rounded-full">
-              Age Group: {ageGroup}
-            </span>
-          )}
-          {quarter && (
-            <span className="px-3 py-1 bg-gradient-to-r from-purple-400 to-indigo-600 text-white rounded-full">
-              Filtered by: {quarter}
-            </span>
-          )}
+          {community && <span className="tag">Community: {community}</span>}
+          {agency && <span className="tag">Agency: {agency}</span>}
+          {ageGroup && <span className="tag">Age Group: {ageGroup}</span>}
+          {quarter && <span className="tag">Filtered by: {quarter}</span>}
         </div>
 
-        {fetchError && (
-          <p className="text-red-600 font-medium text-center mb-4">
-            {fetchError}
-          </p>
-        )}
+        {fetchError && <p className="text-red-600 font-medium text-center mb-4">{fetchError}</p>}
+        {!fetchError && clients.length === 0 && <p className="text-center text-gray-600 text-lg">No matching clients found.</p>}
 
-        {!fetchError && clients.length === 0 && (
-          <p className="text-center text-gray-600 text-lg">
-            No matching clients found.
-          </p>
-        )}
-
+        {/* Table */}
         {clients.length > 0 && (
-          <>
-            <table className="w-full border border-gray-200 rounded-xl">
-              <thead className="bg-indigo-500 text-white text-left">
-                <tr>
-                  <th className="px-6 py-3 font-medium text-center">Name</th>
-                  <th className="px-6 py-3 font-medium text-center">Age</th>
-                  <th className="px-6 py-3 font-medium text-center">CFS Agency</th>
-                  <th className="px-6 py-3 font-medium text-center">First Nation</th>
+          <table className="w-full border bg-white border-gray-200 rounded-xl">
+            <thead className="bg-indigo-500 text-white text-left">
+              <tr>
+                <th className="px-6 py-3 font-medium text-center">Name</th>
+                <th className="px-6 py-3 font-medium text-center">Age</th>
+                <th className="px-6 py-3 font-medium text-center">CFS Agency</th>
+                <th className="px-6 py-3 font-medium text-center">First Nation Membership</th>
+                <th className="px-6 py-3 font-medium text-center">Number of Children</th>
+                <th className="px-6 py-3 font-medium text-center">Status</th>
+                <th className="px-6 py-3 font-medium text-center">Date of Inactivity</th>
+                <th className="px-6 py-3 font-medium text-center">Reason for Inactivity</th>
+                <th className="px-6 py-3 font-medium text-center">Date Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              {clients.map((client) => (
+                <tr key={client.client_id} className="cursor-pointer hover:bg-indigo-50 text-center transition" onClick={() => handleRowClick(client.client_id)}>
+                  <td className="px-6 py-3 border-t text-center">{client.firstName} {client.lastName}</td>
+                  <td className="px-6 py-3 border-t text-center">{calculateAge(client.dateOfBirth)}</td>
+                  <td className="px-6 py-3 border-t text-center">{client.cfsAgency}</td>
+                  <td className="px-6 py-3 border-t text-center">{client.firstNationMembership}</td>
+                  <td className="px-6 py-3 border-t text-center">{client.childCount}</td>
+                  <td className="px-6 py-3 border-t text-center">{setClientStatus(client.clientStatus)}</td>
+                  <td className="px-6 py-3 border-t text-center">-</td>
+                  <td className="px-6 py-3 border-t text-center">-</td>
+                  <td className="px-6 py-3 border-t text-center">{client.createdAt}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {clients.map((client) => (
-                  <tr
-                    key={client.client_id}
-                    className="cursor-pointer hover:bg-indigo-50 text-center transition"
-                    onClick={() => handleRowClick(client.client_id)}
-                  >
-                    <td className="px-6 py-3 border-t text-center">
-                      {client.firstName} {client.lastName}
-                    </td>
-                    <td className="px-6 py-3 border-t text-center">
-                      {calculateAge(client.dateOfBirth)}
-                    </td>
-                    <td className="px-6 py-3 border-t text-center">
-                      {client.cfsAgency}
-                    </td>
-                    <td className="px-6 py-3 border-t text-center">
-                      {client.firstNationMembership}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            <div className="mt-8">
-              <DownloadDropdown
-                title="Download All"
-                onDownloadSelect={handleDownloadAll}
-                defaultText={`Download All as ${downloadFormat.toUpperCase()}`}
-              />
-            </div>
-          </>
+              ))}
+            </tbody>
+          </table>
         )}
+
+        {/* Download */}
+        {/* dropdown */}
+                                <div className="mt-8 w-full max-w-sm mx-auto">
+                                    <DownloadDropdown
+                                        title="Download All"
+                                        onDownloadSelect={handleDownloadAll}
+                                        defaultText={`Download All as ${downloadFormat.toUpperCase()}`}
+                                    />
+                                </div>
       </div>
-      {/* Report Preview Modal */}
+
+      {/* Preview */}
       {showPreview && (
         <ReportPreview
           onClose={handleClosePreview}
@@ -331,28 +311,32 @@ export default function ClientFilterPage() {
           )}
 
           {clients.length > 0 && (
-            <table className="w-full border border-gray-200 rounded-xl">
+            <table className="w-full border border-gray-200 rounded-xl mt-4">
               <thead className="bg-indigo-100">
                 <tr>
-                  <th className="px-4 py-2 border-t">Name</th>
-                  <th className="px-4 py-2 border-t">Age</th>
-                  <th className="px-4 py-2 border-t">CFS Agency</th>
-                  <th className="px-4 py-2 border-t">First Nation</th>
+                  <th className="px-6 py-3 font-medium text-center">Name</th>
+                  <th className="px-6 py-3 font-medium text-center">Age</th>
+                  <th className="px-6 py-3 font-medium text-center">CFS Agency</th>
+                  <th className="px-6 py-3 font-medium text-center">First Nation Membership</th>
+                  <th className="px-6 py-3 font-medium text-center">Number of Children</th>
+                  <th className="px-6 py-3 font-medium text-center">Status</th>
+                  <th className="px-6 py-3 font-medium text-center">Date of Inactivity</th>
+                  <th className="px-6 py-3 font-medium text-center">Reason for Inactivity</th>
+                  <th className="px-6 py-3 font-medium text-center">Date Created</th>
                 </tr>
               </thead>
               <tbody>
                 {clients.map((client) => (
                   <tr key={client.client_id} className="text-center">
-                    <td className="px-4 py-2 border">
-                      {client.firstName} {client.lastName}
-                    </td>
-                    <td className="px-4 py-2 border">
-                      {calculateAge(client.dateOfBirth)}
-                    </td>
-                    <td className="px-4 py-2 border">{client.cfsAgency}</td>
-                    <td className="px-4 py-2 border">
-                      {client.firstNationMembership}
-                    </td>
+                    <td className="px-6 py-3 border-t text-center">{client.firstName} {client.lastName}</td>
+                    <td className="px-6 py-3 border-t text-center">{calculateAge(client.dateOfBirth)}</td>
+                    <td className="px-6 py-3 border-t text-center">{client.cfsAgency}</td>
+                    <td className="px-6 py-3 border-t text-center">{client.firstNationMembership}</td>
+                    <td className="px-6 py-3 border-t text-center">{client.childCount}</td>
+                    <td className="px-6 py-3 border-t text-center">{setClientStatus(client.clientStatus)}</td>
+                    <td className="px-6 py-3 border-t text-center">-</td>
+                    <td className="px-6 py-3 border-t text-center">-</td>
+                    <td className="px-6 py-3 border-t text-center">{client.createdAt}</td>
                   </tr>
                 ))}
               </tbody>

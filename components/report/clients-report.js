@@ -29,19 +29,88 @@ export default function ClientsReport({ clientId, setReportData }) {
 
         const { data: clientData } = await supabase
           .from("Clients")
-          .select("*")
+          .select(`client_id,
+           createdAt,
+           dateModified,
+           firstName,
+           lastName,
+           phoneNumber,
+           email,
+           firstNationMembership,
+           otherFirstNation,
+           onReserve,
+           transitionFromReserve,
+           previousFNFAOClient,
+           seekingAdvocacy,
+           cfsAgency,
+           statusCFSFile,
+           casePlanCopyDescribe,
+           involvedCFSReason,
+           prenatalSupport,
+           housingSupport,
+           addictionsSupport,
+           addictionsSupportSpecified,
+           youthSupport,
+           youthSupportSpecified,
+           legalAssistance,
+           criminalCharges,
+           activeWarrant,
+           activeInvestigation,
+           activeOrders,
+           unableToAssistExplained,
+           referForSupport,
+           completedBy,
+           assignedStaff,
+           inSchool,
+           accessElder,
+           youthWorkshops,
+           disabilities,
+           previousInvolvement,
+           selfHarm,
+           childAbuse,
+           criminalRecord,
+           noContact,
+           parentalCapacity,
+           otherAdultsInvolved,
+           otherAdultsInvolvedExplained,
+           referredBy,
+           relationshipToChildren,
+           visitsChildFrequency,
+           createdBy,
+           modifiedBy,
+           clientStatus,
+           lastFaceToFace,
+           motherLastName,
+           connectedCommunity,
+           cfsChildrenApprehesionReason,
+           kinship`)
           .eq("client_id", clientId)
           .maybeSingle();
         setClient(clientData);
 
         const { data: childrenData } = await supabase
           .from("Childs")
-          .select("*")
+          .select(`child_id,
+            firstName,
+            lastName,
+            birthDate,
+            gender,
+            isFamily,
+            isCFS,
+            fathersName,
+            childNation,
+            childPlaced,
+            childCfsAgency,
+            childStatusCfsFile,
+            childMedicalNeeds,
+            biologicalParentFirstName,
+            biologicalParentLastName,
+            biologicalParentFirstNation`)
           .eq("client_id", clientId);
         setChildren(childrenData || []);
 
         const { data: familyData } = await supabase
-          .from("Important Family and Friends")
+          .from("Home Members")
           .select("*")
           .eq("client_id", clientId);
         setFamily(familyData || []);
