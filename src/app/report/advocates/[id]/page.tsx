@@ -130,60 +130,60 @@ export default function AdvocateDetailsPage() {
           {advocateName} Clients Report
         </h1>
 
-        {clients.length === 0 ? (
-          <p className="text-center text-gray-600 text-lg">No clients assigned.</p>
-        ) : (
-            <div className="bg-white shadow-md w-full max-w-3xl mx-auto rounded-2xl p-6">
-            <div
-              className="overflow-y-auto overflow-x-hidden border border-gray-200 rounded-xl mt-4"
-              style={{ maxHeight: "800px" }}
-            >
-              <table className="w-full border border-gray-200 rounded-xl">
-                <thead className="bg-indigo-500 text-white text-left">
-                  <tr>
-                    <th className="px-6 py-3 text-center">Name</th>
-                    <th className="px-6 py-3 text-center">Age</th>
-                    <th className="px-6 py-3 text-center">CFS Agency</th>
-                    <th className="px-6 py-3 text-center">First Nation Membership</th>
-                    <th className="px-6 py-3 text-center">Number of Children</th>
-                    <th className="px-6 py-3 text-center">Status</th>
-                    <th className="px-6 py-3 text-center">Date of Inactivity</th>
-                    <th className="px-6 py-3 text-center">Reason for Inactivity</th>
-                    <th className="px-6 py-3 text-center">Date Created</th>
-                  </tr>
-                </thead>
+      {clients.length === 0 ? (
+        <p className="text-center text-gray-600 text-lg">No clients assigned.</p>
+      ) : (
+        <>
+          <div
+            className="overflow-y-auto overflow-x-hidden border border-gray-200 mt-4"
+            style={{ maxHeight: "800px" }}
+          >
+            <table className="w-full border border-gray-200 rounded-xl">
+              <thead className="bg-indigo-500 text-white text-left">
+                <tr>
+                  <th className="px-6 py-3 text-center">Name</th>
+                  <th className="px-6 py-3 text-center">Age</th>
+                  <th className="px-6 py-3 text-center">CFS Agency</th>
+                  <th className="px-6 py-3 text-center">First Nation Membership</th>
+                  <th className="px-6 py-3 text-center">Number of Children</th>
+                  <th className="px-6 py-3 text-center">Status</th>
+                  <th className="px-6 py-3 text-center">Date of Inactivity</th>
+                  <th className="px-6 py-3 text-center">Reason for Inactivity</th>
+                  <th className="px-6 py-3 text-center">Date Created</th>
+                </tr>
+              </thead>
 
-                <tbody>
-                  {(clients as Client[])
-                    .filter((c) =>
-                      activeCheck && inactiveCheck
-                        ? true
-                        : activeCheck
-                        ? c.clientStatus === "Active"
-                        : inactiveCheck
-                        ? c.clientStatus !== "Active"
-                        : false
-                    )
-                    .map((client) => (
-                      <tr
-                        key={client.client_id}
-                        className="cursor-pointer hover:bg-indigo-50 text-center transition"
-                        onClick={() => handleRowClick(client.client_id)}
-                      >
-                        <td className="px-6 py-3 border-t">{client.firstName} {client.lastName}</td>
-                        <td className="px-6 py-3 border-t">{calculateAge(client.dateOfBirth)}</td>
-                        <td className="px-6 py-3 border-t">{client.cfsAgency}</td>
-                        <td className="px-6 py-3 border-t">{client.firstNationMembership}</td>
-                        <td className="px-6 py-3 border-t">{client.childCount}</td>
-                        <td className="px-6 py-3 border-t">{setClientStatus(client.clientStatus)}</td>
-                        <td className="px-6 py-3 border-t">{client.dateOfInactivity || "—"}</td>
-                        <td className="px-6 py-3 border-t">{client.reasonForInactivity || "—"}</td>
-                        <td className="px-6 py-3 border-t">{client.createdAt}</td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
+              <tbody>
+                {(clients as Client[])
+                  .filter((c) =>
+                    activeCheck && inactiveCheck
+                      ? true
+                      : activeCheck
+                      ? c.clientStatus === "Active"
+                      : inactiveCheck
+                      ? c.clientStatus !== "Active"
+                      : false
+                  )
+                  .map((client) => (
+                    <tr
+                      key={client.client_id}
+                      className="cursor-pointer hover:bg-indigo-50 text-center transition"
+                      onClick={() => handleRowClick(client.client_id)}
+                    >
+                      <td className="px-6 py-3 border-t text-center">{client.firstName} {client.lastName}</td>
+                      <td className="px-6 py-3 border-t text-center">{calculateAge(client.dateOfBirth)} </td>
+                      <td className="px-6 py-3 border-t text-center">{client.cfsAgency}</td>
+                      <td className="px-6 py-3 border-t text-center">{client.firstNationMembership}</td>
+                      <td className="px-6 py-3 border-t text-center">{client.childCount}</td>
+                      <td className="px-6 py-3 border-t text-center">{setClientStatus(client.clientStatus)}</td>
+                      <td className="px-6 py-3 border-t text-center">{client.dateOfInactivity || "—"}</td>
+                      <td className="px-6 py-3 border-t text-center">{client.reasonForInactivity || "—"}</td>
+                      <td className="px-6 py-3 border-t text-center">{client.createdAt}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
 
             <div className="mt-8 w-full max-w-sm mx-auto">
               <DownloadDropdown
@@ -192,7 +192,7 @@ export default function AdvocateDetailsPage() {
                 defaultText={`Download All as ${downloadFormat.toUpperCase()}`}
               />
             </div>
-            </div>
+            </>
         )}
       </div>
 

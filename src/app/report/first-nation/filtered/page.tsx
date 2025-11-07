@@ -263,13 +263,13 @@ export default function ClientFilterPage() {
 
         {/* Download */}
         {/* dropdown */}
-                                <div className="mt-8 w-full max-w-sm mx-auto">
-                                    <DownloadDropdown
-                                        title="Download All"
-                                        onDownloadSelect={handleDownloadAll}
-                                        defaultText={`Download All as ${downloadFormat.toUpperCase()}`}
-                                    />
-                                </div>
+              <div className="mt-8 w-full max-w-sm mx-auto">
+                <DownloadDropdown
+                  title="Download All"
+                  onDownloadSelect={handleDownloadAll}
+                  defaultText={`Download All as ${downloadFormat.toUpperCase()}`}
+                />
+            </div>
       </div>
 
       {/* Preview */}
