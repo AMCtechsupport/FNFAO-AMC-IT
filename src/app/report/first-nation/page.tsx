@@ -9,6 +9,7 @@ import QuarterFilter from "../../../../components/report/quarterly-dropdown";
 import ReportPreview from "../../../../components/report/report-preview";
 import DataColumn from "../../../../components/data-collection/data-column";
 import { getQuarterDateRange } from "../../../../src/app/utils/quarter-utils";
+import ClientReportPreview from "../../../../components/report/client-report-preview";
 
 type QuarterSelection = {
   year: string;
@@ -157,7 +158,7 @@ export default function FirstNationsReportPage() {
       {/* Report Preview Modal */}
       {showPreview && (
         <ReportPreview onClose={handleClosePreview} childrenDownloadButton={undefined}>
-          <h2>Download All - First Nations</h2>
+          <ClientReportPreview />
         </ReportPreview>
       )}
     </UserHome>

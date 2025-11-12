@@ -17,7 +17,7 @@ export default function AssignedClientsToAdvocate() {
       const { data, error } = await supabase
         .from("Advocates")
         .select("advocate_id, firstName, lastName")
-        .eq("clerk_user_id", user.id);
+        .eq("firstName", user.first_name);
 
       if (error) {
         console.error("Error fetching advocate:", error.message);
