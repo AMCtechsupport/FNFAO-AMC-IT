@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import UserHome from "../../user-home/page";
 import FirstNationFilters from "../../../../components/report/first-nation-filters";
@@ -8,7 +8,12 @@ import DateFilterPage from "../../../../components/report/date-range-filter.js";
 import QuarterFilter from "../../../../components/report/quarterly-dropdown";
 import ReportPreview from "../../../../components/report/report-preview";
 import DataColumn from "../../../../components/data-collection/data-column";
+import DownloadDropdown from "../../../../components/report/download-dropdown";
 import { getQuarterDateRange } from "../../../../src/app/utils/quarter-utils";
+import {
+  downloadCSV,
+  downloadJSON,
+} from "../../../../components/report/advocates-table-full";
 
 type QuarterSelection = {
   year: string;
@@ -24,8 +29,11 @@ export default function FirstNationsReportPage() {
   const [endDate, setEndDate] = useState("");
   const [quarter, setQuarter] = useState<QuarterSelection>(null); 
   const [validationError, setValidationError] = useState("");
+  const [downloadFormat, setDownloadFormat] = useState<"pdf" | "csv" | "json">("pdf");
 
   const router = useRouter();
+  const [reportData, setReportData] = useState<any[]>([]);
+  const contentRef = useRef<HTMLDivElement | null>(null);
 
   // It will clear date range filter upon quarter selection
     const handleQuarterChange = (selection: QuarterSelection) => {
@@ -92,7 +100,74 @@ export default function FirstNationsReportPage() {
   const handleOpenPreview = () => setShowPreview(true);
 
   // Handles closing the report preview modal
-  const handleClosePreview = () => setShowPreview(false);
+  const handleClosePreview = () => {
+    setShowPreview(false);
+    setReportData([]);
+  };
+
+  // Handler to set download format and open preview
+  const handleDownloadAll = (format: "pdf" | "csv" | "json") => {
+    setDownloadFormat(format);
+    setShowPreview(true);
+  };
+
+  const generateAndDownloadPDF = async () => {
+    const html2pdf = (await import("html2pdf.js")).default;
+
+    if (!contentRef.current) return;
+
+    // Get the DOM element and set PDF options
+    const element = contentRef.current;
+    const options = {
+      margin: 0.5,
+      filename: "first_nations_report.pdf", 
+      image: { type: "jpeg" as const, quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: {
+        unit: "in" as const,
+        format: "letter" as const,
+        orientation: "portrait" as const,
+      },
+    };
+
+    // Generate and save the PDF
+    await html2pdf().set(options).from(element).save();
+    handleClosePreview();
+  };
+
+  const handleFinalDownload = () => {
+    if (downloadFormat === "csv") {
+      downloadCSV(reportData);
+    } else if (downloadFormat === "json") {
+      downloadJSON(reportData);
+    }
+
+    handleClosePreview();
+  };
+
+  const DynamicDownloadButton = () => {
+    if (downloadFormat === "pdf") {
+      return (
+        <button
+          type="button"
+          onClick={generateAndDownloadPDF}
+          className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-md transition-colors mt-4"
+        >
+          Download PDF
+        </button>
+      );
+    }
+
+    return (
+      <button
+        type="button"
+        onClick={handleFinalDownload}
+        className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-md transition-colors mt-4"
+      >
+        Download {downloadFormat.toUpperCase()}
+      </button>
+    );
+  };
 
   return (
     <UserHome>
@@ -161,19 +236,11 @@ export default function FirstNationsReportPage() {
                   Find
                 </button>
               </div>
-              <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                <h2 className="text-xl font-semibold mb-4 text-gray-700">
-                  Download All
-                </h2>
-
-                <button
-                  type="button"
-                  onClick={handleOpenPreview}
-                  className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-md transition-colors"
-                >
-                  Download All
-                </button>
-              </div>
+              <DownloadDropdown
+                title="Download All"
+                onDownloadSelect={handleDownloadAll}
+                defaultText={`Download All as ${downloadFormat.toUpperCase()}`}
+              />
             </div>
           </div>
         </section>
@@ -181,7 +248,7 @@ export default function FirstNationsReportPage() {
 
       {/* Report Preview Modal */}
       {showPreview && (
-        <ReportPreview onClose={handleClosePreview} childrenDownloadButton={undefined}>
+        <ReportPreview onClose={handleClosePreview} childrenDownloadButton={<DynamicDownloadButton />}>
           <h2>Download All - First Nations</h2>
         </ReportPreview>
       )}
