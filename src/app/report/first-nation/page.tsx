@@ -10,6 +10,7 @@ import ReportPreview from "../../../../components/report/report-preview";
 import DataColumn from "../../../../components/data-collection/data-column";
 import DownloadDropdown from "../../../../components/report/download-dropdown";
 import { getQuarterDateRange } from "../../../../src/app/utils/quarter-utils";
+import ClientReportPreview from "../../../../components/report/client-report-preview";
 import {
   downloadCSV,
   downloadJSON,
@@ -248,8 +249,8 @@ export default function FirstNationsReportPage() {
 
       {/* Report Preview Modal */}
       {showPreview && (
-        <ReportPreview onClose={handleClosePreview} childrenDownloadButton={<DynamicDownloadButton />}>
-          <h2>Download All - First Nations</h2>
+        <ReportPreview onClose={handleClosePreview} childrenDownloadButton={undefined}>
+          <ClientReportPreview />
         </ReportPreview>
       )}
     </UserHome>

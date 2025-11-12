@@ -61,11 +61,12 @@ export default function AdvocatesTable({ onSelect, active, inactive }) {
           // return all clients
           let clientsQuery = supabase
             .from("Clients")
-            .select("client_id, clientStatus");
+            .select("client_id, clientStatus, createdAt"); 
 
-        if (status) {
-          clientsQuery = clientsQuery.eq("clientStatus", status);
-        }
+          if (status) {
+            clientsQuery = clientsQuery.eq("clientStatus", status);
+          }
+
           const clientsResult = await clientsQuery;
           clientsData = clientsResult.data;
           clientsError = clientsResult.error;
@@ -76,17 +77,30 @@ export default function AdvocatesTable({ onSelect, active, inactive }) {
         // create organized set of client ids
         const activeClientIds = new Set((clientsData || []).map((client) => client.client_id));
         
+        // calculate date 4 months ago
+        const fourMonthsAgo = new Date();
+        fourMonthsAgo.setMonth(fourMonthsAgo.getMonth() - 4);
 
         // merge data and count clients
         const mergedData = advocatesData.map((advocate) => {
-          const count = assignmentsData.filter(
+          const assignedClients = assignmentsData.filter(
             (item) => item.advocate_id === advocate.advocate_id && activeClientIds.has(item.client_id)
-          ).length;
+          );
+
+          const count = assignedClients.length;
+
+          // calculate new clients
+          const newClientCount = assignedClients.filter((item) => {
+            const cl = clientsData.find(c => c.client_id === item.client_id);
+            const createdAt = cl?.createdAt ? new Date(cl.createdAt) : null;
+            return createdAt && createdAt >= fourMonthsAgo;
+          }).length;
 
           return {
             advocate_id: advocate.advocate_id, 
             name: `${advocate.firstName} ${advocate.lastName}`,
             clientCount: count,
+            newClientCount 
           };
         });
 
@@ -133,6 +147,9 @@ export default function AdvocatesTable({ onSelect, active, inactive }) {
               <th className="text-center px-6 py-3 text-gray-700 font-semibold border-b">
                 Number of Clients in Service
               </th>
+              <th className="text-center px-6 py-3 text-gray-700 font-semibold border-b">
+                Number of New Clients 
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -154,6 +171,9 @@ export default function AdvocatesTable({ onSelect, active, inactive }) {
                   </td>
                   <td className="px-6 py-3 border-b text-center">
                     {advocate.clientCount}
+                  </td>
+                  <td className="px-6 py-3 border-b text-center">
+                    {advocate.newClientCount}
                   </td>
                 </tr>
               );
@@ -179,7 +199,7 @@ export default function AdvocatesTable({ onSelect, active, inactive }) {
         <div className="mt-4 text-center text-gray-700">
           Selected Advocate:{" "}
           <span className="text-indigo-600 font-semibold">
-            {selectedAdvocate.name} ({selectedAdvocate.clientCount} clients)
+            {selectedAdvocate.name} ({selectedAdvocate.clientCount} clients, {selectedAdvocate.newClientCount} new)
           </span>
         </div>
       )}

@@ -36,35 +36,28 @@ export const downloadCSV = (data, filename = "advocates_report") => {
   URL.revokeObjectURL(href);
 };
 
-
 export default function AdvocatesTableFull({ onDataLoaded, active, inactive }) { 
   const [advocates, setAdvocates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
 
   function clientType() {
-        if (active && inactive)
-            return null
-        if (active && !inactive)
-            return "Active"
-        if (!active && inactive)
-            return "Inactive"
-        return "__NONE__";
+    if (active && inactive) return null;
+    if (active && !inactive) return "Active";
+    if (!active && inactive) return "Inactive";
+    return "__NONE__";
   }
 
   useEffect(() => {
-
     const fetchAdvocates = async () => {
       setLoading(true);
       try {
-        // fetch advocates
         const { data: advocatesData, error: advocatesError } = await supabase
           .from("Advocates")
           .select("advocate_id, firstName, lastName");
 
         if (advocatesError) throw advocatesError;
 
-        // fetch assigned advocates
         const { data: assignmentsData, error: assignmentsError } = await supabase
           .from("Assigned Advocates")
           .select("advocate_id, client_id");
@@ -76,17 +69,16 @@ export default function AdvocatesTableFull({ onDataLoaded, active, inactive }) {
         let clientsError = null;
 
         if (status === "__NONE__") {
-          // no clients
           clientsData = [];
         } else {
-          // return all clients
           let clientsQuery = supabase
             .from("Clients")
-            .select("client_id, clientStatus");
+            .select("client_id, clientStatus, createdAt"); // added createdAt here
 
-        if (status) {
-          clientsQuery = clientsQuery.eq("clientStatus", status);
-        }
+          if (status) {
+            clientsQuery = clientsQuery.eq("clientStatus", status);
+          }
+
           const clientsResult = await clientsQuery;
           clientsData = clientsResult.data;
           clientsError = clientsResult.error;
@@ -94,25 +86,37 @@ export default function AdvocatesTableFull({ onDataLoaded, active, inactive }) {
 
         if (clientsError) throw clientsError;
 
-        // create a Set of active client IDs for fast lookup
         const activeClientIds = new Set((clientsData || []).map((client) => client.client_id));
-        
 
-        // merge data and count clients
+        // 4 months timeframe
+        const fourMonthsAgo = new Date();
+        fourMonthsAgo.setMonth(fourMonthsAgo.getMonth() - 4);
+
         const mergedData = advocatesData.map((advocate) => {
-          const count = assignmentsData.filter(
+          const assignedClients = assignmentsData.filter(
             (item) => item.advocate_id === advocate.advocate_id && activeClientIds.has(item.client_id)
-          ).length;
+          );
+
+          const clientCount = assignedClients.length;
+
+          // calculate new clients
+          const newClientCount = assignedClients.filter((item) => {
+            const cl = clientsData.find(c => c.client_id === item.client_id);
+            const createdAt = cl?.createdAt ? new Date(cl.createdAt) : null;
+            return createdAt && createdAt >= fourMonthsAgo;
+          }).length;
 
           return {
-            advocate_id: advocate.advocate_id, 
+            advocate_id: advocate.advocate_id,
             name: `${advocate.firstName} ${advocate.lastName}`,
-            clientCount: count,
+            clientCount: clientCount,
+            newClientCount 
           };
         });
 
         setAdvocates(mergedData);
         if (onDataLoaded) onDataLoaded(mergedData);
+
       } catch (err) {
         console.error("Error fetching advocates:", err);
         setFetchError("Failed to load advocates");
@@ -124,20 +128,13 @@ export default function AdvocatesTableFull({ onDataLoaded, active, inactive }) {
     fetchAdvocates();
   }, []); 
 
-  if (loading)
-    return <p className="text-center text-gray-500">Loading advocates...</p>;
-
-  if (fetchError)
-    return <p className="text-center text-red-500">{fetchError}</p>;
-
-  if (advocates.length === 0)
-    return <p className="text-center text-gray-500">No advocates found.</p>;
+  if (loading) return <p className="text-center text-gray-500">Loading advocates...</p>;
+  if (fetchError) return <p className="text-center text-red-500">{fetchError}</p>;
+  if (advocates.length === 0) return <p className="text-center text-gray-500">No advocates found.</p>;
 
   return (
     <div className="overflow-x-auto">
-      <div
-        className="overflow-y-auto overflow-x-hidden border border-gray-200 rounded-xl"
-      >
+      <div className="overflow-y-auto overflow-x-hidden border border-gray-200 rounded-xl">
         <table className="w-full border border-gray-200 rounded-xl">
           <thead className="bg-gray-100">
             <tr>
@@ -147,23 +144,20 @@ export default function AdvocatesTableFull({ onDataLoaded, active, inactive }) {
               <th className="text-center px-6 py-3 text-gray-700 font-semibold border-b">
                 Number of Clients in Service
               </th>
+              <th className="text-center px-6 py-3 text-gray-700 font-semibold border-b">
+                Number of New Clients
+              </th>
             </tr>
           </thead>
+
           <tbody>
-            {advocates.map((advocate, index) => {
-              return (
-                <tr
-                  key={index}
-                >
-                  <td className="px-6 py-3 border-b text-center">
-                    {advocate.name}
-                  </td>
-                  <td className="px-6 py-3 border-b text-center">
-                    {advocate.clientCount}
-                  </td>
-                </tr>
-              );
-            })}
+            {advocates.map((advocate, index) => (
+              <tr key={index}>
+                <td className="px-6 py-3 border-b text-center">{advocate.name}</td>
+                <td className="px-6 py-3 border-b text-center">{advocate.clientCount}</td>
+                <td className="px-6 py-3 border-b text-center">{advocate.newClientCount}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
