@@ -214,7 +214,7 @@ export default function ClientFilterPage() {
   return (
     <UserHome>
       <div className="p-6 bg-gray-50 min-h-screen">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Generate Report</h1>
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Client's Report</h1>
 
         {/* Tags */}
         <div className="flex flex-wrap gap-2 justify-center mb-6">
