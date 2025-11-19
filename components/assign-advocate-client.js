@@ -20,7 +20,6 @@ export default function AssignAdvocate() {
       let query = supabase
         .from("Clients")
         .select("*")
-        .limit(5)
         .order("dateModified", { ascending: false });
 
       if (searchQuery) {
@@ -48,7 +47,7 @@ export default function AssignAdvocate() {
 
   const fetchAdvocates = async (searchQuery = "") => {
     try {
-      let query = supabase.from("Advocates").select("*").limit(5);
+      let query = supabase.from("Advocates").select("*");
 
       if (searchQuery) {
         query = query.or(
