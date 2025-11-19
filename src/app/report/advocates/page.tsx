@@ -159,7 +159,7 @@ export default function AdvocatesReportPage() {
               className="form-check-label px-2 font-medium text-center"
               htmlFor="activeCheck"
             >
-              Active users
+              Active clients
             </label>
           </div>
           <div className="form-check form-check-inline">
@@ -174,7 +174,7 @@ export default function AdvocatesReportPage() {
               className="form-check-label px-2 font-medium text-center"
               htmlFor="inactiveCheck"
             >
-              Inactive users
+              Inactive clients
             </label>
           </div>
           {/*pass selected advocate */}
