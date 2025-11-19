@@ -350,6 +350,15 @@ export default function ClientsList({ initialClients, totalCount }) {
               outline: 'none'
             }}
           />
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <label htmlFor="dateOfBirthSearch" style={{ 
+                fontSize: '15px',
+                color: '#374151',
+                fontWeight: '600'
+            }}>
+                Search by Date of Birth:
+            </label>
           <input
             type="date"
             placeholder="Search by Date of Birth"
@@ -363,6 +372,7 @@ export default function ClientsList({ initialClients, totalCount }) {
               outline: 'none'
             }}
           />
+          </div>
 
         </div>
       </div>
