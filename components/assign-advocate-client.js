@@ -23,13 +23,33 @@ export default function AssignAdvocate() {
         .order("dateModified", { ascending: false });
 
       if (searchQuery) {
-        const isNumeric = !isNaN(searchQuery);
+        const term = String(searchQuery).trim();
+        const isNumeric = !isNaN(term) && term !== "";
         if (isNumeric) {
-          query = query.eq("client_id", parseInt(searchQuery, 10));
+          query = query.eq("client_id", parseInt(term, 10));
         } else {
-          query = query.or(
-            `firstName.ilike.%${searchQuery}%,middleName.ilike.%${searchQuery}%,lastName.ilike.%${searchQuery}%`
-          );
+          const tokens = term.split(/\s+/).filter(Boolean);
+
+          if (tokens.length >= 2) {
+            const first = tokens[0];
+            const last = tokens[tokens.length - 1];
+
+            // Different orders to match names
+            const orFilters = [
+              `and(firstName.ilike.%${first}%,lastName.ilike.%${last}%)`,
+              `and(firstName.ilike.%${last}%,lastName.ilike.%${first}%)`,
+              `firstName.ilike.%${term}%`,
+              `middleName.ilike.%${term}%`,
+              `lastName.ilike.%${term}%`
+            ];
+
+            query = query.or(orFilters.join(","));
+          } else {
+            const token = tokens[0] || term;
+            query = query.or(
+              `firstName.ilike.%${token}%,middleName.ilike.%${token}%,lastName.ilike.%${token}%`
+            );
+          }
         }
       }
 
@@ -50,9 +70,28 @@ export default function AssignAdvocate() {
       let query = supabase.from("Advocates").select("*");
 
       if (searchQuery) {
-        query = query.or(
-          `firstName.ilike.%${searchQuery}%,lastName.ilike.%${searchQuery}%`
-        );
+        const term = String(searchQuery).trim();
+        const tokens = term.split(/\s+/).filter(Boolean);
+        
+        if (tokens.length >= 2) {
+          const first = tokens[0];
+          const last = tokens[tokens.length - 1];
+
+          const orFilters = [
+            `and(firstName.ilike.%${first}%,lastName.ilike.%${last}%)`,
+            `and(firstName.ilike.%${last}%,lastName.ilike.%${first}%)`,
+            `firstName.ilike.%${term}%`,
+            `lastName.ilike.%${term}%`,
+            `email.ilike.%${term}%`
+          ];
+
+          query = query.or(orFilters.join(","));
+        } else {
+          const token = tokens[0] || term;
+          query = query.or(
+            `firstName.ilike.%${token}%,lastName.ilike.%${token}%,email.ilike.%${token}%`
+          );
+        }
       }
 
       const { data, error } = await query;
