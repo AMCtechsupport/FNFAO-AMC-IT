@@ -19,9 +19,30 @@ const DeleteAdvocate = () => {
       let query = supabase.from("Advocates").select("*");
 
       if (searchQuery) {
-        query = query.or(
-          `firstName.ilike.%${searchQuery}%,lastName.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%`
-        );
+        const term = searchQuery.trim();
+        // to ignore empty tokens
+        const tokens = term.split(/\s+/).filter(Boolean);
+
+        if (tokens.length >= 2) {
+          const first = tokens[0];
+          const last = tokens[tokens.length - 1];
+
+          // Filter options to match names
+          const orFilters = [
+            `and(firstName.ilike.%${first}%,lastName.ilike.%${last}%)`,
+            `and(firstName.ilike.%${last}%,lastName.ilike.%${first}%)`,
+            `firstName.ilike.%${term}%`,
+            `lastName.ilike.%${term}%`,
+            `email.ilike.%${term}%`
+          ];
+
+          query = query.or(orFilters.join(","));
+        } else {
+          const t = tokens[0];
+          query = query.or(
+            `firstName.ilike.%${t}%,lastName.ilike.%${t}%,email.ilike.%${t}%`
+          );
+        }
       }
 
       const { data, error } = await query;
@@ -30,7 +51,7 @@ const DeleteAdvocate = () => {
         console.error("Error fetching advocates:", error.message);
         setError("Error fetching advocates: " + error.message);
       } else {
-        setAdvocates(data);
+        setAdvocates(data || []);
       }
     } catch (err) {
       console.error("Unexpected error:", err);
