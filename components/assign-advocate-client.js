@@ -29,26 +29,45 @@ export default function AssignAdvocate() {
           query = query.eq("client_id", parseInt(term, 10));
         } else {
           const tokens = term.split(/\s+/).filter(Boolean);
+          let orFilters = [];
 
-          if (tokens.length >= 2) {
+          if (tokens.length >= 3) {
             const first = tokens[0];
             const last = tokens[tokens.length - 1];
+            const middle = tokens.slice(1, -1).join(" ");
 
-            // Different orders to match names
-            const orFilters = [
+            orFilters = [
+              `and(firstName.ilike.%${first}%,middleName.ilike.%${middle}%,lastName.ilike.%${last}%)`,
               `and(firstName.ilike.%${first}%,lastName.ilike.%${last}%)`,
               `and(firstName.ilike.%${last}%,lastName.ilike.%${first}%)`,
               `firstName.ilike.%${term}%`,
               `middleName.ilike.%${term}%`,
               `lastName.ilike.%${term}%`
             ];
+          } else if (tokens.length === 2) {
+            const a = tokens[0];
+            const b = tokens[1];
 
-            query = query.or(orFilters.join(","));
+            orFilters = [
+              `and(firstName.ilike.%${a}%,lastName.ilike.%${b}%)`,
+              `and(firstName.ilike.%${a}%,middleName.ilike.%${b}%)`,
+              `and(middleName.ilike.%${a}%,lastName.ilike.%${b}%)`,
+              `and(firstName.ilike.%${b}%,lastName.ilike.%${a}%)`,
+              `firstName.ilike.%${term}%`,
+              `middleName.ilike.%${term}%`,
+              `lastName.ilike.%${term}%`
+            ];
           } else {
             const token = tokens[0] || term;
-            query = query.or(
-              `firstName.ilike.%${token}%,middleName.ilike.%${token}%,lastName.ilike.%${token}%`
-            );
+            orFilters = [
+              `firstName.ilike.%${token}%`,
+              `middleName.ilike.%${token}%`,
+              `lastName.ilike.%${token}%`
+            ];
+          }
+
+          if (orFilters.length) {
+            query = query.or(orFilters.join(","));
           }
         }
       }
@@ -57,11 +76,13 @@ export default function AssignAdvocate() {
 
       if (error) {
         console.error("Error fetching clients:", error.message);
+        setClients([]);
       } else {
-        setClients(data);
+        setClients(data || []);
       }
     } catch (err) {
       console.error("Unexpected error:", err);
+      setClients([]);
     }
   };
 
