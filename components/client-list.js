@@ -429,16 +429,18 @@ export default function ClientsList({ initialClients, totalCount }) {
                   transition: 'all 0.2s ease-in-out'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = '#f3f4f6';
-                  const buttons = e.target.querySelector('[data-buttons="true"]');
+                  const el = e.currentTarget;
+                  el.style.backgroundColor = '#f3f4f6';
+                  const buttons = el.querySelector('[data-buttons="true"]');
                   if (buttons) {
                     buttons.style.opacity = '1';
                     buttons.style.visibility = 'visible';
                   }
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = '#f9fafb';
-                  const buttons = e.target.querySelector('[data-buttons="true"]');
+                  const el = e.currentTarget;
+                  el.style.backgroundColor = '#f9fafb';
+                  const buttons = el.querySelector('[data-buttons="true"]');
                   if (buttons) {
                     buttons.style.opacity = '0';
                     buttons.style.visibility = 'hidden';
@@ -630,16 +632,18 @@ export default function ClientsList({ initialClients, totalCount }) {
                   transition: 'all 0.2s ease-in-out'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = '#f3f4f6';
-                  const buttons = e.target.querySelector('[data-buttons="true"]');
+                  const el = e.currentTarget;
+                  el.style.backgroundColor = '#f3f4f6';
+                  const buttons = el.querySelector('[data-buttons="true"]');
                   if (buttons) {
                     buttons.style.opacity = '1';
                     buttons.style.visibility = 'visible';
                   }
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = '#f9fafb';
-                  const buttons = e.target.querySelector('[data-buttons="true"]');
+                  const el = e.currentTarget;
+                  el.style.backgroundColor = '#f9fafb';
+                  const buttons = el.querySelector('[data-buttons="true"]');
                   if (buttons) {
                     buttons.style.opacity = '0';
                     buttons.style.visibility = 'hidden';
