@@ -2,6 +2,31 @@ import { useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 import supabase from "../../lib/supabase";
 
+// Function to get Manitoba current date/time 
+const getManitobaDateTime = () => {
+  const now = new Date();
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Winnipeg",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(now);
+  const get = (type) => parts.find((p) => p.type === type)?.value;
+
+  const year = get("year");
+  const month = get("month");
+  const day = get("day");
+  const hour = get("hour");
+  const minute = get("minute");
+
+  return `${year}-${month}-${day}T${hour}:${minute}`;
+};
+
 const PreIntakeFormSubmit = () => {
     const { user } = useUser();
     const [formSent, setFormSent] = useState(false);
@@ -27,8 +52,8 @@ const PreIntakeFormSubmit = () => {
                 }
             }
 
-            // Get the current date in ISO 8601 format
-            const currentDate = new Date().toISOString();
+      // Get Manitoba current date/time
+      const currentDate = getManitobaDateTime();
 
             // Extract 'children', 'emergencyContactFirstName', 'emergencyContactLastName' and 'emergencyContactNumber'
             // from convertedValues and keep the rest as client data
