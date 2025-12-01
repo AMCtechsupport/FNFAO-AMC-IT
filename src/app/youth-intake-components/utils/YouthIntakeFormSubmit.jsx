@@ -4,6 +4,31 @@ import validator from "validator";
 import supabase from "../../lib/supabase";
 import youthIntakeDefaultValues from "./youthIntakeDefaultValues";
 
+// Function to get Manitoba current date/time 
+const getManitobaDateTime = () => {
+  const now = new Date();
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Winnipeg",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(now);
+  const get = (type) => parts.find((p) => p.type === type)?.value;
+
+  const year = get("year");
+  const month = get("month");
+  const day = get("day");
+  const hour = get("hour");
+  const minute = get("minute");
+
+  return `${year}-${month}-${day}T${hour}:${minute}`;
+};
+
 function sanitizeInput(input) {
   if (typeof input === "string") {
     return validator.escape(input.trim());
@@ -52,7 +77,7 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, setFormS
         console.log("🔍 DEBUG - Converted values for database:", convertedValues);
 
         // Get the current date in ISO 8601 format
-        const currentDate = new Date().toISOString();
+        const currentDate = getManitobaDateTime();
 
         // Extract children, emergencyContact, homeMembers, educationalPersons
         const {
