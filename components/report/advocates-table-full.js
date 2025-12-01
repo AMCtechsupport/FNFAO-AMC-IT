@@ -36,7 +36,7 @@ export const downloadCSV = (data, filename = "advocates_report") => {
   URL.revokeObjectURL(href);
 };
 
-export default function AdvocatesTableFull({ onDataLoaded, active, inactive }) { 
+export default function AdvocatesTableFull({ onDataLoaded, active, inactive, startDate, endDate }) { 
   const [advocates, setAdvocates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
@@ -79,6 +79,14 @@ export default function AdvocatesTableFull({ onDataLoaded, active, inactive }) {
             clientsQuery = clientsQuery.eq("clientStatus", status);
           }
 
+          // apply date range filters when provided
+          if (startDate) {
+            clientsQuery = clientsQuery.gte('createdAt', startDate);
+          }
+          if (endDate) {
+            clientsQuery = clientsQuery.lte('createdAt', endDate);
+          }
+
           const clientsResult = await clientsQuery;
           clientsData = clientsResult.data;
           clientsError = clientsResult.error;
@@ -88,7 +96,7 @@ export default function AdvocatesTableFull({ onDataLoaded, active, inactive }) {
 
         const activeClientIds = new Set((clientsData || []).map((client) => client.client_id));
 
-        // 4 months timeframe
+        // default: 4 months timeframe if no explicit range provided
         const fourMonthsAgo = new Date();
         fourMonthsAgo.setMonth(fourMonthsAgo.getMonth() - 4);
 
@@ -103,7 +111,15 @@ export default function AdvocatesTableFull({ onDataLoaded, active, inactive }) {
           const newClientCount = assignedClients.filter((item) => {
             const cl = clientsData.find(c => c.client_id === item.client_id);
             const createdAt = cl?.createdAt ? new Date(cl.createdAt) : null;
-            return createdAt && createdAt >= fourMonthsAgo;
+            if (!createdAt) return false;
+
+            if (startDate || endDate) {
+              const start = startDate ? new Date(startDate) : new Date(0);
+              const end = endDate ? new Date(endDate) : new Date();
+              return createdAt >= start && createdAt <= end;
+            }
+
+            return createdAt >= fourMonthsAgo;
           }).length;
 
           return {
@@ -126,7 +142,7 @@ export default function AdvocatesTableFull({ onDataLoaded, active, inactive }) {
     };
 
     fetchAdvocates();
-  }, []); 
+  }, [active, inactive, startDate, endDate, onDataLoaded]); 
 
   if (loading) return <p className="text-center text-gray-500">Loading advocates...</p>;
   if (fetchError) return <p className="text-center text-red-500">{fetchError}</p>;

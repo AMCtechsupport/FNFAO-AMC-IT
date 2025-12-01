@@ -9,9 +9,17 @@ import AdvocatesTableFull, {
 import DateFilterPage from "../../../../components/report/date-range-filter";
 import ReportPreviewAdvocates from "../../../../components/report/report-preview-advocates";
 import DownloadDropdown from "../../../../components/report/download-dropdown";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import React from "react";
+
+import QuarterFilter from "../../../../components/report/quarterly-dropdown";
+import { getQuarterDateRange } from "../../utils/quarter-utils";
+
+type QuarterSelection = {
+  year: string;
+  quarter: string;
+} | null;
 
 export default function AdvocatesReportPage() {
   const [showPreview, setShowPreview] = useState(false);
@@ -20,56 +28,84 @@ export default function AdvocatesReportPage() {
     name: string;
     clientCount: number;
   } | null>(null);
+
   const [validationError, setValidationError] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+
   const [activeCheck, setActiveCheck] = useState(true);
   const [inactiveCheck, setInactiveCheck] = useState(false);
+
   const [downloadFormat, setDownloadFormat] = useState("pdf");
   const [reportData, setReportData] = useState([]);
   const router = useRouter();
-
   const contentRef = React.useRef(null);
 
-  // It handles the Find button click validation
+  const [quarter, setQuarter] = useState<QuarterSelection>(null);
+  const [filterMode, setFilterMode] = useState<"quarter" | "dateRange">("dateRange");
+
+  useEffect(() => {
+    if (filterMode === "quarter") {
+      setStartDate("");
+      setEndDate("");
+    } else {
+      setQuarter(null);
+    }
+  }, [filterMode]);
+
+  const effectiveDateRange = (() => {
+    if (quarter) {
+      const { startDate: qStart, endDate: qEnd } = getQuarterDateRange(
+        quarter.year,
+        quarter.quarter
+      );
+      return { startDate: qStart, endDate: qEnd };
+    }
+    return { startDate, endDate };
+  })();
+
+  // UPDATED: allow navigation even if advocate has 0 clients
   const handleFind = () => {
     const selectedDate = startDate && endDate;
-    const selectedPresentAdvocate = !!selectedAdvocate;
+    const selectedQuarter = quarter !== null;
+    const selectedAdvocateCheck = !!selectedAdvocate;
 
-    if (!selectedDate && !selectedPresentAdvocate) {
+    if (!selectedDate && !selectedQuarter && !selectedAdvocateCheck) {
       setValidationError("Please select an advocate or filter.");
       return;
     }
+
     setValidationError("");
 
-    if (selectedAdvocate) {
-      router.push(
-        `/report/advocates/${selectedAdvocate.advocate_id}?active=${activeCheck}&inactive=${inactiveCheck}`
-      );
-    } else {
-      setShowPreview(true);
-    }
-  };
+    if (selectedAdvocate) {
+      router.push(`/report/advocates/${selectedAdvocate.advocate_id}`);
+      return;
+    }
+
+    // if no advocate selected but date/quarter selected, open preview
+    if (selectedDate || selectedQuarter) {
+      setShowPreview(true);
+      return;
+    }
+
+    setValidationError("Please select an advocate or filter.");
+  };
 
   const handleClosePreview = () => {
     setShowPreview(false);
     setReportData([]);
   };
 
-  // Handler to set download format and open preview
   const handleDownloadAll = (format: string) => {
     setDownloadFormat(format);
     setShowPreview(true);
   };
 
-  // New handler to specifically generate and download PDF using html2pdf.js
   const generateAndDownloadPDF = async () => {
     const html2pdf = (await import("html2pdf.js")).default;
 
-    // Ensure the contentRef is assigned else return nothing
     if (!contentRef.current) return;
 
-    // Get the DOM element and set PDF options
     const element = contentRef.current;
     const options = {
       margin: 0.5,
@@ -83,7 +119,6 @@ export default function AdvocatesReportPage() {
       },
     };
 
-    // Generate and save the PDF
     await html2pdf().set(options).from(element).save();
     handleClosePreview();
   };
@@ -100,7 +135,6 @@ export default function AdvocatesReportPage() {
     handleClosePreview();
   };
 
-  // This component renders the final dynamic download button
   const DynamicDownloadButton = () => {
     if (downloadFormat === "pdf") {
       return (
@@ -126,7 +160,6 @@ export default function AdvocatesReportPage() {
       );
     }
 
-    // Dynamic button for CSV and JSON
     return (
       <button
         type="button"
@@ -146,7 +179,6 @@ export default function AdvocatesReportPage() {
         </h1>
 
         <div className="bg-white shadow-md w-full max-w-3xl mx-auto rounded-2xl p-6">
-          {/* Checkboxes for active/inactive */}
           <div className="form-check form-check-inline">
             <input
               className="form-check-input"
@@ -155,13 +187,11 @@ export default function AdvocatesReportPage() {
               checked={activeCheck}
               id="activeCheck"
             />
-            <label
-              className="form-check-label px-2 font-medium text-center"
-              htmlFor="activeCheck"
-            >
-              Active clients
+            <label className="form-check-label px-2 font-medium" htmlFor="activeCheck">
+              Active users
             </label>
           </div>
+
           <div className="form-check form-check-inline">
             <input
               className="form-check-input"
@@ -170,40 +200,78 @@ export default function AdvocatesReportPage() {
               checked={inactiveCheck}
               id="inactiveCheck"
             />
-            <label
-              className="form-check-label px-2 font-medium text-center"
-              htmlFor="inactiveCheck"
-            >
-              Inactive clients
+            <label className="form-check-label px-2 font-medium" htmlFor="inactiveCheck">
+              Inactive users
             </label>
           </div>
-          {/*pass selected advocate */}
+
           <AdvocatesTable
             onSelect={setSelectedAdvocate}
             active={activeCheck}
             inactive={inactiveCheck}
+            startDate={effectiveDateRange.startDate}
+            endDate={effectiveDateRange.endDate}
           />
 
-          <div className="flex flex-col gap-2 mt-6 w-full max-w-lg mx-auto">
-            <DateFilterPage
-              setStartDate={setStartDate}
-              setEndDate={setEndDate}
-            />
+          <div className="max-w-3xl mx-auto mt-4">
+            <h3 className="text-lg font-semibold text-gray-700 mb-3">Filter by:</h3>
           </div>
 
-          {/* showing the error message */}
+          <div className="max-w-3xl mx-auto flex items-left gap-8 mt-2 justify-start">
+            <div className="form-check form-check-inline">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                onChange={(e) =>
+                  e.target.checked ? setFilterMode("quarter") : setFilterMode("dateRange")
+                }
+                checked={filterMode === "quarter"}
+                id="quarterCheck"
+              />
+              <label className="form-check-label px-2 font-medium" htmlFor="quarterCheck">
+                Quarter
+              </label>
+            </div>
+
+            <div className="form-check form-check-inline">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                onChange={(e) =>
+                  e.target.checked ? setFilterMode("dateRange") : setFilterMode("quarter")
+                }
+                checked={filterMode === "dateRange"}
+                id="dateRangeCheck"
+              />
+              <label className="form-check-label px-2 font-medium" htmlFor="dateRangeCheck">
+                Date Range
+              </label>
+            </div>
+          </div>
+
+          {filterMode === "quarter" && (
+            <div className="max-w-3xl mx-auto">
+              <QuarterFilter value={quarter} onChange={setQuarter} />
+            </div>
+          )}
+
+          {filterMode === "dateRange" && (
+            <div className="flex flex-col gap-2 mt-6 w-full max-w-lg mx-auto">
+              <DateFilterPage setStartDate={setStartDate} setEndDate={setEndDate} />
+            </div>
+          )}
+
           {validationError && (
             <div className="text-red-500 text-center">{validationError}</div>
           )}
 
           <div className="flex flex-col gap-4 mt-6 w-full max-w-sm mx-auto">
-            {/*updated to navigate to selected advocate */}
             <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
               <h2 className="text-xl font-semibold mb-4 text-gray-700">Find</h2>
 
               <button
                 type="button"
-                onClick={handleFind} // this will validate and open the preview
+                onClick={handleFind}
                 className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-md transition-colors"
               >
                 Find
@@ -226,14 +294,14 @@ export default function AdvocatesReportPage() {
           childrenDownloadButton={<DynamicDownloadButton />}
         >
           <div ref={contentRef}>
-            <h2 className="text-xl font-semibold mb-2">
-              Advocates Report Preview
-            </h2>
+            <h2 className="text-xl font-semibold mb-2">Advocates Report Preview</h2>
 
             <AdvocatesTableFull
               onDataLoaded={setReportData}
               active={activeCheck}
               inactive={inactiveCheck}
+              startDate={effectiveDateRange.startDate}
+              endDate={effectiveDateRange.endDate}
             />
           </div>
         </ReportPreviewAdvocates>
