@@ -166,6 +166,9 @@ export default function ClientsList({ initialClients, totalCount }) {
       setClients(prevClients => 
         prevClients.filter(c => c.client_id !== client.client_id)
       );
+      // Remove client from client lists immediately
+      setYouthClients(prev => prev.filter(c => c.client_id !== client.client_id));
+      setAdultClients(prev => prev.filter(c => c.client_id !== client.client_id));
 
       // Refresh total counts after deletion
       fetchTotalCounts();
@@ -725,7 +728,7 @@ export default function ClientsList({ initialClients, totalCount }) {
                           color: 'white',
                           border: 'none',
                           borderRadius: '6px',
-                          cursor: 'not-allowed',
+                          cursor: 'pointer',
                           fontSize: '12px',
                           fontWeight: '500',
                           opacity:
