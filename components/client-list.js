@@ -9,6 +9,7 @@ export default function ClientsList({ initialClients, totalCount }) {
   const [search, setSearch] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [deletingClientId, setDeletingClientId] = useState(null);
+  const [editingClientId, setEditingClientId] = useState(null);
   
     // New state for total counts from database
   const [totalYouthClients, setTotalYouthClients] = useState(0);
@@ -76,8 +77,10 @@ export default function ClientsList({ initialClients, totalCount }) {
 
   // Handle edit button click
   const handleEdit = (client) => {
-    const clientType = getClientTypeLabel(client);
-    
+  setEditingClientId(client.client_id);
+  const clientType = getClientTypeLabel(client);
+
+  setTimeout(() => {
     if (clientType === "Youth") {
       // Redirect Youth clients to youth-clients form for editing
       router.push(`/youth-clients/${client.client_id}`);
@@ -85,7 +88,8 @@ export default function ClientsList({ initialClients, totalCount }) {
       // Redirect Adult clients to full-intake form for editing
       router.push(`/clients/${client.client_id}`);
     }
-  };
+  }, 50);
+};
 
   // Handle delete button click
   const handleDelete = async (client) => {
@@ -491,52 +495,48 @@ export default function ClientsList({ initialClients, totalCount }) {
                     }}>
                       <button
                         onClick={() => handleEdit(client)}
+                        disabled={editingClientId !== null || deletingClientId !== null}
                         style={{
                           padding: '6px 12px',
                           backgroundColor: '#3b82f6',
                           color: 'white',
                           border: 'none',
                           borderRadius: '6px',
-                          cursor: 'pointer',
+                          cursor: editingClientId ? 'not-allowed' : 'pointer',
                           fontSize: '12px',
-                          fontWeight: '500'
-                        }}
-                        onMouseOver={(e) => {
-                          e.target.style.backgroundColor = '#2563eb';
-                        }}
-                        onMouseOut={(e) => {
-                          e.target.style.backgroundColor = '#3b82f6';
+                          fontWeight: '500',
+                          opacity: editingClientId && editingClientId !== client.client_id ? 0.6 : 1
                         }}
                       >
-                        Edit
+                        {editingClientId === client.client_id ? "Opening..." : "Edit"}
                       </button>
+
                       <button
                         onClick={() => handleDelete(client)}
-                        disabled={deletingClientId === client.client_id}
+                        disabled={
+                          deletingClientId === client.client_id ||
+                          editingClientId !== null
+                        }
                         style={{
                           padding: '6px 12px',
-                          backgroundColor: deletingClientId === client.client_id ? '#9ca3af' : '#dc2626',
+                          backgroundColor:
+                            deletingClientId === client.client_id ? '#9ca3af'
+                            : editingClientId !== null ? '#9ca3af'
+                            : '#dc2626',
                           color: 'white',
                           border: 'none',
                           borderRadius: '6px',
-                          cursor: deletingClientId === client.client_id ? 'not-allowed' : 'pointer',
                           fontSize: '12px',
                           fontWeight: '500',
-                          opacity: deletingClientId === client.client_id ? 0.6 : 1
-                        }}
-                        onMouseOver={(e) => {
-                          if (deletingClientId !== client.client_id) {
-                            e.target.style.backgroundColor = '#b91c1c';
-                          }
-                        }}
-                        onMouseOut={(e) => {
-                          if (deletingClientId !== client.client_id) {
-                            e.target.style.backgroundColor = '#dc2626';
-                          }
+                          opacity:
+                            deletingClientId === client.client_id || editingClientId
+                              ? 0.6
+                              : 1,
                         }}
                       >
-                        {deletingClientId === client.client_id ? 'Deleting...' : 'Delete'}
+                        {deletingClientId === client.client_id ? "Deleting..." : "Delete"}
                       </button>
+
                     </div>
                   </div>
                 </div>
@@ -694,51 +694,47 @@ export default function ClientsList({ initialClients, totalCount }) {
                     }}>
                       <button
                         onClick={() => handleEdit(client)}
+                        disabled={editingClientId !== null || deletingClientId !== null}
                         style={{
                           padding: '6px 12px',
-                          backgroundColor: '#16a34a',
+                          backgroundColor: '#15803d',
                           color: 'white',
                           border: 'none',
                           borderRadius: '6px',
-                          cursor: 'pointer',
-                          fontSize: '12px',
-                          fontWeight: '500'
-                        }}
-                        onMouseOver={(e) => {
-                          e.target.style.backgroundColor = '#15803d';
-                        }}
-                        onMouseOut={(e) => {
-                          e.target.style.backgroundColor = '#16a34a';
-                        }}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(client)}
-                        disabled={deletingClientId === client.client_id}
-                        style={{
-                          padding: '6px 12px',
-                          backgroundColor: deletingClientId === client.client_id ? '#9ca3af' : '#dc2626',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: deletingClientId === client.client_id ? 'not-allowed' : 'pointer',
+                          cursor: editingClientId ? 'not-allowed' : 'pointer',
                           fontSize: '12px',
                           fontWeight: '500',
-                          opacity: deletingClientId === client.client_id ? 0.6 : 1
-                        }}
-                        onMouseOver={(e) => {
-                          if (deletingClientId !== client.client_id) {
-                            e.target.style.backgroundColor = '#b91c1c';
-                          }
-                        }}
-                        onMouseOut={(e) => {
-                          if (deletingClientId !== client.client_id) {
-                            e.target.style.backgroundColor = '#dc2626';
-                          }
+                          opacity: editingClientId && editingClientId !== client.client_id ? 0.6 : 1
                         }}
                       >
-                        {deletingClientId === client.client_id ? 'Deleting...' : 'Delete'}
+                        {editingClientId === client.client_id ? "Opening..." : "Edit"}
+                      </button>
+
+                      <button
+                        onClick={() => handleDelete(client)}
+                        disabled={
+                          deletingClientId === client.client_id ||
+                          editingClientId !== null
+                        }
+                        style={{
+                          padding: '6px 12px',
+                          backgroundColor:
+                            deletingClientId === client.client_id ? '#9ca3af'
+                            : editingClientId !== null ? '#9ca3af'
+                            : '#dc2626',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'not-allowed',
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          opacity:
+                            deletingClientId === client.client_id || editingClientId
+                              ? 0.6
+                              : 1,
+                        }}
+                      >
+                        {deletingClientId === client.client_id ? "Deleting..." : "Delete"}
                       </button>
                     </div>
                   </div>
