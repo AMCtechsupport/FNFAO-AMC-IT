@@ -5,7 +5,7 @@ import supabase from "@/app/lib/supabase";
 import Pagination from "./pages-pagination";
 import { usePagination } from "./pagination-hooks";
 
-export default function AdvocatesTable({ onSelect, active, inactive }) { 
+export default function AdvocatesTable({ onSelect, active, inactive, startDate, endDate }) { 
   const [advocates, setAdvocates] = useState([]);
   const [selectedAdvocate, setSelectedAdvocate] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -59,15 +59,23 @@ export default function AdvocatesTable({ onSelect, active, inactive }) {
           clientsData = [];
         } else {
           // return all clients
-          let clientsQuery = supabase
-            .from("Clients")
-            .select("client_id, clientStatus, createdAt"); 
+            let clientsQuery = supabase
+              .from("Clients")
+              .select("client_id, clientStatus, createdAt"); 
 
-          if (status) {
-            clientsQuery = clientsQuery.eq("clientStatus", status);
-          }
+            if (status) {
+              clientsQuery = clientsQuery.eq("clientStatus", status);
+            }
 
-          const clientsResult = await clientsQuery;
+            // apply date range filters when provided
+            if (startDate) {
+              clientsQuery = clientsQuery.gte('createdAt', startDate);
+            }
+            if (endDate) {
+              clientsQuery = clientsQuery.lte('createdAt', endDate);
+            }
+
+            const clientsResult = await clientsQuery;
           clientsData = clientsResult.data;
           clientsError = clientsResult.error;
         }
@@ -77,9 +85,9 @@ export default function AdvocatesTable({ onSelect, active, inactive }) {
         // create organized set of client ids
         const activeClientIds = new Set((clientsData || []).map((client) => client.client_id));
         
-        // calculate date 4 months ago
-        const fourMonthsAgo = new Date();
-        fourMonthsAgo.setMonth(fourMonthsAgo.getMonth() - 4);
+        // default: calculate date 3 months ago (used when no explicit range provided)
+        const threeMonthsAgo = new Date();
+        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
         // merge data and count clients
         const mergedData = advocatesData.map((advocate) => {
@@ -93,7 +101,17 @@ export default function AdvocatesTable({ onSelect, active, inactive }) {
           const newClientCount = assignedClients.filter((item) => {
             const cl = clientsData.find(c => c.client_id === item.client_id);
             const createdAt = cl?.createdAt ? new Date(cl.createdAt) : null;
-            return createdAt && createdAt >= fourMonthsAgo;
+            if (!createdAt) return false;
+
+            // if explicit date range provided, consider new if created within that range
+            if (startDate || endDate) {
+              const start = startDate ? new Date(startDate) : new Date(0);
+              const end = endDate ? new Date(endDate) : new Date();
+              return createdAt >= start && createdAt <= end;
+            }
+
+            // otherwise fallback to 3 months rule
+            return createdAt >= threeMonthsAgo;
           }).length;
 
           return {
@@ -114,7 +132,7 @@ export default function AdvocatesTable({ onSelect, active, inactive }) {
     };
 
     fetchAdvocates();
-  }, [active, inactive]);
+  }, [active, inactive, startDate, endDate]);
 
   const handleRowClick = (advocate) => {
     setSelectedAdvocate(advocate);
