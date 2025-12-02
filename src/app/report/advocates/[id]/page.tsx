@@ -12,6 +12,22 @@ import DetailedClientsTable from "../../../../../components/report/detailed-clie
 import DownloadDropdown from "../../../../../components/report/download-dropdown";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 
+
+// Format createdAt YYYY-MM-DD 00.00pm
+function formatDateTime(dateString: string) {
+  const d = new Date(dateString);
+
+  const date = d.toISOString().split("T")[0];
+
+  const time = d.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  return `${date} ${time}`;
+}
+
 type Client = {
   client_id: string;
   firstName: string;
