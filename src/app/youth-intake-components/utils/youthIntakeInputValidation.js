@@ -141,14 +141,6 @@ const youthIntakeInputValidation= (values) => {
         errors.caseWorkerPhoneNumber = caseWorkerPhoneNumberError;
     }
 
-    // Treaty Number validation - must be exactly 9 digits
-    if (
-        values.treatyNumber &&
-        !/^\d{9}$/.test(values.treatyNumber)
-    ) {
-        errors.treatyNumber = "Treaty number must be exactly 9 digits";
-    }
-
     return errors;
 }
 export default youthIntakeInputValidation;

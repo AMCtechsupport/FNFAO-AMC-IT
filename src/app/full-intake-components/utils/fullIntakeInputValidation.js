@@ -82,15 +82,7 @@ const fullIntakeInputValidation= (values) => {
     ) {
         errors.ninePersonalHealthNumber = "Must be exactly 9 digits";
     }
-
-    if (
-        values.treatyNumber &&
-        !/^\d{9}$/.test(values.treatyNumber)
-    ) {
-        errors.treatyNumber = "Treaty number must be exactly 9 digits";
-    }
-
-
+    
     // Validation for 6 digits (only if the user enters something)
     if (
         values.sixPersonalHealthNumber &&

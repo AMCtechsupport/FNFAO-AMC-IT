@@ -83,7 +83,7 @@ const PreIntakeAboutYou = ( {values, errors} ) => {
                         type="text"
                         inputMode="numeric"
                         pattern="\d*"
-                        maxLength={9}
+                        maxLength={10}
                         id="treatyNumber"
                         placeholder="123456789"
                         name="treatyNumber"

@@ -151,13 +151,16 @@ const YouthIntakeGeneralInfo = ( { errors } ) => {
                 </Col>
 
                 <Col md={4}>
-                <InputField
-                    name="treatyNumber"
-                    label="Treaty Number:"
-                    placeholder=""
-                    error={errors.treatyNumber}
-                    maxLength={9}
-                />
+                <label>TreatyNumber (9-Digit):</label>
+                    <Field
+                        type="text"
+                        inputMode="numeric"
+                        pattern="\d*"
+                        maxLength={10}
+                        id="treatyNumber"
+                        placeholder="123456789"
+                        name="treatyNumber"
+                    />
                 </Col>
                 <Col md={4}>
                 <Field
