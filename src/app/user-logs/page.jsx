@@ -5,7 +5,7 @@ import supabase from "../lib/supabase";
 import LogTable from "../../../components/user-logs-table";
 import SearchBar from "../../../components/user-logs-search";
 import LogModal from "../../../components/user-logs-modal";
-import LogsPagination from "../../../components/user-logs-pagination";
+import Pagination from "../../../components/report/pages-pagination";
 
 import UserHome from "../user-home/page";
 
@@ -17,6 +17,9 @@ const UserLogs = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [totalLogs, setTotalLogs] = useState(0);
+
+  // Compute total pages for the pagination component
+  const totalPages = totalLogs > 0 ? Math.ceil(totalLogs / itemsPerPage) : 0;
 
   // Handle real-time changes in the Clients table
   const handleRealTimeChange = async (payload) => {
@@ -107,7 +110,8 @@ const UserLogs = () => {
   useEffect(() => {
     const fetchLogs = async () => {
       setLoading(true);
-      let query = supabase.from("User Logs").select("*");
+      // Request exact count from Supabase so pagination can work correctly
+      let query = supabase.from("User Logs").select("*", { count: "exact" });
 
       if (searchQuery) {
         query = query.ilike("client_id", `%${searchQuery}%`);
@@ -125,8 +129,15 @@ const UserLogs = () => {
       if (error) {
         console.error("Error fetching user logs", error);
       } else {
-        setLogs(data);
-        setTotalLogs(count);
+        setLogs(data || []);
+        const total = typeof count === "number" ? count : (data || []).length;
+        setTotalLogs(total);
+
+        // If the current page is now out-of-range (e.g., total decreased), clamp it
+        const totalPages = Math.max(1, Math.ceil(total / itemsPerPage));
+        if (currentPage > totalPages) {
+          setCurrentPage(totalPages);
+        }
       }
       setLoading(false);
     };
@@ -173,10 +184,9 @@ const UserLogs = () => {
         <LogTable logs={logs} loading={loading} onLogClick={setSelectedLog} />
 
         {/* Pagination */}
-        <LogsPagination
+        <Pagination 
           currentPage={currentPage}
-          totalItems={totalLogs}
-          itemsPerPage={itemsPerPage}
+          totalPages={totalPages}
           onPageChange={handlePageChange}
         />
 

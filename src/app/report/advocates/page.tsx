@@ -84,7 +84,7 @@ export default function AdvocatesReportPage() {
 
     // if no advocate selected but date/quarter selected, open preview
     if (selectedDate || selectedQuarter) {
-      setShowPreview(true);
+      setValidationError("Please select an advocate or filter.");
       return;
     }
 
