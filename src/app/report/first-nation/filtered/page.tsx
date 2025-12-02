@@ -14,6 +14,21 @@ import {
 } from "../../../../../components/report/advocates-table-full";
 
 
+// Format createdAt YYYY-MM-DD 00.00pm
+function formatDateTime(dateString) {
+  const d = new Date(dateString);
+
+  const date = d.toISOString().split("T")[0];
+
+  const time = d.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  return `${date} ${time}`;
+}
+
 // Convert Date YYYY-MM-DD
 function formatYYYYMMDD(date: Date): string {
   const year = date.getUTCFullYear();
@@ -29,8 +44,17 @@ function yearsAgo(year: number): Date {
 }
 
 function setClientStatus(status?: string): string {
+  // Return one of the canonical statuses: "Active", "Inactive", or
+  // "Critical Incident Working Group". Preserve exact label when possible.
   if (!status) return "Inactive";
-  return status === "Active" ? "Active" : "Inactive";
+  const s = String(status).trim();
+  if (!s) return "Inactive";
+  const lower = s.toLowerCase();
+  if (lower === "active") return "Active";
+  if (lower === "inactive") return "Inactive";
+  if (lower.includes("critical")) return "Critical Incident Working Group";
+  // Fallback: return the original string (trimmed) to avoid hiding unknown statuses
+  return s;
 }
 
 // Map age group Date of Birth
@@ -238,8 +262,6 @@ export default function ClientFilterPage() {
                 <th className="px-6 py-3 font-medium text-center">First Nation Membership</th>
                 <th className="px-6 py-3 font-medium text-center">Number of Children</th>
                 <th className="px-6 py-3 font-medium text-center">Status</th>
-                <th className="px-6 py-3 font-medium text-center">Date of Inactivity</th>
-                <th className="px-6 py-3 font-medium text-center">Reason for Inactivity</th>
                 <th className="px-6 py-3 font-medium text-center">Date Created</th>
               </tr>
             </thead>
@@ -252,9 +274,9 @@ export default function ClientFilterPage() {
                   <td className="px-6 py-3 border-t text-center">{client.firstNationMembership}</td>
                   <td className="px-6 py-3 border-t text-center">{client.childCount}</td>
                   <td className="px-6 py-3 border-t text-center">{setClientStatus(client.clientStatus)}</td>
-                  <td className="px-6 py-3 border-t text-center">-</td>
-                  <td className="px-6 py-3 border-t text-center">-</td>
-                  <td className="px-6 py-3 border-t text-center">{client.createdAt}</td>
+                  <td className="px-6 py-3 border-t text-center">
+                    {formatDateTime(client.createdAt || "")}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -320,8 +342,6 @@ export default function ClientFilterPage() {
                   <th className="px-6 py-3 font-medium text-center">First Nation Membership</th>
                   <th className="px-6 py-3 font-medium text-center">Number of Children</th>
                   <th className="px-6 py-3 font-medium text-center">Status</th>
-                  <th className="px-6 py-3 font-medium text-center">Date of Inactivity</th>
-                  <th className="px-6 py-3 font-medium text-center">Reason for Inactivity</th>
                   <th className="px-6 py-3 font-medium text-center">Date Created</th>
                 </tr>
               </thead>
@@ -334,9 +354,9 @@ export default function ClientFilterPage() {
                     <td className="px-6 py-3 border-t text-center">{client.firstNationMembership}</td>
                     <td className="px-6 py-3 border-t text-center">{client.childCount}</td>
                     <td className="px-6 py-3 border-t text-center">{setClientStatus(client.clientStatus)}</td>
-                    <td className="px-6 py-3 border-t text-center">-</td>
-                    <td className="px-6 py-3 border-t text-center">-</td>
-                    <td className="px-6 py-3 border-t text-center">{client.createdAt}</td>
+                    <td className="px-6 py-3 border-t text-center">
+                    {formatDateTime(client.createdAt || "")}
+                  </td>
                   </tr>
                 ))}
               </tbody>

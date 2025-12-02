@@ -51,6 +51,7 @@ export default function UnassignClient({ advocateId, clientId, onUnassign }) {
         onChange={(e) => handleStatusChange(e.target.value)}
         className="px-4 py-2 border rounded-md"
       >
+        <option value="Select Status">Select status</option>
         <option value="Active">Active</option>
         <option value="Inactive">Inactive</option>
         <option value="Critical Incident Working Group">
