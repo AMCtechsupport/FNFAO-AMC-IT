@@ -24,6 +24,7 @@ function formatDateTime(dateString: string) {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
+    timeZone: "UTC",
   });
 
   return `${date} ${time}`;
@@ -276,9 +277,6 @@ export default function ClientFilterPage() {
                   <td className="px-6 py-3 border-t text-center">
                     {formatDateTime(client.createdAt || "")}
                   </td>
-                  <td className="px-6 py-3 border-t text-center">
-                    {formatDateTime(client.createdAt || "")}
-                  </td>
                 </tr>
               ))}
             </tbody>
@@ -356,9 +354,6 @@ export default function ClientFilterPage() {
                     <td className="px-6 py-3 border-t text-center">{client.firstNationMembership}</td>
                     <td className="px-6 py-3 border-t text-center">{client.childCount}</td>
                     <td className="px-6 py-3 border-t text-center">{setClientStatus(client.clientStatus)}</td>
-                    <td className="px-6 py-3 border-t text-center">
-                    {formatDateTime(client.createdAt || "")}
-                  </td>
                     <td className="px-6 py-3 border-t text-center">
                     {formatDateTime(client.createdAt || "")}
                   </td>

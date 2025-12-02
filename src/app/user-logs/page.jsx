@@ -146,8 +146,23 @@ const UserLogs = () => {
       )
       .subscribe();
 
+    // Real-time subscription to changes in the "User Logs" table so the UI updates
+    const logsChannel = supabase
+      .channel("user-logs-channel")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "User Logs" },
+        (payload) => {
+          // When User Logs change (INSERT/UPDATE/DELETE), refresh the displayed logs
+          console.log("Change received in User Logs table:", payload);
+          fetchLogs();
+        }
+      )
+      .subscribe();
+
     return () => {
       clientChannel.unsubscribe();
+      logsChannel.unsubscribe();
     };
   }, [searchQuery, currentPage]);
 
