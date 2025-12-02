@@ -3,6 +3,21 @@
 import { useEffect } from "react";
 import useAdvocateData from "../report/use-advocate-data";
 
+// Format createdAt YYYY-MM-DD 00.00pm
+function formatDateTime(dateString) {
+  const d = new Date(dateString);
+
+  const date = d.toISOString().split("T")[0];
+
+  const time = d.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  return `${date} ${time}`;
+}
+
 
 function calculateAge(dob) {
   if (!dob) return "";
@@ -32,7 +47,14 @@ export default function DetailedClientsTable({
   }, [clients, loading, onDataReady]);
 
   const setClientStatus = (status) => {
-    return status === "Active" ? "Active" : "Inactive";
+    if (!status) return "Inactive";
+    const s = String(status).trim();
+    if (!s) return "Inactive";
+    const lower = s.toLowerCase();
+    if (lower === "active") return "Active";
+    if (lower === "inactive") return "Inactive";
+    if (lower.includes("critical")) return "Critical Incident Working Group";
+    return s;
   };
 
   if (loading)
@@ -70,8 +92,6 @@ export default function DetailedClientsTable({
                 <th className="px-6 py-3 font-medium text-center">First Nation Membership</th>
                 <th className="px-6 py-3 font-medium text-center">Number of Children</th>
                 <th className="px-6 py-3 font-medium text-center">Status</th>
-                <th className="px-6 py-3 font-medium text-center">Date of Inactivity</th>
-                <th className="px-6 py-3 font-medium text-center">Reason for Inactivity</th>
                 <th className="px-6 py-3 font-medium text-center">Date Created</th>
               </tr>
           </thead>
@@ -86,15 +106,15 @@ export default function DetailedClientsTable({
               })
               .map((client) => (
                 <tr key={client.client_id} className="text-center">
-                  <td className="px-6 py-3 border-t text-center">{client.firstName} {client.lastName}</td>
-                  <td className="px-6 py-3 border-t text-center">{calculateAge(client.dateOfBirth)}</td>
-                  <td className="px-6 py-3 border-t text-center">{client.cfsAgency}</td>
-                  <td className="px-6 py-3 border-t text-center">{client.firstNationMembership}</td>
-                  <td className="px-6 py-3 border-t text-center">{client.childCount}</td>
-                  <td className="px-6 py-3 border-t text-center">{setClientStatus(client.clientStatus)}</td>
-                  <td className="px-6 py-3 border-t text-center">-</td>
-                  <td className="px-6 py-3 border-t text-center">-</td>
-                  <td className="px-6 py-3 border-t text-center">{client.createdAt}</td>
+                <td className="px-6 py-3 border-t">{client.firstName} {client.lastName}</td>
+                        <td className="px-6 py-3 border-t">{calculateAge(client.dateOfBirth)}</td>
+                        <td className="px-6 py-3 border-t">{client.cfsAgency}</td>
+                        <td className="px-6 py-3 border-t">{client.firstNationMembership}</td>
+                        <td className="px-6 py-3 border-t">{client.childCount}</td>
+                        <td className="px-6 py-3 border-t">{client.clientStatus}</td>
+                        <td className="px-6 py-3 border-t text-center">
+                    {formatDateTime(client.createdAt || "")}
+                  </td>
                 </tr>
               ))}
           </tbody>

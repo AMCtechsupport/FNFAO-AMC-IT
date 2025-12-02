@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import UserHome from "../../user-home/page";
 import FirstNationFilters from "../../../../components/report/first-nation-filters";
@@ -28,16 +28,25 @@ export default function FirstNationsReportPage() {
   const [ageGroup, setAgeGroup] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [quarter, setQuarter] = useState<QuarterSelection>(null); 
+  const [quarter, setQuarter] = useState<QuarterSelection>(null);
   const [validationError, setValidationError] = useState("");
   const [downloadFormat, setDownloadFormat] = useState<"pdf" | "csv" | "json">("pdf");
+  const [filterMode, setFilterMode] = useState<"quarter" | "dateRange">("quarter");
 
   const router = useRouter();
   const [reportData, setReportData] = useState<any[]>([]);
   const contentRef = useRef<HTMLDivElement | null>(null);
 
-  // It will clear date range filter upon quarter selection
-    const handleQuarterChange = (selection: QuarterSelection) => {
+  useEffect(() => {
+    if (filterMode === "quarter") {
+      setStartDate("");
+      setEndDate("");
+    } else {
+      setQuarter(null);
+    }
+  }, [filterMode]);
+
+  const handleQuarterChange = (selection: QuarterSelection) => {
     setQuarter(selection);
     if (selection) {
       setStartDate("");
@@ -46,49 +55,42 @@ export default function FirstNationsReportPage() {
     setValidationError("");
   };
 
-  // It will clear quarter filter upon date range selection
   const handleSetStartDate = (s: string) => {
     setStartDate(s);
-    if (s) 
-    setQuarter(null);
+    if (s) setQuarter(null);
     setValidationError("");
   };
 
   const handleSetEndDate = (e: string) => {
     setEndDate(e);
-    if (e) 
-    setQuarter(null);
+    if (e) setQuarter(null);
     setValidationError("");
   };
 
-  // It handles the Find button click validation
   const handleFind = () => {
     const selectedDate = startDate && endDate;
     const selectedQuarter = quarter !== null;
-    const selectedFilter = community || agency || ageGroup; 
+    const selectedFilter = community || agency || ageGroup;
 
     if (!selectedDate && !selectedFilter && !selectedQuarter) {
       setValidationError("Please select at least one filter to find.");
       return;
     }
 
-    // Sends selected values to next page
     const filterParams = new URLSearchParams();
     if (community) filterParams.set("community", community);
     if (agency) filterParams.set("agency", agency);
     if (ageGroup) filterParams.set("ageGroup", ageGroup);
 
-    // Handle quarter filter
     if (quarter) {
       const { startDate: qStart, endDate: qEnd } = getQuarterDateRange(
         quarter.year,
-        quarter.quarter 
+        quarter.quarter
       );
       filterParams.set("startDate", qStart);
       filterParams.set("endDate", qEnd);
       filterParams.set("quarter", `${quarter.quarter}-${quarter.year}`);
     } else if (startDate && endDate) {
-      // Use manual date range if quarter not selected
       filterParams.set("startDate", startDate);
       filterParams.set("endDate", endDate);
     }
@@ -97,16 +99,14 @@ export default function FirstNationsReportPage() {
 
     setValidationError("");
   };
-  // It handles opening the report preview modal
+
   const handleOpenPreview = () => setShowPreview(true);
 
-  // Handles closing the report preview modal
   const handleClosePreview = () => {
     setShowPreview(false);
     setReportData([]);
   };
 
-  // Handler to set download format and open preview
   const handleDownloadAll = (format: "pdf" | "csv" | "json") => {
     setDownloadFormat(format);
     setShowPreview(true);
@@ -117,11 +117,10 @@ export default function FirstNationsReportPage() {
 
     if (!contentRef.current) return;
 
-    // Get the DOM element and set PDF options
     const element = contentRef.current;
     const options = {
       margin: 0.5,
-      filename: "first_nations_report.pdf", 
+      filename: "first_nations_report.pdf",
       image: { type: "jpeg" as const, quality: 0.98 },
       html2canvas: { scale: 2 },
       jsPDF: {
@@ -131,7 +130,6 @@ export default function FirstNationsReportPage() {
       },
     };
 
-    // Generate and save the PDF
     await html2pdf().set(options).from(element).save();
     handleClosePreview();
   };
@@ -178,9 +176,7 @@ export default function FirstNationsReportPage() {
             Client&apos;s Report
           </h1>
 
-          {/* Filters and actions */}
           <div className="space-y-6 bg-white shadow-md rounded-2xl p-6">
-            {/* Filters */}
             <div className="flex flex-col md:flex-row gap-4 max-w-4xl mx-auto">
               <FirstNationFilters
                 type="Community"
@@ -205,24 +201,71 @@ export default function FirstNationsReportPage() {
               />
             </div>
 
-            {/* Quarter Filter */}
             <div className="max-w-4xl mx-auto">
-              <h3 className="text-lg font-semibold text-gray-700 mb-3">
-                Filter by Quarter
-              </h3>
-              <QuarterFilter value={quarter} onChange={handleQuarterChange} />
+                <h3 className="text-lg font-semibold text-gray-700 mb-3">
+                  Filter by:
+                </h3>
+                </div>
+
+            <div className="max-w-4xl mx-auto flex items-left gap-8 mt-2 justify-start">
+
+              <div className="form-check form-check-inline">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  onChange={(e) =>
+                    e.target.checked ? setFilterMode("quarter") : setFilterMode("dateRange")
+                  }
+                  checked={filterMode === "quarter"}
+                  id="quarterCheck"
+                />
+                <label
+                  className="form-check-label px-2 font-medium text-center"
+                  htmlFor="quarterCheck"
+                >
+                  Quarter
+                </label>
+              </div>
+
+              <div className="form-check form-check-inline">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  onChange={(e) =>
+                    e.target.checked ? setFilterMode("dateRange") : setFilterMode("quarter")
+                  }
+                  checked={filterMode === "dateRange"}
+                  id="dateRangeCheck"
+                />
+                <label
+                  className="form-check-label px-2 font-medium text-center"
+                  htmlFor="dateRangeCheck"
+                >
+                  Date Range
+                </label>
+              </div>
+
             </div>
 
-            {/* Imported Date range filter component */}
-            <div className="max-w-4xl mx-auto">
-              <DateFilterPage setStartDate={handleSetStartDate} setEndDate={handleSetEndDate} />
-            </div>
+            {filterMode === "quarter" && (
+              <div className="max-w-4xl mx-auto">
+              <QuarterFilter value={quarter} onChange={handleQuarterChange} />
+              </div>
+            )}
+
+            {filterMode === "dateRange" && (
+              <div className="max-w-4xl mx-auto">
+                <DateFilterPage
+                  setStartDate={handleSetStartDate}
+                  setEndDate={handleSetEndDate}
+                />
+              </div>
+            )}
 
             {validationError && (
               <div className="text-red-500 text-center">{validationError}</div>
             )}
 
-            {/* Buttons */}
             <div className="flex flex-col gap-3 mt-6 w-full max-w-sm mx-auto">
               <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
                 <h2 className="text-xl font-semibold mb-4 text-gray-700">
@@ -231,12 +274,13 @@ export default function FirstNationsReportPage() {
 
                 <button
                   type="button"
-                  onClick={handleFind} // this will validate and open the preview
+                  onClick={handleFind}
                   className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-md transition-colors"
                 >
                   Find
                 </button>
               </div>
+
               <DownloadDropdown
                 title="Download All"
                 onDownloadSelect={handleDownloadAll}
@@ -247,7 +291,6 @@ export default function FirstNationsReportPage() {
         </section>
       </main>
 
-      {/* Report Preview Modal */}
       {showPreview && (
         <ReportPreview onClose={handleClosePreview} childrenDownloadButton={undefined}>
           <ClientReportPreview />

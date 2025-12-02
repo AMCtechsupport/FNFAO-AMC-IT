@@ -10,7 +10,6 @@ import useAdvocateData from "../../../../../components/report/use-advocate-data"
 import ReportPreviewAdvocates from "../../../../../components/report/report-preview-advocates";
 import DetailedClientsTable from "../../../../../components/report/detailed-clients-table";
 import DownloadDropdown from "../../../../../components/report/download-dropdown";
-import ClientStatus from "../../../../../components/client-status";
 import { useParams, useRouter } from "next/navigation";
 
 
@@ -52,10 +51,9 @@ function calculateAge(dob?: string): number | string {
   if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) age--;
   return age;
 }
-
 export default function AdvocateDetailsPage() {
   const params = useParams<{ id: string }>();
-  const id = params.id;
+  const id = params?.id as string;
   const router = useRouter();
 
   const [reportData, setReportData] = useState<Client[]>([]);
@@ -207,9 +205,7 @@ export default function AdvocateDetailsPage() {
                         <td className="px-6 py-3 border-t">{client.firstNationMembership}</td>
                         <td className="px-6 py-3 border-t">{client.childCount}</td>
                         <td className="px-6 py-3 border-t">{client.clientStatus}</td>
-                        <td className="px-6 py-3 border-t text-center">
-                    {formatDateTime(client.createdAt || "")}
-                  </td>
+                        <td className="px-6 py-3 border-t text-center">{formatDateTime(client.createdAt || "")}</td>
                       </tr>
                     ))}
                 </tbody>
