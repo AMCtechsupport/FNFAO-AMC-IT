@@ -38,16 +38,30 @@ const GeneralInformationPartition = ({
                         disabled={!isEditing} 
                     /> */}
                     <div>
-                        <label>TreatyNumber (9-Digit):</label>
+                        <label>TreatyNumber (10-Digit):</label>
                         <Field
                             type="text"
                             inputMode="numeric"
                             pattern="\d*"
                             maxLength={10}
                             id="treatyNumber"
-                            placeholder="123456789"
+                            placeholder="1234567890"
                             name="treatyNumber"
-                            disabled={!isEditing} 
+                            disabled={!isEditing}
+                            onChange={(e) => {
+                                const digits = String(e.target.value || "").replace(/\D/g, "");
+                                setFieldValue("treatyNumber", digits);
+                            }}
+                            onBlur={(e) => {
+                                const raw = String(e.target.value || "");
+                                const digits = raw.replace(/\D/g, "");
+                                if (digits.length > 0) {
+                                    const digitpad = digits.padStart(10, "0");
+                                    setFieldValue("treatyNumber", digitpad);
+                                } else {
+                                    setFieldValue("treatyNumber", "");
+                                }
+                            }}
                         />
                         <ErrorMessage
                             name="treatyNumber"
