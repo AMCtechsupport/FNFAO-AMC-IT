@@ -38,19 +38,12 @@ const PreIntakeInputValidation=
     } else {
         const birthDate = new Date(values.dateOfBirth);
         const today = new Date();
-        const minYear = today.getFullYear() - 150;
-        const maxYear = today.getFullYear() - 5;
 
         if (isNaN(birthDate.getTime())) {
         errors.dateOfBirth = "Invalid date format";
         } else if (birthDate > today) {
         errors.dateOfBirth = "Date of birth cannot be in the future";
-        } else if (
-        birthDate.getFullYear() < minYear ||
-        birthDate.getFullYear() > maxYear
-        ) {
-        errors.dateOfBirth = `Date of birth must be between ${minYear} and ${maxYear}`;
-        }
+        } 
     }
 
     const phoneNumberError = validatePhoneNumber(values.phoneNumber);
