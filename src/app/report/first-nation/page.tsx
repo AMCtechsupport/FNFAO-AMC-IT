@@ -77,15 +77,9 @@ export default function FirstNationsReportPage() {
       return;
     }
 
-    // Function to include the next day
-    const nextDay = (dateStr: string) => {
-      const [y, m, d] = dateStr.split("-").map(Number);
-      const dt = new Date(y, m - 1, d);
-      dt.setDate(dt.getDate() + 1);
-      const yy = dt.getFullYear();
-      const mm = String(dt.getMonth() + 1).padStart(2, "0");
-      const dd = String(dt.getDate()).padStart(2, "0");
-      return `${yy}-${mm}-${dd}`;
+    // Function to get end of day
+    const endOfDay = (dateStr: string) => {
+      return `${dateStr}T23:59:59.999Z`;
     };
 
     const filterParams = new URLSearchParams();
@@ -99,13 +93,13 @@ export default function FirstNationsReportPage() {
         quarter.quarter
       );
       filterParams.set("startDate", qStart);
-      // It sends endDate as the next day to include the entire qEnd day
-      filterParams.set("endDate", nextDay(qEnd));
+      // It will send endDate as end of day to include the entire qEnd day
+      filterParams.set("endDate", endOfDay(qEnd));
       filterParams.set("quarter", `${quarter.quarter}-${quarter.year}`);
     } else if (startDate && endDate) {
       filterParams.set("startDate", startDate);
-      // It sends endDate as the next day to include the entire endDate day
-      filterParams.set("endDate", nextDay(endDate));
+      // It will send endDate as end of day to include the entire endDate day
+      filterParams.set("endDate", endOfDay(endDate));
     }
 
     router.push(`/report/first-nation/filtered?${filterParams.toString()}`);
