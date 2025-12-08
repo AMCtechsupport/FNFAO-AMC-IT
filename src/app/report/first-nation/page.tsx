@@ -1,3 +1,7 @@
+/*
+This component shows the content of first nations clients report
+after clicking First Nations Report button on the Reports page.
+*/
 "use client";
 
 import { useState, useRef, useEffect } from "react";

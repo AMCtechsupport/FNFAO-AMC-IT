@@ -1,3 +1,7 @@
+/*
+This component shows the content of advocates report 
+after clicking Advocates button on the Reports page. 
+*/
 "use client";
 
 import UserHome from "../../user-home/page";
@@ -188,7 +192,7 @@ export default function AdvocatesReportPage() {
               id="activeCheck"
             />
             <label className="form-check-label px-2 font-medium" htmlFor="activeCheck">
-              Active users
+              Active clients
             </label>
           </div>
 
@@ -201,7 +205,7 @@ export default function AdvocatesReportPage() {
               id="inactiveCheck"
             />
             <label className="form-check-label px-2 font-medium" htmlFor="inactiveCheck">
-              Inactive users
+              Inactive clients
             </label>
           </div>
 

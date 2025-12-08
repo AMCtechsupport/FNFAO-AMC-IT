@@ -1,3 +1,8 @@
+/*
+This component fetches advocate data from Supabase,
+including advocate details, assigned clients, and child counts.
+*/
+
 "use client";
 
 import { useEffect, useState } from "react";

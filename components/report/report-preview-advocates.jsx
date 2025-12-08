@@ -1,3 +1,8 @@
+/*
+This component renders a modal preview for advocate reports,
+including a header, content area, and footer with a download button.
+*/
+
 "use client";
 
 import React from "react";

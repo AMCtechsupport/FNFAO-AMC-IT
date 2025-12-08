@@ -1,3 +1,8 @@
+/*
+This component provides a dropdown menu for downloading reports
+in various formats such as PDF, CSV, and JSON.
+*/
+
 "use client";
 
 import { useState } from "react";

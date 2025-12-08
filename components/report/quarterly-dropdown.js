@@ -1,3 +1,8 @@
+/*
+This component provides dropdowns to select a fiscal quarter and year
+for filtering reports.
+*/
+
 "use client";
 
 import { useState } from "react";

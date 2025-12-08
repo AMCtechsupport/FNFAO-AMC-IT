@@ -1,3 +1,10 @@
+/*
+This component generates a detailed report for a specific client,
+fetching data from multiple related tables in Supabase.
+It displays sections for general information, child information,
+family and friends, case notes, and legal notes.
+*/
+
 "use client";
 
 import React, { useEffect, useState } from "react";

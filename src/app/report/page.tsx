@@ -1,3 +1,8 @@
+/*
+This component shows the Reports page
+after clicking Reports button on the User Home page.
+*/
+
 "use client";
 
 import UserHome from "../user-home/page"

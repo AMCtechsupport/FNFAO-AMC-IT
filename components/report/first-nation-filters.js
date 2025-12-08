@@ -1,3 +1,8 @@
+/*
+This component renders a dropdown filter
+for selecting First Nation memberships.
+*/
+
 "use client";
 
 export default function FirstNationFilters({ type, array, value, onChange, required }) {

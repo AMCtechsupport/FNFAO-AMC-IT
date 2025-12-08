@@ -1,3 +1,8 @@
+/*
+Thiw component fetches unique values from a specified column
+in a given table using Supabase.
+*/
+
 import supabase from "@/app/lib/supabase";
 import { useEffect, useState } from "react";
 

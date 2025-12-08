@@ -1,3 +1,8 @@
+/*
+This component provides a date range filter
+with "From" and "To" date inputs.
+*/
+
 "use client";
 
 import { useState } from "react";
