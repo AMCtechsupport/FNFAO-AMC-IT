@@ -78,13 +78,15 @@ export default function AdvocatesTableFull({ onDataLoaded, active, inactive, sta
           if (status) {
             clientsQuery = clientsQuery.eq("clientStatus", status);
           }
-
-          // apply date range filters when provided
           if (startDate) {
-            clientsQuery = clientsQuery.gte('createdAt', startDate);
+            const [y, m, d] = startDate.split('-');
+            const startISO = new Date(Date.UTC(parseInt(y), parseInt(m) - 1, parseInt(d), 0, 0, 0)).toISOString();
+            clientsQuery = clientsQuery.gte('createdAt', startISO);
           }
           if (endDate) {
-            clientsQuery = clientsQuery.lte('createdAt', endDate);
+            const [y, m, d] = endDate.split('-');
+            const endISO = new Date(Date.UTC(parseInt(y), parseInt(m) - 1, parseInt(d), 23, 59, 59, 999)).toISOString();
+            clientsQuery = clientsQuery.lte('createdAt', endISO);
           }
 
           const clientsResult = await clientsQuery;
@@ -96,9 +98,9 @@ export default function AdvocatesTableFull({ onDataLoaded, active, inactive, sta
 
         const activeClientIds = new Set((clientsData || []).map((client) => client.client_id));
 
-        // default: 4 months timeframe if no explicit range provided
-        const fourMonthsAgo = new Date();
-        fourMonthsAgo.setMonth(fourMonthsAgo.getMonth() - 4);
+        // default: 3 months timeframe if no explicit range provided
+        const threeMonthsAgo = new Date();
+        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
         const mergedData = advocatesData.map((advocate) => {
           const assignedClients = assignmentsData.filter(
@@ -119,7 +121,7 @@ export default function AdvocatesTableFull({ onDataLoaded, active, inactive, sta
               return createdAt >= start && createdAt <= end;
             }
 
-            return createdAt >= fourMonthsAgo;
+            return createdAt >= threeMonthsAgo;
           }).length;
 
           return {
