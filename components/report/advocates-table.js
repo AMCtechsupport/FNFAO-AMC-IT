@@ -178,7 +178,7 @@ export default function AdvocatesTable({ onSelect, active, inactive, startDate, 
           <tbody>
             {/* To show only the selected advocates  for the current page */}
             {currentAdvocates.map((advocate, index) => {
-              const isSelected = selectedAdvocate?.name === advocate.name;
+              const isSelected = selectedAdvocate?.advocate_id === advocate.advocate_id;
               return (
                 <tr
                   key={index}
