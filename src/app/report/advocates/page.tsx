@@ -46,7 +46,8 @@ export default function AdvocatesReportPage() {
   const contentRef = React.useRef(null);
 
   const [quarter, setQuarter] = useState<QuarterSelection>(null);
-  const [filterMode, setFilterMode] = useState<"quarter" | "dateRange">("dateRange");
+  const [filterMode, setFilterMode] =
+    useState<"quarter" | "dateRange">("dateRange");
 
   useEffect(() => {
     if (filterMode === "quarter") {
@@ -57,42 +58,44 @@ export default function AdvocatesReportPage() {
     }
   }, [filterMode]);
 
+  // compute real date range
   const effectiveDateRange = (() => {
-    if (quarter) {
+    if (filterMode === "quarter" && quarter) {
       const { startDate: qStart, endDate: qEnd } = getQuarterDateRange(
         quarter.year,
         quarter.quarter
       );
       return { startDate: qStart, endDate: qEnd };
     }
+
     return { startDate, endDate };
   })();
 
-  // UPDATED: allow navigation even if advocate has 0 clients
+  //Advocate required before clicking Find
   const handleFind = () => {
-    const selectedDate = startDate && endDate;
-    const selectedQuarter = quarter !== null;
-    const selectedAdvocateCheck = !!selectedAdvocate;
-
-    if (!selectedDate && !selectedQuarter && !selectedAdvocateCheck) {
-      setValidationError("Please select an advocate or filter.");
+    if (!selectedAdvocate) {
+      setValidationError("Please select an Advocate");
       return;
     }
 
     setValidationError("");
 
-    if (selectedAdvocate) {
-      router.push(`/report/advocates/${selectedAdvocate.advocate_id}`);
-      return;
+    const params = new URLSearchParams();
+    params.set("active", String(activeCheck));
+    params.set("inactive", String(inactiveCheck));
+
+    // Add date/quarter 
+    if (filterMode === "quarter" && quarter) {
+      params.set("quarterYear", quarter.year);
+      params.set("quarterName", quarter.quarter);
+    } else if (filterMode === "dateRange") {
+      if (startDate) params.set("startDate", startDate);
+      if (endDate) params.set("endDate", endDate);
     }
 
-    // if no advocate selected but date/quarter selected, open preview
-    if (selectedDate || selectedQuarter) {
-      setValidationError("Please select an advocate or filter.");
-      return;
-    }
-
-    setValidationError("Please select an advocate or filter.");
+    router.push(
+      `/report/advocates/${selectedAdvocate.advocate_id}?${params.toString()}`
+    );
   };
 
   const handleClosePreview = () => {
@@ -113,7 +116,7 @@ export default function AdvocatesReportPage() {
     const element = contentRef.current;
     const options = {
       margin: 0.5,
-      filename: "test.pdf",
+      filename: "advocates-report.pdf",
       image: { type: "jpeg" as const, quality: 0.98 },
       html2canvas: { scale: 2 },
       jsPDF: {
@@ -183,6 +186,7 @@ export default function AdvocatesReportPage() {
         </h1>
 
         <div className="bg-white shadow-md w-full max-w-3xl mx-auto rounded-2xl p-6">
+          {/* Active / Inactive Filters */}
           <div className="form-check form-check-inline">
             <input
               className="form-check-input"
@@ -217,48 +221,44 @@ export default function AdvocatesReportPage() {
             endDate={effectiveDateRange.endDate}
           />
 
+          {/* Filter Section */}
           <div className="max-w-3xl mx-auto mt-4">
             <h3 className="text-lg font-semibold text-gray-700 mb-3">Filter by:</h3>
           </div>
 
+          {/* RADIO BUTTONS */}
           <div className="max-w-3xl mx-auto flex items-left gap-8 mt-2 justify-start">
-            <div className="form-check form-check-inline">
+            <label className="form-check-label flex items-center gap-2 font-medium">
               <input
-                className="form-check-input"
-                type="checkbox"
-                onChange={(e) =>
-                  e.target.checked ? setFilterMode("quarter") : setFilterMode("dateRange")
-                }
+                type="radio"
+                name="filterMode"
+                value="quarter"
                 checked={filterMode === "quarter"}
-                id="quarterCheck"
+                onChange={() => setFilterMode("quarter")}
               />
-              <label className="form-check-label px-2 font-medium" htmlFor="quarterCheck">
-                Quarter
-              </label>
-            </div>
+              Quarter
+            </label>
 
-            <div className="form-check form-check-inline">
+            <label className="form-check-label flex items-center gap-2 font-medium">
               <input
-                className="form-check-input"
-                type="checkbox"
-                onChange={(e) =>
-                  e.target.checked ? setFilterMode("dateRange") : setFilterMode("quarter")
-                }
+                type="radio"
+                name="filterMode"
+                value="dateRange"
                 checked={filterMode === "dateRange"}
-                id="dateRangeCheck"
+                onChange={() => setFilterMode("dateRange")}
               />
-              <label className="form-check-label px-2 font-medium" htmlFor="dateRangeCheck">
-                Date Range
-              </label>
-            </div>
+              Date Range
+            </label>
           </div>
 
+          {/* Quarter Filter */}
           {filterMode === "quarter" && (
             <div className="max-w-3xl mx-auto">
               <QuarterFilter value={quarter} onChange={setQuarter} />
             </div>
           )}
 
+          {/* Date Range Filter */}
           {filterMode === "dateRange" && (
             <div className="flex flex-col gap-2 mt-6 w-full max-w-lg mx-auto">
               <DateFilterPage setStartDate={setStartDate} setEndDate={setEndDate} />
@@ -266,7 +266,7 @@ export default function AdvocatesReportPage() {
           )}
 
           {validationError && (
-            <div className="text-red-500 text-center">{validationError}</div>
+            <div className="text-red-500 text-center mt-2">{validationError}</div>
           )}
 
           <div className="flex flex-col gap-4 mt-6 w-full max-w-sm mx-auto">

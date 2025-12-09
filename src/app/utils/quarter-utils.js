@@ -7,10 +7,10 @@ export function getQuarterDateRange(year, quarter) {
   if (!year || !quarter) return { startDate: "", endDate: "" };
 
   const quarterMap = {
-    Q1: { startMonth: 3, endMonth: 5 },
-    Q2: { startMonth: 6, endMonth: 8 },
-    Q3: { startMonth: 9, endMonth: 11 },
-    Q4: { startMonth: 0, endMonth: 2 },
+    Q1: { startMonth: 3, endMonth: 5 },   // Apr-Jun
+    Q2: { startMonth: 6, endMonth: 8 },   // Jul-Sep
+    Q3: { startMonth: 9, endMonth: 11 },  // Oct-Dec
+    Q4: { startMonth: 0, endMonth: 2 },   // Jan-Mar
   };
 
   const { startMonth, endMonth } = quarterMap[quarter];

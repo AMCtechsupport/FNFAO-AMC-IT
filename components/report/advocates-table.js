@@ -71,13 +71,15 @@ export default function AdvocatesTable({ onSelect, active, inactive, startDate, 
             if (status) {
               clientsQuery = clientsQuery.eq("clientStatus", status);
             }
-
-            // apply date range filters when provided
             if (startDate) {
-              clientsQuery = clientsQuery.gte('createdAt', startDate);
+              const [y, m, d] = startDate.split('-');
+              const startISO = new Date(Date.UTC(parseInt(y), parseInt(m) - 1, parseInt(d), 0, 0, 0)).toISOString();
+              clientsQuery = clientsQuery.gte('createdAt', startISO);
             }
             if (endDate) {
-              clientsQuery = clientsQuery.lte('createdAt', endDate);
+              const [y, m, d] = endDate.split('-');
+              const endISO = new Date(Date.UTC(parseInt(y), parseInt(m) - 1, parseInt(d), 23, 59, 59, 999)).toISOString();
+              clientsQuery = clientsQuery.lte('createdAt', endISO);
             }
 
             const clientsResult = await clientsQuery;
