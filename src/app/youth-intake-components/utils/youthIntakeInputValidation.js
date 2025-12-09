@@ -34,19 +34,10 @@ const youthIntakeInputValidation= (values) => {
     } else {
         const birthDate = new Date(values.dateOfBirth);
         const today = new Date();
-        const minDate = new Date(today.getFullYear() - 20, today.getMonth(), today.getDate());
-        const maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
         // Verify that the date of birth is not in the future
         if (birthDate > today) {
         errors.dateOfBirth = "Birth date cannot be in the future";
-        }
-
-        // Age validation - must be between 0 and 20 years old
-        if (birthDate > maxDate) {
-        errors.dateOfBirth = "Birth date cannot be in the future";
-        } else if (birthDate < minDate) {
-        errors.dateOfBirth = "Youth must be between 0 and 20 years old";
         }
 
         // Month validation
@@ -139,14 +130,6 @@ const youthIntakeInputValidation= (values) => {
     );
     if (caseWorkerPhoneNumberError) {
         errors.caseWorkerPhoneNumber = caseWorkerPhoneNumberError;
-    }
-
-    // Treaty Number validation - must be exactly 9 digits
-    if (
-        values.treatyNumber &&
-        !/^\d{9}$/.test(values.treatyNumber)
-    ) {
-        errors.treatyNumber = "Treaty number must be exactly 9 digits";
     }
 
     return errors;

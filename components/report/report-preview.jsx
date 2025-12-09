@@ -1,3 +1,8 @@
+/*
+This component renders a modal preview for reports,
+including a header, content area, and footer with a download button.
+*/
+
 "use client";
 
 // import AdvocatsTableData from "./advocates-table";

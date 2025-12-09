@@ -1,3 +1,8 @@
+/*
+This component shows the content of advocate details report
+after clicking on a specific advocate from the advocates report page.
+*/
+
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";

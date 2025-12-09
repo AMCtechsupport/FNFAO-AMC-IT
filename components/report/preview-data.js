@@ -1,3 +1,9 @@
+/*
+This component fetches advocate data from Supabase,
+and displays it in a table format, showing the number of clients
+assigned to each advocate.
+*/
+
 "use client";
 
 import { useEffect, useState } from "react";

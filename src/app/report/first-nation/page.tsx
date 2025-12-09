@@ -1,3 +1,7 @@
+/*
+This component shows the content of first nations clients report
+after clicking First Nations Report button on the Reports page.
+*/
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -77,6 +81,11 @@ export default function FirstNationsReportPage() {
       return;
     }
 
+    // Function to get end of day
+    const endOfDay = (dateStr: string) => {
+      return `${dateStr}T23:59:59.999Z`;
+    };
+
     const filterParams = new URLSearchParams();
     if (community) filterParams.set("community", community);
     if (agency) filterParams.set("agency", agency);
@@ -88,11 +97,13 @@ export default function FirstNationsReportPage() {
         quarter.quarter
       );
       filterParams.set("startDate", qStart);
-      filterParams.set("endDate", qEnd);
+      // It will send endDate as end of day to include the entire qEnd day
+      filterParams.set("endDate", endOfDay(qEnd));
       filterParams.set("quarter", `${quarter.quarter}-${quarter.year}`);
     } else if (startDate && endDate) {
       filterParams.set("startDate", startDate);
-      filterParams.set("endDate", endDate);
+      // It will send endDate as end of day to include the entire endDate day
+      filterParams.set("endDate", endOfDay(endDate));
     }
 
     router.push(`/report/first-nation/filtered?${filterParams.toString()}`);

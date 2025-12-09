@@ -1,3 +1,9 @@
+/*
+This component displays a report category card,
+with a name, description, and a button
+that navigates to a detailed report page.
+*/
+
 import Link from "next/link"
 import {useState} from "react"
 

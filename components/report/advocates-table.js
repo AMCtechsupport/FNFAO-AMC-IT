@@ -1,3 +1,8 @@
+/*
+This component fetches and displays a paginated table of advocates,
+allowing selection of individual advocates and filtering by status and date range.
+*/
+
 "use client";
 
 import { useEffect, useState } from "react";

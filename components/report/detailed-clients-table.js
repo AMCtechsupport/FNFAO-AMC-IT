@@ -1,3 +1,9 @@
+/*
+This component displays a detailed table of clients
+assigned to a specific advocate, with filtering options
+for active and inactive clients.
+*/
+
 "use client";
 
 import { useEffect } from "react";

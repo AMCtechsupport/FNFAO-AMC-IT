@@ -1,3 +1,7 @@
+/*
+This utility function takes a year and a quarter (Q1, Q2, Q3, Q4) as inputs
+and returns the start and end dates of that quarter in the format YYYY-MM-DD.
+*/
 
 export function getQuarterDateRange(year, quarter) {
   if (!year || !quarter) return { startDate: "", endDate: "" };

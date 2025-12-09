@@ -1,3 +1,8 @@
+/*
+This component fetches and displays a full advocates report table
+with options to download the data in JSON or CSV format.
+*/
+
 "use client";
 
 import { useEffect, useState } from "react";

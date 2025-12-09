@@ -1,13 +1,15 @@
 "use client";
 import React from "react";
 import styles from "../../pre-intake/preIntake.module.css";
-import { Field, ErrorMessage} from "formik";
+import { Field, ErrorMessage, useFormikContext } from "formik";
 import { Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import RelationshipToChildrenSelect from "@/components/RelationshipToChildrenSelect";
 import FirstNationSelect from "@/components/FirstNationSelect";
 
 const PreIntakeAboutYou = ( {values, errors} ) => {
+    const { setFieldValue } = useFormikContext();
+
     return (
         <>
             <Row>
@@ -78,15 +80,29 @@ const PreIntakeAboutYou = ( {values, errors} ) => {
                 </Col>
                 <Col md={4}>
                     <div>
-                    <label>TreatyNumber (9-Digit):</label>
+                    <label>TreatyNumber (10-Digit):</label>
                     <Field
                         type="text"
                         inputMode="numeric"
                         pattern="\d*"
-                        maxLength={9}
+                        maxLength={10}
                         id="treatyNumber"
-                        placeholder="123456789"
+                        placeholder="1234567890"
                         name="treatyNumber"
+                        onChange={(e) => {
+                            const digits = String(e.target.value || "").replace(/\D/g, "");
+                            setFieldValue("treatyNumber", digits);
+                        }}
+                        onBlur={(e) => {
+                            const raw = String(e.target.value || "");
+                            const digits = raw.replace(/\D/g, "");
+                            if (digits.length > 0) {
+                                const padded = digits.padStart(10, "0");
+                                setFieldValue("treatyNumber", padded);
+                            } else {
+                                setFieldValue("treatyNumber", "");
+                            }
+                        }}
                     />
                     <ErrorMessage
                         name="treatyNumber"

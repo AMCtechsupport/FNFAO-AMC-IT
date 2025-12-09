@@ -1,3 +1,7 @@
+/*
+This component fetches and displays data from a specified table
+with optional column selection and filtering.
+*/
 import supabase from "../../src/app/lib/supabase";
 import { useEffect, useState } from "react";
 

@@ -1,3 +1,8 @@
+/*
+This component displays a card for a First Nation,
+with a button that navigates to a detailed page.
+*/
+
 "use client";
 
 import Link from "next/link";

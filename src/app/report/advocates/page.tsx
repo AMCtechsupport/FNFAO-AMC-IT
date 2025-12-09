@@ -1,3 +1,7 @@
+/*
+This component shows the content of advocates report 
+after clicking Advocates button on the Reports page. 
+*/
 "use client";
 
 import UserHome from "../../user-home/page";

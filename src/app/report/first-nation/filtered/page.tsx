@@ -1,3 +1,8 @@
+/*
+This comnponent shows the content of filtered clients report
+after applying filters on the clients report page.
+*/
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 

@@ -1,3 +1,8 @@
+/*
+This component shows the preview of client report
+after clicking on a Download button on the clients report page.
+*/
+
 "use client";
 
 import { useEffect, useState } from "react";
