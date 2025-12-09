@@ -42,7 +42,8 @@ export default function AdvocatesReportPage() {
   const contentRef = React.useRef(null);
 
   const [quarter, setQuarter] = useState<QuarterSelection>(null);
-  const [filterMode, setFilterMode] = useState<"quarter" | "dateRange">("dateRange");
+  const [filterMode, setFilterMode] =
+    useState<"quarter" | "dateRange">("dateRange");
 
   useEffect(() => {
     if (filterMode === "quarter") {
@@ -53,7 +54,7 @@ export default function AdvocatesReportPage() {
     }
   }, [filterMode]);
 
-  // compute real date range based on selected mode
+  // compute real date range
   const effectiveDateRange = (() => {
     if (filterMode === "quarter" && quarter) {
       const { startDate: qStart, endDate: qEnd } = getQuarterDateRange(
@@ -66,36 +67,31 @@ export default function AdvocatesReportPage() {
     return { startDate, endDate };
   })();
 
+  //Advocate required before clicking Find
   const handleFind = () => {
-    const selectedQuarter = filterMode === "quarter" && quarter !== null;
-    const selectedDate = filterMode === "dateRange" && startDate && endDate;
-
-    if (!selectedAdvocate && !selectedQuarter && !selectedDate) {
-      setValidationError("Please select an advocate or filter.");
+    if (!selectedAdvocate) {
+      setValidationError("Please select an Advocate");
       return;
     }
 
     setValidationError("");
 
-    if (selectedAdvocate) {
-      const params = new URLSearchParams();
-      params.set("active", String(activeCheck));
-      params.set("inactive", String(inactiveCheck));
-      
-      // Add date/quarter 
-      if (filterMode === "quarter" && quarter) {
-        params.set("quarterYear", quarter.year);
-        params.set("quarterName", quarter.quarter);
-      } else if (filterMode === "dateRange") {
-        if (startDate) params.set("startDate", startDate);
-        if (endDate) params.set("endDate", endDate);
-      }
-      
-      router.push(`/report/advocates/${selectedAdvocate.advocate_id}?${params.toString()}`);
-      return;
+    const params = new URLSearchParams();
+    params.set("active", String(activeCheck));
+    params.set("inactive", String(inactiveCheck));
+
+    // Add date/quarter 
+    if (filterMode === "quarter" && quarter) {
+      params.set("quarterYear", quarter.year);
+      params.set("quarterName", quarter.quarter);
+    } else if (filterMode === "dateRange") {
+      if (startDate) params.set("startDate", startDate);
+      if (endDate) params.set("endDate", endDate);
     }
 
-    setShowPreview(true);
+    router.push(
+      `/report/advocates/${selectedAdvocate.advocate_id}?${params.toString()}`
+    );
   };
 
   const handleClosePreview = () => {
@@ -266,7 +262,7 @@ export default function AdvocatesReportPage() {
           )}
 
           {validationError && (
-            <div className="text-red-500 text-center">{validationError}</div>
+            <div className="text-red-500 text-center mt-2">{validationError}</div>
           )}
 
           <div className="flex flex-col gap-4 mt-6 w-full max-w-sm mx-auto">
