@@ -19,6 +19,7 @@ import {
   downloadCSV,
   downloadJSON,
 } from "../../../../components/report/advocates-table-full";
+import supabase from "../../lib/supabase";
 
 type QuarterSelection = {
   year: string;
@@ -110,16 +111,20 @@ export default function FirstNationsReportPage() {
 
     setValidationError("");
   };
-
-  const handleOpenPreview = () => setShowPreview(true);
-
   const handleClosePreview = () => {
     setShowPreview(false);
     setReportData([]);
   };
 
-  const handleDownloadAll = (format: "pdf" | "csv" | "json") => {
+  const handleDownloadAll = async (format: "pdf" | "csv" | "json") => {
     setDownloadFormat(format);
+    
+    // Fetching data for CSV and JSON downloads
+    if (format === "csv" || format === "json") {
+      const { data } = await supabase.from("Clients").select("*");
+      setReportData(data || []);
+    }
+    
     setShowPreview(true);
   };
 
@@ -303,8 +308,10 @@ export default function FirstNationsReportPage() {
       </main>
 
       {showPreview && (
-        <ReportPreview onClose={handleClosePreview} childrenDownloadButton={undefined}>
-          <ClientReportPreview />
+        <ReportPreview onClose={handleClosePreview} childrenDownloadButton={<DynamicDownloadButton />}>
+          <div ref={contentRef}>
+            <ClientReportPreview />
+          </div>
         </ReportPreview>
       )}
     </UserHome>
