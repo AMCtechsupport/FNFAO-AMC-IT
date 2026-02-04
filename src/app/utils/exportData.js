@@ -1,4 +1,5 @@
 import supabase from "../lib/supabase";
+import PDFDocument from 'pdfkit';
 
 // Helper function to convert data to CSV format
 function convertToCSV(data, tableName) {
@@ -131,8 +132,8 @@ export async function exportAllData(format = 'json') {
         }
       }
       fileContent = pdfContent;
-      fileName = `supabase-export-${new Date().toISOString().split('T')[0]}.txt`;
-      mimeType = 'text/plain';
+      fileName = `supabase-export-${new Date().toISOString().split('T')[0]}.pdf`;
+      mimeType = 'application/pdf';
     } else {
       // JSON format (default)
       fileContent = JSON.stringify(exportData, null, 2);
@@ -140,8 +141,23 @@ export async function exportAllData(format = 'json') {
       mimeType = 'application/json';
     }
     
-    const blob = new Blob([fileContent], { type: mimeType });
-    const url = URL.createObjectURL(blob);
+    if (format === 'pdf') {
+      const newpdf = new PDFDocument();
+      newpdf.pipe(fs.createWriteStream(`${fileName}`));
+    
+      newpdf.fontSize(14).text(fileContent, {
+        width: 412,
+        align: 'justify',
+        indent: 30,
+        height: 300,
+        ellipsis: true
+      });
+
+      newpdf.end();
+    } else {
+      const blob = new Blob([fileContent], { type: mimeType });
+      const url = URL.createObjectURL(blob);   
+    }
     
     // Create download link
     const link = document.createElement('a');
@@ -208,8 +224,8 @@ export async function exportTable(tableName, format = 'json') {
       mimeType = 'text/csv';
     } else if (format === 'pdf') {
       fileContent = convertToPDF(data || [], tableName);
-      fileName = `${tableName.toLowerCase().replace(/\s+/g, '-')}-export-${new Date().toISOString().split('T')[0]}.txt`;
-      mimeType = 'text/plain';
+      fileName = `${tableName.toLowerCase().replace(/\s+/g, '-')}-export-${new Date().toISOString().split('T')[0]}.pdf`;
+      mimeType = 'application/pdf';
     } else {
       // JSON format (default)
       fileContent = JSON.stringify(exportData, null, 2);
