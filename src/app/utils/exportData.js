@@ -1,5 +1,6 @@
 import supabase from "../lib/supabase";
 import PDFDocument from 'pdfkit';
+import * as fs from 'node:fs';
 
 // Helper function to convert data to CSV format
 function convertToCSV(data, tableName) {
@@ -142,6 +143,9 @@ export async function exportAllData(format = 'json') {
     }
     
     if (format === 'pdf') {
+      // const PDFDocument = require('pdfkit');
+      // const fs = require('fs'); ??? ??? idk
+
       const newpdf = new PDFDocument();
       newpdf.pipe(fs.createWriteStream(`${fileName}`));
     
