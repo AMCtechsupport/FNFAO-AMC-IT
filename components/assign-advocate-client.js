@@ -357,7 +357,7 @@ export default function AssignAdvocate() {
           onClick={handleClearForm}
           className="w-full mt-4 py-3 bg-gray-400 text-black rounded-md hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 p-2"
         >
-          Clear Form
+          Clear Search
         </button>
       </form>
 

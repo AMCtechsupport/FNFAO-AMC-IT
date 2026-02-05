@@ -216,7 +216,7 @@ const DeleteAdvocate = () => {
             onClick={handleClearForm}
             className="flex-1 py-3 px-6 bg-gray-500 text-white rounded-lg border border-gray-500 font-semibold hover:bg-gray-600 hover:border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-all duration-200 shadow-md hover:shadow-lg"
           >
-            Clear Form
+            Clear Search
           </button>
         </div>
       </div>
