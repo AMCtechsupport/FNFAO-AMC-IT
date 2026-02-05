@@ -19,7 +19,7 @@
 
 .form {
   width: 100%; /* Width relative to the container */
-  max-width: 1000px; /* Maximum width for larger screens */
+  max-width: 2000px; /* Maximum width for larger screens */
   margin-top: 50px;
   background: #fff; /* White background to match youth-intake form */
   border-radius: 5px;
@@ -70,7 +70,7 @@
 
 /* Button */
 .submitButton, .customAddButton, .customDeleteButton, .cancelButton {
-  background-color: black;
+  background-color: rgb(0, 0, 0);
   color: white;
   padding: 10px 20px;
   border: none;
@@ -79,6 +79,8 @@
   font-size: 16px;
   width: 100%; /* Button width */
 }
+
+
 
 .submitButton:hover, .customAddButton:hover, .customDeleteButton:hover {
   background-color: #333;

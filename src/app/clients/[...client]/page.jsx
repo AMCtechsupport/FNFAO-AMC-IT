@@ -52,7 +52,7 @@ export default function AdultClientEdit({}) {
 
     return (
         <UserHome>
-            <div className={styles.fullIntakeContainer}>
+            <div className={styles.FullIntakeForm}>
                 <div className={styles.container}>
                     <div style={{
                         marginTop: '50px'

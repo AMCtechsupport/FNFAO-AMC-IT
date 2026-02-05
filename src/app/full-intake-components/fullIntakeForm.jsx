@@ -222,13 +222,13 @@ export default function FullIntakeForm({client_id, userId, getToken, isEditMode 
                                     </div>
                                 </Row>
                                 {/* Action buttons */}
-                                <Row className="mt-3">
+                                <Row className="mt-3 justify-content-end">
                                     {!isEditing ? (
-                                        <Col md={4}> <Button className={styles.cancelButton} onClick={() => setIsEditing(true)}>Edit</Button> </Col>
+                                        <Col md="2" className="d-flex gap-2"> <Button className={styles.cancelButton} onClick={() => setIsEditing(true)}>Edit</Button> </Col>
                                     ) : (
                                         <>
-                                            <Col md={4}><Button className={styles.cancelButton} onClick={() => { resetForm(); setIsEditing(false); setShowNewNoteForm(false) }}>Cancel</Button> </Col>
-                                            <Col md={4}><Button className={styles.submitButton} type="submit">Save</Button> </Col>
+                                            <Col md="2" className="d-flex gap-2"><Button className={styles.cancelButton} onClick={() => { resetForm(); setIsEditing(false); setShowNewNoteForm(false) }}>Cancel</Button> </Col>
+                                            <Col md="2" className="d-flex gap-2"><Button className={styles.submitButton} type="submit">Save</Button> </Col>
                                         </>
                                     )}
                                 </Row>
