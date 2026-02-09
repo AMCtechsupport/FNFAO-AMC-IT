@@ -102,7 +102,7 @@ export default function FullIntakeForm({client_id, userId, getToken, isEditMode 
     }
 
     return(
-        <div className="form-container">
+        <div className={styles.container}>
             <Formik
                 initialValues={fetchFullIntakeValues({
                     originalData,

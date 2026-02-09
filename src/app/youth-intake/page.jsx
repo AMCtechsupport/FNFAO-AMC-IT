@@ -12,7 +12,7 @@ export default function YouthIntake() {
 
   return (
     <UserHome>
-      <div className={styles.fullInr}>
+      <div className={styles.container}>
         <div className={styles.centeredContent}>
           {isEditMode && (
             <div style={{

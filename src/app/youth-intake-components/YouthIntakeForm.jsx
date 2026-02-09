@@ -105,11 +105,9 @@ function YouthIntakeForm({ editClientId, isEditMode }) {
           <YouthIntakeOtherInformation
             values={values}
           />
-          <div className={styles.buttonWrapper}>
-            <button type="submit" className={styles.submitButton}>
-              {isEditMode ? "Update Youth Client" : "Submit Youth Intake"}
-            </button>
-          </div>
+          <button type="submit" className={styles.submitButton}>
+            {isEditMode ? "Update Youth Client" : "Submit Youth Intake"}
+          </button>
           {formSent && (
             <p className={styles.successfulText}>
               {isEditMode ? "Youth client updated successfully" : "Youth Intake sent successfully"}

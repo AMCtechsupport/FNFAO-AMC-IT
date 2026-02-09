@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import UserHome from "../../user-home/page";
-import styles from "./page.module.css";
+import styles from "./page.module.css"; 
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useAuth } from "@clerk/nextjs";
 import supabase from "../../lib/supabase";
@@ -52,24 +52,18 @@ export default function AdultClientEdit({}) {
 
     return (
         <UserHome>
-            <div className={styles.FullIntakeForm}>
+            <div className={styles.from}>
                 <div className={styles.container}>
-                    <div style={{
-                        marginTop: '50px'
-                    }}>
                         <div style={{
-                            backgroundColor: '#f0f9ff',
-                            border: '1px solid #0ea5e9',
+                            backgroundColor: '#dbeafe',
+                            border: '1px solid #3b82f6',
                             borderRadius: '8px',
-                            padding: '20px',
+                            padding: '16px',
                             marginBottom: '24px',
-                            textAlign: 'center',
-                            width: '100%',
-                            maxWidth: '1000px',
-                            boxShadow: 'rgba(0, 0, 0, 0.16) 0px 1px 4px'
+                            textAlign: 'center'
                         }}>
                             <h2 style={{ 
-                                color: '#0c4a6e', 
+                                color: '#1d4ed8', 
                                 margin: '0 0 8px 0',
                                 fontSize: '20px',
                                 fontWeight: 'bold'
@@ -77,24 +71,21 @@ export default function AdultClientEdit({}) {
                                 Editing Adult Client
                             </h2>
                             <p style={{ 
-                                color: '#075985', 
+                                color: '#1e40af', 
                                 margin: 0,
-                                fontSize: '14px'
+                                ontSize: '14px'
                             }}>
                                 You are editing an existing adult client record (Name: {isLoading ? 'Loading...' : clientName})
                             </p>
                         </div>
-                        <div style={{ marginTop: '-50px' }}>
                             <FullIntakeForm
                                 client_id={client_id}
                                 userId={userId}
                                 isEditMode={true}
                                 getToken={getToken}
                             />
-                        </div>
                     </div>
                 </div>
-            </div>
         </UserHome>
     );
 }

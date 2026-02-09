@@ -3,17 +3,13 @@
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.centeredContent {
-  width: 100%;
-  max-width: 1000px;
-}
-
 .container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
+  width: 100%;
 }
 
 .centeredTitle {
@@ -21,9 +17,9 @@
   margin-top: 20px;
 }
 
-.form {
+.form, .form-youth-intake-edit {
   width: 100%; /* Width relative to the container */
-  max-width: 2000px; /* Maximum width for larger screens */
+  max-width: 1000px; /* Maximum width for larger screens */
   margin-top: 50px;
   background: #fff;
   border-radius: 5px;
@@ -90,16 +86,6 @@
   background-color: #333;
 }
 
-.buttonWrapper {
-  display: flex;
-  justify-content: flex-end; /* pushes button to the right */
-  margin-top: 20px;           /* optional spacing from form fields */
-}
-
-.buttonWrapper .submitButton {
-  width: auto;       /* shrink to fit text */
-  min-width: 150px;  /* optional for consistent sizing */
-}
 
 .form select {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
