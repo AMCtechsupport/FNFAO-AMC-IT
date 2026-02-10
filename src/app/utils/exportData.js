@@ -140,8 +140,7 @@ export async function exportAllData(format = 'json') {
       mimeType = 'application/json';
     }
     
-    // Following code by Dominik Kananowicz
-    // saves a pdf export to your computer.
+    // Special handling for pdfs, otherwise regular save
     if (format === 'pdf') {
       saveLongPdf(fileContent, "export.pdf");
     } else {
@@ -223,8 +222,7 @@ export async function exportTable(tableName, format = 'json') {
       mimeType = 'application/json';
     }
     
-    // Following code by Dominik Kananowicz
-    // saves a pdf export to your computer.
+    // Special handling for pdfs, otherwise regular save
     if (format === 'pdf') {
       saveLongPdf(fileContent, `export-${tableName}.pdf`);
     } else {
@@ -376,8 +374,7 @@ export async function exportYouthIntakeData(format = 'json') {
       mimeType = 'application/json';
     }
     
-    // Following code by Dominik Kananowicz
-    // saves a pdf export to your computer.
+    // Special handling for pdfs, otherwise regular save
     if (format === 'pdf') {
       saveLongPdf(fileContent, `export-youth.pdf`);
     } else {
