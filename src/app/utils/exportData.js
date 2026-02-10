@@ -1,6 +1,5 @@
 import supabase from "../lib/supabase";
 import { saveLongPdf } from "../lib/saveLongPdf";
-const { jsPDF } = require("jspdf");
 
 // Helper function to convert data to CSV format
 function convertToCSV(data, tableName) {
@@ -37,10 +36,9 @@ function convertToPDF(data, tableName) {
   const headers = Object.keys(data[0]);
   let pdfContent = `Table: ${tableName}\n`;
   pdfContent += `Generated: ${new Date().toLocaleString()}\n\n`;
-  pdfContent += `Headers: ${headers.join(' | ')}\n`;
-  pdfContent += '-'.repeat(100) + '\n';
 
   data.forEach((row, index) => {
+    pdfContent += '-'.repeat(100) + '\n';
     pdfContent += `Record ${index + 1}:\n`;
     headers.forEach(header => {
       const value = row[header];
@@ -142,7 +140,11 @@ export async function exportAllData(format = 'json') {
       mimeType = 'application/json';
     }
     
-    // Following code by me
+    const blob = new Blob([fileContent], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+
+    // Following code by Dominik Kananowicz
+    // saves a pdf export to your computer.
     if (format === 'pdf') {
       saveLongPdf(fileContent, "export.pdf");
     }
@@ -221,6 +223,12 @@ export async function exportTable(tableName, format = 'json') {
       mimeType = 'application/json';
     }
     
+    // Following code by Dominik Kananowicz
+    // saves a pdf export to your computer.
+    if (format === 'pdf') {
+      saveLongPdf(fileContent, `export-${tableName}.pdf`);
+    }
+
     const blob = new Blob([fileContent], { type: mimeType });
     const url = URL.createObjectURL(blob);
     
@@ -359,8 +367,8 @@ export async function exportYouthIntakeData(format = 'json') {
         }
       }
       fileContent = pdfContent;
-      fileName = `youth-intake-export-${new Date().toISOString().split('T')[0]}.txt`;
-      mimeType = 'text/plain';
+      fileName = `youth-intake-export-${new Date().toISOString().split('T')[0]}.pdf`;
+      mimeType = 'application.pdf';
     } else {
       // JSON format (default)
       fileContent = JSON.stringify(exportData, null, 2);
@@ -368,6 +376,12 @@ export async function exportYouthIntakeData(format = 'json') {
       mimeType = 'application/json';
     }
     
+    // Following code by Dominik Kananowicz
+    // saves a pdf export to your computer.
+    if (format === 'pdf') {
+      saveLongPdf(fileContent, `export-youth.pdf`);
+    }
+
     const blob = new Blob([fileContent], { type: mimeType });
     const url = URL.createObjectURL(blob);
     
