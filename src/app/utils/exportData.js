@@ -368,7 +368,7 @@ export async function exportYouthIntakeData(format = 'json') {
       }
       fileContent = pdfContent;
       fileName = "export-youth.pdf";
-      mimeType = 'application.pdf';
+      mimeType = 'application/pdf';
     } else {
       // JSON format (default)
       fileContent = JSON.stringify(exportData, null, 2);

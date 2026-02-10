@@ -34,6 +34,7 @@ export function saveLongPdf(text, filename) {
         if (cursor < lines.length) doc.addPage();
     }
 
+    // Done by Rushil and Nirbhai, fixes a weird bug with regular .save()
     const blob = doc.output("blob");
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
