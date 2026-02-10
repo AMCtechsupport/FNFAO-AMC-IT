@@ -102,7 +102,6 @@ export default function FullIntakeForm({client_id, userId, getToken, isEditMode 
     }
 
     return(
-        <div className={styles.container}>
             <Formik
                 initialValues={fetchFullIntakeValues({
                     originalData,
@@ -128,115 +127,113 @@ export default function FullIntakeForm({client_id, userId, getToken, isEditMode 
                 )} 
             >
                 {({ values, errors, resetForm, setFieldValue }) => (
-                    <>
-                        <Form className={styles.form}>
-                            <div className={styles.titleContainer}>
-                                {/* <img src="/full-intake logo.png" alt="Logo" className={styles.logo} /> */}
-                                <h2 className={styles.centeredTitle}>FULL-INTAKE FORM</h2>
-                            </div>
-                                <hr className="separator-line" />
-                                    {/* General Info Section */}
-                                    <GeneralInformationHeader
-                                        values={values}
-                                        errors={errors}
-                                        isEditing={isEditing}
-                                    />
-                                <Row>
-                                    {/* Tab Sections */}
-                                    <div className="{styles.tabsContainer}">
-                                        <Tabs >
-                                            <TabList >
-                                                <Tab href="/generalInfo" onClick={() => console.log("Tab 1 clicked!")}>General Information</Tab>
-                                                <Tab href="/cfs" onClick={() => console.log("Tab 2 clicked!")}>CFS</Tab>
-                                                <Tab href="/childrenInfo" onClick={() => console.log("Tab 3 clicked!")}>Children Information</Tab>
-                                                <Tab href="/community" onClick={() => console.log("Tab 4 clicked!")}>Health and Wellness</Tab>
-                                                <Tab href="/caseNotes" onClick={() => console.log("Tab 6 clicked!")}>Case Notes</Tab>
-                                                <Tab href="/legalNotes" onClick={() => console.log("Tab 7 clicked!")}>Legal Notes</Tab>
-                                            </TabList>
-                                            <TabPanel>
-                                                {/* General Information Tab */}
-                                                <GeneralInformationPartition
-                                                    errors={errors}
-                                                    isEditing={isEditMode}
-                                                    values={values}
-                                                    setFieldValue={setFieldValue}
-                                                    validateRadio={validateRadio}
-                                                />
-                                            </TabPanel>
-                                            <TabPanel>
-                                                {/* CFS Tab */}
-                                                <ChildFamilyServicesPartition
-                                                    childrenData={childrenData}
-                                                    isEditing={isEditing}
-                                                    values={values}
-                                                />                              
-                                            </TabPanel>
-                                            <TabPanel>
-                                                {/* Children Information Tab */}
-                                                <ChildrenPartition
-                                                    childrenData={childrenData}
-                                                    values={values}
-                                                    isEditing={isEditing}
-                                                    errors={errors}
-                                                />
-                                            </TabPanel>
-                                            <TabPanel>
-                                                {/* Health and Wellness Tab */}
-                                                <HealthWellnessPartition
-                                                    values={values}
-                                                    isEditing={isEditing}
-                                                    setFieldValue={setFieldValue}
-                                                />   
-                                            </TabPanel>
-                                            <TabPanel>
-                                                {/* Case Notes Tab */}
-                                                <CaseNotesPartition
-                                                    notesData={notesData}
-                                                    selectedNote={selectedNote}
-                                                    handleShowNoteDetails={handleShowNoteDetails}
-                                                    handleCloseNoteDetails={handleCloseNoteDetails}
-                                                    showNewNoteForm={showNewNoteForm}
-                                                    handleAddNoteClick={handleAddNoteClick}
-                                                    values={values}
-                                                    setFieldValue={setFieldValue}
-                                                    isEditing={isEditing}
-                                                    errors={errors}
-                                                />
-                                            </TabPanel>
-                                            <TabPanel>
-                                                {/* Legal Notes Tab */}
-                                                <LegalNotesPartition
-                                                    notesData={notesData}
-                                                    selectedNote={selectedNote}
-                                                    handleShowNoteDetails={handleShowNoteDetails}
-                                                    handleCloseNoteDetails={handleCloseNoteDetails}
-                                                    showNewNoteForm={showNewNoteForm}
-                                                    handleAddNoteClick={handleAddNoteClick}
-                                                    values={values}
-                                                    setFieldValue={setFieldValue}
-                                                    isEditing={isEditing}
-                                                    errors={errors}
-                                                />
-                                            </TabPanel>
-                                        </Tabs>
-                                    </div>
-                                </Row>
-                                {/* Action buttons */}
-                                <Row className="mt-3 justify-content-end">
-                                    {!isEditing ? (
-                                        <Col md="2" className="d-flex gap-2"> <Button className={styles.cancelButton} onClick={() => setIsEditing(true)}>Edit</Button> </Col>
-                                    ) : (
-                                        <>
-                                            <Col md="2" className="d-flex gap-2"><Button className={styles.cancelButton} onClick={() => { resetForm(); setIsEditing(false); setShowNewNoteForm(false) }}>Cancel</Button> </Col>
-                                            <Col md="2" className="d-flex gap-2"><Button className={styles.submitButton} type="submit">Save</Button> </Col>
-                                        </>
-                                    )}
-                                </Row>
-                                {formSent && <div className={styles.successfulText}>Form saved successfully!</div>}
-                        </Form>
-                    </>
+                
+                    <Form className={styles.form}>
+                        <div className={styles.titleContainer}>
+                            {/* <img src="/full-intake logo.png" alt="Logo" className={styles.logo} /> */}
+                            <h2 className={styles.centeredTitle}>FULL-INTAKE FORM</h2>
+                        </div>
+                            <hr className="separator-line" />
+                                {/* General Info Section */}
+                                <GeneralInformationHeader
+                                    values={values}
+                                    errors={errors}
+                                    isEditing={isEditing}
+                                />
+                            <Row>
+                                {/* Tab Sections */}
+                                <div className={styles.tabsContainer}>
+                                    <Tabs >
+                                        <TabList >
+                                            <Tab href="/generalInfo" onClick={() => console.log("Tab 1 clicked!")}>General Information</Tab>
+                                            <Tab href="/cfs" onClick={() => console.log("Tab 2 clicked!")}>CFS</Tab>
+                                            <Tab href="/childrenInfo" onClick={() => console.log("Tab 3 clicked!")}>Children Information</Tab>
+                                            <Tab href="/community" onClick={() => console.log("Tab 4 clicked!")}>Health and Wellness</Tab>
+                                            <Tab href="/caseNotes" onClick={() => console.log("Tab 6 clicked!")}>Case Notes</Tab>
+                                            <Tab href="/legalNotes" onClick={() => console.log("Tab 7 clicked!")}>Legal Notes</Tab>
+                                        </TabList>
+                                        <TabPanel>
+                                            {/* General Information Tab */}
+                                            <GeneralInformationPartition
+                                                errors={errors}
+                                                isEditing={isEditMode}
+                                                values={values}
+                                                setFieldValue={setFieldValue}
+                                                validateRadio={validateRadio}
+                                            />
+                                        </TabPanel>
+                                        <TabPanel>
+                                            {/* CFS Tab */}
+                                            <ChildFamilyServicesPartition
+                                                childrenData={childrenData}
+                                                isEditing={isEditing}
+                                                values={values}
+                                            />                              
+                                        </TabPanel>
+                                        <TabPanel>
+                                            {/* Children Information Tab */}
+                                            <ChildrenPartition
+                                                childrenData={childrenData}
+                                                values={values} 
+                                                isEditing={isEditing}
+                                                errors={errors}
+                                            />
+                                        </TabPanel>
+                                        <TabPanel>
+                                            {/* Health and Wellness Tab */}
+                                            <HealthWellnessPartition
+                                                values={values}
+                                                isEditing={isEditing}
+                                                setFieldValue={setFieldValue}
+                                            />   
+                                        </TabPanel>
+                                        <TabPanel>
+                                            {/* Case Notes Tab */}
+                                            <CaseNotesPartition
+                                                notesData={notesData}
+                                                selectedNote={selectedNote}
+                                                handleShowNoteDetails={handleShowNoteDetails}
+                                                handleCloseNoteDetails={handleCloseNoteDetails}
+                                                showNewNoteForm={showNewNoteForm}
+                                                handleAddNoteClick={handleAddNoteClick}
+                                                values={values}
+                                                setFieldValue={setFieldValue}
+                                                isEditing={isEditing}
+                                                errors={errors}
+                                            />
+                                        </TabPanel>
+                                        <TabPanel>
+                                            {/* Legal Notes Tab */}
+                                            <LegalNotesPartition
+                                                notesData={notesData}
+                                                selectedNote={selectedNote}
+                                                handleShowNoteDetails={handleShowNoteDetails}
+                                                handleCloseNoteDetails={handleCloseNoteDetails}
+                                                showNewNoteForm={showNewNoteForm}
+                                                handleAddNoteClick={handleAddNoteClick}
+                                                values={values}
+                                                setFieldValue={setFieldValue}
+                                                isEditing={isEditing}
+                                                errors={errors}
+                                            />
+                                        </TabPanel>
+                                    </Tabs>
+                                </div>
+                            </Row>
+                            {/* Action buttons */}
+                            <Row className="mt-3 justify-content-end">
+                                {!isEditing ? (
+                                    <Col md="2" className="d-flex gap-2"> <Button className={styles.cancelButton} onClick={() => setIsEditing(true)}>Edit</Button> </Col>
+                                ) : (
+                                    <>
+                                        <Col md="2" className="d-flex gap-2"><Button className={styles.cancelButton} onClick={() => { resetForm(); setIsEditing(false); setShowNewNoteForm(false) }}>Cancel</Button> </Col>
+                                        <Col md="2" className="d-flex gap-2"><Button className={styles.submitButton} type="submit">Save</Button> </Col>
+                                    </>
+                                )}
+                            </Row>
+                            {formSent && <div className={styles.successfulText}>Form saved successfully!</div>}
+                    </Form>
                 )}
             </Formik>
-        </div>
     );
 }

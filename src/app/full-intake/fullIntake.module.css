@@ -23,7 +23,7 @@
 .form {
   width: 100%; /* Width relative to the container */
   max-width: 2000px; /* Maximum width for larger screens */
-  margin-top: 50px;
+  margin-top: 20px;
   background: #fff; /* White background to match youth-intake form */
   border-radius: 5px;
   padding: 20px;

@@ -53,7 +53,6 @@ export default function YouthClientEdit({}) {
 
     return (
         <UserHome>
-            <div className={styles.from}>
                 <div className={styles.container}>
                     <div style={{
                         backgroundColor: '#dbeafe',
@@ -74,7 +73,7 @@ export default function YouthClientEdit({}) {
                         <p style={{ 
                             color: '#1e40af', 
                             margin: 0,
-                            fontSize: '14px'
+                            fontSize: '16px'
                         }}>
                             You are editing an existing youth client record (Name: {isLoading ? 'Loading...' : clientName})
                         </p>
@@ -85,7 +84,6 @@ export default function YouthClientEdit({}) {
                         getToken={getToken}
                     />
                 </div>
-            </div>
         </UserHome>
     );
 } 

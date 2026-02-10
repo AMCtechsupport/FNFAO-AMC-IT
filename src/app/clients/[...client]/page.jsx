@@ -52,7 +52,6 @@ export default function AdultClientEdit({}) {
 
     return (
         <UserHome>
-            <div className={styles.from}>
                 <div className={styles.container}>
                         <div style={{
                             backgroundColor: '#dbeafe',
@@ -85,7 +84,6 @@ export default function AdultClientEdit({}) {
                                 getToken={getToken}
                             />
                     </div>
-                </div>
         </UserHome>
     );
 }
