@@ -78,12 +78,6 @@
   cursor: pointer;
   font-size: 16px;
   width: 100%; /* Button width */
-
-   /* positioning changes: */
-  position: relative; /* Positions the button relative to the form */
-  right: 0;
-  bottom: 0;          /* Aligns to the bottom edge */          /* Aligns to the right edge */
-  width: auto;        /* Resets width from 100% to auto so padding doesn't push it out */
 }
 
 .submitButton:hover,
