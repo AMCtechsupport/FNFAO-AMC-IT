@@ -1,6 +1,6 @@
 import supabase from "../lib/supabase";
-import PDFDocument from 'pdfkit';
-import * as fs from 'node:fs';
+import { saveLongPdf } from "../lib/saveLongPdf";
+const { jsPDF } = require("jspdf");
 
 // Helper function to convert data to CSV format
 function convertToCSV(data, tableName) {
@@ -142,25 +142,9 @@ export async function exportAllData(format = 'json') {
       mimeType = 'application/json';
     }
     
+    // Following code by me
     if (format === 'pdf') {
-      // const PDFDocument = require('pdfkit');
-      // const fs = require('fs'); ??? ??? idk
-
-      const newpdf = new PDFDocument();
-      newpdf.pipe(fs.createWriteStream(`${fileName}`));
-    
-      newpdf.fontSize(14).text(fileContent, {
-        width: 412,
-        align: 'justify',
-        indent: 30,
-        height: 300,
-        ellipsis: true
-      });
-
-      newpdf.end();
-    } else {
-      const blob = new Blob([fileContent], { type: mimeType });
-      const url = URL.createObjectURL(blob);   
+      saveLongPdf(fileContent, "export.pdf");
     }
     
     // Create download link
