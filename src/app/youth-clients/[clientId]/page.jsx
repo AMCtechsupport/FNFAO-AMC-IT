@@ -6,17 +6,26 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useAuth } from "@clerk/nextjs";
 import supabase from "../../lib/supabase";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import YouthIntakeForm from "../../youth-intake-components/YouthIntakeForm";
 
 export default function YouthClientEdit({}) {
-  const params = useParams(); // e.g., { clientId: '301' }
+  const params = useParams();
+  const router = useRouter();
   const client_id = params?.clientId || "61";
 
   const [clientName, setClientName] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   const { getToken } = useAuth();
+
+  const handleClose = () => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push("/user-dashboard");
+    }
+  };
 
   useEffect(() => {
     const fetchClientName = async () => {
@@ -51,6 +60,24 @@ export default function YouthClientEdit({}) {
     <UserHome>
       <div className={styles.fullIntakeContainer}>
         <div className={styles.container}>
+          {/* Close button: top-left */}
+          <div style={{ marginTop: "30px", marginBottom: "10px" }}>
+            <button
+              onClick={handleClose}
+              style={{
+                backgroundColor: "#070707",
+                color: "white",
+                padding: "8px 16px",
+                borderRadius: "6px",
+                border: "none",
+                fontWeight: "500",
+                cursor: "pointer",
+              }}
+            >
+              Close
+            </button>
+          </div>
+
           <div
             style={{
               backgroundColor: "#dbeafe",
@@ -61,11 +88,19 @@ export default function YouthClientEdit({}) {
               textAlign: "center",
             }}
           >
-            <h2 style={{ color: "#1d4ed8", margin: "0 0 8px 0", fontSize: "20px", fontWeight: "bold" }}>
+            <h2
+              style={{
+                color: "#1d4ed8",
+                margin: "0 0 8px 0",
+                fontSize: "20px",
+                fontWeight: "bold",
+              }}
+            >
               Editing Youth Client
             </h2>
             <p style={{ color: "#1e40af", margin: 0, fontSize: "14px" }}>
-              You are editing an existing youth client record (Name: {isLoading ? "Loading..." : clientName})
+              You are editing an existing youth client record (Name:{" "}
+              {isLoading ? "Loading..." : clientName})
             </p>
           </div>
 

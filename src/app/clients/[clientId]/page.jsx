@@ -7,17 +7,26 @@ import { useAuth } from "@clerk/nextjs";
 import supabase from "../../lib/supabase";
 
 import "react-tabs/style/react-tabs.css";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import FullIntakeForm from "../../full-intake-components/fullIntakeForm";
 
 export default function AdultClientEdit({}) {
-  const params = useParams(); // e.g., { clientId: '190' }
+  const params = useParams();
+  const router = useRouter();
   const client_id = params?.clientId || "61";
 
   const [clientName, setClientName] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   const { userId, getToken } = useAuth();
+
+  const handleClose = () => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push("/user-dashboard");
+    }
+  };
 
   useEffect(() => {
     const fetchClientName = async () => {
@@ -52,7 +61,25 @@ export default function AdultClientEdit({}) {
     <UserHome>
       <div className={styles.fullIntakeContainer}>
         <div className={styles.container}>
-          <div style={{ marginTop: "50px" }}>
+          {/* Close button: top-left */}
+          <div style={{ marginTop: "30px", marginBottom: "10px" }}>
+            <button
+              onClick={handleClose}
+              style={{
+                backgroundColor: "#070707",
+                color: "white",
+                padding: "8px 16px",
+                borderRadius: "6px",
+                border: "none",
+                fontWeight: "500",
+                cursor: "pointer",
+              }}
+            >
+              Close
+            </button>
+          </div>
+
+          <div style={{ marginTop: "20px" }}>
             <div
               style={{
                 backgroundColor: "#f0f9ff",
@@ -66,16 +93,29 @@ export default function AdultClientEdit({}) {
                 boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
               }}
             >
-              <h2 style={{ color: "#0c4a6e", margin: "0 0 8px 0", fontSize: "20px", fontWeight: "bold" }}>
+              <h2
+                style={{
+                  color: "#0c4a6e",
+                  margin: "0 0 8px 0",
+                  fontSize: "20px",
+                  fontWeight: "bold",
+                }}
+              >
                 Editing Adult Client
               </h2>
               <p style={{ color: "#075985", margin: 0, fontSize: "14px" }}>
-                You are editing an existing adult client record (Name: {isLoading ? "Loading..." : clientName})
+                You are editing an existing adult client record (Name:{" "}
+                {isLoading ? "Loading..." : clientName})
               </p>
             </div>
 
             <div style={{ marginTop: "-50px" }}>
-              <FullIntakeForm client_id={client_id} userId={userId} isEditMode={true} getToken={getToken} />
+              <FullIntakeForm
+                client_id={client_id}
+                userId={userId}
+                isEditMode={true}
+                getToken={getToken}
+              />
             </div>
           </div>
         </div>
