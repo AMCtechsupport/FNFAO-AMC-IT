@@ -17,7 +17,7 @@
   margin-top: 20px;
 }
 
-.form, .form-youth-intake-edit {
+.form {
   width: 100%; /* Width relative to the container */
   max-width: 1000px; /* Maximum width for larger screens */
   margin-top: 20px;
