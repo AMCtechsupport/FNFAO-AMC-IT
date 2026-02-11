@@ -75,18 +75,18 @@ export default function ClientsList({ initialClients, totalCount }) {
     }
   };
 
-  // Handle edit button click
-  const handleEdit = (client) => {
+  // Handle view button click
+  const handleView = (client) => {
   setEditingClientId(client.client_id);
   const clientType = getClientTypeLabel(client);
 
   setTimeout(() => {
     if (clientType === "Youth") {
-      // Redirect Youth clients to youth-clients form for editing
-      router.push(`/youth-clients/${client.client_id}`);
+      // Redirect Youth clients to youth-clients form for viewing
+      router.push(`/youth-clients/${client.client_id}/view`);
     } else {
-      // Redirect Adult clients to full-intake form for editing
-      router.push(`/clients/${client.client_id}`);
+      // Redirect Adult clients to full-intake form for viewing
+      router.push(`/clients/${client.client_id}/view`);
     }
   }, 50);
 };
@@ -497,7 +497,7 @@ export default function ClientsList({ initialClients, totalCount }) {
                       transition: 'opacity 0.2s ease-in-out, visibility 0.2s ease-in-out'
                     }}>
                       <button
-                        onClick={() => handleEdit(client)}
+                        onClick={() => handleView(client)}
                         disabled={editingClientId !== null || deletingClientId !== null}
                         style={{
                           padding: '6px 12px',
@@ -511,7 +511,7 @@ export default function ClientsList({ initialClients, totalCount }) {
                           opacity: editingClientId && editingClientId !== client.client_id ? 0.6 : 1
                         }}
                       >
-                        {editingClientId === client.client_id ? "Opening..." : "Edit"}
+                        {editingClientId === client.client_id ? "Opening..." : "View"}
                       </button>
 
                       <button
@@ -696,7 +696,7 @@ export default function ClientsList({ initialClients, totalCount }) {
                       transition: 'opacity 0.2s ease-in-out, visibility 0.2s ease-in-out'
                     }}>
                       <button
-                        onClick={() => handleEdit(client)}
+                        onClick={() => handleView(client)}
                         disabled={editingClientId !== null || deletingClientId !== null}
                         style={{
                           padding: '6px 12px',
@@ -710,7 +710,7 @@ export default function ClientsList({ initialClients, totalCount }) {
                           opacity: editingClientId && editingClientId !== client.client_id ? 0.6 : 1
                         }}
                       >
-                        {editingClientId === client.client_id ? "Opening..." : "Edit"}
+                        {editingClientId === client.client_id ? "Opening..." : "View"}
                       </button>
 
                       <button
