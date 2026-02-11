@@ -1,4 +1,5 @@
 import supabase from "../lib/supabase";
+import { saveLongPdf } from "../lib/saveLongPdf";
 
 // Helper function to convert data to CSV format
 function convertToCSV(data, tableName) {
@@ -35,10 +36,9 @@ function convertToPDF(data, tableName) {
   const headers = Object.keys(data[0]);
   let pdfContent = `Table: ${tableName}\n`;
   pdfContent += `Generated: ${new Date().toLocaleString()}\n\n`;
-  pdfContent += `Headers: ${headers.join(' | ')}\n`;
-  pdfContent += '-'.repeat(100) + '\n';
 
   data.forEach((row, index) => {
+    pdfContent += '-'.repeat(100) + '\n';
     pdfContent += `Record ${index + 1}:\n`;
     headers.forEach(header => {
       const value = row[header];
@@ -131,8 +131,8 @@ export async function exportAllData(format = 'json') {
         }
       }
       fileContent = pdfContent;
-      fileName = `supabase-export-${new Date().toISOString().split('T')[0]}.txt`;
-      mimeType = 'text/plain';
+      fileName = "export.pdf";
+      mimeType = 'application/pdf';
     } else {
       // JSON format (default)
       fileContent = JSON.stringify(exportData, null, 2);
@@ -140,19 +140,24 @@ export async function exportAllData(format = 'json') {
       mimeType = 'application/json';
     }
     
-    const blob = new Blob([fileContent], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    
-    // Create download link
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    // Clean up
-    URL.revokeObjectURL(url);
+    // Special handling for pdfs, otherwise regular save
+    if (format === 'pdf') {
+      saveLongPdf(fileContent, "export.pdf");
+    } else {
+      const blob = new Blob([fileContent], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+
+      // Create download link
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Clean up
+      URL.revokeObjectURL(url);
+    }
     
     console.log(`🎉 Data export completed successfully in ${format.toUpperCase()} format!`);
     console.log("📁 File downloaded:", fileName);
@@ -208,8 +213,8 @@ export async function exportTable(tableName, format = 'json') {
       mimeType = 'text/csv';
     } else if (format === 'pdf') {
       fileContent = convertToPDF(data || [], tableName);
-      fileName = `${tableName.toLowerCase().replace(/\s+/g, '-')}-export-${new Date().toISOString().split('T')[0]}.txt`;
-      mimeType = 'text/plain';
+      fileName = `export-${tableName}.pdf`;
+      mimeType = 'application/pdf';
     } else {
       // JSON format (default)
       fileContent = JSON.stringify(exportData, null, 2);
@@ -217,19 +222,24 @@ export async function exportTable(tableName, format = 'json') {
       mimeType = 'application/json';
     }
     
-    const blob = new Blob([fileContent], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    
-    // Create download link
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    // Clean up
-    URL.revokeObjectURL(url);
+    // Special handling for pdfs, otherwise regular save
+    if (format === 'pdf') {
+      saveLongPdf(fileContent, `export-${tableName}.pdf`);
+    } else {
+      const blob = new Blob([fileContent], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      
+      // Create download link
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up
+      URL.revokeObjectURL(url);
+    }
     
     console.log(`✅ Successfully exported ${tableName}: ${data?.length || 0} records in ${format.toUpperCase()} format`);
     
@@ -355,8 +365,8 @@ export async function exportYouthIntakeData(format = 'json') {
         }
       }
       fileContent = pdfContent;
-      fileName = `youth-intake-export-${new Date().toISOString().split('T')[0]}.txt`;
-      mimeType = 'text/plain';
+      fileName = "export-youth.pdf";
+      mimeType = 'application/pdf';
     } else {
       // JSON format (default)
       fileContent = JSON.stringify(exportData, null, 2);
@@ -364,19 +374,24 @@ export async function exportYouthIntakeData(format = 'json') {
       mimeType = 'application/json';
     }
     
-    const blob = new Blob([fileContent], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    
-    // Create download link
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    // Clean up
-    URL.revokeObjectURL(url);
+    // Special handling for pdfs, otherwise regular save
+    if (format === 'pdf') {
+      saveLongPdf(fileContent, `export-youth.pdf`);
+    } else {
+      const blob = new Blob([fileContent], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      
+      // Create download link
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up
+      URL.revokeObjectURL(url);
+    }
     
     console.log(`🎉 Youth Intake export completed successfully in ${format.toUpperCase()} format!`);
     
