@@ -6,7 +6,7 @@
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
   background-color: white;
   padding: 30px;
@@ -22,8 +22,8 @@
 .form {
   width: 100%; /* Width relative to the container */
   max-width: 1000px; /* Maximum width for larger screens */
-  margin-top: 50px;
-  background: #dbdbdb; /* aqui color del form*/
+  margin: 20px auto; /* Centers the element horizontally (auto for left/right margins) */
+  background: white; /* aqui color del form*/
   border-radius: 5px;
   padding: 20px;
   box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;

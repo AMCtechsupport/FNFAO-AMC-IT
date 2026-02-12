@@ -6,7 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import PhoneNumberInput from "@/components/ValidPhoneNumber";
 import InputField from "@/components/InputField";
 
-const YouthIntakeEmergencyContact = ( { errors } ) => {
+const YouthIntakeEmergencyContact = ( { errors} ) => {
     return(
         <>
             <hr className="separator-line" />

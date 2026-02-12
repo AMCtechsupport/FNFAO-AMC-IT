@@ -163,7 +163,7 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
         return YouthIntakeFormSubmit(values, { resetForm }, user, router, setFormSent, isEditMode, editClientId);
       }}
     >
-      {({ values, errors, setFieldValue }) => (
+      {({ values, errors, setFieldValue, resetForm }) => (
         <Form className={styles.form}>
           <div className={styles.titleContainer}>
             <h2 className={styles.centeredTitle}>YOUTH INTAKE FORM</h2>

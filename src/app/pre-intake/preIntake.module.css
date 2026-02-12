@@ -20,7 +20,7 @@
 .form {
   width: 100%; /* Width relative to the container */
   max-width: 1000px; /* Maximum width for larger screens */
-  margin-top: 50px;
+  margin-top: 20px;
   background: #fff;
   border-radius: 5px;
   padding: 20px;
