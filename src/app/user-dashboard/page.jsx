@@ -42,7 +42,6 @@ export default function AssignedClientsToAdvocate() {
         }
 
         if (result.error) throw new Error(result.error.message);
-
         setAdvocate(result.data);
       } catch (err) {
         console.error("Error fetching advocate:", err.message);
@@ -60,18 +59,25 @@ export default function AssignedClientsToAdvocate() {
 
   return (
     <UserHome>
-      <div className="assigned-clients-container">
-        <h2 className="text-xl font-bold mb-4 p-2">
-          {loadingAdvocate
-            ? "Loading..."
-            : advocate
-            ? `Clients assigned to ${advocate.firstName} ${advocate.lastName || ""}`
-            : "Clients assigned"}
-        </h2>
+      {/* Match User Logs / Client List page spacing */}
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+            {loadingAdvocate
+              ? "Loading..."
+              : advocate
+              ? `Clients assigned to ${advocate.firstName} ${advocate.lastName || ""}`
+              : "Clients assigned"}
+          </h2>
 
-        {advocateError && <p className="text-red-500 px-2 pb-2">{advocateError}</p>}
+          {advocateError && (
+            <p className="text-red-500 mb-4">{advocateError}</p>
+          )}
 
-        {advocate ? <AssignedClientsList advocateId={advocate.advocate_id} /> : null}
+          {advocate ? (
+            <AssignedClientsList advocateId={advocate.advocate_id} />
+          ) : null}
+        </div>
       </div>
     </UserHome>
   );
