@@ -126,10 +126,10 @@ function YouthIntakeForm({ editClientId, isEditMode = false }) {
 
           <div className="mt-4">
             <div className="flex justify-end gap-2">
-              {!isEditMode ? (
+              {!isEditing ? (
                 <button
                   type="button"
-                  onClick={() => setIsEditMode(true)}
+                  onClick={() => setIsEditing(true)}
                   className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
                 >
                   Edit
