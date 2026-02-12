@@ -54,78 +54,95 @@ export default function YouthClientView() {
     fetchClientName();
   }, [client_id]);
 
+  const buttonRowStyle = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    maxWidth: "1000px",
+    margin: "20px auto 10px auto",
+  };
+
+  const closeBtnStyle = {
+    backgroundColor: "#111827", // keep black
+    color: "white",
+    padding: "8px 16px",
+    borderRadius: "8px",
+    border: "none",
+    fontWeight: "600",
+    cursor: "pointer",
+  };
+
+  const editBtnStyle = {
+    backgroundColor: "#7C3AED", // purple
+    color: "white",
+    padding: "8px 16px",
+    borderRadius: "8px",
+    border: "none",
+    fontWeight: "600",
+    cursor: "pointer",
+    textDecoration: "none",
+    display: "inline-block",
+  };
+
   return (
     <UserHome>
       <div className={styles.fullIntakeContainer}>
         <div className={styles.container}>
-          {/* Close button: top-left */}
-          <div style={{ marginTop: "30px", marginBottom: "10px" }}>
-            <button
-              onClick={handleClose}
-              style={{
-                backgroundColor: "#070707",
-                color: "white",
-                padding: "8px 16px",
-                borderRadius: "6px",
-                border: "none",
-                fontWeight: "500",
-                cursor: "pointer",
-              }}
-            >
+          {/* TOP BUTTON ROW */}
+          <div style={buttonRowStyle}>
+            <button onClick={handleClose} style={closeBtnStyle}>
               Close
             </button>
+
+            <Link href={`/youth-clients/${client_id}`} style={editBtnStyle}>
+              Edit
+            </Link>
           </div>
 
-          <div style={{ marginTop: "20px" }}>
-            <div
+          {/* Header Box */}
+          <div
+            style={{
+              backgroundColor: "#f0f9ff",
+              border: "1px solid #0ea5e9",
+              borderRadius: "8px",
+              padding: "20px",
+              marginBottom: "24px",
+              textAlign: "center",
+              width: "100%",
+              maxWidth: "1000px",
+              boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
+          >
+            <h2
               style={{
-                backgroundColor: "#f0f9ff",
-                border: "1px solid #0ea5e9",
-                borderRadius: "8px",
-                padding: "20px",
-                marginBottom: "24px",
-                textAlign: "center",
-                width: "100%",
-                maxWidth: "1000px",
-                boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
+                color: "#0c4a6e",
+                margin: "0 0 8px 0",
+                fontSize: "20px",
+                fontWeight: "bold",
               }}
             >
-              <h2
-                style={{
-                  color: "#0c4a6e",
-                  margin: "0 0 8px 0",
-                  fontSize: "20px",
-                  fontWeight: "bold",
-                }}
-              >
-                Viewing Youth Client
-              </h2>
-              <p style={{ color: "#075985", margin: 0, fontSize: "14px" }}>
-                Read-only view (Name: {isLoading ? "Loading..." : clientName})
-              </p>
+              Viewing Youth Client
+            </h2>
+            <p style={{ color: "#075985", margin: 0, fontSize: "14px" }}>
+              Read-only view (Name: {isLoading ? "Loading..." : clientName})
+            </p>
+          </div>
 
-              <div style={{ marginTop: "14px" }}>
-                <Link
-                  href={`/youth-clients/${client_id}`}
-                  className="px-4 py-2 rounded-md bg-gray-200 text-black hover:bg-gray-300 inline-block"
-                >
-                  Edit
-                </Link>
-              </div>
-            </div>
+          {/* Form */}
+          <YouthIntakeForm editClientId={client_id} isEditMode={true} isViewOnly={true} />
 
-            <div style={{ marginTop: "-50px" }}>
-              <YouthIntakeForm editClientId={client_id} isEditMode={true} isViewOnly={true} />
-            </div>
+          {/* BOTTOM BUTTON ROW */}
+          <div style={buttonRowStyle}>
+            <button onClick={handleClose} style={closeBtnStyle}>
+              Close
+            </button>
 
-            <div style={{ marginTop: "18px", textAlign: "center" }}>
-              <Link
-                href={`/youth-clients/${client_id}`}
-                className="px-4 py-2 rounded-md bg-gray-200 text-black hover:bg-gray-300 inline-block"
-              >
-                Edit
-              </Link>
-            </div>
+            <Link href={`/youth-clients/${client_id}`} style={editBtnStyle}>
+              Edit
+            </Link>
           </div>
         </div>
       </div>

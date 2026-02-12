@@ -125,7 +125,7 @@ export default function AssignedClientsList({ advocateId }) {
                       youth: your logic happens inside client page, or you can change later if needed */}
                   <Link
                     href={`/clients/${client.client_id}/view`}
-                    className="px-4 py-2 rounded-md bg-green-500 text-white hover:bg-green-600 transition"
+                    className="px-4 py-2 rounded-md bg-green-500 text-white hover:bg-green-600 transition no-underline"
                   >
                     View
                   </Link>
