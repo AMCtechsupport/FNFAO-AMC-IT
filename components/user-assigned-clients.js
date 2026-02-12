@@ -80,74 +80,85 @@ export default function AssignedClientsList({ advocateId }) {
   const totalPages = Math.max(1, Math.ceil(totalClients / clientsPerPage) || 0);
 
   return (
-    <div className="fullIntakeContainer bg-e5e5e5 min-h-screen flex flex-col items-center justify-start">
-      <div className="container max-w-5xl w-full px-4 py-6">
-        {loading && <p>Loading...</p>}
-        {error && <p className="text-red-500">{error}</p>}
+    <div className="w-full">
+      {/* Search */}
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search by Client ID"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="p-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+      </div>
 
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder="Search by Client ID"
-            value={searchQuery}
-            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-            className="p-2 border rounded-md w-full"
-          />
-        </div>
+      {loading && <p className="text-gray-700">Loading...</p>}
+      {error && <p className="text-red-500">{error}</p>}
 
-        {assignedClients.length > 0 ? (
-          <ul className="divide-y divide-gray-600">
-            {assignedClients.map((assignment) => {
-              const client = assignment.Clients;
-              const fullName = [client.firstName, client.middleName, client.lastName]
-                .filter(Boolean)
-                .join(" ");
+      {/* List */}
+      {assignedClients.length > 0 ? (
+        <ul className="space-y-3">
+          {assignedClients.map((assignment) => {
+            const client = assignment.Clients;
+            const fullName = [client.firstName, client.middleName, client.lastName]
+              .filter(Boolean)
+              .join(" ");
 
-              return (
-                <li key={client.client_id} className="border-gray-600">
-                  <div className="text-left p-3 border-2 border-gray-700 rounded-lg mb-4 shadow-sm bg-white flex items-center justify-between gap-4">
-                    <div>
-                      <div className="text-lg font-bold text-gray-900">
-                        {fullName || "(No name)"}
-                      </div>
-                      <div className="text-sm text-gray-700">
-                        <span className="font-semibold">Client ID:</span> {client.client_id}
-                      </div>
+            return (
+              <li key={client.client_id}>
+                <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 flex items-center justify-between gap-4">
+                  <div>
+                    <div className="text-lg font-semibold text-gray-900">
+                      {fullName || "(No name)"}
                     </div>
-
-                    {/* View opens the detailed client view */}
-                    <Link
-                      href={`/clients/${client.client_id}`}
-                      className="px-4 py-2 rounded-md bg-gray-200 text-black hover:bg-gray-300"
-                    >
-                      View
-                    </Link>
+                    <div className="text-sm text-gray-600 mt-1">
+                      <span className="font-medium text-gray-700">Client ID:</span>{" "}
+                      {client.client_id}
+                    </div>
                   </div>
-                </li>
-              );
-            })}
-          </ul>
-        ) : (
-          !loading && <p>No clients found that match your search.</p>
-        )}
 
-        <div className="flex justify-between items-center mt-4">
-          <button
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-            className="px-4 py-2 text-black rounded-md disabled:bg-gray-500"
-          >
-            Previous
-          </button>
-          <span className="text-gray-700">Page {currentPage} of {totalPages}</span>
-          <button
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 text-black rounded-md disabled:bg-gray-500"
-          >
-            Next
-          </button>
-        </div>
+                  {/* Keep same role routing logic you already use:
+                      adult: /clients/:id
+                      youth: your logic happens inside client page, or you can change later if needed */}
+                  <Link
+                    href={`/clients/${client.client_id}/view`}
+                    className="px-4 py-2 rounded-md bg-green-500 text-white hover:bg-green-600 transition no-underline"
+                  >
+                    View
+                  </Link>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        !loading && <p className="text-gray-700">No clients found that match your search.</p>
+      )}
+
+      {/* Pagination */}
+      <div className="flex justify-between items-center mt-6">
+        <button
+          onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+          disabled={currentPage === 1}
+          className="px-4 py-2 rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition"
+        >
+          Previous
+        </button>
+
+        <span className="text-gray-700">
+          Page {currentPage} of {totalPages}
+        </span>
+
+        <button
+          onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition"
+        >
+          Next
+        </button>
       </div>
     </div>
   );

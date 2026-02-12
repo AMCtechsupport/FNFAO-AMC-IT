@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "../youth-intake/youthIntake.module.css";
 import { Formik, Form } from "formik";
@@ -9,7 +9,7 @@ import { useUser } from "@clerk/clerk-react";
 
 import youthIntakeInputValidation from "./utils/youthIntakeInputValidation";
 
-// Form Sections Exported/ Imported.
+// Form Sections
 import YouthIntakeOtherInformation from "./form-sections/YouthIntakeOtherInformation";
 import YouthIntakeFinancialInfo from "./form-sections/YouthIntakeFinancialInfo";
 import YouthIntakeEducation from "./form-sections/YouthIntakeEducation";
@@ -20,7 +20,7 @@ import YouthIntakeAgencyInfo from "./form-sections/YouthIntakeAgencyInfo";
 import YouthIntakeEmergencyContact from "./form-sections/YouthIntakeEmergencyContact";
 import YouthIntakeGeneralInfo from "./form-sections/YouthIntakeGeneralInfo";
 
-// Imported external functions.
+// Utils
 import YouthIntakeFetchClientData from "./utils/YouthIntakeFetchClientData";
 import YouthIntakeFormSubmit from "./utils/YouthIntakeFormSubmit";
 import youthIntakeDefaultValues from "./utils/youthIntakeDefaultValues";
@@ -38,16 +38,115 @@ const validationSchema = Yup.object({
   ),
 });
 
-function YouthIntakeForm({ editClientId, isEditMode = false }) {
+function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
   const { user } = useUser();
   const router = useRouter();
   const [formSent, setFormSent] = useState(false);
-  const [isEditing, setIsEditing] = useState(isEditMode); // proper edit state
-  const {initialValues, isLoading} = YouthIntakeFetchClientData(youthIntakeDefaultValues,  isEditMode, editClientId);
+  const { initialValues, isLoading } = YouthIntakeFetchClientData(
+    youthIntakeDefaultValues,
+    isEditMode,
+    editClientId
+  );
+
+  // VIEW ONLY PATCH (white boxes + blocked cursor + remove placeholders)
+  useEffect(() => {
+    if (!isViewOnly) return;
+    if (isLoading) return;
+
+    const form = document.querySelector("form");
+    if (!form) return;
+
+    const focusHandlers = [];
+
+    const apply = (el) => {
+      const tag = el.tagName.toLowerCase();
+
+      // remove placeholders if empty
+      if ((tag === "input" || tag === "textarea") && !el.value) {
+        el.setAttribute("placeholder", "");
+      }
+
+      // prevent caret focus
+      const onFocus = () => el.blur();
+      if (!el.dataset.viewonlyBound) {
+        el.addEventListener("focus", onFocus);
+        el.dataset.viewonlyBound = "true";
+        focusHandlers.push(() => el.removeEventListener("focus", onFocus));
+      }
+
+      // keep white & show blocked cursor
+      el.style.backgroundColor = "#ffffff";
+      el.style.cursor = "not-allowed";
+      el.style.opacity = "1";
+
+      if (tag === "textarea") {
+        el.readOnly = true;
+        el.disabled = false;
+        el.tabIndex = -1;
+        return;
+      }
+
+      if (tag === "input") {
+        const type = (el.getAttribute("type") || "text").toLowerCase();
+        if (["checkbox", "radio", "file", "date", "time"].includes(type)) {
+          el.disabled = true;
+          el.readOnly = false;
+          el.tabIndex = -1;
+        } else {
+          el.readOnly = true;
+          el.disabled = false;
+          el.tabIndex = -1;
+        }
+        return;
+      }
+
+      if (tag === "select") {
+  el.disabled = true;
+  el.tabIndex = -1;
+
+  el.style.setProperty("background-color", "#ffffff", "important");
+  el.style.setProperty("opacity", "1", "important");
+  el.style.setProperty("cursor", "not-allowed", "important");
+
+  const selectedOption = el.options?.[el.selectedIndex];
+  const selectedText = (selectedOption?.textContent || "").trim();
+  const selectedValue = (el.value || "").trim();
+
+  const isEmptySelect =
+    selectedValue === "" ||
+    selectedValue === "0" ||
+    /^select\b/i.test(selectedText);
+
+  if (isEmptySelect) {
+    el.style.setProperty("color", "transparent", "important");
+    el.style.setProperty("-webkit-text-fill-color", "transparent", "important");
+    el.style.setProperty("text-shadow", "0 0 0 transparent", "important");
+  } else {
+    el.style.setProperty("color", "#111827", "important");
+    el.style.setProperty("-webkit-text-fill-color", "#111827", "important");
+    el.style.setProperty("text-shadow", "none", "important");
+  }
+
+  return;
+}
+
+      if (tag === "button") {
+        el.disabled = true;
+        el.tabIndex = -1;
+      }
+    };
+
+    const elements = form.querySelectorAll("input, textarea, select, button");
+    elements.forEach(apply);
+
+    return () => {
+      focusHandlers.forEach((fn) => fn());
+    };
+  }, [isViewOnly, isLoading]);
 
   if (isLoading) {
     return (
-      <div style={{ textAlign: 'center', padding: '50px' }}>
+      <div style={{ textAlign: "center", padding: "50px" }}>
         <h3>Loading client data...</h3>
       </div>
     );
@@ -59,108 +158,41 @@ function YouthIntakeForm({ editClientId, isEditMode = false }) {
       enableReinitialize={true}
       validationSchema={validationSchema}
       validate={youthIntakeInputValidation}
-      onSubmit={(values, {resetForm}) =>
-        YouthIntakeFormSubmit(values, {resetForm}, user, router, setFormSent, isEditMode, editClientId).then(() =>{
-          setIsEditing(false);
-        })
-      }
+      onSubmit={(values, { resetForm }) => {
+        if (isViewOnly) return;
+        return YouthIntakeFormSubmit(values, { resetForm }, user, router, setFormSent, isEditMode, editClientId);
+      }}
     >
       {({ values, errors, setFieldValue, resetForm }) => (
         <Form className={styles.form}>
           <div className={styles.titleContainer}>
             <h2 className={styles.centeredTitle}>YOUTH INTAKE FORM</h2>
           </div>
+
           <hr className="separator-line" />
 
-          <YouthIntakeGeneralInfo
-            errors={errors}
-            isEditing={isEditing}
-          />
+          <YouthIntakeGeneralInfo errors={errors} />
+          <YouthIntakeEmergencyContact errors={errors} />
+          <YouthIntakeAgencyInfo values={values} errors={errors} />
+          <YouthIntakeBiologicalParentInfo errors={errors} />
+          <YouthIntakeHousingSituation />
+          <YouthIntakePeopleAtHome values={values} errors={errors} />
+          <YouthIntakeEducation values={values} setFieldValue={setFieldValue} errors={errors} />
+          <YouthIntakeFinancialInfo errors={errors} />
+          <YouthIntakeOtherInformation values={values} />
 
-          <YouthIntakeEmergencyContact
-            errors={errors}
-            isEditing={isEditing}
-          />
+          {!isViewOnly && (
+            <>
+              <button type="submit" className={styles.submitButton}>
+                {isEditMode ? "Update Youth Client" : "Submit Youth Intake"}
+              </button>
 
-          <YouthIntakeAgencyInfo
-            values={values}
-            errors={errors}
-            isEditing={isEditing}
-          />
-
-          <YouthIntakeBiologicalParentInfo
-            errors={errors} 
-            isEditing={isEditing}
-          />
-
-          <YouthIntakeHousingSituation 
-            isEditing={isEditing}
-          
-          />
-
-          <YouthIntakePeopleAtHome
-            values={values}
-            errors={errors}
-            isEditing={isEditing}
-          />
-
-          <YouthIntakeEducation
-            values={values}
-            setFieldValue={setFieldValue}
-            errors={errors}
-            isEditing={isEditing}
-          />
-
-          <YouthIntakeFinancialInfo
-            errors={errors}
-            isEditing={isEditing}
-          />
-
-          <YouthIntakeOtherInformation
-            values={values}
-            isEditing={isEditing}
-          />
-          {/* <button type="submit" className={styles.submitButton}>
-            {isEditMode ? "Update Youth Client" : "Submit Youth Intake"}
-          </button> */}
-
-          <div className="mt-4">
-            <div className="flex justify-end gap-2">
-              {!isEditing ? (
-                <button
-                  type="button"
-                  onClick={() => setIsEditing(true)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-                >
-                  Edit
-                </button>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      resetForm(); // remove if you don’t want reset
-                      setIsEditing(false);
-                    }}
-                    className="px-4 py-2 bg-gray-600 border-gray-400 text-white rounded-md hover:bg-gray-400 transition"
-                    >
-                      Cancel
-                    </button>
-
-                    <button
-                      type="submit"
-                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
-                    >
-                      {isEditMode ? "Save" : "Submit Youth Intake"}
-                    </button>
-                </>
+              {formSent && (
+                <p className={styles.successfulText}>
+                  {isEditMode ? "Youth client updated successfully" : "Youth Intake sent successfully"}
+                </p>
               )}
-            </div>
-          </div>
-          {formSent && (
-            <p className={styles.successfulText}>
-              {isEditMode ? "Youth client updated successfully" : "Youth Intake sent successfully"}
-            </p>
+            </>
           )}
         </Form>
       )}

@@ -131,7 +131,7 @@ export default function ClientsReport({ clientId, setReportData }) {
         setCaseNotes(caseFiltered);
         setLegalNotes(legalFiltered);
 
-        // ✅ Pass report data upward for CSV/JSON download buttons if needed
+        // Pass report data upward for CSV/JSON download buttons if needed
         if (setReportData) {
           setReportData([
             { section: "Client", data: clientData },
