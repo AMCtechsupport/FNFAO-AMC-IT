@@ -48,34 +48,100 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
     editClientId
   );
 
+  // ✅ VIEW ONLY PATCH (white boxes + blocked cursor + remove placeholders)
   useEffect(() => {
     if (!isViewOnly) return;
     if (isLoading) return;
 
-    const t = setTimeout(() => {
-      const form = document.querySelector("form");
-      if (!form) return;
+    const form = document.querySelector("form");
+    if (!form) return;
 
-      const inputs = form.querySelectorAll("input, textarea, select, button");
-      inputs.forEach((el) => {
-        const tag = el.tagName.toLowerCase();
-        if (tag === "button" || tag === "select") {
+    const focusHandlers = [];
+
+    const apply = (el) => {
+      const tag = el.tagName.toLowerCase();
+
+      // remove placeholders if empty
+      if ((tag === "input" || tag === "textarea") && !el.value) {
+        el.setAttribute("placeholder", "");
+      }
+
+      // prevent caret focus
+      const onFocus = () => el.blur();
+      if (!el.dataset.viewonlyBound) {
+        el.addEventListener("focus", onFocus);
+        el.dataset.viewonlyBound = "true";
+        focusHandlers.push(() => el.removeEventListener("focus", onFocus));
+      }
+
+      // keep white & show blocked cursor
+      el.style.backgroundColor = "#ffffff";
+      el.style.cursor = "not-allowed";
+      el.style.opacity = "1";
+
+      if (tag === "textarea") {
+        el.readOnly = true;
+        el.disabled = false;
+        el.tabIndex = -1;
+        return;
+      }
+
+      if (tag === "input") {
+        const type = (el.getAttribute("type") || "text").toLowerCase();
+        if (["checkbox", "radio", "file", "date", "time"].includes(type)) {
           el.disabled = true;
-          return;
-        }
-        if (tag === "textarea") {
+          el.readOnly = false;
+          el.tabIndex = -1;
+        } else {
           el.readOnly = true;
-          return;
+          el.disabled = false;
+          el.tabIndex = -1;
         }
-        if (tag === "input") {
-          const type = (el.getAttribute("type") || "text").toLowerCase();
-          if (["checkbox", "radio", "file", "date", "time"].includes(type)) el.disabled = true;
-          else el.readOnly = true;
-        }
-      });
-    }, 0);
+        return;
+      }
 
-    return () => clearTimeout(t);
+      if (tag === "select") {
+  el.disabled = true;
+  el.tabIndex = -1;
+
+  el.style.setProperty("background-color", "#ffffff", "important");
+  el.style.setProperty("opacity", "1", "important");
+  el.style.setProperty("cursor", "not-allowed", "important");
+
+  const selectedOption = el.options?.[el.selectedIndex];
+  const selectedText = (selectedOption?.textContent || "").trim();
+  const selectedValue = (el.value || "").trim();
+
+  const isEmptySelect =
+    selectedValue === "" ||
+    selectedValue === "0" ||
+    /^select\b/i.test(selectedText);
+
+  if (isEmptySelect) {
+    el.style.setProperty("color", "transparent", "important");
+    el.style.setProperty("-webkit-text-fill-color", "transparent", "important");
+    el.style.setProperty("text-shadow", "0 0 0 transparent", "important");
+  } else {
+    el.style.setProperty("color", "#111827", "important");
+    el.style.setProperty("-webkit-text-fill-color", "#111827", "important");
+    el.style.setProperty("text-shadow", "none", "important");
+  }
+
+  return;
+}
+
+      if (tag === "button") {
+        el.disabled = true;
+        el.tabIndex = -1;
+      }
+    };
+
+    const elements = form.querySelectorAll("input, textarea, select, button");
+    elements.forEach(apply);
+
+    return () => {
+      focusHandlers.forEach((fn) => fn());
+    };
   }, [isViewOnly, isLoading]);
 
   if (isLoading) {

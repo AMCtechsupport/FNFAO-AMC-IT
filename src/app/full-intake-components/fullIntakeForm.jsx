@@ -8,7 +8,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Tabs, TabList, Tab, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 
-// Form sections (these exist in your ZIP)
+// Form sections (your real project structure)
 import HealthWellnessPartition from "./form-sections/HealthWellnessPartition";
 import CaseNotesPartition from "./form-sections/CaseNotesPartition";
 import LegalNotesPartition from "./form-sections/LegalNotesPartition";
@@ -52,6 +52,127 @@ export default function FullIntakeForm({
     if (isViewOnly) setIsEditing(false);
   }, [isViewOnly]);
 
+  // ✅ VIEW ONLY PATCH — fixes Bootstrap "disabled grey" by forcing white with !important,
+  // and uses readOnly for text inputs instead of disabled.
+  useEffect(() => {
+  if (!isViewOnly) return;
+
+  const runPatch = () => {
+    const form = document.querySelector("form");
+    if (!form) return;
+
+    const forceWhiteBlockedLook = (el) => {
+      el.style.setProperty("background-color", "#ffffff", "important");
+      el.style.setProperty("opacity", "1", "important");
+      el.style.setProperty("cursor", "not-allowed", "important");
+      el.style.setProperty("color", "#111827", "important");
+      el.style.setProperty("-webkit-text-fill-color", "#111827", "important");
+    };
+
+    const applyToElement = (el) => {
+      const tag = el.tagName.toLowerCase();
+
+      // Remove placeholder if empty
+      if ((tag === "input" || tag === "textarea") && !el.value) {
+        el.setAttribute("placeholder", "");
+      }
+
+      // prevent caret focus
+      if (!el.dataset.viewonlyBound) {
+        const onFocus = () => el.blur();
+        el.addEventListener("focus", onFocus);
+        el.dataset.viewonlyBound = "true";
+      }
+
+      forceWhiteBlockedLook(el);
+
+      if (tag === "textarea") {
+        el.readOnly = true;
+        el.disabled = false;
+        el.tabIndex = -1;
+        return;
+      }
+
+      if (tag === "input") {
+        const type = (el.getAttribute("type") || "text").toLowerCase();
+
+        if (["checkbox", "radio", "file", "date", "time"].includes(type)) {
+          el.disabled = true;
+          el.readOnly = false;
+          el.tabIndex = -1;
+          forceWhiteBlockedLook(el);
+          return;
+        }
+
+        el.disabled = false;
+        el.readOnly = true;
+        el.tabIndex = -1;
+        forceWhiteBlockedLook(el);
+        return;
+      }
+
+      if (tag === "select") {
+  el.disabled = true;
+  el.tabIndex = -1;
+  forceWhiteBlockedLook(el);
+
+  const selectedOption = el.options?.[el.selectedIndex];
+  const selectedText = (selectedOption?.textContent || "").trim();
+  const selectedValue = (el.value || "").trim();
+
+  // Treat these as "empty" dropdowns (default option)
+  const isEmptySelect =
+    selectedValue === "" ||
+    selectedValue === "0" ||
+    /^select\b/i.test(selectedText); // "Select a province", "Select an option", etc.
+
+  if (isEmptySelect) {
+    // Make it look blank (no placeholder text)
+    el.style.setProperty("color", "transparent", "important");
+    el.style.setProperty("-webkit-text-fill-color", "transparent", "important");
+    el.style.setProperty("text-shadow", "0 0 0 transparent", "important");
+  } else {
+    // Ensure selected values remain visible
+    el.style.setProperty("color", "#111827", "important");
+    el.style.setProperty("-webkit-text-fill-color", "#111827", "important");
+    el.style.setProperty("text-shadow", "none", "important");
+  }
+
+  return;
+}
+
+      if (tag === "button") {
+        el.disabled = true;
+        el.tabIndex = -1;
+      }
+    };
+
+    const elements = form.querySelectorAll("input, textarea, select, button");
+    elements.forEach(applyToElement);
+  };
+
+  // ✅ Run immediately
+  runPatch();
+
+  // ✅ Run a few times because Full-Intake loads partitions/tabs after mount
+  const intervals = [];
+  intervals.push(setTimeout(runPatch, 50));
+  intervals.push(setTimeout(runPatch, 150));
+  intervals.push(setTimeout(runPatch, 300));
+  intervals.push(setTimeout(runPatch, 600));
+  intervals.push(setTimeout(runPatch, 1000));
+
+  // ✅ Keep fixing if tabs render new DOM
+  const onClick = () => runPatch();
+  document.addEventListener("click", onClick);
+
+  return () => {
+    intervals.forEach(clearTimeout);
+    document.removeEventListener("click", onClick);
+  };
+}, [isViewOnly]);
+
+
   const handleShowNoteDetails = (note) => {
     setSelectedNote(note);
   };
@@ -79,7 +200,6 @@ export default function FullIntakeForm({
   };
 
   const validateRadio = (value) => {
-    // Radio buttons are optional - no validation required
     return undefined;
   };
 
@@ -116,7 +236,7 @@ export default function FullIntakeForm({
         enableReinitialize
         validate={fullIntakeInputValidation}
         onSubmit={(values, { resetForm }) => {
-          if (isViewOnly) return; // hard stop
+          if (isViewOnly) return;
           return FullIntakeFormSubmit(
             values,
             { resetForm },
@@ -165,7 +285,12 @@ export default function FullIntakeForm({
                   </TabList>
 
                   <TabPanel>
-                    <GeneralInformationPartition values={values} isEditing={isEditing} errors={errors} validateRadio={validateRadio} />
+                    <GeneralInformationPartition
+                      values={values}
+                      isEditing={isEditing}
+                      errors={errors}
+                      validateRadio={validateRadio}
+                    />
                   </TabPanel>
 
                   <TabPanel>
@@ -173,11 +298,21 @@ export default function FullIntakeForm({
                   </TabPanel>
 
                   <TabPanel>
-                    <HealthWellnessPartition values={values} isEditing={isEditing} errors={errors} validateRadio={validateRadio} />
+                    <HealthWellnessPartition
+                      values={values}
+                      isEditing={isEditing}
+                      errors={errors}
+                      validateRadio={validateRadio}
+                    />
                   </TabPanel>
 
                   <TabPanel>
-                    <ChildFamilyServicesPartition values={values} isEditing={isEditing} errors={errors} validateRadio={validateRadio} />
+                    <ChildFamilyServicesPartition
+                      values={values}
+                      isEditing={isEditing}
+                      errors={errors}
+                      validateRadio={validateRadio}
+                    />
                   </TabPanel>
 
                   <TabPanel>
@@ -211,7 +346,6 @@ export default function FullIntakeForm({
               </div>
             </Row>
 
-            {/* Hide internal edit/save buttons in view-only */}
             {!isViewOnly && (
               <>
                 <Row className="mt-3">
