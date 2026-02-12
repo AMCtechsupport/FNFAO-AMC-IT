@@ -221,16 +221,38 @@ export default function FullIntakeForm({client_id, userId, getToken, isEditMode 
                                 </div>
                             </Row>
                             {/* Action buttons */}
-                            <Row className="mt-3 justify-content-end">
-                                {!isEditing ? (
-                                    <Col md="2" className="d-flex gap-2"> <button className={styles.cancelButton} onClick={() => setIsEditing(true)}>Edit</button> </Col>
-                                ) : (
-                                    <>
-                                        <Col md="2" className="d-flex gap-2"><button className={styles.cancelButton} onClick={() => { resetForm(); setIsEditing(false); setShowNewNoteForm(false) }}>Cancel</button> </Col>
-                                        <Col md="2" className="d-flex gap-2"><button className={styles.submitButton} type="submit">Save</button> </Col>
-                                    </>
-                                )}
-                            </Row>
+                            <div className="mt-3 flex justify-end gap-2">
+                            {!isEditing ? (
+                                <button
+                                type="button"
+                                onClick={() => setIsEditing(true)}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                                >
+                                Edit
+                                </button>
+                            ) : (
+                                <>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                    resetForm();
+                                    setIsEditing(false);
+                                    setShowNewNoteForm(false);
+                                    }}
+                                    className="px-4 py-2 bg-gray-600 border border-gray-400 text-white rounded-md hover:bg-gray-400 transition"
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
+                                >
+                                    Save
+                                </button>
+                                </>
+                            )}
+                            </div>
                             {formSent && <div className={styles.successfulText}>Form saved successfully!</div>}
                     </Form>
                 )}

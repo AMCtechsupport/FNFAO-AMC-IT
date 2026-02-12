@@ -38,10 +38,11 @@ const validationSchema = Yup.object({
   ),
 });
 
-function YouthIntakeForm({ editClientId, isEditMode }) {
+function YouthIntakeForm({ editClientId, isEditMode = false }) {
   const { user } = useUser();
   const router = useRouter();
   const [formSent, setFormSent] = useState(false);
+  const [isEditing, setIsEditing] = useState(isEditMode); // proper edit state
   const {initialValues, isLoading} = YouthIntakeFetchClientData(youthIntakeDefaultValues,  isEditMode, editClientId);
 
   if (isLoading) {
@@ -59,9 +60,12 @@ function YouthIntakeForm({ editClientId, isEditMode }) {
       validationSchema={validationSchema}
       validate={youthIntakeInputValidation}
       onSubmit={(values, {resetForm}) =>
-        YouthIntakeFormSubmit(values, {resetForm}, user, router, setFormSent, isEditMode, editClientId)}
+        YouthIntakeFormSubmit(values, {resetForm}, user, router, setFormSent, isEditMode, editClientId).then(() =>{
+          setIsEditing(false);
+        })
+      }
     >
-      {({ values, errors, setFieldValue }) => (
+      {({ values, errors, setFieldValue, resetForm }) => (
         <Form className={styles.form}>
           <div className={styles.titleContainer}>
             <h2 className={styles.centeredTitle}>YOUTH INTAKE FORM</h2>
@@ -70,44 +74,89 @@ function YouthIntakeForm({ editClientId, isEditMode }) {
 
           <YouthIntakeGeneralInfo
             errors={errors}
+            isEditing={isEditing}
           />
 
           <YouthIntakeEmergencyContact
             errors={errors}
+            isEditing={isEditing}
           />
 
           <YouthIntakeAgencyInfo
             values={values}
             errors={errors}
+            isEditing={isEditing}
           />
 
           <YouthIntakeBiologicalParentInfo
             errors={errors} 
+            isEditing={isEditing}
           />
 
-          <YouthIntakeHousingSituation />
+          <YouthIntakeHousingSituation 
+            isEditing={isEditing}
+          
+          />
 
           <YouthIntakePeopleAtHome
             values={values}
             errors={errors}
+            isEditing={isEditing}
           />
 
           <YouthIntakeEducation
             values={values}
             setFieldValue={setFieldValue}
             errors={errors}
+            isEditing={isEditing}
           />
 
           <YouthIntakeFinancialInfo
             errors={errors}
+            isEditing={isEditing}
           />
 
           <YouthIntakeOtherInformation
             values={values}
+            isEditing={isEditing}
           />
-          <button type="submit" className={styles.submitButton}>
+          {/* <button type="submit" className={styles.submitButton}>
             {isEditMode ? "Update Youth Client" : "Submit Youth Intake"}
-          </button>
+          </button> */}
+
+          <div className="mt-4">
+            <div className="flex justify-end gap-2">
+              {!isEditMode ? (
+                <button
+                  type="button"
+                  onClick={() => setIsEditMode(true)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                >
+                  Edit
+                </button>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      resetForm(); // remove if you don’t want reset
+                      setIsEditing(false);
+                    }}
+                    className="px-4 py-2 bg-gray-600 border-gray-400 text-white rounded-md hover:bg-gray-400 transition"
+                    >
+                      Cancel
+                    </button>
+
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
+                    >
+                      {isEditMode ? "Save" : "Submit Youth Intake"}
+                    </button>
+                </>
+              )}
+            </div>
+          </div>
           {formSent && (
             <p className={styles.successfulText}>
               {isEditMode ? "Youth client updated successfully" : "Youth Intake sent successfully"}
