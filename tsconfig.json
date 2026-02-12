@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -19,7 +23,9 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     }
   },
   "include": [
@@ -28,10 +34,15 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "src/app/pre-intake/page.jsx",
-    "src/app/user-home/page.jsx", 
-    "src/app/clients/page.jsx", 
+    "src/app/user-home/page.jsx",
+    "src/app/clients/page.jsx",
     "components/report/date-range-filter.js",
-    "src/app/clients/page.jsx", 
-    "components/data-collection/data-display.js", "components/data-collection/data-column.js"  ],
-  "exclude": ["node_modules"]
+    "src/app/clients/page.jsx",
+    "components/data-collection/data-display.js",
+    "components/data-collection/data-column.js",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

@@ -261,7 +261,7 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, setFormS
         }
 
         // console.log(
-        //   "✅ Emergency contact inserted successfully:",
+        //   "Emergency contact inserted successfully:",
         //   emergencyContactData
         // );
         }
