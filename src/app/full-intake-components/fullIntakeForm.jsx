@@ -8,7 +8,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Tabs, TabList, Tab, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 
-// Form sections (your real project structure)
+// Form sections
 import HealthWellnessPartition from "./form-sections/HealthWellnessPartition";
 import CaseNotesPartition from "./form-sections/CaseNotesPartition";
 import LegalNotesPartition from "./form-sections/LegalNotesPartition";
@@ -52,134 +52,120 @@ export default function FullIntakeForm({
     if (isViewOnly) setIsEditing(false);
   }, [isViewOnly]);
 
-  // ✅ VIEW ONLY PATCH — fixes Bootstrap "disabled grey" by forcing white with !important,
-  // and uses readOnly for text inputs instead of disabled.
+  // ✅ View-only patch (same behavior as Youth Intake)
   useEffect(() => {
-  if (!isViewOnly) return;
+    if (!isViewOnly) return;
 
-  const runPatch = () => {
-    const form = document.querySelector("form");
-    if (!form) return;
+    const runPatch = () => {
+      const form = document.querySelector("form");
+      if (!form) return;
 
-    const forceWhiteBlockedLook = (el) => {
-      el.style.setProperty("background-color", "#ffffff", "important");
-      el.style.setProperty("opacity", "1", "important");
-      el.style.setProperty("cursor", "not-allowed", "important");
-      el.style.setProperty("color", "#111827", "important");
-      el.style.setProperty("-webkit-text-fill-color", "#111827", "important");
-    };
+      const forceWhiteBlockedLook = (el) => {
+        el.style.setProperty("background-color", "#ffffff", "important");
+        el.style.setProperty("opacity", "1", "important");
+        el.style.setProperty("cursor", "not-allowed", "important");
+        el.style.setProperty("color", "#111827", "important");
+        el.style.setProperty("-webkit-text-fill-color", "#111827", "important");
+      };
 
-    const applyToElement = (el) => {
-      const tag = el.tagName.toLowerCase();
+      const applyToElement = (el) => {
+        const tag = el.tagName.toLowerCase();
 
-      // Remove placeholder if empty
-      if ((tag === "input" || tag === "textarea") && !el.value) {
-        el.setAttribute("placeholder", "");
-      }
+        // remove placeholders if empty
+        if ((tag === "input" || tag === "textarea") && !el.value) {
+          el.setAttribute("placeholder", "");
+        }
 
-      // prevent caret focus
-      if (!el.dataset.viewonlyBound) {
-        const onFocus = () => el.blur();
-        el.addEventListener("focus", onFocus);
-        el.dataset.viewonlyBound = "true";
-      }
+        // prevent caret focus
+        if (!el.dataset.viewonlyBound) {
+          const onFocus = () => el.blur();
+          el.addEventListener("focus", onFocus);
+          el.dataset.viewonlyBound = "true";
+        }
 
-      forceWhiteBlockedLook(el);
+        forceWhiteBlockedLook(el);
 
-      if (tag === "textarea") {
-        el.readOnly = true;
-        el.disabled = false;
-        el.tabIndex = -1;
-        return;
-      }
+        if (tag === "textarea") {
+          el.readOnly = true;
+          el.disabled = false;
+          el.tabIndex = -1;
+          return;
+        }
 
-      if (tag === "input") {
-        const type = (el.getAttribute("type") || "text").toLowerCase();
+        if (tag === "input") {
+          const type = (el.getAttribute("type") || "text").toLowerCase();
 
-        if (["checkbox", "radio", "file", "date", "time"].includes(type)) {
-          el.disabled = true;
-          el.readOnly = false;
+          if (["checkbox", "radio", "file", "date", "time"].includes(type)) {
+            el.disabled = true;
+            el.readOnly = false;
+            el.tabIndex = -1;
+            forceWhiteBlockedLook(el);
+            return;
+          }
+
+          el.disabled = false;
+          el.readOnly = true;
           el.tabIndex = -1;
           forceWhiteBlockedLook(el);
           return;
         }
 
-        el.disabled = false;
-        el.readOnly = true;
-        el.tabIndex = -1;
-        forceWhiteBlockedLook(el);
-        return;
-      }
+        if (tag === "select") {
+          el.disabled = true;
+          el.tabIndex = -1;
+          forceWhiteBlockedLook(el);
 
-      if (tag === "select") {
-  el.disabled = true;
-  el.tabIndex = -1;
-  forceWhiteBlockedLook(el);
+          const selectedOption = el.options?.[el.selectedIndex];
+          const selectedText = (selectedOption?.textContent || "").trim();
+          const selectedValue = (el.value || "").trim();
 
-  const selectedOption = el.options?.[el.selectedIndex];
-  const selectedText = (selectedOption?.textContent || "").trim();
-  const selectedValue = (el.value || "").trim();
+          const isEmptySelect =
+            selectedValue === "" ||
+            selectedValue === "0" ||
+            /^select\b/i.test(selectedText);
 
-  // Treat these as "empty" dropdowns (default option)
-  const isEmptySelect =
-    selectedValue === "" ||
-    selectedValue === "0" ||
-    /^select\b/i.test(selectedText); // "Select a province", "Select an option", etc.
+          if (isEmptySelect) {
+            el.style.setProperty("color", "transparent", "important");
+            el.style.setProperty("-webkit-text-fill-color", "transparent", "important");
+            el.style.setProperty("text-shadow", "0 0 0 transparent", "important");
+          } else {
+            el.style.setProperty("color", "#111827", "important");
+            el.style.setProperty("-webkit-text-fill-color", "#111827", "important");
+            el.style.setProperty("text-shadow", "none", "important");
+          }
+          return;
+        }
 
-  if (isEmptySelect) {
-    // Make it look blank (no placeholder text)
-    el.style.setProperty("color", "transparent", "important");
-    el.style.setProperty("-webkit-text-fill-color", "transparent", "important");
-    el.style.setProperty("text-shadow", "0 0 0 transparent", "important");
-  } else {
-    // Ensure selected values remain visible
-    el.style.setProperty("color", "#111827", "important");
-    el.style.setProperty("-webkit-text-fill-color", "#111827", "important");
-    el.style.setProperty("text-shadow", "none", "important");
-  }
+        if (tag === "button") {
+          el.disabled = true;
+          el.tabIndex = -1;
+        }
+      };
 
-  return;
-}
-
-      if (tag === "button") {
-        el.disabled = true;
-        el.tabIndex = -1;
-      }
+      const elements = form.querySelectorAll("input, textarea, select, button");
+      elements.forEach(applyToElement);
     };
 
-    const elements = form.querySelectorAll("input, textarea, select, button");
-    elements.forEach(applyToElement);
-  };
+    runPatch();
+    const timers = [
+      setTimeout(runPatch, 50),
+      setTimeout(runPatch, 150),
+      setTimeout(runPatch, 300),
+      setTimeout(runPatch, 600),
+      setTimeout(runPatch, 1000),
+    ];
 
-  // ✅ Run immediately
-  runPatch();
+    const onClick = () => runPatch();
+    document.addEventListener("click", onClick);
 
-  // ✅ Run a few times because Full-Intake loads partitions/tabs after mount
-  const intervals = [];
-  intervals.push(setTimeout(runPatch, 50));
-  intervals.push(setTimeout(runPatch, 150));
-  intervals.push(setTimeout(runPatch, 300));
-  intervals.push(setTimeout(runPatch, 600));
-  intervals.push(setTimeout(runPatch, 1000));
+    return () => {
+      timers.forEach(clearTimeout);
+      document.removeEventListener("click", onClick);
+    };
+  }, [isViewOnly]);
 
-  // ✅ Keep fixing if tabs render new DOM
-  const onClick = () => runPatch();
-  document.addEventListener("click", onClick);
-
-  return () => {
-    intervals.forEach(clearTimeout);
-    document.removeEventListener("click", onClick);
-  };
-}, [isViewOnly]);
-
-
-  const handleShowNoteDetails = (note) => {
-    setSelectedNote(note);
-  };
-
-  const handleCloseNoteDetails = () => {
-    setSelectedNote(null);
-  };
+  const handleShowNoteDetails = (note) => setSelectedNote(note);
+  const handleCloseNoteDetails = () => setSelectedNote(null);
 
   const handleAddNoteClick = (values, push, noteType) => {
     const newNote = {
@@ -196,12 +182,9 @@ export default function FullIntakeForm({
 
     push(newNote);
     setShowNewNoteForm(true);
-    console.log("New note added:", newNote);
   };
 
-  const validateRadio = (value) => {
-    return undefined;
-  };
+  const validateRadio = () => undefined;
 
   useEffect(() => {
     fetchClientData({
@@ -293,8 +276,14 @@ export default function FullIntakeForm({
                     />
                   </TabPanel>
 
+                  {/* ✅ FIX: pass childrenData */}
                   <TabPanel>
-                    <ChildrenPartition values={values} isEditing={isEditing} errors={errors} />
+                    <ChildrenPartition
+                      childrenData={childrenData}
+                      values={values}
+                      isEditing={isEditing}
+                      errors={errors}
+                    />
                   </TabPanel>
 
                   <TabPanel>
@@ -306,8 +295,10 @@ export default function FullIntakeForm({
                     />
                   </TabPanel>
 
+                  {/* ✅ FIX: pass childrenData */}
                   <TabPanel>
                     <ChildFamilyServicesPartition
+                      childrenData={childrenData}
                       values={values}
                       isEditing={isEditing}
                       errors={errors}
