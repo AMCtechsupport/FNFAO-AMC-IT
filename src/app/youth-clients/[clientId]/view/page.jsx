@@ -87,7 +87,6 @@ export default function YouthClientView() {
 
   return (
     <UserHome>
-      <div className={styles.fullIntakeContainer}>
         <div className={styles.container}>
           {/* TOP BUTTON ROW */}
           <div style={buttonRowStyle}>
@@ -145,7 +144,6 @@ export default function YouthClientView() {
             </Link>
           </div>
         </div>
-      </div>
     </UserHome>
   );
 }
