@@ -4,10 +4,10 @@ export async function handleNotesUpdate(notes, client_id, setNotesData, supabase
   const cleanedUserId = (userId || "").trim();
 
   try {
-    // 1) Fetch existing notes for this client
+    // 1) Get existing notes for client
     const { data: existingNotes, error: fetchError } = await supabase
       .from("Notes")
-      .select("*")
+      .select("note_id")
       .eq("client_id", client_id);
 
     if (fetchError) {
@@ -15,28 +15,28 @@ export async function handleNotesUpdate(notes, client_id, setNotesData, supabase
       return false;
     }
 
-    const existingNotesIds = (existingNotes || []).map((n) => n.note_id);
+    const existingIds = (existingNotes || []).map((n) => n.note_id);
 
     const newNotes = [];
     const updatedNotes = [];
-    const receivedNotesIds = [];
+    const receivedIds = [];
 
     const isRealFile = (val) => typeof File !== "undefined" && val instanceof File;
 
-    // Only remove UI-only fields (do NOT remove type/subType/etc.)
-    const sanitizeNote = (obj) => {
+    const sanitize = (obj) => {
       if (!obj || typeof obj !== "object") return obj;
+      // remove UI-only field
       // eslint-disable-next-line no-unused-vars
       const { file, ...rest } = obj;
       return rest;
     };
 
-    // Upload file to Storage, then create a Files row, return file_id
+    // Upload file to storage + create Files row => returns file_id
     const uploadAndCreateFileRow = async (file) => {
       const uniqueFilename = `${uuidv4()}-${file.name}`;
       const storagePath = `client_${client_id}/${uniqueFilename}`;
 
-      // Upload to Supabase Storage
+      // Upload to Storage
       const { error: uploadError } = await supabase.storage
         .from("attachments")
         .upload(storagePath, file, { upsert: false });
@@ -46,21 +46,18 @@ export async function handleNotesUpdate(notes, client_id, setNotesData, supabase
         throw uploadError;
       }
 
-      // Public URL (if bucket is public). If not public, storagePath is still stored.
-      const publicUrl = supabase.storage.from("attachments").getPublicUrl(storagePath).data.publicUrl;
-
-      // Insert into Files table
-      const fileRow = {
+      // Create row in Files table
+      const fileRowPayload = {
         fileName: file.name,
-        filePath: publicUrl || storagePath,
+        filePath: storagePath,
         uploadedAt: new Date().toISOString(),
         client_id: client_id,
         owner_id: cleanedUserId || null,
       };
 
-      const { data: insertedFile, error: fileInsertError } = await supabase
+      const { data: fileRow, error: fileInsertError } = await supabase
         .from("Files")
-        .insert(fileRow)
+        .insert(fileRowPayload)
         .select("file_id")
         .single();
 
@@ -69,98 +66,106 @@ export async function handleNotesUpdate(notes, client_id, setNotesData, supabase
         throw fileInsertError;
       }
 
-      return insertedFile.file_id;
+      return fileRow?.file_id ?? null;
     };
 
-    // 2) Split incoming notes into new vs update
-    for (const note of Array.isArray(notes) ? notes : []) {
-      if (note.note_id) {
-        updatedNotes.push(note);
-        receivedNotesIds.push(note.note_id);
-      } else {
-        let file_id = note.file_id ?? null;
+    // Normalize noteType exactly how your UI tabs filter
+    const normalizeNoteType = (val) => {
+      const v = (val || "").toString().trim().toLowerCase();
+      if (v === "case") return "Case";
+      if (v === "legal") return "Legal";
+      return val ? val.toString().trim() : null;
+    };
 
-        // Only upload if it's an actual File object
-        if (isRealFile(note.file)) {
+    // Build payload strictly matching your Notes columns
+    const buildPayload = (note, overrides = {}) => {
+      const payload = {
+        client_id: client_id,
+        advocate_id: note?.advocate_id ?? note?.advocateId ?? null,
+
+        // Important: your column names are createdAt + modifiedAt
+        createdAt: note?.createdAt ?? new Date().toISOString(),
+        modifiedAt: new Date().toISOString(),
+
+        // IMPORTANT: type is NOT NULL in DB
+        // UI uses "Type" dropdown -> store into `type`
+        type: note?.type ?? note?.noteSubtype ?? null,
+
+        // UI "Subtype" dropdown -> store into `subType`
+        subType: note?.subType ?? note?.subtype ?? note?.noteSubType ?? null,
+
+        // UI Description / Action Plan
+        description: note?.description ?? null,
+        actionPlan: note?.actionPlan ?? null,
+
+        // Note category used for tabs (Case vs Legal)
+        noteType: normalizeNoteType(note?.noteType),
+
+        // Attachment foreign key
+        file_id: note?.file_id ?? null,
+
+        ...overrides,
+      };
+
+      return sanitize(payload);
+    };
+
+    // 2) Split incoming notes into NEW vs UPDATE
+    for (const note of Array.isArray(notes) ? notes : []) {
+      if (note?.note_id) {
+        receivedIds.push(note.note_id);
+        updatedNotes.push(note);
+      } else {
+        let file_id = note?.file_id ?? null;
+
+        if (isRealFile(note?.file)) {
           file_id = await uploadAndCreateFileRow(note.file);
         }
 
-        // Build payload using YOUR Notes table columns
-        const payload = sanitizeNote({
-          client_id,
-          advocate_id: note.advocate_id ?? note.advocateId ?? null,
-          createdAt: note.createdAt ?? new Date().toISOString(),
-          modifiedAt: note.modifiedAt ?? new Date().toISOString(),
+        const insertPayload = buildPayload(note, { file_id });
 
-          // IMPORTANT: your DB requires `type` NOT NULL
-          type: note.type ?? note.noteType ?? note.note_type ?? "case",
+        // Enforce required fields so UI + DB both work
+        if (!insertPayload.type) {
+          // If user didn’t select "Type", set a safe default that your UI already uses
+          insertPayload.type = "initialMeeting";
+        }
 
-          // Your DB uses `subType` (NOT noteSubtype)
-          subType: note.subType ?? note.noteSubtype ?? note.sub_type ?? null,
+        // If noteType missing, default to Case so it appears in Case Notes tab
+        if (!insertPayload.noteType) {
+          insertPayload.noteType = "Case";
+        }
 
-          description: note.description ?? null,
-          actionPlan: note.actionPlan ?? note.action_plan ?? null,
-
-          file_id: file_id,
-        });
-
-        newNotes.push(payload);
+        newNotes.push(insertPayload);
       }
     }
 
-    // 3) Find deleted notes
-    const deletedNotesIds = existingNotesIds.filter((id) => !receivedNotesIds.includes(id));
+    // 3) Deleted notes
+    const deletedIds = existingIds.filter((id) => !receivedIds.includes(id));
 
-    // 4) INSERT new notes (force type at final moment)
+    // 4) INSERT new
     if (newNotes.length > 0) {
-      const notesToInsert = newNotes.map((n) => ({
-        ...n,
-        type: n.type ?? n.noteType ?? n.note_type ?? "case",
-      }));
-
-      console.log("FINAL notesToInsert:", JSON.stringify(notesToInsert, null, 2));
-      console.log("FINAL type values:", notesToInsert.map((n) => n.type));
-
-      const { data, error: insertError } = await supabase
-        .from("Notes")
-        .insert(notesToInsert)
-        .select();
-
+      const { error: insertError } = await supabase.from("Notes").insert(newNotes);
       if (insertError) {
         console.error("Notes INSERT failed:", insertError.message, insertError);
-        console.error("code:", insertError.code);
-        console.error("details:", insertError.details);
-        console.error("hint:", insertError.hint);
         return false;
       }
-
-      console.log("Inserted notes:", data);
     }
 
-    // 5) UPDATE existing notes (force type too)
+    // 5) UPDATE existing
     for (const note of updatedNotes) {
       const note_id = note.note_id;
       if (!note_id) continue;
 
-      let file_id = note.file_id ?? null;
+      let file_id = note?.file_id ?? null;
 
-      if (isRealFile(note.file)) {
+      if (isRealFile(note?.file)) {
         file_id = await uploadAndCreateFileRow(note.file);
       }
 
-      const updatePayload = sanitizeNote({
-        advocate_id: note.advocate_id ?? note.advocateId ?? null,
-        modifiedAt: new Date().toISOString(),
+      const updatePayload = buildPayload(note, { file_id });
 
-        // Force required type
-        type: note.type ?? note.noteType ?? note.note_type ?? "case",
-
-        subType: note.subType ?? note.noteSubtype ?? note.sub_type ?? null,
-        description: note.description ?? null,
-        actionPlan: note.actionPlan ?? note.action_plan ?? null,
-
-        file_id: file_id,
-      });
+      if (!updatePayload.type) updatePayload.type = "initialMeeting";
+      if (!updatePayload.noteType) updatePayload.noteType = "Case";
 
       const { error: updateError } = await supabase
         .from("Notes")
@@ -169,38 +174,32 @@ export async function handleNotesUpdate(notes, client_id, setNotesData, supabase
 
       if (updateError) {
         console.error(`Notes UPDATE failed for ${note_id}:`, updateError.message, updateError);
-        console.error("code:", updateError.code);
-        console.error("details:", updateError.details);
-        console.error("hint:", updateError.hint);
         return false;
       }
     }
 
-    // 6) DELETE removed notes
-    if (deletedNotesIds.length > 0) {
-      const { error: deleteError } = await supabase
-        .from("Notes")
-        .delete()
-        .in("note_id", deletedNotesIds);
-
+    // 6) DELETE removed
+    if (deletedIds.length > 0) {
+      const { error: deleteError } = await supabase.from("Notes").delete().in("note_id", deletedIds);
       if (deleteError) {
         console.error("Notes DELETE failed:", deleteError.message, deleteError);
         return false;
       }
     }
 
-    // 7) Refresh notes from DB
-    const { data: updatedNotesList, error: fetchUpdatedError } = await supabase
+    // 7) REFRESH NOTES so UI shows newly created rows immediately
+    const { data: refreshed, error: refreshError } = await supabase
       .from("Notes")
       .select("*")
-      .eq("client_id", client_id);
+      .eq("client_id", client_id)
+      .order("createdAt", { ascending: false });
 
-    if (fetchUpdatedError) {
-      console.error("Error fetching updated notes:", fetchUpdatedError.message, fetchUpdatedError);
+    if (refreshError) {
+      console.error("Notes refresh failed:", refreshError.message, refreshError);
       return false;
     }
 
-    setNotesData(updatedNotesList);
+    setNotesData(Array.isArray(refreshed) ? refreshed : []);
     return true;
   } catch (err) {
     console.error("Unexpected error in handleNotesUpdate:", err?.message || err, err);

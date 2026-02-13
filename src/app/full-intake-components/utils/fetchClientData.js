@@ -1,105 +1,103 @@
 import supabase from "../../lib/supabase";
 
 export async function fetchClientData({
-    client_id,
-    setLoading,
-    setOriginalData,
-    setChildrenData,
-    setFamilyData,
-    setHomeMembersData,
-    setEIAData,
-    setNotesData,
-    setCaseNotes,
-    setLegalNotes,
-    }) {
-        setLoading(true);
+  client_id,
+  setLoading,
+  setOriginalData,
+  setChildrenData,
+  setFamilyData,
+  setHomeMembersData,
+  setEIAData,
+  setNotesData,
+  setCaseNotes,
+  setLegalNotes,
+}) {
+  setLoading(true);
 
-        // Gets data from the client
-        const { data: clientData, error: clientError } = await supabase
-            .from("Clients")
-            .select("*")
-            .eq("client_id", client_id)
-            .maybeSingle();
+  // Client
+  const { data: clientData, error: clientError } = await supabase
+    .from("Clients")
+    .select("*")
+    .eq("client_id", client_id)
+    .maybeSingle();
 
-        if (clientError) {
-            console.error("Error fetching client data:", clientError.message || clientError);
-        } else {
-            setOriginalData(clientData);
-                            console.log("🔍 RAW DATABASE DATA (originalData):");
-            console.log(JSON.stringify(clientData, null, 2));
-            console.log("🔍 SPECIFIC FIELD CHECK - relationshipToChildren:", clientData?.relationshipToChildren);
-        }
+  if (clientError) {
+    console.error("Error fetching client data:", clientError.message || clientError);
+  } else {
+    setOriginalData(clientData);
+  }
 
-        // Gets the children associated with the client
-        const { data: children, error: childrenError } = await supabase
-            .from("Childs")
-            .select("*")
-            .eq("client_id", client_id);
+  // Children
+  const { data: children, error: childrenError } = await supabase
+    .from("Childs")
+    .select("*")
+    .eq("client_id", client_id);
 
-        if (childrenError) {
-            console.error("Error fetching children data:", childrenError.message || childrenError);
-        } else {
-            // console.log("Children Data:", children);
-            setChildrenData(children || []);
-        }
+  if (childrenError) {
+    console.error("Error fetching children data:", childrenError.message || childrenError);
+  } else {
+    setChildrenData(children || []);
+  }
 
-        // Gets the family members associated with the client
-        const { data: familyData, error: familyError } = await supabase
-            .from("Important Family and Friends")
-            .select("*")
-            .eq("client_id", client_id);
+  // Family
+  const { data: familyData, error: familyError } = await supabase
+    .from("Important Family and Friends")
+    .select("*")
+    .eq("client_id", client_id);
 
-        if (familyError) {
-            console.error("Error fetching family data:", familyError.message || familyError);
-        } else {
-            // console.log("Family Data:", familyData);
-            setFamilyData(familyData || []);
-        }
+  if (familyError) {
+    console.error("Error fetching family data:", familyError.message || familyError);
+  } else {
+    setFamilyData(familyData || []);
+  }
 
-        // Gets the home members associated with the client
-        const { data: homeMembersData, error: homeMembersError } = await supabase
-            .from("Home Members")
-            .select("*")
-            .eq("client_id", client_id);
+  // Home Members
+  const { data: homeMembersData, error: homeMembersError } = await supabase
+    .from("Home Members")
+    .select("*")
+    .eq("client_id", client_id);
 
-        if (homeMembersError) {
-            console.error("Error fetching home members data:", homeMembersError.message || homeMembersError);
-        } else {
-            // console.log("Home members Data:", homeMembersData);
-            setHomeMembersData(homeMembersData || []);
-        }
+  if (homeMembersError) {
+    console.error("Error fetching home members data:", homeMembersError.message || homeMembersError);
+  } else {
+    setHomeMembersData(homeMembersData || []);
+  }
 
-        // Gets the EIA workers associated with the client
-        const { data: EIAData, error: EIAError } = await supabase
-            .from("EIA Workers")
-            .select("*")
-            .eq("client_id", client_id);
+  // EIA
+  const { data: EIAData, error: EIAError } = await supabase
+    .from("EIA Workers")
+    .select("*")
+    .eq("client_id", client_id);
 
-        if (EIAError) {
-            console.error("Error fetching EIA data:", EIAError.message || EIAError);
-        } else {
-            // console.log("EIA Data:", EIAData);
-            setEIAData(EIAData || []);
-        }
+  if (EIAError) {
+    console.error("Error fetching EIA data:", EIAError.message || EIAError);
+  } else {
+    setEIAData(EIAData || []);
+  }
 
-        // Gets the case notes associated with the client
-        const {data: notes, error: notesError} = await supabase
-            .from("Notes")
-            .select("*")
-            .eq("client_id", client_id );
+  // Notes
+  const { data: notes, error: notesError } = await supabase
+    .from("Notes")
+    .select("*")
+    .eq("client_id", client_id)
+    .order("note_id", { ascending: true });
 
-        if (notesError){
-            console.error("Error fetching notes data:", notesError.message || notesError);
-        }else {
-            // console.log("Notes Data:", notes);
-            setNotesData(notes || []);
-        }
+  if (notesError) {
+    console.error("Error fetching notes data:", notesError.message || notesError);
+    setNotesData([]);
+    setCaseNotes([]);
+    setLegalNotes([]);
+  } else {
+    const safeNotes = notes || [];
+    setNotesData(safeNotes);
 
-        // Separate notes by type
-        if (notes) {
-            setCaseNotes(notes.filter(note => note.noteType === "Case"));
-            setLegalNotes(notes.filter(note => note.noteType === "Legal"));
-        }
+    // Normalize noteType comparisons (Case/Legal)
+    const caseNotes = safeNotes.filter((n) => String(n.noteType || "").toLowerCase() === "case");
+    const legalNotes = safeNotes.filter((n) => String(n.noteType || "").toLowerCase() === "legal");
 
-    setLoading(false);
+    setCaseNotes(caseNotes);
+    setLegalNotes(legalNotes);
+  }
+
+  setLoading(false);
 }
