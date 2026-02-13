@@ -245,7 +245,7 @@ export default function FullIntakeForm({
           );
         }}
       >
-        {({ values, errors, resetForm }) => (
+        {({ values, errors, resetForm, setFieldValue }) => (
           <Form className={styles.form}>
             <div className={styles.titleContainer}>
               <h2 className={styles.centeredTitle}>FULL-INTAKE FORM</h2>
@@ -315,6 +315,7 @@ export default function FullIntakeForm({
                       showNewNoteForm={showNewNoteForm}
                       handleAddNoteClick={handleAddNoteClick}
                       values={values}
+                      setFieldValue={setFieldValue}
                       isEditing={isEditing}
                       errors={errors}
                     />
@@ -329,6 +330,7 @@ export default function FullIntakeForm({
                       showNewNoteForm={showNewNoteForm}
                       handleAddNoteClick={handleAddNoteClick}
                       values={values}
+                      setFieldValue={setFieldValue}
                       isEditing={isEditing}
                       errors={errors}
                     />
