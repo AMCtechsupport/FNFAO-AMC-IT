@@ -164,6 +164,15 @@ export default function FullIntakeForm({
     };
   }, [isViewOnly]);
 
+   const buttonRowStyle = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    maxWidth: "1000px",
+    margin: "20px auto 10px auto",
+  };
+
   const handleShowNoteDetails = (note) => setSelectedNote(note);
   const handleCloseNoteDetails = () => setSelectedNote(null);
 
@@ -339,7 +348,7 @@ export default function FullIntakeForm({
 
             {!isViewOnly && (
               <>
-                <Row className="mt-3">
+                <div style={buttonRowStyle}>
                   {!isEditing ? (
                     <Col md={4}>
                       <button className={styles.cancelButton} onClick={() => setIsEditing(true)}>
@@ -367,7 +376,7 @@ export default function FullIntakeForm({
                       </Col>
                     </>
                   )}
-                </Row>
+                </div>
 
                 {formSent && <div className={styles.successfulText}>Form saved successfully!</div>}
               </>
