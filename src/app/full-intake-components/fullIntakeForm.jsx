@@ -371,15 +371,7 @@ export default function FullIntakeForm({
             {!isViewOnly && (
               <>
                 <div style={buttonRowStyle}>
-                  {!isEditing ? (
-                    <Col md={4}>
-                      <button className={styles.cancelButton} onClick={() => setIsEditing(true)}>
-                        Edit
-                      </button>
-                    </Col>
-                  ) : (
                     <>
-                      <Col md={4}>
                         <button
                           style={cancelBtnStyle}
                           onClick={() => {
@@ -390,13 +382,12 @@ export default function FullIntakeForm({
                         >
                           Cancel
                         </button>
-                      </Col>
+                      
                         <button style={saveBtnStyle} type="submit">
                           Save
                         </button>
-                     
                     </>
-                  )}
+                  
                 </div>
 
                 {formSent && <div className={styles.successfulText}>Form saved successfully!</div>}
