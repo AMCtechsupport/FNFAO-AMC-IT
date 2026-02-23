@@ -9,7 +9,6 @@ export default function AssignedClientsList({ advocateId }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalClients, setTotalClients] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
   const clientsPerPage = 5;
 
   useEffect(() => {
@@ -17,209 +16,149 @@ export default function AssignedClientsList({ advocateId }) {
       setLoading(true);
       setError(null);
 
+      if (advocateId === undefined || advocateId === null || advocateId === "") {
+        setAssignedClients([]);
+        setTotalClients(0);
+        setError("No advocate is linked to this login yet.");
+        setLoading(false);
+        return;
+      }
+
+      const hasSearch = !!searchQuery?.trim();
+      const numericClientId = hasSearch ? Number(searchQuery.trim()) : null;
+      if (hasSearch && Number.isNaN(numericClientId)) {
+        setAssignedClients([]);
+        setTotalClients(0);
+        setError("Please enter a valid numeric value for the Client ID.");
+        setLoading(false);
+        return;
+      }
+
       try {
-        // Base query to fetch assigned clients
-        let query = supabase
-          .from("Assigned Advocates")
-          .select("assigned_advocate_id, dateAssigned, Clients(*)", {
-            count: "exact",
-          })
-          .eq("advocate_id", advocateId)
-          .order("dateAssigned", { ascending: false });
+        const applyFilters = (q) => {
+          let next = q.eq("advocate_id", advocateId);
+          if (hasSearch) next = next.eq("Clients.client_id", numericClientId);
+          return next;
+        };
 
-        // Handle search query
-        if (searchQuery) {
-          if (!isNaN(searchQuery)) {
-            // If searchQuery is numeric, search by client_id
-            query = query.eq("Clients.client_id", parseInt(searchQuery, 10));
-          } else {
-            setError("Please enter a valid numeric value for the client ID.");
-            setAssignedClients([]);
-            setLoading(false);
-            return;
-          }
-        }
-        // if (searchQuery) {
-        //   const isNumeric = !isNaN(searchQuery);
-
-        //   if (isNumeric) {
-        //     // If searchQuery is numeric, search by client_id
-        //     query = query.eq("Clients.client_id", parseInt(searchQuery, 10));
-        //   } else {
-        //     // Apply 'ilike' conditions for each client field separately
-        //     query = query
-        //       .ilike("Clients.firstName", `%${searchQuery}%`)
-        //       .or(`Clients.middleName.ilike.%${searchQuery}%`)
-        //       .or(`Clients.lastName.ilike.%${searchQuery}%`);
-        //   }
-        // }
-
-        // Get the total number of clients
-        const { count, error: countError } = await query.select(
-          "*, Clients(*)",
-          { count: "exact" }
+        const countQuery = applyFilters(
+          supabase
+            .from("Assigned Advocates")
+            .select("assigned_advocate_id", { count: "exact", head: true })
         );
 
+        const { count, error: countError } = await countQuery;
         if (countError) throw new Error(countError.message);
+        setTotalClients(count || 0);
 
-        setTotalClients(count);
-
-        // Get clients for the current page
-        const { data, error } = await query.range(
+        const dataQuery = applyFilters(
+          supabase
+            .from("Assigned Advocates")
+            .select("dateAssigned, Clients(client_id, firstName, middleName, lastName)")
+            .order("dateAssigned", { ascending: false })
+        ).range(
           (currentPage - 1) * clientsPerPage,
           currentPage * clientsPerPage - 1
         );
 
-        if (error) throw new Error(error.message);
+        const { data, error: dataError } = await dataQuery;
+        if (dataError) throw new Error(dataError.message);
 
-        // Filter out rows where Clients is null
-        const filteredData = data.filter(
-          (assignment) => assignment.Clients !== null
-        );
-
-        setAssignedClients(filteredData);
+        setAssignedClients((data || []).filter((row) => row.Clients !== null));
       } catch (err) {
         setError("Failed to fetch assigned clients: " + err.message);
+        setAssignedClients([]);
+        setTotalClients(0);
       } finally {
         setLoading(false);
       }
     };
 
     fetchAssignedClients();
-  }, [advocateId, currentPage, searchQuery, dateOfBirth]);
+  }, [advocateId, currentPage, searchQuery]);
 
-  const totalPages = Math.ceil(totalClients / clientsPerPage);
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
-  const handleSearchChange = (event) => {
-    setSearchQuery(event.target.value);
-    setCurrentPage(1);
-  };
+  const totalPages = Math.max(1, Math.ceil(totalClients / clientsPerPage) || 0);
 
   return (
-    <div className="fullIntakeContainer bg-e5e5e5  min-h-screen flex flex-col items-center justify-start">
-      {/* Title Section */}
+    <div className="w-full">
+      {/* Search */}
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search by Client ID"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="p-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+      </div>
 
-      <div className="container max-w-5xl w-full px-4 py-6">
-        {loading && <p>Loading...</p>}
-        {error && <p className="text-red-500">{error}</p>}
+      {loading && <p className="text-gray-700">Loading...</p>}
+      {error && <p className="text-red-500">{error}</p>}
 
-        {/* Search Bar */}
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder="Search by Client ID"
-            value={searchQuery}
-            onChange={handleSearchChange}
-            className="p-2 border rounded-md w-full"
-          />
-        </div>
+      {/* List */}
+      {assignedClients.length > 0 ? (
+        <ul className="space-y-3">
+          {assignedClients.map((assignment) => {
+            const client = assignment.Clients;
+            const fullName = [client.firstName, client.middleName, client.lastName]
+              .filter(Boolean)
+              .join(" ");
 
-        {/* Display filtered clients */}
-        {assignedClients.length > 0 ? (
-          <ul className="divide-y divide-gray-600">
-            {assignedClients.map((assignment) => (
-              <li
-                key={assignment.Clients.client_id}
-                className=" border-gray-600"
-              >
-                <div className="text-left p-2 border-2 border-gray-700 rounded-lg mb-4 shadow-sm bg-white">
-                  <ul className="text-lg font-bold text-gray-900">
-                    <Link href={`/clients/${assignment.Clients.client_id}`}>
-                      {assignment.Clients.firstName}{" "}
-                      {assignment.Clients.middleName}{" "}
-                      {assignment.Clients.lastName}
-                    </Link>
-                  </ul>
+            return (
+              <li key={client.client_id}>
+                <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 flex items-center justify-between gap-4">
+                  <div>
+                    <div className="text-lg font-semibold text-gray-900">
+                      {fullName || "(No name)"}
+                    </div>
+                    <div className="text-sm text-gray-600 mt-1">
+                      <span className="font-medium text-gray-700">Client ID:</span>{" "}
+                      {client.client_id}
+                    </div>
+                  </div>
 
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Client ID: </span>
-                    {assignment.Clients.client_id}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Phone: </span>
-                    {assignment.Clients.phoneNumber}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Email: </span>
-                    {assignment.Clients.email}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">
-                      First Nation Membership:{" "}
-                    </span>
-                    {assignment.Clients.firstNationMembership || "N/A"}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Address: </span>
-                    {assignment.Clients.address || "N/A"}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Location: </span>
-                    {assignment.Clients.city}, {assignment.Clients.province}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Date of Birth: </span>
-                    {assignment.Clients.dateOfBirth
-                      ? new Date(
-                          assignment.Clients.dateOfBirth
-                        ).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })
-                      : "N/A"}
-                  </p>
-                  <p className="text-m text-black mt-2 bg-gray-200 p-2 rounded-md">
-                    <span className="font-semibold">Date Assigned: </span>
-                    {new Date(assignment.dateAssigned).toLocaleDateString(
-                      "en-US",
-                      {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      }
-                    )}
-                  </p>
+                  {/* Keep same role routing logic you already use:
+                      adult: /clients/:id
+                      youth: your logic happens inside client page, or you can change later if needed */}
+                  <Link
+                    href={`/clients/${client.client_id}/view`}
+                    className="px-4 py-2 rounded-md bg-green-500 text-white hover:bg-green-600 transition no-underline"
+                  >
+                    View
+                  </Link>
                 </div>
               </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No clients found that match your search.</p>
-        )}
+            );
+          })}
+        </ul>
+      ) : (
+        !loading && <p className="text-gray-700">No clients found that match your search.</p>
+      )}
 
-        {/* Pagination Controls */}
-        <div className="flex justify-between items-center mt-4">
-          <button
-            onClick={handlePrevPage}
-            disabled={currentPage === 1}
-            className="px-4 py-2 text-black rounded-md disabled:bg-gray-500"
-          >
-            Previous
-          </button>
-          <span className="text-gray-700">
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 text-black rounded-md disabled:bg-gray-500"
-          >
-            Next
-          </button>
-        </div>
+      {/* Pagination */}
+      <div className="flex justify-between items-center mt-6">
+        <button
+          onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+          disabled={currentPage === 1}
+          className="px-4 py-2 rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition"
+        >
+          Previous
+        </button>
+
+        <span className="text-gray-700">
+          Page {currentPage} of {totalPages}
+        </span>
+
+        <button
+          onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition"
+        >
+          Next
+        </button>
       </div>
     </div>
   );

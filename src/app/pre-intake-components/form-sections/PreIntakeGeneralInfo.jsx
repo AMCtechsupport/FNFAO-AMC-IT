@@ -28,7 +28,7 @@ const PreIntakeGeneralInfo = ( { errors } ) => {
                 <InputField
                 name="firstName"
                 label="First Name:*"
-                placeholder="John"
+                placeholder="Enter First Name"
                 error={errors.firstName}
                 />
             </Col>
@@ -43,7 +43,7 @@ const PreIntakeGeneralInfo = ( { errors } ) => {
                 <InputField
                 name="lastName"
                 label="Last Name:*"
-                placeholder="Connor"
+                placeholder="Enter Last Name"
                 error={errors.lastName}
                 />
             </Col>
@@ -126,7 +126,7 @@ const PreIntakeGeneralInfo = ( { errors } ) => {
                     <InputField
                     name="emergencyContactFirstName"
                     label="First Name:"
-                    placeholder=""
+                    placeholder="Enter First Name"
                     error={errors.emergencyContactFirstName}
                     />
                 </Col>
@@ -135,7 +135,7 @@ const PreIntakeGeneralInfo = ( { errors } ) => {
                     <InputField
                     name="emergencyContactLastName"
                     label="Last Name:"
-                    placeholder=""
+                    placeholder="Enter Last Name"
                     error={errors.emergencyContactLastName}
                     />
                 </Col>

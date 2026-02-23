@@ -9,7 +9,7 @@ export default function ClientsList({ initialClients, totalCount }) {
   const [search, setSearch] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [deletingClientId, setDeletingClientId] = useState(null);
-  const [editingClientId, setEditingClientId] = useState(null);
+  const [activeClientId, setactiveClientId] = useState(null);
   
     // New state for total counts from database
   const [totalYouthClients, setTotalYouthClients] = useState(0);
@@ -75,18 +75,18 @@ export default function ClientsList({ initialClients, totalCount }) {
     }
   };
 
-  // Handle edit button click
-  const handleEdit = (client) => {
-  setEditingClientId(client.client_id);
+  // Handle view button click
+  const handleView = (client) => {
+  setactiveClientId(client.client_id);
   const clientType = getClientTypeLabel(client);
 
   setTimeout(() => {
     if (clientType === "Youth") {
-      // Redirect Youth clients to youth-clients form for editing
-      router.push(`/youth-clients/${client.client_id}`);
+      // Redirect Youth clients to youth-clients form for viewing
+      router.push(`/youth-clients/${client.client_id}/view`);
     } else {
-      // Redirect Adult clients to full-intake form for editing
-      router.push(`/clients/${client.client_id}`);
+      // Redirect Adult clients to full-intake form for viewing
+      router.push(`/clients/${client.client_id}/view`);
     }
   }, 50);
 };
@@ -497,34 +497,34 @@ export default function ClientsList({ initialClients, totalCount }) {
                       transition: 'opacity 0.2s ease-in-out, visibility 0.2s ease-in-out'
                     }}>
                       <button
-                        onClick={() => handleEdit(client)}
-                        disabled={editingClientId !== null || deletingClientId !== null}
+                        onClick={() => handleView(client)}
+                        disabled={activeClientId !== null || deletingClientId !== null}
                         style={{
                           padding: '6px 12px',
                           backgroundColor: '#3b82f6',
                           color: 'white',
                           border: 'none',
                           borderRadius: '6px',
-                          cursor: editingClientId ? 'not-allowed' : 'pointer',
+                          cursor: activeClientId ? 'not-allowed' : 'pointer',
                           fontSize: '12px',
                           fontWeight: '500',
-                          opacity: editingClientId && editingClientId !== client.client_id ? 0.6 : 1
+                          opacity: activeClientId && activeClientId !== client.client_id ? 0.6 : 1
                         }}
                       >
-                        {editingClientId === client.client_id ? "Opening..." : "Edit"}
+                        {activeClientId === client.client_id ? "Opening..." : "View"}
                       </button>
 
                       <button
                         onClick={() => handleDelete(client)}
                         disabled={
                           deletingClientId === client.client_id ||
-                          editingClientId !== null
+                          activeClientId !== null
                         }
                         style={{
                           padding: '6px 12px',
                           backgroundColor:
                             deletingClientId === client.client_id ? '#9ca3af'
-                            : editingClientId !== null ? '#9ca3af'
+                            : activeClientId !== null ? '#9ca3af'
                             : '#dc2626',
                           color: 'white',
                           border: 'none',
@@ -532,7 +532,7 @@ export default function ClientsList({ initialClients, totalCount }) {
                           fontSize: '12px',
                           fontWeight: '500',
                           opacity:
-                            deletingClientId === client.client_id || editingClientId
+                            deletingClientId === client.client_id || activeClientId
                               ? 0.6
                               : 1,
                         }}
@@ -696,34 +696,34 @@ export default function ClientsList({ initialClients, totalCount }) {
                       transition: 'opacity 0.2s ease-in-out, visibility 0.2s ease-in-out'
                     }}>
                       <button
-                        onClick={() => handleEdit(client)}
-                        disabled={editingClientId !== null || deletingClientId !== null}
+                        onClick={() => handleView(client)}
+                        disabled={activeClientId !== null || deletingClientId !== null}
                         style={{
                           padding: '6px 12px',
                           backgroundColor: '#15803d',
                           color: 'white',
                           border: 'none',
                           borderRadius: '6px',
-                          cursor: editingClientId ? 'not-allowed' : 'pointer',
+                          cursor: activeClientId ? 'not-allowed' : 'pointer',
                           fontSize: '12px',
                           fontWeight: '500',
-                          opacity: editingClientId && editingClientId !== client.client_id ? 0.6 : 1
+                          opacity: activeClientId && activeClientId !== client.client_id ? 0.6 : 1
                         }}
                       >
-                        {editingClientId === client.client_id ? "Opening..." : "Edit"}
+                        {activeClientId === client.client_id ? "Opening..." : "View"}
                       </button>
 
                       <button
                         onClick={() => handleDelete(client)}
                         disabled={
                           deletingClientId === client.client_id ||
-                          editingClientId !== null
+                          activeClientId !== null
                         }
                         style={{
                           padding: '6px 12px',
                           backgroundColor:
                             deletingClientId === client.client_id ? '#9ca3af'
-                            : editingClientId !== null ? '#9ca3af'
+                            : activeClientId !== null ? '#9ca3af'
                             : '#dc2626',
                           color: 'white',
                           border: 'none',
@@ -732,7 +732,7 @@ export default function ClientsList({ initialClients, totalCount }) {
                           fontSize: '12px',
                           fontWeight: '500',
                           opacity:
-                            deletingClientId === client.client_id || editingClientId
+                            deletingClientId === client.client_id || activeClientId
                               ? 0.6
                               : 1,
                         }}

@@ -12,8 +12,8 @@ export default function YouthIntake() {
 
   return (
     <UserHome>
-      <div className={styles.fullIntakeContainer}>
-        <div className={styles.container}>
+      <div className={styles.container}>
+        <div className={styles.centeredContent}>
           {isEditMode && (
             <div style={{
               backgroundColor: '#dbeafe',

@@ -6,8 +6,10 @@
 .container {
   min-height: 100vh;
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
 }
 
 .centeredTitle {
@@ -18,12 +20,13 @@
 .form {
   width: 100%; /* Width relative to the container */
   max-width: 1000px; /* Maximum width for larger screens */
-  margin-top: 50px;
+  margin-top: 20px;
   background: #fff;
   border-radius: 5px;
   padding: 20px;
   box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 }
+
 
 .form > div {
   margin-bottom: 10px;
@@ -69,7 +72,7 @@
 .cancelButton {
   background-color: black;
   color: white;
-  padding: 10px 20px;
+  padding: 10px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -82,6 +85,7 @@
 .customDeleteButton:hover {
   background-color: #333;
 }
+
 
 .form select {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
