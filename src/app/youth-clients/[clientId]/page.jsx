@@ -58,7 +58,6 @@ export default function YouthClientEdit({}) {
 
   return (
     <UserHome>
-      <div className={styles.fullIntakeContainer}>
         <div className={styles.container}>
           {/* Close button: top-left */}
           <div style={{ marginTop: "30px", marginBottom: "10px" }}>
@@ -106,7 +105,6 @@ export default function YouthClientEdit({}) {
 
           <YouthIntakeForm editClientId={client_id} isEditMode={true} getToken={getToken} />
         </div>
-      </div>
     </UserHome>
   );
 }
