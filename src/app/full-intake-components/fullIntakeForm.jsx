@@ -342,14 +342,14 @@ export default function FullIntakeForm({
                 <Row className="mt-3">
                   {!isEditing ? (
                     <Col md={4}>
-                      <Button className={styles.cancelButton} onClick={() => setIsEditing(true)}>
+                      <button className={styles.cancelButton} onClick={() => setIsEditing(true)}>
                         Edit
-                      </Button>
+                      </button>
                     </Col>
                   ) : (
                     <>
                       <Col md={4}>
-                        <Button
+                        <button
                           className={styles.cancelButton}
                           onClick={() => {
                             resetForm();
@@ -358,12 +358,12 @@ export default function FullIntakeForm({
                           }}
                         >
                           Cancel
-                        </Button>
+                        </button>
                       </Col>
                       <Col md={4}>
-                        <Button className={styles.submitButton} type="submit">
+                        <button className={styles.submitButton} type="submit">
                           Save
-                        </Button>
+                        </button>
                       </Col>
                     </>
                   )}
