@@ -150,14 +150,16 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
   }, [isViewOnly, isLoading]);
 
   
-   const buttonRowStyle = {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-    maxWidth: "1000px",
-    margin: "20px auto 10px auto",
-  };
+    const submitFullWidthStyle = {
+      backgroundColor: "black",
+      color: "white",
+      padding: "10px",
+      border: "none",
+      borderRadius: "5px",
+      cursor: "pointer",
+      fontSize: "16px",
+      width: "100%",
+    };
 
     const saveBtnStyle = {
     backgroundColor: "#7C3AED", // purple
@@ -220,21 +222,33 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
 
           {!isViewOnly && (
             <>
-            <div style={buttonRowStyle}>
-              <button
-                style={cancelBtnStyle}
-                onClick={() => {
-                  resetForm();
-                  setIsEditing(false);
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: isEditMode ? "space-between" : "flex-end",
+                  alignItems: "center",
+                  width: "100%",
+                  maxWidth: "1000px",
+                  margin: "20px auto 10px auto",
                 }}
               >
-                Cancel
-              </button>
+                {isEditMode && (
+                  <button
+                    style={cancelBtnStyle}
+                    onClick={() => {
+                      resetForm();
+                      setIsEditing(false);
+                    }}
+                  >
+                    Cancel
+                  </button>
 
-              <button type="submit" style={saveBtnStyle}>
-                {isEditMode ? "Save" : "Submit Youth Intake"}
-              </button>
-            </div>
+                )}
+
+                  <button type="submit" style={isEditMode ? saveBtnStyle : submitFullWidthStyle}>
+                    {isEditMode ? "Save" : "Submit Youth Intake"}
+                  </button>
+              </div>
 
               {formSent && (
                 <p className={styles.successfulText}>
