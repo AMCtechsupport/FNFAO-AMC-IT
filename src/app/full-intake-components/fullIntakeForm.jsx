@@ -48,6 +48,7 @@ export default function FullIntakeForm({
 
   const [selectedNote, setSelectedNote] = useState(null);
   const [showNewNoteForm, setShowNewNoteForm] = useState(false);
+  const [editingNote, setEditingNote] = useState(null);
   const [isAssignedAdvocate, setIsAssignedAdvocate] = useState(false);
   const [assignedAdvocateName, setAssignedAdvocateName] = useState("—");
 
@@ -232,6 +233,23 @@ export default function FullIntakeForm({
     setShowNewNoteForm(true);
   };
 
+  const handleSaveNoteEdit = async (note_id, updatedFields) => {
+    const modifiedAt = new Date().toISOString();
+    const { error } = await supabase
+      .from("Notes")
+      .update({ ...updatedFields, modifiedAt })
+      .eq("note_id", note_id);
+
+    if (!error) {
+      setNotesData((prev) =>
+        prev.map((n) =>
+          n.note_id === note_id ? { ...n, ...updatedFields, modifiedAt } : n
+        )
+      );
+      setEditingNote(null);
+    }
+  };
+
   const validateRadio = () => undefined;
 
   useEffect(() => {
@@ -364,6 +382,9 @@ export default function FullIntakeForm({
                       handleCloseNoteDetails={handleCloseNoteDetails}
                       showNewNoteForm={showNewNoteForm}
                       handleAddNoteClick={handleAddNoteClick}
+                      editingNote={editingNote}
+                      setEditingNote={setEditingNote}
+                      handleSaveNoteEdit={handleSaveNoteEdit}
                       values={values}
                       setFieldValue={setFieldValue}
                       isEditing={isEditing}
@@ -380,6 +401,9 @@ export default function FullIntakeForm({
                       handleCloseNoteDetails={handleCloseNoteDetails}
                       showNewNoteForm={showNewNoteForm}
                       handleAddNoteClick={handleAddNoteClick}
+                      editingNote={editingNote}
+                      setEditingNote={setEditingNote}
+                      handleSaveNoteEdit={handleSaveNoteEdit}
                       values={values}
                       setFieldValue={setFieldValue}
                       isEditing={isEditing}
