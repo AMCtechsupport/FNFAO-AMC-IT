@@ -63,17 +63,28 @@ export default function FullIntakeForm({
       const forceWhiteBlockedLook = (el) => {
         el.style.setProperty("background-color", "#ffffff", "important");
         el.style.setProperty("opacity", "1", "important");
-        el.style.setProperty("cursor", "not-allowed", "important");
         el.style.setProperty("color", "#111827", "important");
         el.style.setProperty("-webkit-text-fill-color", "#111827", "important");
+        el.style.setProperty("cursor", "default", "important");
       };
 
       const applyToElement = (el) => {
         const tag = el.tagName.toLowerCase();
 
+        // Skip buttons that are explicitly allowed in view-only mode
+        if (tag === "button" && el.dataset.viewAllow) return;
+
         // remove placeholders if empty
         if ((tag === "input" || tag === "textarea") && !el.value) {
           el.setAttribute("placeholder", "");
+        }
+
+        // Preserve native checkbox appearance (blue when checked) — skip white look
+        if (tag === "input" && (el.getAttribute("type") || "text").toLowerCase() === "checkbox") {
+          el.disabled = false;
+          el.style.setProperty("pointer-events", "none", "important");
+          el.tabIndex = -1;
+          return;
         }
 
         // prevent caret focus
@@ -95,7 +106,7 @@ export default function FullIntakeForm({
         if (tag === "input") {
           const type = (el.getAttribute("type") || "text").toLowerCase();
 
-          if (["checkbox", "radio", "file", "date", "time"].includes(type)) {
+          if (["radio", "file", "date", "time"].includes(type)) {
             el.disabled = true;
             el.readOnly = false;
             el.tabIndex = -1;
@@ -137,8 +148,7 @@ export default function FullIntakeForm({
         }
 
         if (tag === "button") {
-          el.disabled = true;
-          el.tabIndex = -1;
+          el.style.setProperty("display", "none", "important");
         }
       };
 

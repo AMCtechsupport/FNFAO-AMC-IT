@@ -49,6 +49,7 @@ const CaseNotesPartition = ({
                                             <Button
                                                 className="btn btn-primary btn-sm"
                                                 onClick={() => handleShowNoteDetails(note)}
+                                                data-view-allow="true"
                                             >
                                                 See Note
                                             </Button>
@@ -142,6 +143,7 @@ const CaseNotesPartition = ({
                                         variant="secondary"
                                         className="mb-3"
                                         onClick={handleCloseNoteDetails}
+                                        data-view-allow="true"
                                     >
                                         Close Note
                                     </Button>

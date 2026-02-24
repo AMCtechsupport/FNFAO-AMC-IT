@@ -74,10 +74,10 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
         focusHandlers.push(() => el.removeEventListener("focus", onFocus));
       }
 
-      // keep white & show blocked cursor
-      el.style.backgroundColor = "#ffffff";
-      el.style.cursor = "not-allowed";
-      el.style.opacity = "1";
+      // keep white look
+      el.style.setProperty("background-color", "#ffffff", "important");
+      el.style.setProperty("opacity", "1", "important");
+      el.style.setProperty("cursor", "default", "important");
 
       if (tag === "textarea") {
         el.readOnly = true;
@@ -88,7 +88,10 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
 
       if (tag === "input") {
         const type = (el.getAttribute("type") || "text").toLowerCase();
-        if (["checkbox", "radio", "file", "date", "time"].includes(type)) {
+        if (type === "checkbox") {
+          el.style.setProperty("pointer-events", "none", "important");
+          el.tabIndex = -1;
+        } else if (["radio", "file", "date", "time"].includes(type)) {
           el.disabled = true;
           el.readOnly = false;
           el.tabIndex = -1;
@@ -131,8 +134,7 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
 }
 
       if (tag === "button") {
-        el.disabled = true;
-        el.tabIndex = -1;
+        el.style.setProperty("display", "none", "important");
       }
     };
 
