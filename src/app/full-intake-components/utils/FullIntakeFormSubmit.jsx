@@ -9,6 +9,25 @@ import handleChildrenUpdate from "../childrenUpdate";
 
 const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, router, setFormSent, client_id, originalData, childrenData, familyData, homeMembersData, EIAData, notesData, setChildrenData, setFamilyData, setHomeMembersData, setEIAData, setNotesData, setOriginalData, setShowNewNoteForm, setIsEditing) => {
     try {
+        const formatLogValue = (value) => {
+            if (value === null || value === undefined || value === "") return "N/A";
+            if (typeof value === "boolean") return value ? "true" : "false";
+            if (typeof value === "object") return JSON.stringify(value);
+            return String(value);
+        };
+
+        const buildChangedFieldsDescription = (previous = {}, current = {}) => {
+            const excludedFields = new Set(["dateModified", "createdAt"]);
+            return Object.keys(current)
+                .filter((field) => !excludedFields.has(field))
+                .filter((field) => {
+                    const prevVal = previous?.[field] ?? null;
+                    const currVal = current?.[field] ?? null;
+                    return JSON.stringify(prevVal) !== JSON.stringify(currVal);
+                })
+                .map((field) => `${field}: ${formatLogValue(previous?.[field])} → ${formatLogValue(current?.[field])}`);
+        };
+
         // const { getToken } = useAuth();
         const token = await getToken({ template: "supabase" });
 
@@ -141,6 +160,30 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
 
             // UPDATE originalData with the new values
             setOriginalData(data[0]);  // Use the data returned by Supabase
+
+            // Insert a User Log entry for this update
+            let advocate_id = null;
+            if (userId) {
+                const { data: advocateData } = await supabase
+                    .from("Advocates")
+                    .select("advocate_id")
+                    .eq("clerk_user_id", userId)
+                    .single();
+                advocate_id = advocateData?.advocate_id || null;
+            }
+            const changedFields = buildChangedFieldsDescription(originalData, clientValues);
+            const description = changedFields.length
+                ? `Full intake updated. Changed fields:\n${changedFields.join("\n")}`
+                : `Full intake updated for client_id: ${client_id}`;
+
+            await supabase.from("User Logs").insert([
+                {
+                    description,
+                    logType: "UPDATE",
+                    advocate_id,
+                    client_id,
+                },
+            ]);
 
             setShowNewNoteForm(false);
             setIsEditing(false);

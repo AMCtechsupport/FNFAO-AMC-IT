@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 import supabase from "../src/app/lib/supabase";
 
 export default function ClientsList({ initialClients, totalCount }) {
@@ -22,8 +23,20 @@ export default function ClientsList({ initialClients, totalCount }) {
   const [youthClients, setYouthClients] = useState([]);
   const [adultClients, setAdultClients] = useState([]);
   const clientsPerPage = 10;
+  const { userId } = useAuth();
 
   const router = useRouter();
+
+  const getAdvocateIdByClerkUserId = async () => {
+    if (!userId) return null;
+    const { data: advocateData } = await supabase
+      .from("Advocates")
+      .select("advocate_id")
+      .eq("clerk_user_id", userId)
+      .single();
+
+    return advocateData?.advocate_id || null;
+  };
 
   // Determine if client is Youth or Adult based on clientType
   const getClientTypeLabel = (client) => {
@@ -160,6 +173,22 @@ export default function ClientsList({ initialClients, totalCount }) {
 
       if (clientError) {
         throw clientError;
+      }
+
+      const advocate_id = await getAdvocateIdByClerkUserId();
+      const { error: logError } = await supabase
+        .from("User Logs")
+        .insert([
+          {
+            description: `Client deleted: client_id ${client.client_id}, name ${client.firstName} ${client.lastName}`,
+            logType: "DELETE",
+            advocate_id,
+            client_id: client.client_id,
+          },
+        ]);
+
+      if (logError) {
+        console.error("Error logging DELETE event:", logError);
       }
 
       // Remove client from local state

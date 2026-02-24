@@ -46,6 +46,33 @@ function sanitizeValues(values) {
 
 const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, setFormSent, isEditMode, editClientId) => {
     try {
+                const normalizeValue = (value) => {
+                    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value)) {
+                        return value.split("T")[0];
+                    }
+                    return value;
+                };
+
+                const formatLogValue = (value) => {
+                    if (value === null || value === undefined || value === "") return "N/A";
+                    if (typeof value === "boolean") return value ? "true" : "false";
+                    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value)) return value.split("T")[0];
+                    if (typeof value === "object") return JSON.stringify(value);
+                    return String(value);
+                };
+
+                const buildChangedFieldsDescription = (previous = {}, current = {}) => {
+                    const excludedFields = new Set(["dateModified", "createdAt"]);
+                    return Object.keys(current)
+                        .filter((field) => !excludedFields.has(field))
+                        .filter((field) => {
+                            const prevVal = normalizeValue(previous?.[field] ?? null);
+                            const currVal = normalizeValue(current?.[field] ?? null);
+                            return JSON.stringify(prevVal) !== JSON.stringify(currVal);
+                        })
+                        .map((field) => `${field}: ${formatLogValue(previous?.[field])} → ${formatLogValue(current?.[field])}`);
+                };
+
         const sanitizedValues = sanitizeValues(values);
 
         const convertedValues = {};
@@ -90,10 +117,19 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, setFormS
         } = convertedValues;
 
         let clientId;
+        let changedFields = [];
 
         if (isEditMode && editClientId) {
+        const { data: existingClientData } = await supabase
+            .from("Clients")
+            .select("*")
+            .eq("client_id", editClientId)
+            .single();
+
         // UPDATE existing client
         clientData.dateModified = currentDate;
+
+        changedFields = buildChangedFieldsDescription(existingClientData || {}, clientData);
 
         const { error: clientError } = await supabase
             .from("Clients")
@@ -265,6 +301,29 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, setFormS
         //   emergencyContactData
         // );
         }
+
+        // Insert a User Log entry for this submission
+        let advocate_id = null;
+        if (user?.id) {
+            const { data: advocateData } = await supabase
+                .from("Advocates")
+                .select("advocate_id")
+                .eq("clerk_user_id", user.id)
+                .single();
+            advocate_id = advocateData?.advocate_id || null;
+        }
+        await supabase.from("User Logs").insert([
+            {
+                description: isEditMode
+                    ? changedFields.length
+                        ? `Youth intake updated. Changed fields:\n${changedFields.join("\n")}`
+                        : `Youth intake updated for client_id: ${clientId}`
+                    : `Youth intake created for client_id: ${clientId}`,
+                logType: isEditMode ? "UPDATE" : "INSERT",
+                advocate_id,
+                client_id: clientId,
+            },
+        ]);
 
         // Reset form and show success message
         setFormSent(true);
