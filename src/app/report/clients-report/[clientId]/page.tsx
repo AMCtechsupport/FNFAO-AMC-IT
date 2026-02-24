@@ -43,14 +43,14 @@ export default function ClientReportPage() {
 
         const element = contentRef.current;
         const options = {
-            margin: 0.5,
+            margin: 0,
             filename: `client-report-${clientId}.pdf`,
             image: { type: "jpeg" as const, quality: 0.98 },
             html2canvas: { scale: 2 },
             jsPDF: {
                 unit: "in" as const,
                 format: "letter" as const,
-                orientation: "portrait" as const,
+                orientation: "landscape" as const,
             },
         };
 
