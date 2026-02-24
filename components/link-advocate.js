@@ -28,18 +28,15 @@ const LinkAdvocate = () => {
       const result = await createAdvocate({
         firstName: firstName.trim(),
         lastName: lastName.trim(),
-        email: email.trim()
+        email: email.trim(),
       });
 
       if (result.success) {
-        let successMsg = `Advocate ${firstName} ${lastName} has been successfully created! An invitation has been sent to ${email}.`;
-        
-        // In development, show the invitation URL since emails might not be sent
-        if (result.invitationUrl && process.env.NODE_ENV === 'development') {
-          successMsg += ` Since you're in development mode, use this link to accept the invitation: ${result.invitationUrl}`;
-        }
-        
+        // Always show ONLY this message
+        const successMsg = `Advocate ${firstName} ${lastName} has been successfully created! with the email id ${email}`;
+
         setSuccess(successMsg);
+
         // Clear form
         clearForm();
       }
@@ -138,16 +135,20 @@ const LinkAdvocate = () => {
 
         {/* Clerk Account Options */}
         <div className="space-y-3 p-4 bg-gray-50 border border-gray-200 rounded-md">
-        
-          
           <div className="flex items-center">
-            <label htmlFor="createClerkAccount" className="ml-2 text-sm text-gray-700">
+            <label
+              htmlFor="createClerkAccount"
+              className="ml-2 text-sm text-gray-700"
+            >
               Create user account (allows advocate to login)
             </label>
           </div>
-          
+
           <div className="flex items-center">
-            <label htmlFor="sendInvitation" className="ml-2 text-sm text-gray-700">
+            <label
+              htmlFor="sendInvitation"
+              className="ml-2 text-sm text-gray-700"
+            >
               Send invitation email to set up their password
             </label>
           </div>
@@ -161,11 +162,12 @@ const LinkAdvocate = () => {
           {loading ? "Creating..." : "Create Advocate"}
         </button>
       </form>
-      
-              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+
+      <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
         <p className="text-sm text-blue-700">
-          <strong>Note:</strong> This creates a new advocate record that can be assigned to clients. 
-          An invitation will be sent to their email address to set up their account.
+          <strong>Note:</strong> This creates a new advocate record that can be
+          assigned to clients. An invitation will be sent to their email address
+          to set up their account.
         </p>
       </div>
     </div>
