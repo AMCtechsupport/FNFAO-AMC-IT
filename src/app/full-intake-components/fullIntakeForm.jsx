@@ -22,6 +22,7 @@ import fetchFullIntakeValues from "./utils/fetchFullIntakeValues";
 import fullIntakeInputValidation from "./utils/fullIntakeInputValidation";
 import { fetchClientData } from "./utils/fetchClientData";
 import FullIntakeFormSubmit from "./utils/FullIntakeFormSubmit";
+import supabase from "../lib/supabase";
 
 export default function FullIntakeForm({
   client_id,
@@ -47,6 +48,43 @@ export default function FullIntakeForm({
 
   const [selectedNote, setSelectedNote] = useState(null);
   const [showNewNoteForm, setShowNewNoteForm] = useState(false);
+  const [isAssignedAdvocate, setIsAssignedAdvocate] = useState(false);
+  const [assignedAdvocateName, setAssignedAdvocateName] = useState("—");
+
+  useEffect(() => {
+    if (!client_id) return;
+    const checkAssignment = async () => {
+      const { data: assignmentData } = await supabase
+        .from("Assigned Advocates")
+        .select("advocate_id")
+        .eq("client_id", client_id)
+        .maybeSingle();
+
+      if (!assignmentData?.advocate_id) return;
+
+      const { data: advocateData } = await supabase
+        .from("Advocates")
+        .select("firstName, lastName, advocate_id")
+        .eq("advocate_id", assignmentData.advocate_id)
+        .single();
+
+      if (advocateData) {
+        setAssignedAdvocateName(`${advocateData.firstName} ${advocateData.lastName}`);
+
+        if (userId) {
+          const { data: currentAdvocate } = await supabase
+            .from("Advocates")
+            .select("advocate_id")
+            .eq("clerk_user_id", userId)
+            .single();
+          setIsAssignedAdvocate(
+            !!currentAdvocate && currentAdvocate.advocate_id === advocateData.advocate_id
+          );
+        }
+      }
+    };
+    checkAssignment();
+  }, [userId, client_id]);
 
   useEffect(() => {
     if (isViewOnly) setIsEditing(false);
@@ -263,7 +301,7 @@ export default function FullIntakeForm({
 
             <hr className="separator-line" />
 
-            <GeneralInformationHeader values={values} isEditing={isEditing} errors={errors} />
+            <GeneralInformationHeader values={values} isEditing={isEditing} errors={errors} assignedAdvocateName={assignedAdvocateName} />
 
             <Row className={styles.tabsContainer}>
               <div className={styles.tabContainer}>
@@ -329,6 +367,7 @@ export default function FullIntakeForm({
                       values={values}
                       setFieldValue={setFieldValue}
                       isEditing={isEditing}
+                      isAssignedAdvocate={isAssignedAdvocate}
                       errors={errors}
                     />
                   </TabPanel>
@@ -344,6 +383,7 @@ export default function FullIntakeForm({
                       values={values}
                       setFieldValue={setFieldValue}
                       isEditing={isEditing}
+                      isAssignedAdvocate={isAssignedAdvocate}
                       errors={errors}
                     />
                   </TabPanel>

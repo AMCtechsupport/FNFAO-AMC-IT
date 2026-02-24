@@ -6,6 +6,7 @@ import { Formik, Form } from "formik";
 import "bootstrap/dist/css/bootstrap.min.css";
 import * as Yup from "yup";
 import { useUser } from "@clerk/clerk-react";
+import supabase from "../lib/supabase";
 
 import youthIntakeInputValidation from "./utils/youthIntakeInputValidation";
 
@@ -42,11 +43,37 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
   const { user } = useUser();
   const router = useRouter();
   const [formSent, setFormSent] = useState(false);
+  const [assignedAdvocateName, setAssignedAdvocateName] = useState("—");
+
   const { initialValues, isLoading } = YouthIntakeFetchClientData(
     youthIntakeDefaultValues,
     isEditMode,
     editClientId
   );
+
+  useEffect(() => {
+    if (!editClientId) return;
+    const fetchAssignedAdvocate = async () => {
+      const { data: assignmentData } = await supabase
+        .from("Assigned Advocates")
+        .select("advocate_id")
+        .eq("client_id", editClientId)
+        .maybeSingle();
+
+      if (!assignmentData?.advocate_id) return;
+
+      const { data: advocateData } = await supabase
+        .from("Advocates")
+        .select("firstName, lastName")
+        .eq("advocate_id", assignmentData.advocate_id)
+        .single();
+
+      if (advocateData) {
+        setAssignedAdvocateName(`${advocateData.firstName} ${advocateData.lastName}`);
+      }
+    };
+    fetchAssignedAdvocate();
+  }, [editClientId]);
 
   // VIEW ONLY PATCH (white boxes + blocked cursor + remove placeholders)
   useEffect(() => {
@@ -109,7 +136,7 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
 
   el.style.setProperty("background-color", "#ffffff", "important");
   el.style.setProperty("opacity", "1", "important");
-  el.style.setProperty("cursor", "not-allowed", "important");
+  el.style.setProperty("cursor", "default", "important");
 
   const selectedOption = el.options?.[el.selectedIndex];
   const selectedText = (selectedOption?.textContent || "").trim();
@@ -172,6 +199,12 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
           </div>
 
           <hr className="separator-line" />
+
+          {editClientId && (
+            <div style={{ marginBottom: "12px" }}>
+              <strong>Assigned to:</strong> {assignedAdvocateName}
+            </div>
+          )}
 
           <YouthIntakeGeneralInfo errors={errors} />
           <YouthIntakeEmergencyContact errors={errors} />

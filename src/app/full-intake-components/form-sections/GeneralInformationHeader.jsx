@@ -11,7 +11,8 @@ import "react-tabs/style/react-tabs.css";
 const GeneralInformationHeader = ({
     values,
     errors,
-    isEditing
+    isEditing,
+    assignedAdvocateName,
 }) => {
     return (
         <>
@@ -26,8 +27,7 @@ const GeneralInformationHeader = ({
                     </Col>
 
                     <Col md={4}>
-                        <label><strong>Updated by:</strong></label>
-                        <div>{values.modifiedBy}</div>
+                        <label><strong>Assigned to:</strong> {assignedAdvocateName || ""}</label>
                     </Col>
                 </Row>
             </div>

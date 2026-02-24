@@ -17,6 +17,7 @@ const LegalNotesPartition = ({
     values,
     setFieldValue,
     isEditing,
+    isAssignedAdvocate,
     errors,
 }) => {
     return (
@@ -162,7 +163,7 @@ const LegalNotesPartition = ({
                         <Button
                             onClick={() =>
                                 handleAddNoteClick(values, push, "legal")}
-                            disabled={!isEditing}>
+                            disabled={!isEditing || !isAssignedAdvocate}>
                             Add Legal Note
                         </Button>
                     )}

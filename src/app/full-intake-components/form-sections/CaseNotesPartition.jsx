@@ -17,6 +17,7 @@ const CaseNotesPartition = ({
     values,
     setFieldValue,
     isEditing,
+    isAssignedAdvocate,
     errors,
 }) => {
     return (
@@ -159,7 +160,7 @@ const CaseNotesPartition = ({
                 // <Button onClick={() => handleAddNoteClick(values, setFieldValue)} disabled={!isEditing} >Add Note</Button>
                 <FieldArray name="notes">
                     {({ push }) => (
-                        <Button onClick={() => handleAddNoteClick(values, push, "case")} disabled={!isEditing}>
+                        <Button onClick={() => handleAddNoteClick(values, push, "case")} disabled={!isEditing || !isAssignedAdvocate}>
                             Add Case Note
                         </Button>
                     )}
