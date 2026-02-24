@@ -32,17 +32,28 @@ const LinkAdvocate = () => {
       });
 
       if (result.success) {
-        // Always show ONLY this message
-        const successMsg = `Advocate ${firstName} ${lastName} has been successfully created! with the email id ${email}`;
+        let successMsg = `Advocate ${firstName} ${lastName} has been successfully created! with the email id ${email}.`;
 
         setSuccess(successMsg);
-
         // Clear form
         clearForm();
       }
     } catch (error) {
-      setError("Error creating advocate: " + error.message);
       console.error("Error creating advocate:", error);
+
+      const errorMessage = error?.message?.toLowerCase() || "";
+
+      if (
+        errorMessage.includes("already") ||
+        errorMessage.includes("exists") ||
+        errorMessage.includes("taken")
+      ) {
+        setError(
+          "Error creating advocate: The user with this email already exists.",
+        );
+      } else {
+        setError("Error creating advocate: Please use valid information.");
+      }
     } finally {
       setLoading(false);
     }
