@@ -6,7 +6,7 @@ with options to download the data in JSON or CSV format.
 "use client";
 
 import { useEffect, useState } from "react";
-import supabase from "@/app/lib/supabase";
+import { getAdvocatesWithClientCounts } from "@/app/lib/get-advocates-with-counts";
 
 export const downloadJSON = (data, filename = "advocates_report") => {
   const jsonString = JSON.stringify(data, null, 2);
@@ -41,108 +41,28 @@ export const downloadCSV = (data, filename = "advocates_report") => {
   URL.revokeObjectURL(href);
 };
 
-export default function AdvocatesTableFull({ onDataLoaded, active, inactive, startDate, endDate }) { 
+export default function AdvocatesTableFull({ onDataLoaded, active, inactive, startDate, endDate }) {
   const [advocates, setAdvocates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
-
-  function clientType() {
-    if (active && inactive) return null;
-    if (active && !inactive) return "Active";
-    if (!active && inactive) return "Inactive";
-    return "__NONE__";
-  }
 
   useEffect(() => {
     const fetchAdvocates = async () => {
       setLoading(true);
       try {
-        const { data: advocatesData, error: advocatesError } = await supabase
-          .from("Advocates")
-          .select("advocate_id, firstName, lastName");
+        const result = await getAdvocatesWithClientCounts(active, inactive, startDate, endDate);
 
-        if (advocatesError) throw advocatesError;
-
-        const { data: assignmentsData, error: assignmentsError } = await supabase
-          .from("Assigned Advocates")
-          .select("advocate_id, client_id");
-
-        if (assignmentsError) throw assignmentsError;
-
-        const status = clientType();
-        let clientsData = [];
-        let clientsError = null;
-
-        if (status === "__NONE__") {
-          clientsData = [];
+        if (result.error) {
+          setFetchError(result.error);
+          setAdvocates([]);
         } else {
-          let clientsQuery = supabase
-            .from("Clients")
-            .select("client_id, clientStatus, createdAt"); // added createdAt here
-
-          if (status) {
-            clientsQuery = clientsQuery.eq("clientStatus", status);
-          }
-          if (startDate) {
-            const [y, m, d] = startDate.split('-');
-            const startISO = new Date(Date.UTC(parseInt(y), parseInt(m) - 1, parseInt(d), 0, 0, 0)).toISOString();
-            clientsQuery = clientsQuery.gte('createdAt', startISO);
-          }
-          if (endDate) {
-            const [y, m, d] = endDate.split('-');
-            const endISO = new Date(Date.UTC(parseInt(y), parseInt(m) - 1, parseInt(d), 23, 59, 59, 999)).toISOString();
-            clientsQuery = clientsQuery.lte('createdAt', endISO);
-          }
-
-          const clientsResult = await clientsQuery;
-          clientsData = clientsResult.data;
-          clientsError = clientsResult.error;
+          setAdvocates(result.data || []);
+          if (onDataLoaded) onDataLoaded(result.data || []);
         }
-
-        if (clientsError) throw clientsError;
-
-        const activeClientIds = new Set((clientsData || []).map((client) => client.client_id));
-
-        // default: 3 months timeframe if no explicit range provided
-        const threeMonthsAgo = new Date();
-        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-
-        const mergedData = advocatesData.map((advocate) => {
-          const assignedClients = assignmentsData.filter(
-            (item) => item.advocate_id === advocate.advocate_id && activeClientIds.has(item.client_id)
-          );
-
-          const clientCount = assignedClients.length;
-
-          // calculate new clients
-          const newClientCount = assignedClients.filter((item) => {
-            const cl = clientsData.find(c => c.client_id === item.client_id);
-            const createdAt = cl?.createdAt ? new Date(cl.createdAt) : null;
-            if (!createdAt) return false;
-
-            if (startDate || endDate) {
-              const start = startDate ? new Date(startDate) : new Date(0);
-              const end = endDate ? new Date(endDate) : new Date();
-              return createdAt >= start && createdAt <= end;
-            }
-
-            return createdAt >= threeMonthsAgo;
-          }).length;
-
-          return {
-            advocate_id: advocate.advocate_id,
-            name: `${advocate.firstName} ${advocate.lastName}`,
-            clientCount: clientCount,
-            newClientCount 
-          };
-        });
-
-        setAdvocates(mergedData);
-        if (onDataLoaded) onDataLoaded(mergedData);
-
       } catch (err) {
         console.error("Error fetching advocates:", err);
         setFetchError("Failed to load advocates");
+        setAdvocates([]);
       } finally {
         setLoading(false);
       }
