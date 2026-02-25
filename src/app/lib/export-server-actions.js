@@ -1,5 +1,7 @@
-import supabase from "../lib/supabase";
-import { saveLongPdf } from "../lib/saveLongPdf";
+"use server";
+
+import supabase from "./supabase";
+import { saveLongPdf } from "./saveLongPdf";
 
 // Helper function to convert data to CSV format
 function convertToCSV(data, tableName) {
@@ -13,7 +15,6 @@ function convertToCSV(data, tableName) {
     headers
       .map((header) => {
         const value = row[header];
-        // Handle values that contain commas, quotes, or newlines
         if (value === null || value === undefined) {
           return "";
         }
@@ -33,8 +34,8 @@ function convertToCSV(data, tableName) {
   return `Table: ${tableName}\n${csvHeaders}\n${csvRows.join("\n")}\n\n`;
 }
 
-// Helper function to create PDF content (simplified text-based PDF)
-export function convertToPDF(data, title) {
+// Helper function to create PDF content
+function convertToPDF(data, title) {
   if (!data || data.length === 0) {
     return `Table: ${title}\nNo data available\n`;
   }
@@ -55,8 +56,8 @@ export function convertToPDF(data, title) {
   return pdfContent;
 }
 
-// Function to export all data from Supabase as JSON files
-export async function exportAllData(format = "json") {
+// Function to export all data from Supabase
+export async function exportAllDataAction(format = "json") {
   try {
     console.log(
       `🚀 Starting data export from Supabase in ${format.toUpperCase()} format...`,
@@ -68,7 +69,6 @@ export async function exportAllData(format = "json") {
       tables: {},
     };
 
-    // List of all tables to export
     const tables = [
       "Clients",
       "Childs",
@@ -86,7 +86,6 @@ export async function exportAllData(format = "json") {
       "User Logs",
     ];
 
-    // Export each table
     for (const tableName of tables) {
       try {
         console.log(`📊 Exporting table: ${tableName}`);
@@ -120,7 +119,6 @@ export async function exportAllData(format = "json") {
       }
     }
 
-    // Create downloadable file based on format
     let fileContent, fileName, mimeType;
 
     if (format === "csv") {
@@ -144,40 +142,18 @@ export async function exportAllData(format = "json") {
       fileName = "export.pdf";
       mimeType = "application/pdf";
     } else {
-      // JSON format (default)
       fileContent = JSON.stringify(exportData, null, 2);
       fileName = `supabase-export-${new Date().toISOString().split("T")[0]}.json`;
       mimeType = "application/json";
     }
 
-    // Special handling for pdfs, otherwise regular save
-    if (format === "pdf") {
-      saveLongPdf(fileContent, "export.pdf");
-    } else {
-      const blob = new Blob([fileContent], { type: mimeType });
-      const url = URL.createObjectURL(blob);
-
-      // Create download link
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      // Clean up
-      URL.revokeObjectURL(url);
-    }
-
-    console.log(
-      `🎉 Data export completed successfully in ${format.toUpperCase()} format!`,
-    );
-    console.log("📁 File downloaded:", fileName);
-
     return {
       success: true,
-      message: `Export completed successfully in ${format.toUpperCase()} format`,
-      data: exportData,
+      message: `Export prepared successfully in ${format.toUpperCase()} format`,
+      fileContent,
+      fileName,
+      mimeType,
+      format,
     };
   } catch (error) {
     console.error("❌ Export failed:", error);
@@ -190,7 +166,7 @@ export async function exportAllData(format = "json") {
 }
 
 // Function to export specific table
-export async function exportTable(tableName, format = "json") {
+export async function exportTableAction(tableName, format = "json") {
   try {
     console.log(
       `📊 Exporting single table: ${tableName} in ${format.toUpperCase()} format`,
@@ -215,7 +191,6 @@ export async function exportTable(tableName, format = "json") {
       data: data || [],
     };
 
-    // Create downloadable file based on format
     let fileContent, fileName, mimeType;
 
     if (format === "csv") {
@@ -227,39 +202,18 @@ export async function exportTable(tableName, format = "json") {
       fileName = `export-${tableName}.pdf`;
       mimeType = "application/pdf";
     } else {
-      // JSON format (default)
       fileContent = JSON.stringify(exportData, null, 2);
       fileName = `${tableName.toLowerCase().replace(/\s+/g, "-")}-export-${new Date().toISOString().split("T")[0]}.json`;
       mimeType = "application/json";
     }
 
-    // Special handling for pdfs, otherwise regular save
-    if (format === "pdf") {
-      saveLongPdf(fileContent, `export-${tableName}.pdf`);
-    } else {
-      const blob = new Blob([fileContent], { type: mimeType });
-      const url = URL.createObjectURL(blob);
-
-      // Create download link
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      // Clean up
-      URL.revokeObjectURL(url);
-    }
-
-    console.log(
-      `✅ Successfully exported ${tableName}: ${data?.length || 0} records in ${format.toUpperCase()} format`,
-    );
-
     return {
       success: true,
-      message: `${tableName} export completed successfully in ${format.toUpperCase()} format`,
-      data: exportData,
+      message: `${tableName} export prepared successfully in ${format.toUpperCase()} format`,
+      fileContent,
+      fileName,
+      mimeType,
+      format,
     };
   } catch (error) {
     console.error(`❌ Export failed for ${tableName}:`, error);
@@ -271,8 +225,8 @@ export async function exportTable(tableName, format = "json") {
   }
 }
 
-// Function to export youth intake data specifically
-export async function exportYouthIntakeData(format = "json") {
+// Function to export youth intake data
+export async function exportYouthIntakeDataAction(format = "json") {
   try {
     console.log(
       `📊 Exporting Youth Intake specific data in ${format.toUpperCase()} format...`,
@@ -285,7 +239,6 @@ export async function exportYouthIntakeData(format = "json") {
       tables: {},
     };
 
-    // Get youth intake clients
     const { data: youthClients, error: clientsError } = await supabase
       .from("Clients")
       .select("*")
@@ -302,11 +255,9 @@ export async function exportYouthIntakeData(format = "json") {
       };
     }
 
-    // Get related data for youth clients
     if (youthClients && youthClients.length > 0) {
       const clientIds = youthClients.map((client) => client.client_id);
 
-      // Get home members for youth clients
       const { data: homeMembers, error: homeError } = await supabase
         .from("Home Members")
         .select("*")
@@ -326,7 +277,6 @@ export async function exportYouthIntakeData(format = "json") {
         };
       }
 
-      // Get educational support persons for youth clients
       const { data: educationalPersons, error: eduError } = await supabase
         .from("Educational Support Persons")
         .select("*")
@@ -348,7 +298,6 @@ export async function exportYouthIntakeData(format = "json") {
         };
       }
 
-      // Get emergency contacts for youth clients
       const { data: emergencyContacts, error: emergencyError } = await supabase
         .from("Emergency Contacts")
         .select("*")
@@ -371,7 +320,6 @@ export async function exportYouthIntakeData(format = "json") {
       }
     }
 
-    // Create downloadable file based on format
     let fileContent, fileName, mimeType;
 
     if (format === "csv") {
@@ -395,39 +343,18 @@ export async function exportYouthIntakeData(format = "json") {
       fileName = "export-youth.pdf";
       mimeType = "application/pdf";
     } else {
-      // JSON format (default)
       fileContent = JSON.stringify(exportData, null, 2);
       fileName = `youth-intake-export-${new Date().toISOString().split("T")[0]}.json`;
       mimeType = "application/json";
     }
 
-    // Special handling for pdfs, otherwise regular save
-    if (format === "pdf") {
-      saveLongPdf(fileContent, `export-youth.pdf`);
-    } else {
-      const blob = new Blob([fileContent], { type: mimeType });
-      const url = URL.createObjectURL(blob);
-
-      // Create download link
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      // Clean up
-      URL.revokeObjectURL(url);
-    }
-
-    console.log(
-      `🎉 Youth Intake export completed successfully in ${format.toUpperCase()} format!`,
-    );
-
     return {
       success: true,
-      message: `Youth Intake export completed successfully in ${format.toUpperCase()} format`,
-      data: exportData,
+      message: `Youth Intake export prepared successfully in ${format.toUpperCase()} format`,
+      fileContent,
+      fileName,
+      mimeType,
+      format,
     };
   } catch (error) {
     console.error("❌ Youth Intake export failed:", error);
