@@ -31,12 +31,21 @@ const LinkAdvocate = () => {
         email: email.trim(),
       });
 
+      // if (result.success) {
+      //   let successMsg = `Advocate ${firstName} ${lastName} has been successfully created! with the email id ${email}.`;
+
+      //   setSuccess(successMsg);
+      //   // Clear form
+      //   clearForm();
+      // }
       if (result.success) {
-        let successMsg = `Advocate ${firstName} ${lastName} has been successfully created! with the email id ${email}.`;
+        let successMsg = `Advocate ${firstName} ${lastName} has been successfully created with the email id ${email}.`;
+
+        if (result.clerkUserId) {
+          successMsg += ` Clerk User ID: ${result.clerkUserId}`;
+        }
 
         setSuccess(successMsg);
-        // Clear form
-        clearForm();
       }
     } catch (error) {
       console.error("Error creating advocate:", error);

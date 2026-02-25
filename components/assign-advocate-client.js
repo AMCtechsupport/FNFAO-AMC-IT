@@ -4,9 +4,12 @@ import { updateClientStatus } from "./client-active";
 import { useState, useEffect } from "react";
 import supabase from "../src/app/lib/supabase";
 
-export default function AssignAdvocate() {
-  const [clients, setClients] = useState([]);
-  const [advocates, setAdvocates] = useState([]);
+export default function AssignAdvocate({
+  clients: initialClients = [],
+  advocates: initialAdvocates = [],
+}) {
+  const [clients, setClients] = useState(initialClients);
+  const [advocates, setAdvocates] = useState(initialAdvocates);
   const [searchClient, setSearchClient] = useState("");
   const [searchAdvocate, setSearchAdvocate] = useState("");
   const [selectedClient, setSelectedClient] = useState(null);
@@ -42,7 +45,7 @@ export default function AssignAdvocate() {
               `and(firstName.ilike.%${last}%,lastName.ilike.%${first}%)`,
               `firstName.ilike.%${term}%`,
               `middleName.ilike.%${term}%`,
-              `lastName.ilike.%${term}%`
+              `lastName.ilike.%${term}%`,
             ];
           } else if (tokens.length === 2) {
             const a = tokens[0];
@@ -55,14 +58,14 @@ export default function AssignAdvocate() {
               `and(firstName.ilike.%${b}%,lastName.ilike.%${a}%)`,
               `firstName.ilike.%${term}%`,
               `middleName.ilike.%${term}%`,
-              `lastName.ilike.%${term}%`
+              `lastName.ilike.%${term}%`,
             ];
           } else {
             const token = tokens[0] || term;
             orFilters = [
               `firstName.ilike.%${token}%`,
               `middleName.ilike.%${token}%`,
-              `lastName.ilike.%${token}%`
+              `lastName.ilike.%${token}%`,
             ];
           }
 
@@ -88,42 +91,26 @@ export default function AssignAdvocate() {
 
   const fetchAdvocates = async (searchQuery = "") => {
     try {
-      let query = supabase.from("Advocates").select("*");
+      const params = searchQuery
+        ? `?search=${encodeURIComponent(searchQuery)}`
+        : "";
+      const res = await fetch(`/api/advocates${params}`);
 
-      if (searchQuery) {
-        const term = String(searchQuery).trim();
-        const tokens = term.split(/\s+/).filter(Boolean);
-        
-        if (tokens.length >= 2) {
-          const first = tokens[0];
-          const last = tokens[tokens.length - 1];
-
-          const orFilters = [
-            `and(firstName.ilike.%${first}%,lastName.ilike.%${last}%)`,
-            `and(firstName.ilike.%${last}%,lastName.ilike.%${first}%)`,
-            `firstName.ilike.%${term}%`,
-            `lastName.ilike.%${term}%`,
-            `email.ilike.%${term}%`
-          ];
-
-          query = query.or(orFilters.join(","));
-        } else {
-          const token = tokens[0] || term;
-          query = query.or(
-            `firstName.ilike.%${token}%,lastName.ilike.%${token}%,email.ilike.%${token}%`
-          );
-        }
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        console.error(
+          "Error fetching advocates:",
+          json?.error || `Status ${res.status}`,
+        );
+        setAdvocates([]);
+        return;
       }
 
-      const { data, error } = await query;
-
-      if (error) {
-        console.error("Error fetching advocates:", error.message);
-      } else {
-        setAdvocates(data);
-      }
+      const json = await res.json();
+      setAdvocates(json.advocates || []);
     } catch (err) {
       console.error("Unexpected error:", err);
+      setAdvocates([]);
     }
   };
 
@@ -251,8 +238,7 @@ export default function AssignAdvocate() {
                   </span>
                   <br />
                   <span className="text-sm text-gray-600">
-                    {client.phoneNumber} {" "}
-                    {client.firstNationMembership} |{" "}
+                    {client.phoneNumber} {client.firstNationMembership} |{" "}
                     {new Date(client.dateOfBirth).toLocaleDateString("en-US", {
                       year: "numeric",
                       month: "long",
@@ -330,12 +316,12 @@ export default function AssignAdvocate() {
               Selected Advocate:{" "}
               {
                 advocates.find(
-                  (advocate) => advocate.advocate_id === selectedAdvocate
+                  (advocate) => advocate.advocate_id === selectedAdvocate,
                 )?.firstName
               }{" "}
               {
                 advocates.find(
-                  (advocate) => advocate.advocate_id === selectedAdvocate
+                  (advocate) => advocate.advocate_id === selectedAdvocate,
                 )?.lastName
               }
             </p>
