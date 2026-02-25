@@ -1,61 +1,18 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { useUser } from "@clerk/clerk-react";
+import { getAdvocateProfile } from "../lib/get-advocate-server";
 import UserHome from "../user-home/page";
 import AssignedClientsList from "../../../components/user-assigned-clients";
-import supabase from "../lib/supabase";
+import { redirect } from "next/navigation";
 
-export default function AssignedClientsToAdvocate() {
-  const { user } = useUser();
-  const [advocate, setAdvocate] = useState(null);
-  const [loadingAdvocate, setLoadingAdvocate] = useState(true);
-  const [advocateError, setAdvocateError] = useState(null);
+export default async function AssignedClientsToAdvocate() {
+  let advocate = null;
+  let advocateError = null;
 
-  useEffect(() => {
-    const fetchAdvocate = async () => {
-      if (!user) return;
-      setLoadingAdvocate(true);
-      setAdvocateError(null);
-
-      try {
-        // Preferred: match Clerk user -> Advocates record
-        let result = await supabase
-          .from("Advocates")
-          .select("advocate_id, firstName, lastName, email, clerk_user_id")
-          .eq("clerk_user_id", user.id)
-          .single();
-
-        // Fallback: match by email if clerk_user_id not linked yet
-        if (result.error) {
-          const email =
-            user?.primaryEmailAddress?.emailAddress ||
-            user?.emailAddresses?.[0]?.emailAddress;
-
-          if (email) {
-            result = await supabase
-              .from("Advocates")
-              .select("advocate_id, firstName, lastName, email, clerk_user_id")
-              .eq("email", email.toLowerCase())
-              .single();
-          }
-        }
-
-        if (result.error) throw new Error(result.error.message);
-        setAdvocate(result.data);
-      } catch (err) {
-        console.error("Error fetching advocate:", err.message);
-        setAdvocate(null);
-        setAdvocateError(
-          "Could not find an Advocate record for this user. Please ask an admin to link your account."
-        );
-      } finally {
-        setLoadingAdvocate(false);
-      }
-    };
-
-    fetchAdvocate();
-  }, [user]);
+  try {
+    advocate = await getAdvocateProfile();
+  } catch (err) {
+    console.error("Error fetching advocate:", err.message);
+    advocateError = err.message || "Could not load advocate profile";
+  }
 
   return (
     <UserHome>
@@ -63,9 +20,7 @@ export default function AssignedClientsToAdvocate() {
       <div className="max-w-6xl mx-auto p-6">
         <div className="bg-white rounded-lg shadow-lg p-6">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-            {loadingAdvocate
-              ? "Loading..."
-              : advocate
+            {advocate
               ? `Clients assigned to ${advocate.firstName} ${advocate.lastName || ""}`
               : "Clients assigned"}
           </h2>
