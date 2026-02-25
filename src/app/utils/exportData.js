@@ -8,30 +8,35 @@ function convertToCSV(data, tableName) {
   }
 
   const headers = Object.keys(data[0]);
-  const csvHeaders = headers.join(',');
-  const csvRows = data.map(row => 
-    headers.map(header => {
-      const value = row[header];
-      // Handle values that contain commas, quotes, or newlines
-      if (value === null || value === undefined) {
-        return '';
-      }
-      const stringValue = String(value);
-      if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
-        return `"${stringValue.replace(/"/g, '""')}"`;
-      }
-      return stringValue;
-    }).join(',')
+  const csvHeaders = headers.join(",");
+  const csvRows = data.map((row) =>
+    headers
+      .map((header) => {
+        const value = row[header];
+        // Handle values that contain commas, quotes, or newlines
+        if (value === null || value === undefined) {
+          return "";
+        }
+        const stringValue = String(value);
+        if (
+          stringValue.includes(",") ||
+          stringValue.includes('"') ||
+          stringValue.includes("\n")
+        ) {
+          return `"${stringValue.replace(/"/g, '""')}"`;
+        }
+        return stringValue;
+      })
+      .join(","),
   );
 
-  return `Table: ${tableName}\n${csvHeaders}\n${csvRows.join('\n')}\n\n`;
+  return `Table: ${tableName}\n${csvHeaders}\n${csvRows.join("\n")}\n\n`;
 }
 
 // Helper function to create PDF content (simplified text-based PDF)
-function convertToPDF(data, tableName) {
-  if (!data || data.length === 0) {
-    return `Table: ${tableName}\nNo data available\n`;
-  }
+export function convertToPDF(data, title) {
+  const doc = new jsPDF();
+  let y = 10;
 
   const headers = Object.keys(data[0]);
   let pdfContent = `Table: ${tableName}\n`;
@@ -44,27 +49,35 @@ function convertToPDF(data, tableName) {
       const value = row[header];
       pdfContent += `  ${header}: ${value || 'N/A'}\n`;
     });
-    pdfContent += '\n';
+
+    y += 5;
+
+    if (y > 280) {
+      doc.addPage();
+      y = 10;
+    }
   });
 
-  return pdfContent;
+  return doc.output("blob");
 }
 
 // Function to export all data from Supabase as JSON files
-export async function exportAllData(format = 'json') {
+export async function exportAllData(format = "json") {
   try {
-    console.log(`🚀 Starting data export from Supabase in ${format.toUpperCase()} format...`);
-    
+    console.log(
+      `🚀 Starting data export from Supabase in ${format.toUpperCase()} format...`,
+    );
+
     const exportData = {
       timestamp: new Date().toISOString(),
       format: format,
-      tables: {}
+      tables: {},
     };
 
     // List of all tables to export
     const tables = [
       "Clients",
-      "Childs", 
+      "Childs",
       "Home Members",
       "Educational Support Persons",
       "Emergency Contacts",
@@ -76,44 +89,47 @@ export async function exportAllData(format = 'json') {
       "First Nations",
       "CFS Agencies",
       "CFS Status",
-      "User Logs"
+      "User Logs",
     ];
 
     // Export each table
     for (const tableName of tables) {
       try {
         console.log(`📊 Exporting table: ${tableName}`);
-        
-        const { data, error } = await supabase
-          .from(tableName)
-          .select("*");
+
+        const { data, error } = await supabase.from(tableName).select("*");
 
         if (error) {
           console.error(`❌ Error exporting ${tableName}:`, error);
           exportData.tables[tableName] = {
             error: error.message,
-            data: null
+            data: null,
           };
         } else {
-          console.log(`✅ Successfully exported ${tableName}: ${data?.length || 0} records`);
+          console.log(
+            `✅ Successfully exported ${tableName}: ${data?.length || 0} records`,
+          );
           exportData.tables[tableName] = {
             count: data?.length || 0,
-            data: data || []
+            data: data || [],
           };
         }
       } catch (tableError) {
-        console.error(`❌ Unexpected error exporting ${tableName}:`, tableError);
+        console.error(
+          `❌ Unexpected error exporting ${tableName}:`,
+          tableError,
+        );
         exportData.tables[tableName] = {
           error: tableError.message,
-          data: null
+          data: null,
         };
       }
     }
 
     // Create downloadable file based on format
     let fileContent, fileName, mimeType;
-    
-    if (format === 'csv') {
+
+    if (format === "csv") {
       let csvContent = `Supabase Data Export\nGenerated: ${new Date().toLocaleString()}\n\n`;
       for (const [tableName, tableData] of Object.entries(exportData.tables)) {
         if (tableData.data) {
@@ -121,9 +137,9 @@ export async function exportAllData(format = 'json') {
         }
       }
       fileContent = csvContent;
-      fileName = `supabase-export-${new Date().toISOString().split('T')[0]}.csv`;
-      mimeType = 'text/csv';
-    } else if (format === 'pdf') {
+      fileName = `supabase-export-${new Date().toISOString().split("T")[0]}.csv`;
+      mimeType = "text/csv";
+    } else if (format === "pdf") {
       let pdfContent = `Supabase Data Export\nGenerated: ${new Date().toLocaleString()}\n\n`;
       for (const [tableName, tableData] of Object.entries(exportData.tables)) {
         if (tableData.data) {
@@ -136,8 +152,8 @@ export async function exportAllData(format = 'json') {
     } else {
       // JSON format (default)
       fileContent = JSON.stringify(exportData, null, 2);
-      fileName = `supabase-export-${new Date().toISOString().split('T')[0]}.json`;
-      mimeType = 'application/json';
+      fileName = `supabase-export-${new Date().toISOString().split("T")[0]}.json`;
+      mimeType = "application/json";
     }
     
     // Special handling for pdfs, otherwise regular save
@@ -161,38 +177,37 @@ export async function exportAllData(format = 'json') {
     
     console.log(`🎉 Data export completed successfully in ${format.toUpperCase()} format!`);
     console.log("📁 File downloaded:", fileName);
-    
+
     return {
       success: true,
       message: `Export completed successfully in ${format.toUpperCase()} format`,
-      data: exportData
+      data: exportData,
     };
-
   } catch (error) {
     console.error("❌ Export failed:", error);
     return {
       success: false,
       message: error.message,
-      data: null
+      data: null,
     };
   }
 }
 
 // Function to export specific table
-export async function exportTable(tableName, format = 'json') {
+export async function exportTable(tableName, format = "json") {
   try {
-    console.log(`📊 Exporting single table: ${tableName} in ${format.toUpperCase()} format`);
-    
-    const { data, error } = await supabase
-      .from(tableName)
-      .select("*");
+    console.log(
+      `📊 Exporting single table: ${tableName} in ${format.toUpperCase()} format`,
+    );
+
+    const { data, error } = await supabase.from(tableName).select("*");
 
     if (error) {
       console.error(`❌ Error exporting ${tableName}:`, error);
       return {
         success: false,
         message: error.message,
-        data: null
+        data: null,
       };
     }
 
@@ -201,25 +216,25 @@ export async function exportTable(tableName, format = 'json') {
       table: tableName,
       format: format,
       count: data?.length || 0,
-      data: data || []
+      data: data || [],
     };
 
     // Create downloadable file based on format
     let fileContent, fileName, mimeType;
-    
-    if (format === 'csv') {
+
+    if (format === "csv") {
       fileContent = convertToCSV(data || [], tableName);
-      fileName = `${tableName.toLowerCase().replace(/\s+/g, '-')}-export-${new Date().toISOString().split('T')[0]}.csv`;
-      mimeType = 'text/csv';
-    } else if (format === 'pdf') {
+      fileName = `${tableName.toLowerCase().replace(/\s+/g, "-")}-export-${new Date().toISOString().split("T")[0]}.csv`;
+      mimeType = "text/csv";
+    } else if (format === "pdf") {
       fileContent = convertToPDF(data || [], tableName);
       fileName = `export-${tableName}.pdf`;
       mimeType = 'application/pdf';
     } else {
       // JSON format (default)
       fileContent = JSON.stringify(exportData, null, 2);
-      fileName = `${tableName.toLowerCase().replace(/\s+/g, '-')}-export-${new Date().toISOString().split('T')[0]}.json`;
-      mimeType = 'application/json';
+      fileName = `${tableName.toLowerCase().replace(/\s+/g, "-")}-export-${new Date().toISOString().split("T")[0]}.json`;
+      mimeType = "application/json";
     }
     
     // Special handling for pdfs, otherwise regular save
@@ -246,29 +261,30 @@ export async function exportTable(tableName, format = 'json') {
     return {
       success: true,
       message: `${tableName} export completed successfully in ${format.toUpperCase()} format`,
-      data: exportData
+      data: exportData,
     };
-
   } catch (error) {
     console.error(`❌ Export failed for ${tableName}:`, error);
     return {
       success: false,
       message: error.message,
-      data: null
+      data: null,
     };
   }
 }
 
 // Function to export youth intake data specifically
-export async function exportYouthIntakeData(format = 'json') {
+export async function exportYouthIntakeData(format = "json") {
   try {
-    console.log(`📊 Exporting Youth Intake specific data in ${format.toUpperCase()} format...`);
-    
+    console.log(
+      `📊 Exporting Youth Intake specific data in ${format.toUpperCase()} format...`,
+    );
+
     const exportData = {
       timestamp: new Date().toISOString(),
       type: "Youth Intake Export",
       format: format,
-      tables: {}
+      tables: {},
     };
 
     // Get youth intake clients
@@ -284,14 +300,14 @@ export async function exportYouthIntakeData(format = 'json') {
       console.log(`✅ Youth clients: ${youthClients?.length || 0} records`);
       exportData.tables.Clients = {
         count: youthClients?.length || 0,
-        data: youthClients || []
+        data: youthClients || [],
       };
     }
 
     // Get related data for youth clients
     if (youthClients && youthClients.length > 0) {
-      const clientIds = youthClients.map(client => client.client_id);
-      
+      const clientIds = youthClients.map((client) => client.client_id);
+
       // Get home members for youth clients
       const { data: homeMembers, error: homeError } = await supabase
         .from("Home Members")
@@ -300,12 +316,15 @@ export async function exportYouthIntakeData(format = 'json') {
 
       if (homeError) {
         console.error("❌ Error exporting home members:", homeError);
-        exportData.tables["Home Members"] = { error: homeError.message, data: null };
+        exportData.tables["Home Members"] = {
+          error: homeError.message,
+          data: null,
+        };
       } else {
         console.log(`✅ Home members: ${homeMembers?.length || 0} records`);
         exportData.tables["Home Members"] = {
           count: homeMembers?.length || 0,
-          data: homeMembers || []
+          data: homeMembers || [],
         };
       }
 
@@ -317,12 +336,17 @@ export async function exportYouthIntakeData(format = 'json') {
 
       if (eduError) {
         console.error("❌ Error exporting educational persons:", eduError);
-        exportData.tables["Educational Support Persons"] = { error: eduError.message, data: null };
+        exportData.tables["Educational Support Persons"] = {
+          error: eduError.message,
+          data: null,
+        };
       } else {
-        console.log(`✅ Educational persons: ${educationalPersons?.length || 0} records`);
+        console.log(
+          `✅ Educational persons: ${educationalPersons?.length || 0} records`,
+        );
         exportData.tables["Educational Support Persons"] = {
           count: educationalPersons?.length || 0,
-          data: educationalPersons || []
+          data: educationalPersons || [],
         };
       }
 
@@ -334,20 +358,25 @@ export async function exportYouthIntakeData(format = 'json') {
 
       if (emergencyError) {
         console.error("❌ Error exporting emergency contacts:", emergencyError);
-        exportData.tables["Emergency Contacts"] = { error: emergencyError.message, data: null };
+        exportData.tables["Emergency Contacts"] = {
+          error: emergencyError.message,
+          data: null,
+        };
       } else {
-        console.log(`✅ Emergency contacts: ${emergencyContacts?.length || 0} records`);
+        console.log(
+          `✅ Emergency contacts: ${emergencyContacts?.length || 0} records`,
+        );
         exportData.tables["Emergency Contacts"] = {
           count: emergencyContacts?.length || 0,
-          data: emergencyContacts || []
+          data: emergencyContacts || [],
         };
       }
     }
 
     // Create downloadable file based on format
     let fileContent, fileName, mimeType;
-    
-    if (format === 'csv') {
+
+    if (format === "csv") {
       let csvContent = `Youth Intake Data Export\nGenerated: ${new Date().toLocaleString()}\n\n`;
       for (const [tableName, tableData] of Object.entries(exportData.tables)) {
         if (tableData.data) {
@@ -355,9 +384,9 @@ export async function exportYouthIntakeData(format = 'json') {
         }
       }
       fileContent = csvContent;
-      fileName = `youth-intake-export-${new Date().toISOString().split('T')[0]}.csv`;
-      mimeType = 'text/csv';
-    } else if (format === 'pdf') {
+      fileName = `youth-intake-export-${new Date().toISOString().split("T")[0]}.csv`;
+      mimeType = "text/csv";
+    } else if (format === "pdf") {
       let pdfContent = `Youth Intake Data Export\nGenerated: ${new Date().toLocaleString()}\n\n`;
       for (const [tableName, tableData] of Object.entries(exportData.tables)) {
         if (tableData.data) {
@@ -370,8 +399,8 @@ export async function exportYouthIntakeData(format = 'json') {
     } else {
       // JSON format (default)
       fileContent = JSON.stringify(exportData, null, 2);
-      fileName = `youth-intake-export-${new Date().toISOString().split('T')[0]}.json`;
-      mimeType = 'application/json';
+      fileName = `youth-intake-export-${new Date().toISOString().split("T")[0]}.json`;
+      mimeType = "application/json";
     }
     
     // Special handling for pdfs, otherwise regular save
@@ -398,15 +427,14 @@ export async function exportYouthIntakeData(format = 'json') {
     return {
       success: true,
       message: `Youth Intake export completed successfully in ${format.toUpperCase()} format`,
-      data: exportData
+      data: exportData,
     };
-
   } catch (error) {
     console.error("❌ Youth Intake export failed:", error);
     return {
       success: false,
       message: error.message,
-      data: null
+      data: null,
     };
   }
-} 
+}

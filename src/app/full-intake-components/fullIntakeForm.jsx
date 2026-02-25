@@ -213,6 +213,37 @@ export default function FullIntakeForm({
     };
   }, [isViewOnly]);
 
+   const buttonRowStyle = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    maxWidth: "1000px",
+    margin: "20px auto 10px auto",
+  };
+
+    const saveBtnStyle = {
+    backgroundColor: "#7C3AED", // purple
+    color: "white",
+    padding: "8px 16px",
+    borderRadius: "8px",
+    border: "none",
+    fontWeight: "600",
+    cursor: "pointer",
+    textDecoration: "none",
+    display: "inline-block",
+  };
+
+   const cancelBtnStyle = {
+    backgroundColor: "#111827", // keep black
+    color: "white",
+    padding: "8px 16px",
+    borderRadius: "8px",
+    border: "none",
+    fontWeight: "600",
+    cursor: "pointer",
+  };
+
   const handleShowNoteDetails = (note) => setSelectedNote(note);
   const handleCloseNoteDetails = () => setSelectedNote(null);
 
@@ -419,18 +450,10 @@ export default function FullIntakeForm({
 
             {!isViewOnly && (
               <>
-                <Row className="mt-3">
-                  {!isEditing ? (
-                    <Col md={4}>
-                      <Button className={styles.cancelButton} onClick={() => setIsEditing(true)}>
-                        Edit
-                      </Button>
-                    </Col>
-                  ) : (
+                <div style={buttonRowStyle}>
                     <>
-                      <Col md={4}>
-                        <Button
-                          className={styles.cancelButton}
+                        <button
+                          style={cancelBtnStyle}
                           onClick={() => {
                             resetForm();
                             setIsEditing(false);
@@ -438,16 +461,14 @@ export default function FullIntakeForm({
                           }}
                         >
                           Cancel
-                        </Button>
-                      </Col>
-                      <Col md={4}>
-                        <Button className={styles.submitButton} type="submit">
+                        </button>
+                      
+                        <button style={saveBtnStyle} type="submit">
                           Save
-                        </Button>
-                      </Col>
+                        </button>
                     </>
-                  )}
-                </Row>
+                  
+                </div>
 
                 {formSent && <div className={styles.successfulText}>Form saved successfully!</div>}
               </>

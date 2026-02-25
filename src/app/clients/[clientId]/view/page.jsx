@@ -128,7 +128,7 @@ export default function AdultClientView() {
           </div>
 
           {/* Form */}
-          <div style={{ marginTop: "-50px" }}>
+          <div style={{ marginTop: "0px" }}>
             <FullIntakeForm
               client_id={client_id}
               isEditMode={false}

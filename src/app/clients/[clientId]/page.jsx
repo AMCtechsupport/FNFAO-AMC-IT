@@ -109,7 +109,7 @@ export default function AdultClientEdit({}) {
               </p>
             </div>
 
-            <div style={{ marginTop: "-50px" }}>
+            <div style={{ marginTop: "0px" }}>
               <FullIntakeForm
                 client_id={client_id}
                 userId={userId}
