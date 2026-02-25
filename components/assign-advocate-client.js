@@ -46,8 +46,10 @@ export default function AssignAdvocate({
 
   const fetchClients = async () => {
     try {
-      const res = await fetch(`/api/clients?clientType=Youth%20Intake&pageSize=1000`);
-      if (!res.ok){
+      const res = await fetch(
+        `/api/clients?clientType=Youth%20Intake&pageSize=1000`,
+      );
+      if (!res.ok) {
         console.error("Error fetching clients");
         setAllClients([]);
         setFilteredClients([]);
@@ -57,7 +59,9 @@ export default function AssignAdvocate({
       const json = await res.json();
       const youthClients = json.data || [];
 
-      const res2 = await fetch(`/api/clients?clientType=Pre-Intake&pageSize=1000`);
+      const res2 = await fetch(
+        `/api/clients?clientType=Pre-Intake&pageSize=1000`,
+      );
       if (!res2.ok) {
         console.error("Error fetching adult clients");
         setAllClients(youthClients);
@@ -68,8 +72,7 @@ export default function AssignAdvocate({
       const json2 = await res2.json();
       const adultClients = json2.data || [];
       const allClientsList = [...youthClients, ...adultClients].sort(
-        (a, b) =>
-          new Date(b.dateModified || 0) - new Date(a.dateModified || 0)
+        (a, b) => new Date(b.dateModified || 0) - new Date(a.dateModified || 0),
       );
 
       setAllClients(allClientsList);
@@ -315,10 +318,10 @@ export default function AssignAdvocate({
           />
           <p className="text-sm text-gray-600 mt-2">
             {advocates.length === 0 ? (
-              <span className="text-orange-600">No advocates found. Check database connection.</span>
-            ) : (
-              <span className="text-green-600">Found {advocates.length} advocate(s)</span>
-            )}
+              <span className="text-orange-600">
+                No advocates found. Check database connection.
+              </span>
+            ) : null}
           </p>
         </div>
 
