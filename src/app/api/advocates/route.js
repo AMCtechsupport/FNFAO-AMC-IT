@@ -12,13 +12,32 @@ export async function GET(request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY ? "YES" : "NO (using anon key)",
     );
 
+    // Start with base query
     let query = supabase.from("Advocates").select("*");
 
-    // Filter by search term (name or email)
-    if (search) {
-      query = query.or(
-        `firstName.ilike.%${search}%,lastName.ilike.%${search}%,email.ilike.%${search}%,advocate_id.ilike.%${search}%`,
-      );
+    // If search term provided, apply filters
+    if (search && search.trim()) {
+      const trimmedSearch = search.trim().toLowerCase();
+
+      // Check if it's a numeric ID
+      const isNumeric = /^\d+$/.test(trimmedSearch);
+
+      if (isNumeric) {
+        // If numeric, search by both ID and name containing the number
+        query = query.or(
+          `advocate_id.eq.${parseInt(trimmedSearch, 10)},` +
+          `firstName.ilike.%${trimmedSearch}%,` +
+          `lastName.ilike.%${trimmedSearch}%,` +
+          `email.ilike.%${trimmedSearch}%`
+        );
+      } else {
+        // If text, search by name or email
+        query = query.or(
+          `firstName.ilike.%${trimmedSearch}%,` +
+          `lastName.ilike.%${trimmedSearch}%,` +
+          `email.ilike.%${trimmedSearch}%`
+        );
+      }
     }
 
     // Execute query

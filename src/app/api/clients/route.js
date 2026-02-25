@@ -31,25 +31,62 @@ export async function GET(request) {
       );
     }
 
-    let query = supabase.from("Clients").select("*", { count: "exact" });
+    // Helper function to build base query with filters
+    const buildQuery = (baseQuery) => {
+      let filtered = baseQuery.eq("clientType", clientType);
 
-    // Filter by client type
-    query = query.eq("clientType", clientType);
+      // Apply search filter if provided (search by firstName, lastName, or client_id)
+      if (search && search.trim()) {
+        const searchTerm = search.trim();
+        const numericId = !isNaN(searchTerm) && searchTerm !== "" ? parseInt(searchTerm, 10) : null;
 
-    // Filter by search term (name or client_id)
-    if (search) {
-      query = query.or(
-        `firstName.ilike.%${search}%,lastName.ilike.%${search}%,client_id.ilike.%${search}%`,
-      );
-    }
+        // Check if search contains spaces (multi-word search like "John Doe")
+        const words = searchTerm.split(/\s+/).filter(w => w.length > 0);
 
-    // Filter by date of birth
-    if (dateOfBirth) {
-      query = query.eq("dateOfBirth", dateOfBirth);
-    }
+        let orConditions;
+
+        if (words.length > 1) {
+          // Multi-word search: match first word in firstName AND last word in lastName
+          const firstWord = words[0];
+          const lastWord = words[words.length - 1];
+
+          // Build OR conditions for multi-word search
+          // Match specific pattern: first word in firstName, last word in lastName
+          orConditions = `firstName.ilike.%${firstWord}%,lastName.ilike.%${lastWord}%`;
+
+          // Also try reverse pattern in case names are reversed
+          if (firstWord !== lastWord) {
+            orConditions += `,firstName.ilike.%${lastWord}%,lastName.ilike.%${firstWord}%`;
+          }
+        } else {
+          // Single word search: search in both firstName and lastName
+          orConditions = `firstName.ilike.%${searchTerm}%,lastName.ilike.%${searchTerm}%`;
+        }
+
+        // Add numeric ID condition if search term is numeric
+        if (numericId !== null) {
+          orConditions = `client_id.eq.${numericId},` + orConditions;
+        }
+
+        // Apply all conditions in a single OR filter
+        filtered = filtered.or(orConditions);
+      }
+
+      // Always filter by dateOfBirth if provided
+      if (dateOfBirth) {
+        filtered = filtered.eq("dateOfBirth", dateOfBirth);
+      }
+
+      return filtered;
+    };
 
     // Get total count
-    const { count, error: countError } = await query;
+    let countQuery = supabase
+      .from("Clients")
+      .select("*", { count: "exact", head: true });
+    countQuery = buildQuery(countQuery);
+
+    const { count, error: countError } = await countQuery;
 
     console.log("[/api/clients] Count result:", { count, countError });
 
@@ -71,12 +108,14 @@ export async function GET(request) {
       return NextResponse.json({ count: count || 0 });
     }
 
-    // Add pagination
-    const offset = (page - 1) * pageSize;
-    query = query.range(offset, offset + pageSize - 1);
+    // Get paginated data
+    let dataQuery = supabase.from("Clients").select("*");
+    dataQuery = buildQuery(dataQuery);
+    dataQuery = dataQuery
+      .order("dateModified", { ascending: false })
+      .range((page - 1) * pageSize, page * pageSize - 1);
 
-    // Execute query
-    const { data, error } = await query;
+    const { data, error } = await dataQuery;
 
     console.log("[/api/clients] Data result:", {
       dataLength: data?.length,

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { deleteClient } from "../src/app/lib/delete-client-server";
 
 export default function ClientsList({ initialClients, totalCount }) {
   const [clients, setClients] = useState(initialClients);
+  const [inputValue, setInputValue] = useState("");
   const [search, setSearch] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [deletingClientId, setDeletingClientId] = useState(null);
@@ -24,6 +25,7 @@ export default function ClientsList({ initialClients, totalCount }) {
   const clientsPerPage = 10;
 
   const router = useRouter();
+  const searchTimeoutRef = useRef(null);
 
   // Determine if client is Youth or Adult based on clientType
   const getClientTypeLabel = (client) => {
@@ -48,24 +50,34 @@ export default function ClientsList({ initialClients, totalCount }) {
   };
 
   // Fetch total counts from database
-  const fetchTotalCounts = async () => {
+  const fetchTotalCounts = async (searchQuery = "", dateOfBirthQuery = "") => {
     try {
-      const yRes = await fetch(
-        `/api/clients?clientType=Youth%20Intake&count=true`,
-      );
+      // Get youth count
+      const yParams = new URLSearchParams({
+        clientType: "Youth Intake",
+        count: "true",
+      });
+      if (searchQuery) yParams.set("search", searchQuery);
+      if (dateOfBirthQuery) yParams.set("dateOfBirth", dateOfBirthQuery);
+
+      const yRes = await fetch(`/api/clients?${yParams.toString()}`);
       if (yRes.ok) {
         const yJson = await yRes.json();
         setTotalYouthClients(yJson.count || 0);
-      } else {
-        console.error("Error fetching youth count:", yRes.status);
       }
 
-      const aRes = await fetch(`/api/clients?clientType=Pre-Intake&count=true`);
+      // Get adult count
+      const aParams = new URLSearchParams({
+        clientType: "Pre-Intake",
+        count: "true",
+      });
+      if (searchQuery) aParams.set("search", searchQuery);
+      if (dateOfBirthQuery) aParams.set("dateOfBirth", dateOfBirthQuery);
+
+      const aRes = await fetch(`/api/clients?${aParams.toString()}`);
       if (aRes.ok) {
         const aJson = await aRes.json();
         setTotalAdultClients(aJson.count || 0);
-      } else {
-        console.error("Error fetching adult count:", aRes.status);
       }
     } catch (err) {
       console.error("Unexpected error fetching total counts:", err);
@@ -125,7 +137,7 @@ export default function ClientsList({ initialClients, totalCount }) {
     }
   };
 
-  // Fetch youth clients for the current page and search term
+  // Fetch youth clients for the current page and filters
   const fetchYouthClients = async (
     page = 1,
     searchQuery = "",
@@ -149,13 +161,14 @@ export default function ClientsList({ initialClients, totalCount }) {
 
       const j = await res.json();
       setYouthClients(j.data || []);
+      setTotalYouthClients(j.count || 0);
       setTotalYouthPages(Math.ceil((j.count || 0) / clientsPerPage));
     } catch (err) {
       console.error("Unexpected error fetching youth clients:", err);
     }
   };
 
-  // Fetch adult clients for the current page and search term
+  // Fetch adult clients for the current page and filters
   const fetchAdultClients = async (
     page = 1,
     searchQuery = "",
@@ -179,6 +192,7 @@ export default function ClientsList({ initialClients, totalCount }) {
 
       const j = await res.json();
       setAdultClients(j.data || []);
+      setTotalAdultClients(j.count || 0);
       setTotalAdultPages(Math.ceil((j.count || 0) / clientsPerPage));
     } catch (err) {
       console.error("Unexpected error fetching adult clients:", err);
@@ -186,19 +200,30 @@ export default function ClientsList({ initialClients, totalCount }) {
   };
 
   useEffect(() => {
+    // Only fetch youth clients when youth page or filters change
     fetchYouthClients(currentYouthPage, search, dateOfBirth);
-    fetchAdultClients(currentAdultPage, search, dateOfBirth);
-  }, [currentYouthPage, currentAdultPage, search, dateOfBirth]);
+  }, [currentYouthPage, search, dateOfBirth]);
 
-  // Fetch total counts on component mount
   useEffect(() => {
-    fetchTotalCounts();
-  }, []);
+    // Only fetch adult clients when adult page or filters change
+    fetchAdultClients(currentAdultPage, search, dateOfBirth);
+  }, [currentAdultPage, search, dateOfBirth]);
 
   const handleSearchChange = (event) => {
-    setSearch(event.target.value);
-    setCurrentYouthPage(1);
-    setCurrentAdultPage(1);
+    const value = event.target.value;
+    setInputValue(value); // Update input display immediately
+
+    // Clear previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // Set new timeout for debounced search (API call)
+    searchTimeoutRef.current = setTimeout(() => {
+      setSearch(value);
+      setCurrentYouthPage(1);
+      setCurrentAdultPage(1);
+    }, 400);
   };
 
   const handleDateOfBirthChange = (event) => {
@@ -269,8 +294,8 @@ export default function ClientsList({ initialClients, totalCount }) {
         >
           <input
             type="text"
-            placeholder="Search by name or ID..."
-            value={search}
+            placeholder="Search by name or client ID..."
+            value={inputValue}
             onChange={handleSearchChange}
             style={{
               padding: "8px 16px",

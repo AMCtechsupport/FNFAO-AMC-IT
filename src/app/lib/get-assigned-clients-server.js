@@ -51,14 +51,23 @@ export const getAssignedClients = async (
     if (countError) throw new Error(countError.message);
 
     // Get paginated data
-    const { data, error: dataError } = await supabase
+    let dataQuery = supabase
       .from("Assigned Advocates")
       .select(
         "assigned_advocate_id, dateAssigned, Clients(client_id, firstName, middleName, lastName)",
       )
       .eq("advocate_id", advocateId)
-      .order("dateAssigned", { ascending: false })
-      .range((page - 1) * clientsPerPage, page * clientsPerPage - 1);
+      .order("dateAssigned", { ascending: false });
+
+    // Apply search filter if provided
+    if (hasSearch) {
+      dataQuery = dataQuery.eq("Clients.client_id", numericClientId);
+    }
+
+    const { data, error: dataError } = await dataQuery.range(
+      (page - 1) * clientsPerPage,
+      page * clientsPerPage - 1
+    );
 
     if (dataError) throw new Error(dataError.message);
 
