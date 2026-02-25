@@ -381,6 +381,7 @@ export default function FullIntakeForm({
                       handleShowNoteDetails={handleShowNoteDetails}
                       handleCloseNoteDetails={handleCloseNoteDetails}
                       showNewNoteForm={showNewNoteForm}
+                      setShowNewNoteForm={setShowNewNoteForm}
                       handleAddNoteClick={handleAddNoteClick}
                       editingNote={editingNote}
                       setEditingNote={setEditingNote}
@@ -400,6 +401,7 @@ export default function FullIntakeForm({
                       handleShowNoteDetails={handleShowNoteDetails}
                       handleCloseNoteDetails={handleCloseNoteDetails}
                       showNewNoteForm={showNewNoteForm}
+                      setShowNewNoteForm={setShowNewNoteForm}
                       handleAddNoteClick={handleAddNoteClick}
                       editingNote={editingNote}
                       setEditingNote={setEditingNote}

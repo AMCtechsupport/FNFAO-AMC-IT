@@ -18,6 +18,7 @@ const LegalNotesPartition = ({
     handleShowNoteDetails,
     handleCloseNoteDetails,
     showNewNoteForm,
+    setShowNewNoteForm,
     handleAddNoteClick,
     editingNote,
     setEditingNote,
@@ -312,6 +313,17 @@ const LegalNotesPartition = ({
                             setFieldValue(`notes.${values.notes.length - 1}.file`, file);
                         }}
                     />
+                    <div className="mt-3">
+                        <Button
+                            variant="secondary"
+                            onClick={() => {
+                                setFieldValue("notes", values.notes.slice(0, -1));
+                                setShowNewNoteForm(false);
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                    </div>
                 </div>
             )}
         </>

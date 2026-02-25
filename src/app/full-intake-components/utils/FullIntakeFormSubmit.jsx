@@ -192,7 +192,7 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
             
             // Redirect to client list after successful update (like youth-intake form)
             setTimeout(() => {
-                router.push('/clients');
+                router.push(`/clients/${client_id}/view`);
             }, 1500);
         } else {
             console.warn("Warning: The update did not modify any data.");
