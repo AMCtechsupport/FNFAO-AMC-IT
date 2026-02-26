@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { ErrorMessage } from "formik";
 import supabase from "@/app/lib/supabase";
+import styles from "@/app/youth-intake/youthIntake.module.css";
 
 const FirstNationSelect = ({ field, form, label, error, disabled }) => {
+  const { name, value } = field;
+  const { errors, touched, setFieldValue } = form;
+  
   const [firstNations, setFirstNations] = useState([]);
 
   useEffect(() => {
@@ -20,13 +25,22 @@ const FirstNationSelect = ({ field, form, label, error, disabled }) => {
     fetchFirstNations();
   }, []);
 
+    const handleChange = (e) => {
+    setFieldValue(name, e.target.value);
+  };
+
   return (
     <>
-      <label>{label}:</label>
+      {label && <label htmlFor={name}>{label}:</label>}
 
       <select
         {...field} // Bind Formik's field props
+        id={name}
+        name={name}
+        value={value || ""}
         disabled={disabled}
+        onChange={handleChange}
+        className={errors[name] && touched[name] ? styles.errorInput : ""}
       >
         <option value="">Select a first nation</option>
         {firstNations.map((nation) => (
@@ -36,7 +50,7 @@ const FirstNationSelect = ({ field, form, label, error, disabled }) => {
         ))}
       </select>
 
-      {error && <div className="error">{error}</div>}
+      <ErrorMessage name={name} component="p" className={styles.errorText} />
     </>
   );
 };
