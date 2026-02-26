@@ -36,6 +36,12 @@ const validationSchema = Yup.object({
       email: Yup.string().email("Please enter a valid email address"),
     })
   ),
+
+  firstNationMembership: Yup.string()
+    .required("First Nation Membership is required"),
+
+  otherFirstNation: Yup.string()
+    .nullable(), // Optional
 });
 
 function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
