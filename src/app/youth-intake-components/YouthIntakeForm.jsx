@@ -38,7 +38,7 @@ const validationSchema = Yup.object({
   ),
 
   firstNationMembership: Yup.string()
-    .required("First Nation Membership is required"),
+    .required("First Nation Membership is required"), //Error Message
 
   otherFirstNation: Yup.string()
     .nullable(), // Optional
