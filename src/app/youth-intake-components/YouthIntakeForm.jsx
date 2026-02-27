@@ -37,11 +37,11 @@ const validationSchema = Yup.object({
     })
   ),
 
-  firstNationMembership: Yup.string()
-    .required("First Nation Membership is required"), //Error Message
+  firstNationMembership: Yup.string() // added firt nation membership validation
+    .required("First Nation Membership is required"), 
 
   otherFirstNation: Yup.string()
-    .nullable(), // Optional
+    .nullable(), // added other first nation validation only if needed
 });
 
 function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
