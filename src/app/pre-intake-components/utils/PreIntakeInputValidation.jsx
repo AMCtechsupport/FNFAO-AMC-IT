@@ -46,6 +46,11 @@ const PreIntakeInputValidation=
         } 
     }
 
+    if (!values.relationshipToChildren) {
+    errors.relationshipToChildren =
+        "Please select your relationship to the child(ren)";
+    }
+
     if (!values.firstNationMembership) { //added First Nation Validation
     errors.firstNationMembership = "Please select a First Nation";
     }
