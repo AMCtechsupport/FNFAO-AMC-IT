@@ -46,6 +46,17 @@ const PreIntakeInputValidation=
         } 
     }
 
+    if (!values.firstNationMembership) { //added First Nation Validation
+    errors.firstNationMembership = "Please select a First Nation";
+    }
+
+    if ( // added other validation only if needed
+    values.firstNationMembership === "other" &&
+    !values.otherFirstNation
+    ) {
+        errors.otherFirstNation = "Please select the other First Nation";
+    }
+
     const phoneNumberError = validatePhoneNumber(values.phoneNumber);
     if (phoneNumberError) {
         errors.phoneNumber = phoneNumberError;
