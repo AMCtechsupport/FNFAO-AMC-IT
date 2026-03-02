@@ -111,9 +111,9 @@ const CaseNotesPartition = ({
                         <table className="table table-striped table-bordered table-hover" style={{ fontSize: "0.95rem" }}>
                             <thead style={{ backgroundColor: "#212529", color: "#fff" }}>
                                 <tr>
-                                    <th style={{ width: "40%" }}>Created At</th>
-                                    <th>Type</th>
-                                    <th style={{ width: "20%" }}></th>
+                                    <th style={{ width: "30%" }}>Created At</th>
+                                    <th style={{ width: "30%" }}>Type</th>
+                                    <th style={{ width: "20%", textAlign: "center" }}>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -128,28 +128,29 @@ const CaseNotesPartition = ({
                                                 {note.type}
                                             </span>
                                         </td>
-                                        <td className="align-middle">
-                                            <Button
-                                                size="sm"
-                                                variant="primary"
-                                                onClick={() => handleShowNoteDetails(note)}
-                                                data-view-allow="true"
-                                            >
-                                                View
-                                            </Button>
-                                            {isEditing && isAssignedAdvocate && isWithin24Hours(note.createdAt) && (
+                                        <td className="align-middle text-center">
+                                            <div className="d-flex gap-2 justify-content-center">
                                                 <Button
                                                     size="sm"
-                                                    variant="warning"
-                                                    className="ms-1"
-                                                    onClick={() => {
-                                                        handleCloseNoteDetails();
-                                                        setEditingNote(note);
-                                                    }}
+                                                    variant="primary"
+                                                    onClick={() => handleShowNoteDetails(note)}
+                                                    data-view-allow="true"
                                                 >
-                                                    Edit
+                                                    View
                                                 </Button>
-                                            )}
+                                                {isEditing && isAssignedAdvocate && isWithin24Hours(note.createdAt) && (
+                                                    <Button
+                                                        size="sm"
+                                                        variant="warning"
+                                                        onClick={() => {
+                                                            handleCloseNoteDetails();
+                                                            setEditingNote(note);
+                                                        }}
+                                                    >
+                                                        Edit
+                                                    </Button>
+                                                )}
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -262,14 +263,14 @@ const CaseNotesPartition = ({
                 <div style={cardStyle}>
                     <div style={sectionHeaderStyle}>Edit Case Note</div>
 
-                    <Row className="g-3 mb-3">
-                        <Col md={6}>
+                    <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
+                        <div style={{ flex: 1 }}>
                             <label style={fieldLabelStyle}>Type</label>
                             <select
                                 className="form-select"
                                 value={editValues.type}
                                 onChange={(e) => setEditValues({ ...editValues, type: e.target.value })}
-                                style={{ border: "2px solid #e2e2e2" }}
+                                style={{ border: "2px solid #e2e2e2", width: "100%" }}
                             >
                                 <option value="">Select an option</option>
                                 <option value="general">General</option>
@@ -279,14 +280,14 @@ const CaseNotesPartition = ({
                                 <option value="court">Court</option>
                                 <option value="otherType">Other</option>
                             </select>
-                        </Col>
-                        <Col md={6}>
+                        </div>
+                        <div style={{ flex: 1 }}>
                             <label style={fieldLabelStyle}>Subtype</label>
                             <select
                                 className="form-select"
                                 value={editValues.subType}
                                 onChange={(e) => setEditValues({ ...editValues, subType: e.target.value })}
-                                style={{ border: "2px solid #e2e2e2" }}
+                                style={{ border: "2px solid #e2e2e2", width: "100%" }}
                             >
                                 <option value="">Select an option</option>
                                 <option value="inOffice">In Office</option>
@@ -294,31 +295,31 @@ const CaseNotesPartition = ({
                                 <option value="onLineMeeting">On-Line Meeting</option>
                                 <option value="otherSubType">Other</option>
                             </select>
-                        </Col>
-                    </Row>
+                        </div>
+                    </div>
 
-                    <Row className="g-3 mb-3">
-                        <Col md={6}>
+                    <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
+                        <div style={{ flex: 1 }}>
                             <label style={fieldLabelStyle}>Description</label>
                             <textarea
                                 className="form-control"
                                 rows={5}
                                 value={editValues.description}
                                 onChange={(e) => setEditValues({ ...editValues, description: e.target.value })}
-                                style={{ border: "2px solid #e2e2e2", resize: "vertical" }}
+                                style={{ border: "2px solid #e2e2e2", resize: "vertical", width: "100%" }}
                             />
-                        </Col>
-                        <Col md={6}>
+                        </div>
+                        <div style={{ flex: 1 }}>
                             <label style={fieldLabelStyle}>Action Plan</label>
                             <textarea
                                 className="form-control"
                                 rows={5}
                                 value={editValues.actionPlan}
                                 onChange={(e) => setEditValues({ ...editValues, actionPlan: e.target.value })}
-                                style={{ border: "2px solid #e2e2e2", resize: "vertical" }}
+                                style={{ border: "2px solid #e2e2e2", resize: "vertical", width: "100%" }}
                             />
-                        </Col>
-                    </Row>
+                        </div>
+                    </div>
 
                     <div style={attachmentBoxStyle}>
                         <label style={fieldLabelStyle}>Attachment</label>
@@ -382,37 +383,37 @@ const CaseNotesPartition = ({
                 <div style={cardStyle}>
                     <div style={sectionHeaderStyle}>New Case Note</div>
 
-                    <Row className="g-3 mb-3">
-                        <Col md={6}>
+                    <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
+                        <div style={{ flex: 1 }}>
                             <TypeNoteSelect name={`notes.${values.notes.length - 1}.type`} label="Type" placeholder="" error={errors.type} disabled={!isEditing}/>
-                        </Col>
-                        <Col md={6}>
+                        </div>
+                        <div style={{ flex: 1 }}>
                             <SubTypeNoteSelect name={`notes.${values.notes.length - 1}.subType`} label="Subtype" placeholder="" error={errors.subType} disabled={!isEditing}/>
-                        </Col>
-                    </Row>
+                        </div>
+                    </div>
 
-                    <Row className="g-3 mb-3">
-                        <Col md={6}>
+                    <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
+                        <div style={{ flex: 1 }}>
                             <label style={fieldLabelStyle}>Description</label>
                             <Field
                                 name={`notes.${values.notes.length - 1}.description`}
                                 as="textarea"
                                 className="form-control"
                                 rows={5}
-                                style={{ border: "2px solid #e2e2e2", resize: "vertical" }}
+                                style={{ border: "2px solid #e2e2e2", resize: "vertical", width: "100%" }}
                             />
-                        </Col>
-                        <Col md={6}>
+                        </div>
+                        <div style={{ flex: 1 }}>
                             <label style={fieldLabelStyle}>Action Plan</label>
                             <Field
                                 name={`notes.${values.notes.length - 1}.actionPlan`}
                                 as="textarea"
                                 className="form-control"
                                 rows={5}
-                                style={{ border: "2px solid #e2e2e2", resize: "vertical" }}
+                                style={{ border: "2px solid #e2e2e2", resize: "vertical", width: "100%" }}
                             />
-                        </Col>
-                    </Row>
+                        </div>
+                    </div>
 
                     <div style={attachmentBoxStyle}>
                         <label style={fieldLabelStyle}>Attach File</label>
