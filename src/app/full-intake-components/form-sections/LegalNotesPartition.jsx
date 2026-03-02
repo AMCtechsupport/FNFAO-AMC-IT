@@ -111,8 +111,7 @@ const LegalNotesPartition = ({
                         <table className="table table-striped table-bordered table-hover" style={{ fontSize: "0.95rem" }}>
                             <thead style={{ backgroundColor: "#212529", color: "#fff" }}>
                                 <tr>
-                                    <th style={{ width: "12%" }}>ID</th>
-                                    <th style={{ width: "30%" }}>Created At</th>
+                                    <th style={{ width: "40%" }}>Created At</th>
                                     <th>Type</th>
                                     <th style={{ width: "20%" }}></th>
                                 </tr>
@@ -123,7 +122,6 @@ const LegalNotesPartition = ({
                                     .sort((a, b) => a.note_id - b.note_id)
                                     .map((note) => (
                                     <tr key={note.note_id}>
-                                        <td className="align-middle">{note.note_id}</td>
                                         <td className="align-middle"><FormattedDate dateString={note.createdAt}/></td>
                                         <td className="align-middle">
                                             <span style={{ backgroundColor: "#e9ecef", padding: "3px 10px", borderRadius: "20px", fontSize: "0.85em", fontWeight: 500 }}>
@@ -164,7 +162,7 @@ const LegalNotesPartition = ({
                         <div style={cardStyle}>
                             {/* Header bar */}
                             <div style={{ backgroundColor: "#212529", color: "#fff", borderRadius: "6px", padding: "10px 16px", marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                <span style={{ fontWeight: 600, fontSize: "1rem" }}>Legal Note #{selectedNote.note_id}</span>
+                                <span style={{ fontWeight: 600, fontSize: "1rem" }}>Legal Note</span>
                                 <span style={{ fontSize: "0.85rem", opacity: 0.8 }}>{new Date(selectedNote.createdAt).toLocaleString()}</span>
                             </div>
 
