@@ -6,11 +6,11 @@ allowing selection of individual advocates and filtering by status and date rang
 "use client";
 
 import { useEffect, useState } from "react";
-import supabase from "@/app/lib/supabase";
 import Pagination from "./pages-pagination";
 import { usePagination } from "./pagination-hooks";
+import { getAdvocatesWithClientCounts } from "@/app/lib/get-advocates-with-counts";
 
-export default function AdvocatesTable({ onSelect, active, inactive, startDate, endDate }) { 
+export default function AdvocatesTable({ onSelect, active, inactive, startDate, endDate }) {
   const [advocates, setAdvocates] = useState([]);
   const [selectedAdvocate, setSelectedAdvocate] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,111 +25,18 @@ export default function AdvocatesTable({ onSelect, active, inactive, startDate, 
     setCurrentPage,
   } = usePagination(advocates, 20);
 
-  // Determine client type filter based on active/inactive
-  function clientType() {
-        if (active && inactive)
-            return null
-        if (active && !inactive)
-            return "Active"
-        if (!active && inactive)
-            return "Inactive"
-        return "__NONE__";
-  }
-
   useEffect(() => {
-
     const fetchAdvocates = async () => {
       setLoading(true);
       try {
-        // fetch advocates
-        const { data: advocatesData, error: advocatesError } = await supabase
-          .from("Advocates")
-          .select("advocate_id, firstName, lastName");
+        const result = await getAdvocatesWithClientCounts(active, inactive, startDate, endDate);
 
-        if (advocatesError) throw advocatesError;
-
-        // fetch assigned advocates
-        const { data: assignmentsData, error: assignmentsError } = await supabase
-          .from("Assigned Advocates")
-          .select("advocate_id, client_id");
-
-        if (assignmentsError) throw assignmentsError;
-
-        const status = clientType();
-        let clientsData = [];
-        let clientsError = null;
-
-        if (status === "__NONE__") {
-          // no clients
-          clientsData = [];
+        if (result.error) {
+          setFetchError(result.error);
+          setAdvocates([]);
         } else {
-          // return all clients
-            let clientsQuery = supabase
-              .from("Clients")
-              .select("client_id, clientStatus, createdAt"); 
-
-            if (status) {
-              clientsQuery = clientsQuery.eq("clientStatus", status);
-            }
-            if (startDate) {
-              const [y, m, d] = startDate.split('-');
-              const startISO = new Date(Date.UTC(parseInt(y), parseInt(m) - 1, parseInt(d), 0, 0, 0)).toISOString();
-              clientsQuery = clientsQuery.gte('createdAt', startISO);
-            }
-            if (endDate) {
-              const [y, m, d] = endDate.split('-');
-              const endISO = new Date(Date.UTC(parseInt(y), parseInt(m) - 1, parseInt(d), 23, 59, 59, 999)).toISOString();
-              clientsQuery = clientsQuery.lte('createdAt', endISO);
-            }
-
-            const clientsResult = await clientsQuery;
-          clientsData = clientsResult.data;
-          clientsError = clientsResult.error;
+          setAdvocates(result.data);
         }
-
-        if (clientsError) throw clientsError;
-
-        // create organized set of client ids
-        const activeClientIds = new Set((clientsData || []).map((client) => client.client_id));
-        
-        // default: calculate date 3 months ago (used when no explicit range provided)
-        const threeMonthsAgo = new Date();
-        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-
-        // merge data and count clients
-        const mergedData = advocatesData.map((advocate) => {
-          const assignedClients = assignmentsData.filter(
-            (item) => item.advocate_id === advocate.advocate_id && activeClientIds.has(item.client_id)
-          );
-
-          const count = assignedClients.length;
-
-          // calculate new clients
-          const newClientCount = assignedClients.filter((item) => {
-            const cl = clientsData.find(c => c.client_id === item.client_id);
-            const createdAt = cl?.createdAt ? new Date(cl.createdAt) : null;
-            if (!createdAt) return false;
-
-            // if explicit date range provided, consider new if created within that range
-            if (startDate || endDate) {
-              const start = startDate ? new Date(startDate) : new Date(0);
-              const end = endDate ? new Date(endDate) : new Date();
-              return createdAt >= start && createdAt <= end;
-            }
-
-            // otherwise fallback to 3 months rule
-            return createdAt >= threeMonthsAgo;
-          }).length;
-
-          return {
-            advocate_id: advocate.advocate_id, 
-            name: `${advocate.firstName} ${advocate.lastName}`,
-            clientCount: count,
-            newClientCount 
-          };
-        });
-
-        setAdvocates(mergedData);
       } catch (err) {
         console.error("Error fetching advocates:", err);
         setFetchError("Failed to load advocates");
@@ -143,9 +50,8 @@ export default function AdvocatesTable({ onSelect, active, inactive, startDate, 
 
   const handleRowClick = (advocate) => {
     setSelectedAdvocate(advocate);
-    // if (onSelectAdvocate) onSelectAdvocate(advocate);
     console.log("Clicked advocate:", advocate);
-    if (onSelect) onSelect(advocate); 
+    if (onSelect) onSelect(advocate);
   };
 
   if (loading)
@@ -173,7 +79,7 @@ export default function AdvocatesTable({ onSelect, active, inactive, startDate, 
                 Number of Clients in Service
               </th>
               <th className="text-center px-6 py-3 text-gray-700 font-semibold border-b">
-                Number of New Clients 
+                Number of New Clients
               </th>
             </tr>
           </thead>
@@ -208,7 +114,7 @@ export default function AdvocatesTable({ onSelect, active, inactive, startDate, 
       </div>
 
       {/* Using Pagination Component */}
-      <Pagination 
+      <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={setCurrentPage}

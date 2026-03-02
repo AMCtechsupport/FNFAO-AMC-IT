@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
-import supabase from "@/app/lib/supabase";
+"use client";
+
+import { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
+import { getAssignedClients } from "@/app/lib/get-assigned-clients-server";
 
 export default function AssignedClientsList({ advocateId }) {
   const [assignedClients, setAssignedClients] = useState([]);
@@ -12,11 +14,15 @@ export default function AssignedClientsList({ advocateId }) {
   const clientsPerPage = 5;
 
   useEffect(() => {
-    const fetchAssignedClients = async () => {
+    const fetchClients = async () => {
       setLoading(true);
       setError(null);
 
-      if (advocateId === undefined || advocateId === null || advocateId === "") {
+      if (
+        advocateId === undefined ||
+        advocateId === null ||
+        advocateId === ""
+      ) {
         setAssignedClients([]);
         setTotalClients(0);
         setError("No advocate is linked to this login yet.");
@@ -24,48 +30,24 @@ export default function AssignedClientsList({ advocateId }) {
         return;
       }
 
-      const hasSearch = !!searchQuery?.trim();
-      const numericClientId = hasSearch ? Number(searchQuery.trim()) : null;
-      if (hasSearch && Number.isNaN(numericClientId)) {
-        setAssignedClients([]);
-        setTotalClients(0);
-        setError("Please enter a valid numeric value for the Client ID.");
-        setLoading(false);
-        return;
-      }
-
       try {
-        const applyFilters = (q) => {
-          let next = q.eq("advocate_id", advocateId);
-          if (hasSearch) next = next.eq("Clients.client_id", numericClientId);
-          return next;
-        };
-
-        const countQuery = applyFilters(
-          supabase
-            .from("Assigned Advocates")
-            .select("assigned_advocate_id", { count: "exact", head: true })
+        const result = await getAssignedClients(
+          advocateId,
+          currentPage,
+          clientsPerPage,
+          searchQuery,
         );
 
-        const { count, error: countError } = await countQuery;
-        if (countError) throw new Error(countError.message);
-        setTotalClients(count || 0);
-
-        const dataQuery = applyFilters(
-          supabase
-            .from("Assigned Advocates")
-            .select("dateAssigned, Clients(client_id, firstName, middleName, lastName)")
-            .order("dateAssigned", { ascending: false })
-        ).range(
-          (currentPage - 1) * clientsPerPage,
-          currentPage * clientsPerPage - 1
-        );
-
-        const { data, error: dataError } = await dataQuery;
-        if (dataError) throw new Error(dataError.message);
-
-        setAssignedClients((data || []).filter((row) => row.Clients !== null));
+        if (result.error) {
+          setError(result.error);
+          setAssignedClients([]);
+          setTotalClients(0);
+        } else {
+          setAssignedClients(result.data || []);
+          setTotalClients(result.count || 0);
+        }
       } catch (err) {
+        console.error("Error fetching assigned clients:", err);
         setError("Failed to fetch assigned clients: " + err.message);
         setAssignedClients([]);
         setTotalClients(0);
@@ -74,7 +56,7 @@ export default function AssignedClientsList({ advocateId }) {
       }
     };
 
-    fetchAssignedClients();
+    fetchClients();
   }, [advocateId, currentPage, searchQuery]);
 
   const totalPages = Math.max(1, Math.ceil(totalClients / clientsPerPage) || 0);
@@ -103,7 +85,11 @@ export default function AssignedClientsList({ advocateId }) {
         <ul className="space-y-3">
           {assignedClients.map((assignment) => {
             const client = assignment.Clients;
-            const fullName = [client.firstName, client.middleName, client.lastName]
+            const fullName = [
+              client.firstName,
+              client.middleName,
+              client.lastName,
+            ]
               .filter(Boolean)
               .join(" ");
 
@@ -115,7 +101,9 @@ export default function AssignedClientsList({ advocateId }) {
                       {fullName || "(No name)"}
                     </div>
                     <div className="text-sm text-gray-600 mt-1">
-                      <span className="font-medium text-gray-700">Client ID:</span>{" "}
+                      <span className="font-medium text-gray-700">
+                        Client ID:
+                      </span>{" "}
                       {client.client_id}
                     </div>
                   </div>
@@ -135,7 +123,11 @@ export default function AssignedClientsList({ advocateId }) {
           })}
         </ul>
       ) : (
-        !loading && <p className="text-gray-700">No clients found that match your search.</p>
+        !loading && (
+          <p className="text-gray-700">
+            No clients found that match your search.
+          </p>
+        )
       )}
 
       {/* Pagination */}

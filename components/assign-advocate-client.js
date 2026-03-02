@@ -1,11 +1,15 @@
 "use client";
 
 import { updateClientStatus } from "./client-active";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import supabase from "../src/app/lib/supabase";
 
-export default function AssignAdvocate() {
-  const [clients, setClients] = useState([]);
+export default function AssignAdvocate({
+  clients: initialClients = [],
+  advocates: initialAdvocates = [],
+}) {
+  const [allClients, setAllClients] = useState([]);
+  const [filteredClients, setFilteredClients] = useState([]);
   const [advocates, setAdvocates] = useState([]);
   const [searchClient, setSearchClient] = useState("");
   const [searchAdvocate, setSearchAdvocate] = useState("");
@@ -14,123 +18,142 @@ export default function AssignAdvocate() {
   const [message, setMessage] = useState("");
   const [showPopup, setShowPopup] = useState(false);
   const [isAssigned, setIsAssigned] = useState(false);
+  const searchClientTimeoutRef = useRef(null);
+  const searchAdvocateTimeoutRef = useRef(null);
+  const isFirstRenderRef = useRef(true);
 
-  const fetchClients = async (searchQuery = "") => {
+  // Client-side filter for immediate feedback (debounced)
+  const filterClients = (query) => {
+    if (!query.trim()) {
+      setFilteredClients(allClients);
+      return;
+    }
+
+    const term = query.toLowerCase().trim();
+    const numericId = !isNaN(term) && term !== "" ? parseInt(term, 10) : null;
+
+    const filtered = allClients.filter((client) => {
+      if (numericId !== null) {
+        return client.client_id === numericId;
+      }
+      const fullName =
+        `${client.firstName || ""} ${client.middleName || ""} ${client.lastName || ""}`.toLowerCase();
+      return fullName.includes(term);
+    });
+
+    setFilteredClients(filtered.slice(0, 50)); // Limit to 50 results
+  };
+
+  const fetchClients = async () => {
     try {
-      let query = supabase
-        .from("Clients")
-        .select("*")
-        .order("dateModified", { ascending: false });
-
-      if (searchQuery) {
-        const term = String(searchQuery).trim();
-        const isNumeric = !isNaN(term) && term !== "";
-        if (isNumeric) {
-          query = query.eq("client_id", parseInt(term, 10));
-        } else {
-          const tokens = term.split(/\s+/).filter(Boolean);
-          let orFilters = [];
-
-          if (tokens.length >= 3) {
-            const first = tokens[0];
-            const last = tokens[tokens.length - 1];
-            const middle = tokens.slice(1, -1).join(" ");
-
-            orFilters = [
-              `and(firstName.ilike.%${first}%,middleName.ilike.%${middle}%,lastName.ilike.%${last}%)`,
-              `and(firstName.ilike.%${first}%,lastName.ilike.%${last}%)`,
-              `and(firstName.ilike.%${last}%,lastName.ilike.%${first}%)`,
-              `firstName.ilike.%${term}%`,
-              `middleName.ilike.%${term}%`,
-              `lastName.ilike.%${term}%`
-            ];
-          } else if (tokens.length === 2) {
-            const a = tokens[0];
-            const b = tokens[1];
-
-            orFilters = [
-              `and(firstName.ilike.%${a}%,lastName.ilike.%${b}%)`,
-              `and(firstName.ilike.%${a}%,middleName.ilike.%${b}%)`,
-              `and(middleName.ilike.%${a}%,lastName.ilike.%${b}%)`,
-              `and(firstName.ilike.%${b}%,lastName.ilike.%${a}%)`,
-              `firstName.ilike.%${term}%`,
-              `middleName.ilike.%${term}%`,
-              `lastName.ilike.%${term}%`
-            ];
-          } else {
-            const token = tokens[0] || term;
-            orFilters = [
-              `firstName.ilike.%${token}%`,
-              `middleName.ilike.%${token}%`,
-              `lastName.ilike.%${token}%`
-            ];
-          }
-
-          if (orFilters.length) {
-            query = query.or(orFilters.join(","));
-          }
-        }
+      const res = await fetch(
+        `/api/clients?clientType=Youth%20Intake&pageSize=1000`,
+      );
+      if (!res.ok) {
+        console.error("Error fetching clients");
+        setAllClients([]);
+        setFilteredClients([]);
+        return;
       }
 
-      const { data, error } = await query;
+      const json = await res.json();
+      const youthClients = json.data || [];
 
-      if (error) {
-        console.error("Error fetching clients:", error.message);
-        setClients([]);
-      } else {
-        setClients(data || []);
+      const res2 = await fetch(
+        `/api/clients?clientType=Pre-Intake&pageSize=1000`,
+      );
+      if (!res2.ok) {
+        console.error("Error fetching adult clients");
+        setAllClients(youthClients);
+        setFilteredClients(youthClients);
+        return;
       }
+
+      const json2 = await res2.json();
+      const adultClients = json2.data || [];
+      const allClientsList = [...youthClients, ...adultClients].sort(
+        (a, b) => new Date(b.dateModified || 0) - new Date(a.dateModified || 0),
+      );
+
+      setAllClients(allClientsList);
+      setFilteredClients(allClientsList);
     } catch (err) {
-      console.error("Unexpected error:", err);
-      setClients([]);
+      console.error("Error fetching clients:", err);
+      setAllClients([]);
+      setFilteredClients([]);
     }
   };
 
   const fetchAdvocates = async (searchQuery = "") => {
     try {
-      let query = supabase.from("Advocates").select("*");
+      const params = searchQuery
+        ? `?search=${encodeURIComponent(searchQuery)}`
+        : "";
+      const res = await fetch(`/api/advocates${params}`);
 
-      if (searchQuery) {
-        const term = String(searchQuery).trim();
-        const tokens = term.split(/\s+/).filter(Boolean);
-        
-        if (tokens.length >= 2) {
-          const first = tokens[0];
-          const last = tokens[tokens.length - 1];
-
-          const orFilters = [
-            `and(firstName.ilike.%${first}%,lastName.ilike.%${last}%)`,
-            `and(firstName.ilike.%${last}%,lastName.ilike.%${first}%)`,
-            `firstName.ilike.%${term}%`,
-            `lastName.ilike.%${term}%`,
-            `email.ilike.%${term}%`
-          ];
-
-          query = query.or(orFilters.join(","));
-        } else {
-          const token = tokens[0] || term;
-          query = query.or(
-            `firstName.ilike.%${token}%,lastName.ilike.%${token}%,email.ilike.%${token}%`
-          );
-        }
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        console.error(
+          "Error fetching advocates:",
+          json?.error || `Status ${res.status}`,
+        );
+        setAdvocates([]);
+        return;
       }
 
-      const { data, error } = await query;
-
-      if (error) {
-        console.error("Error fetching advocates:", error.message);
-      } else {
-        setAdvocates(data);
-      }
+      const json = await res.json();
+      setAdvocates(json.advocates || []);
     } catch (err) {
       console.error("Unexpected error:", err);
+      setAdvocates([]);
     }
   };
 
   useEffect(() => {
-    fetchClients(searchClient);
-    fetchAdvocates(searchAdvocate);
-  }, [searchClient, searchAdvocate]);
+    fetchClients();
+  }, []);
+
+  // Debounced client search
+  useEffect(() => {
+    if (searchClientTimeoutRef.current) {
+      clearTimeout(searchClientTimeoutRef.current);
+    }
+
+    searchClientTimeoutRef.current = setTimeout(() => {
+      filterClients(searchClient);
+    }, 300);
+
+    return () => {
+      if (searchClientTimeoutRef.current) {
+        clearTimeout(searchClientTimeoutRef.current);
+      }
+    };
+  }, [searchClient, allClients]);
+
+  // Debounced advocate search (skip debounce on first render)
+  useEffect(() => {
+    // On first render, fetch without debounce
+    if (isFirstRenderRef.current) {
+      isFirstRenderRef.current = false;
+      fetchAdvocates(searchAdvocate);
+      return;
+    }
+
+    // On subsequent renders, apply debounce
+    if (searchAdvocateTimeoutRef.current) {
+      clearTimeout(searchAdvocateTimeoutRef.current);
+    }
+
+    searchAdvocateTimeoutRef.current = setTimeout(() => {
+      fetchAdvocates(searchAdvocate);
+    }, 300);
+
+    return () => {
+      if (searchAdvocateTimeoutRef.current) {
+        clearTimeout(searchAdvocateTimeoutRef.current);
+      }
+    };
+  }, [searchAdvocate]);
 
   const handleSearchClientChange = (event) => {
     setSearchClient(event.target.value);
@@ -233,10 +256,10 @@ export default function AssignAdvocate() {
         </div>
 
         {/* Display search results for clients */}
-        {clients.length > 0 && (
+        {filteredClients.length > 0 && (
           <div className="mt-4 border-2  rounded-lg p-4 max-h-96 bg-gray-200 overflow-y-auto">
             <ul>
-              {clients.map((client) => (
+              {filteredClients.map((client) => (
                 <li
                   key={client.client_id}
                   onClick={() => setSelectedClient(client)}
@@ -251,8 +274,7 @@ export default function AssignAdvocate() {
                   </span>
                   <br />
                   <span className="text-sm text-gray-600">
-                    {client.phoneNumber} {" "}
-                    {client.firstNationMembership} |{" "}
+                    {client.phoneNumber} {client.firstNationMembership} |{" "}
                     {new Date(client.dateOfBirth).toLocaleDateString("en-US", {
                       year: "numeric",
                       month: "long",
@@ -294,6 +316,13 @@ export default function AssignAdvocate() {
             onChange={handleSearchAdvocateChange}
             className="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          <p className="text-sm text-gray-600 mt-2">
+            {advocates.length === 0 ? (
+              <span className="text-orange-600">
+                No advocates found. Check database connection.
+              </span>
+            ) : null}
+          </p>
         </div>
 
         {/* Display search results for advocates */}
@@ -330,12 +359,12 @@ export default function AssignAdvocate() {
               Selected Advocate:{" "}
               {
                 advocates.find(
-                  (advocate) => advocate.advocate_id === selectedAdvocate
+                  (advocate) => advocate.advocate_id === selectedAdvocate,
                 )?.firstName
               }{" "}
               {
                 advocates.find(
-                  (advocate) => advocate.advocate_id === selectedAdvocate
+                  (advocate) => advocate.advocate_id === selectedAdvocate,
                 )?.lastName
               }
             </p>
