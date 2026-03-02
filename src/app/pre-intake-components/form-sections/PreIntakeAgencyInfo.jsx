@@ -20,6 +20,7 @@ const PreIntakeAgencyInfo = ( { index, errors } ) => {
                         name={`children.${index}.childCfsAgency`}
                         component={ManageCfsAgencies}
                         label="CFS Agency"
+                        placeholder="Agency Name"
                         error={errors.children?.[index]?.childCfsAgency}
                     />
                     </Col>
@@ -27,6 +28,7 @@ const PreIntakeAgencyInfo = ( { index, errors } ) => {
                     <InputField
                         name={`children.${index}.childCfsAgentFullName`}
                         label="Agency Worker's Full Name:"
+                        placeholder="First Name, Last Name"
                     />
                     </Col>
                     <Col md={4}>
@@ -58,6 +60,7 @@ const PreIntakeAgencyInfo = ( { index, errors } ) => {
                         type="email"
                         id={`children.${index}.childCfsAgentEmail`}
                         name={`children.${index}.childCfsAgentEmail`}
+                        placeholder="e.g., name@example.com"
                         />
                         <ErrorMessage
                         name={`children.${index}.childCfsAgentEmail`}
