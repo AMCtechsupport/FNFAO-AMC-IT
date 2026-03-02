@@ -304,6 +304,7 @@ export default function FullIntakeForm({
                       isEditing={isEditing}
                       errors={errors}
                       validateRadio={validateRadio}
+                      setFieldValue={setFieldValue}
                     />
                   </TabPanel>
 
@@ -314,6 +315,7 @@ export default function FullIntakeForm({
                       values={values}
                       isEditing={isEditing}
                       errors={errors}
+                      setFieldValue={setFieldValue}
                     />
                   </TabPanel>
 
@@ -349,6 +351,7 @@ export default function FullIntakeForm({
                       values={values}
                       isEditing={isEditing}
                       errors={errors}
+                      setFieldValue={setFieldValue}
                     />
                   </TabPanel>
 
@@ -363,6 +366,7 @@ export default function FullIntakeForm({
                       values={values}
                       isEditing={isEditing}
                       errors={errors}
+                      setFieldValue={setFieldValue}
                     />
                   </TabPanel>
                 </Tabs>
