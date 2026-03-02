@@ -26,6 +26,7 @@ export default function ClientsList({ initialClients, totalCount }) {
   const { userId } = useAuth();
 
   const router = useRouter();
+  const searchTimeoutRef = useRef(null);
 
   // Determine if client is Youth or Adult based on clientType
   const getClientTypeLabel = (client) => {
@@ -111,65 +112,7 @@ export default function ClientsList({ initialClients, totalCount }) {
     setDeletingClientId(client.client_id);
 
     try {
-      // Delete related data first (foreign key constraints)
-      
-      // Delete Emergency Contacts
-      await supabase
-        .from("Emergency Contacts")
-        .delete()
-        .eq("client_id", client.client_id);
-
-      // Delete Home Members
-      await supabase
-        .from("Home Members")
-        .delete()
-        .eq("client_id", client.client_id);
-
-      // Delete Educational Support Persons (if exists for youth clients)
-      await supabase
-        .from("Educational Support Persons")
-        .delete()
-        .eq("client_id", client.client_id);
-
-      // Delete Children (if exists for adult clients)
-      await supabase
-        .from("Childs")
-        .delete()
-        .eq("client_id", client.client_id);
-
-      // Delete Notes
-      await supabase
-        .from("Notes")
-        .delete()
-        .eq("client_id", client.client_id);
-
-      // Delete Important Family and Friends
-      await supabase
-        .from("Important Family and Friends")
-        .delete()
-        .eq("client_id", client.client_id);
-
-      // Delete EIA Workers
-      await supabase
-        .from("EIA Workers")
-        .delete()
-        .eq("client_id", client.client_id);
-
-      // Delete Assigned Advocates
-      await supabase
-        .from("Assigned Advocates")
-        .delete()
-        .eq("client_id", client.client_id);
-
-      // Finally, delete the client
-      const { error: clientError } = await supabase
-        .from("Clients")
-        .delete()
-        .eq("client_id", client.client_id);
-
-      if (clientError) {
-        throw clientError;
-      }
+      const result = await deleteClient(client.client_id);
 
       // Remove client from local state
       setClients((prevClients) =>
