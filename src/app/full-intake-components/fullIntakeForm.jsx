@@ -55,33 +55,14 @@ export default function FullIntakeForm({
   useEffect(() => {
     if (!client_id) return;
     const checkAssignment = async () => {
-      const { data: assignmentData } = await supabase
-        .from("Assigned Advocates")
-        .select("advocate_id")
-        .eq("client_id", client_id)
-        .maybeSingle();
-
-      if (!assignmentData?.advocate_id) return;
-
-      const { data: advocateData } = await supabase
-        .from("Advocates")
-        .select("firstName, lastName, advocate_id")
-        .eq("advocate_id", assignmentData.advocate_id)
-        .single();
-
-      if (advocateData) {
-        setAssignedAdvocateName(`${advocateData.firstName} ${advocateData.lastName}`);
-
-        if (userId) {
-          const { data: currentAdvocate } = await supabase
-            .from("Advocates")
-            .select("advocate_id")
-            .eq("clerk_user_id", userId)
-            .single();
-          setIsAssignedAdvocate(
-            !!currentAdvocate && currentAdvocate.advocate_id === advocateData.advocate_id
-          );
-        }
+      const params = new URLSearchParams({ client_id });
+      if (userId) params.set("userId", userId);
+      const res = await fetch(`/api/assigned-advocate?${params.toString()}`);
+      if (!res.ok) return;
+      const json = await res.json();
+      if (json.advocateName) {
+        setAssignedAdvocateName(json.advocateName);
+        setIsAssignedAdvocate(json.isAssignedAdvocate ?? false);
       }
     };
     checkAssignment();

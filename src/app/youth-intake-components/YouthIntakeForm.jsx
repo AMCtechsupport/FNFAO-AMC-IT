@@ -6,7 +6,6 @@ import { Formik, Form } from "formik";
 import "bootstrap/dist/css/bootstrap.min.css";
 import * as Yup from "yup";
 import { useUser } from "@clerk/clerk-react";
-import supabase from "../lib/supabase";
 
 import youthIntakeInputValidation from "./utils/youthIntakeInputValidation";
 
@@ -55,22 +54,11 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
   useEffect(() => {
     if (!editClientId) return;
     const fetchAssignedAdvocate = async () => {
-      const { data: assignmentData } = await supabase
-        .from("Assigned Advocates")
-        .select("advocate_id")
-        .eq("client_id", editClientId)
-        .maybeSingle();
-
-      if (!assignmentData?.advocate_id) return;
-
-      const { data: advocateData } = await supabase
-        .from("Advocates")
-        .select("firstName, lastName")
-        .eq("advocate_id", assignmentData.advocate_id)
-        .single();
-
-      if (advocateData) {
-        setAssignedAdvocateName(`${advocateData.firstName} ${advocateData.lastName}`);
+      const res = await fetch(`/api/assigned-advocate?client_id=${editClientId}`);
+      if (!res.ok) return;
+      const json = await res.json();
+      if (json.advocateName) {
+        setAssignedAdvocateName(json.advocateName);
       }
     };
     fetchAssignedAdvocate();
