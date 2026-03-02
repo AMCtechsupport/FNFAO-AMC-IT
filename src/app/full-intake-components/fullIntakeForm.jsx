@@ -22,7 +22,6 @@ import fetchFullIntakeValues from "./utils/fetchFullIntakeValues";
 import fullIntakeInputValidation from "./utils/fullIntakeInputValidation";
 import { fetchClientData } from "./utils/fetchClientData";
 import FullIntakeFormSubmit from "./utils/FullIntakeFormSubmit";
-import supabase from "../lib/supabase";
 
 export default function FullIntakeForm({
   client_id,
@@ -249,21 +248,32 @@ export default function FullIntakeForm({
     setShowNewNoteForm(true);
   };
 
-  const handleSaveNoteEdit = async (note_id, updatedFields) => {
-    const modifiedAt = new Date().toISOString();
-    const { error } = await supabase
-      .from("Notes")
-      .update({ ...updatedFields, modifiedAt })
-      .eq("note_id", note_id);
+  const handleSaveNoteEdit = async (note_id, updatedFields, file = null) => {
+    const formData = new FormData();
+    formData.append("note_id", note_id);
+    formData.append("type", updatedFields.type || "");
+    formData.append("subType", updatedFields.subType || "");
+    formData.append("description", updatedFields.description || "");
+    formData.append("actionPlan", updatedFields.actionPlan || "");
+    formData.append("client_id", client_id || "");
+    if (currentAdvocateId) formData.append("owner_id", String(currentAdvocateId));
+    if (file) formData.append("file", file);
 
-    if (!error) {
-      setNotesData((prev) =>
-        prev.map((n) =>
-          n.note_id === note_id ? { ...n, ...updatedFields, modifiedAt } : n
-        )
-      );
-      setEditingNote(null);
+    const res = await fetch("/api/notes", { method: "PATCH", body: formData });
+    if (!res.ok) {
+      console.error("[handleSaveNoteEdit] PATCH failed:", await res.text());
+      return;
     }
+
+    // Refresh notes from server to reflect updated data (including new file info)
+    const notesRes = await fetch(`/api/notes?client_id=${client_id}`);
+    if (notesRes.ok) {
+      const notesJson = await notesRes.json();
+      const safeNotes = notesJson.notes || [];
+      setNotesData(safeNotes);
+    }
+
+    setEditingNote(null);
   };
 
   const validateRadio = () => undefined;
