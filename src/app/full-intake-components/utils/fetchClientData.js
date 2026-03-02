@@ -87,20 +87,16 @@ export async function fetchClientData({
     setEIAData(EIAData || []);
   }
 
-  // Notes
-  const { data: notes, error: notesError } = await supabase
-    .from("Notes")
-    .select("*")
-    .eq("client_id", client_id)
-    .order("note_id", { ascending: true });
-
-  if (notesError) {
-    console.error("Error fetching notes data:", notesError.message || notesError);
+  // Notes — fetched via API to include advocate name (bypasses RLS on Advocates table)
+  const notesRes = await fetch(`/api/notes?client_id=${client_id}`);
+  if (!notesRes.ok) {
+    console.error("Error fetching notes data:", notesRes.status);
     setNotesData([]);
     setCaseNotes([]);
     setLegalNotes([]);
   } else {
-    const safeNotes = notes || [];
+    const notesJson = await notesRes.json();
+    const safeNotes = notesJson.notes || [];
     setNotesData(safeNotes);
 
     // Normalize noteType comparisons (Case/Legal)

@@ -170,7 +170,7 @@ const CaseNotesPartition = ({
                                 </Col>
                                 <Col md={4}>
                                     <div>
-                                        <label><strong>Author:</strong> </label>
+                                        <label><strong>Author:</strong> {selectedNote.authorName || "—"}</label>
                                     </div>
                                 </Col>
                                 <Col md={2}></Col>

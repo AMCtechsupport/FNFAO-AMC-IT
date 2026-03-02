@@ -51,6 +51,7 @@ export default function FullIntakeForm({
   const [editingNote, setEditingNote] = useState(null);
   const [isAssignedAdvocate, setIsAssignedAdvocate] = useState(false);
   const [assignedAdvocateName, setAssignedAdvocateName] = useState("—");
+  const [currentAdvocateId, setCurrentAdvocateId] = useState(null);
 
   useEffect(() => {
     if (!client_id) return;
@@ -63,6 +64,9 @@ export default function FullIntakeForm({
       if (json.advocateName) {
         setAssignedAdvocateName(json.advocateName);
         setIsAssignedAdvocate(json.isAssignedAdvocate ?? false);
+      }
+      if (json.currentAdvocateId) {
+        setCurrentAdvocateId(json.currentAdvocateId);
       }
     };
     checkAssignment();
@@ -235,7 +239,7 @@ export default function FullIntakeForm({
       subType: values.subType || "Uncategorized",
       description: values.description?.trim() || "No description provided",
       actionPlan: values.actionPlan?.trim() || "No action plan provided",
-      advocate_id: "19",
+      advocate_id: currentAdvocateId,
       createdAt: new Date().toISOString(),
       modifiedAt: new Date().toISOString(),
       noteType: noteType,

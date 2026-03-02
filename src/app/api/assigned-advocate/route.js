@@ -11,6 +11,17 @@ export async function GET(request) {
       return NextResponse.json({ error: "client_id is required" }, { status: 400 });
     }
 
+    // Look up the current user's advocate_id whenever userId is provided
+    let currentAdvocateId = null;
+    if (userId) {
+      const { data: currentAdvocate } = await supabase
+        .from("Advocates")
+        .select("advocate_id")
+        .eq("clerk_user_id", userId)
+        .single();
+      currentAdvocateId = currentAdvocate?.advocate_id || null;
+    }
+
     // Fetch assignment
     const { data: assignmentData, error: assignmentError } = await supabase
       .from("Assigned Advocates")
@@ -24,7 +35,7 @@ export async function GET(request) {
     }
 
     if (!assignmentData?.advocate_id) {
-      return NextResponse.json({ advocateName: null, isAssignedAdvocate: false });
+      return NextResponse.json({ advocateName: null, isAssignedAdvocate: false, currentAdvocateId });
     }
 
     // Fetch advocate name
@@ -35,25 +46,14 @@ export async function GET(request) {
       .single();
 
     if (advocateError || !advocateData) {
-      return NextResponse.json({ advocateName: null, isAssignedAdvocate: false });
+      return NextResponse.json({ advocateName: null, isAssignedAdvocate: false, currentAdvocateId });
     }
 
     const advocateName = `${advocateData.firstName} ${advocateData.lastName}`;
-    let isAssignedAdvocate = false;
+    const isAssignedAdvocate =
+      currentAdvocateId !== null && currentAdvocateId === advocateData.advocate_id;
 
-    // Check if the current user is the assigned advocate
-    if (userId) {
-      const { data: currentAdvocate } = await supabase
-        .from("Advocates")
-        .select("advocate_id")
-        .eq("clerk_user_id", userId)
-        .single();
-
-      isAssignedAdvocate =
-        !!currentAdvocate && currentAdvocate.advocate_id === advocateData.advocate_id;
-    }
-
-    return NextResponse.json({ advocateName, isAssignedAdvocate });
+    return NextResponse.json({ advocateName, isAssignedAdvocate, currentAdvocateId });
   } catch (err) {
     console.error("[/api/assigned-advocate] Unexpected error:", err);
     return NextResponse.json({ error: "Internal server error", details: err.message }, { status: 500 });
