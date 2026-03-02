@@ -70,7 +70,7 @@ const YouthIntakeFinancialInfo = ( { errors } ) => {
                             id="caseWorkerFullName"
                             name="caseWorkerFullName"
                             component={ValidNameInput}
-                            placeholder="Jimmy"
+                            placeholder="First Name, Last Name"
                         />
                         </div>
                     </Col>
@@ -92,6 +92,7 @@ const YouthIntakeFinancialInfo = ( { errors } ) => {
                             type="email"
                             id="caseWorkerEmail"
                             name="caseWorkerEmail"
+                            placeholder="e.g., name@example.com"
                         />
                         <ErrorMessage
                             name="caseWorkerEmail"

@@ -104,6 +104,7 @@ const LinkAdvocate = () => {
             id="firstName"
             type="text"
             value={firstName}
+            placeholder="Advocate's First Name"
             onChange={(e) => {
               setFirstName(e.target.value);
               if (success) setSuccess(null); // Clear success message when user starts typing
@@ -124,6 +125,7 @@ const LinkAdvocate = () => {
             id="lastName"
             type="text"
             value={lastName}
+            placeholder="Advocate's Last Name"
             onChange={(e) => {
               setLastName(e.target.value);
               if (success) setSuccess(null); // Clear success message when user starts typing
@@ -144,6 +146,7 @@ const LinkAdvocate = () => {
             id="email"
             type="email"
             value={email}
+            placeholder="e.g., name@example.com"
             onChange={(e) => {
               setEmail(e.target.value);
               if (success) setSuccess(null); // Clear success message when user starts typing

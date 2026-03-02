@@ -19,7 +19,7 @@ const YouthIntakeBiologicalParentInfo = ( {errors} ) => {
                     id="motherFirstName"
                     name="motherFirstName"
                     component={ValidNameInput}
-                    placeholder="Mary"
+                    placeholder="Mother's First Name"
                   />
                 </div>
               </Col>
@@ -32,6 +32,7 @@ const YouthIntakeBiologicalParentInfo = ( {errors} ) => {
                   <Field
                     id="motherMiddleName"
                     name="motherMiddleName"
+                    placeholder="Mother's Middle Name"
                     component={ValidNameInput}
                   />
                 </div>
@@ -43,6 +44,7 @@ const YouthIntakeBiologicalParentInfo = ( {errors} ) => {
                   <Field
                     id="motherLastName"
                     name="motherLastName"
+                    placeholder="Mother's Last Name"
                     component={ValidNameInput}
                   />
                 </div>
@@ -64,7 +66,7 @@ const YouthIntakeBiologicalParentInfo = ( {errors} ) => {
                     id="fatherFirstName"
                     name="fatherFirstName"
                     component={ValidNameInput}
-                    placeholder="Jones"
+                    placeholder="Father's Middle Name"
                   />
                 </div>
               </Col>
@@ -77,6 +79,7 @@ const YouthIntakeBiologicalParentInfo = ( {errors} ) => {
                   <Field
                     id="fatherMiddleName"
                     name="fatherMiddleName"
+                    placeholder="Father's Middle Name"
                     component={ValidNameInput}
                   />
                 </div>
@@ -88,6 +91,7 @@ const YouthIntakeBiologicalParentInfo = ( {errors} ) => {
                   <Field
                     id="fatherLastName"
                     name="fatherLastName"
+                    placeholder="Father's Last Name"
                     component={ValidNameInput}
                   />
                 </div>

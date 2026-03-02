@@ -59,6 +59,7 @@ const PreIntakeAboutYou = ( {values, errors} ) => {
                         <Field
                             as="textarea"
                             name="otherAdultsInvolvedExplained"
+                            placeholder="The other adults involved are..."
                             className={styles.textarea}
                         />
                         <ErrorMessage
@@ -261,6 +262,7 @@ const PreIntakeAboutYou = ( {values, errors} ) => {
                 <Field
                 as="textarea"
                 name="seekingAdvocacy"
+                placeholder="I am seeking advocacy because..."
                 className={styles.textarea}
                 />
                 <ErrorMessage

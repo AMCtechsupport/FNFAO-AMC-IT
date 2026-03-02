@@ -46,6 +46,7 @@ const YouthIntakeOtherInformation = ( { values } ) => {
                 <Field
                   as="textarea"
                   name="custodySupportSpecified"
+                  placeholder="Involvement with Youth Justice System include..."
                   className={styles.textarea}
                 />
                 <ErrorMessage
@@ -145,6 +146,7 @@ const YouthIntakeOtherInformation = ( { values } ) => {
                 <Field
                   as="textarea"
                   name="connectedCommunityExplained"
+                  placeholder="e.g., Client is involved with 'Community' by 'Reason'..."
                   className={styles.textarea}
                 />
                 <ErrorMessage
@@ -188,6 +190,7 @@ const YouthIntakeOtherInformation = ( { values } ) => {
                 <Field
                   as="textarea"
                   name="disabilitiesExplained"
+                  placeholder="e.g., Client has a physical/cognative/intellectual disability where they..."
                   className={styles.textarea}
                 />
               </Col>
@@ -202,6 +205,7 @@ const YouthIntakeOtherInformation = ( { values } ) => {
               <Field
                 as="textarea"
                 name="careExperience"
+                placeholder="Experience in care include..."
                 className={styles.textarea}
               />
             </Col>
@@ -217,6 +221,7 @@ const YouthIntakeOtherInformation = ( { values } ) => {
               <Field
                 as="textarea"
                 name="kindSupport"
+                placeholder="Hopes to receive support/advocacy in regards to..."
                 className={styles.textarea}
               />
             </Col>
@@ -228,6 +233,7 @@ const YouthIntakeOtherInformation = ( { values } ) => {
               <Field
                 as="textarea"
                 name="personalGoals"
+                placeholder="e.g., Client wants to acheive X by this time..."
                 className={styles.textarea}
               />
             </Col>
@@ -243,6 +249,7 @@ const YouthIntakeOtherInformation = ( { values } ) => {
               <Field
                 as="textarea"
                 name="additionalInformation"
+                placeholder="Additional client information includes..."
                 className={styles.textarea}
               />
             </Col>

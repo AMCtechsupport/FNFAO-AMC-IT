@@ -59,6 +59,7 @@ const YouthIntakeAgencyInfo = ( {values, errors} ) => {
                         <Field
                         as="textarea"
                         name="lastFaceToFace"
+                        placeholder="Last face-to-face was..."
                         className={styles.textarea}
                         />
                     </Col>
@@ -87,7 +88,7 @@ const YouthIntakeAgencyInfo = ( {values, errors} ) => {
                             id="cfsAgentFullName"
                             name="cfsAgentFullName"
                             component={ValidNameInput}
-                            placeholder="Agent Name"
+                            placeholder="First Name, Last Name"
                         />
                         </div>
                     </Col>
@@ -105,7 +106,7 @@ const YouthIntakeAgencyInfo = ( {values, errors} ) => {
                     <Col md={4}>
                         <div>
                         <label htmlFor="cfsAgentEmail">Email:</label>
-                        <Field type="email" id="cfsAgentEmail" name="cfsAgentEmail" />
+                        <Field type="email" id="cfsAgentEmail" name="cfsAgentEmail" placeholder="e.g., name@example.com"/>
                         <ErrorMessage
                             name="cfsAgentEmail"
                             component={() => (

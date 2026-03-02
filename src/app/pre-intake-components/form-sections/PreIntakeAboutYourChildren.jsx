@@ -36,6 +36,7 @@ const PreIntakeAboutYourChildren = ( { values, errors } ) => {
                             <Field
                               id={`children.${index}.firstName`}
                               name={`children.${index}.firstName`}
+                              placeholder="Child's First Name"
                               component={ValidNameInput}
                             />
                           </div>
@@ -49,6 +50,7 @@ const PreIntakeAboutYourChildren = ( { values, errors } ) => {
                             <Field
                               id={`children.${index}.middleName`}
                               name={`children.${index}.middleName`}
+                              placeholder="Child's Middle Name"
                               component={ValidNameInput}
                             />
                           </div>
@@ -61,6 +63,7 @@ const PreIntakeAboutYourChildren = ( { values, errors } ) => {
                             <Field
                               id={`children.${index}.lastName`}
                               name={`children.${index}.lastName`}
+                              placeholder="Child's Last Name"
                               component={ValidNameInput}
                             />
                           </div>
@@ -99,6 +102,7 @@ const PreIntakeAboutYourChildren = ( { values, errors } ) => {
                           <InputField
                             name={`children.${index}.childPlaced`}
                             label="Place of Stay:"
+                            placeholder="e.g., 123 Main Street"
                           />
                         </Col>
                       </Row>
@@ -188,6 +192,7 @@ const PreIntakeAboutYourChildren = ( { values, errors } ) => {
                 <Field
                   as="textarea"
                   name="visitsChildFrequency"
+                  placeholder="They visit their children..."
                   className={styles.textarea}
                 />
                 <ErrorMessage
@@ -236,6 +241,7 @@ const PreIntakeAboutYourChildren = ( { values, errors } ) => {
                 <Field
                   as="textarea"
                   name="casePlanCopyDescribe"
+                  placeholder="The last requests were..."
                   className={styles.textarea}
                 />
                 <ErrorMessage
@@ -252,6 +258,7 @@ const PreIntakeAboutYourChildren = ( { values, errors } ) => {
               <Field
                 as="textarea"
                 name="involvedCFSReason"
+                placeholder="CFS are involved because..."
                 className={styles.textarea}
               />
               <ErrorMessage
