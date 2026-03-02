@@ -1,5 +1,17 @@
 import supabase from "../../lib/supabase";
 
+export const normalizeDates = (data) => {
+  if (!data) return data;
+  const result = { ...data };
+  Object.keys(result).forEach((key) => {
+    const val = result[key];
+    if (typeof val === "string" && /^\d{4}-\d{2}-\d{2}T/.test(val)) {
+      result[key] = val.slice(0, 10);
+    }
+  });
+  return result;
+};
+
 export async function fetchClientData({
   client_id,
   setLoading,
@@ -24,7 +36,7 @@ export async function fetchClientData({
   if (clientError) {
     console.error("Error fetching client data:", clientError.message || clientError);
   } else {
-    setOriginalData(clientData);
+    setOriginalData(normalizeDates(clientData));
   }
 
   // Children

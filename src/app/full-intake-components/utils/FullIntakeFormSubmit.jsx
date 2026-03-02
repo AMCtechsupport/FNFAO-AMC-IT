@@ -1,5 +1,6 @@
 "use client";
 import supabase from "../../lib/supabase";
+import { normalizeDates } from "./fetchClientData";
 // Handles form updates
 import { handleNotesUpdate } from "../../utils/notesUpdates";
 import { handleFamilyUpdate }  from "../../utils/familyUpdates";
@@ -9,9 +10,19 @@ import handleChildrenUpdate from "../childrenUpdate";
 
 const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, router, setFormSent, client_id, originalData, childrenData, familyData, homeMembersData, EIAData, notesData, setChildrenData, setFamilyData, setHomeMembersData, setEIAData, setNotesData, setOriginalData, setShowNewNoteForm, setIsEditing) => {
     try {
+        const normalizeValue = (value) => {
+            if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value)) {
+                return value.slice(0, 10);
+            }
+            return value;
+        };
+
         const formatLogValue = (value) => {
             if (value === null || value === undefined || value === "") return "N/A";
             if (typeof value === "boolean") return value ? "true" : "false";
+            if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value)) {
+                return value.slice(0, 10);
+            }
             if (typeof value === "object") return JSON.stringify(value);
             return String(value);
         };
@@ -21,8 +32,8 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
             return Object.keys(current)
                 .filter((field) => !excludedFields.has(field))
                 .filter((field) => {
-                    const prevVal = previous?.[field] ?? null;
-                    const currVal = current?.[field] ?? null;
+                    const prevVal = normalizeValue(previous?.[field] ?? null);
+                    const currVal = normalizeValue(current?.[field] ?? null);
                     return JSON.stringify(prevVal) !== JSON.stringify(currVal);
                 })
                 .map((field) => `${field}: ${formatLogValue(previous?.[field])} → ${formatLogValue(current?.[field])}`);
@@ -159,7 +170,7 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
             }
 
             // UPDATE originalData with the new values
-            setOriginalData(data[0]);  // Use the data returned by Supabase
+            setOriginalData(normalizeDates(data[0]));  // Use the data returned by Supabase
 
             // Insert a User Log entry for this update via API (bypasses RLS)
             const changedFields = buildChangedFieldsDescription(originalData, clientValues);
