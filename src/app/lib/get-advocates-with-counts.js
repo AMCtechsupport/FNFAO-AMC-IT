@@ -3,10 +3,10 @@
 import supabase from "./supabase";
 
 export async function getAdvocatesWithClientCounts(
-  active: boolean,
-  inactive: boolean,
-  startDate: string,
-  endDate: string
+  active,
+  inactive,
+  startDate,
+  endDate
 ) {
   try {
     // Fetch all advocates
@@ -24,7 +24,7 @@ export async function getAdvocatesWithClientCounts(
     if (assignmentsError) throw assignmentsError;
 
     // Determine status filter
-    let statusFilters: string[] = [];
+    let statusFilters = [];
     if (active) statusFilters.push("Active");
     if (inactive) statusFilters.push("Inactive");
 
