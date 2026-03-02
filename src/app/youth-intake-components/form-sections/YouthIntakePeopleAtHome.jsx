@@ -95,7 +95,7 @@ const YouthIntakePeopleAtHome = ( {values, errors} ) => {
                                     name={`homeMembers.${index}.email`}
                                     label="Email Address:"
                                     component={EmailInput}
-                                    placeholder="name@example.com"
+                                    placeholder="e.g., name@example.com"
                                     />
                                 </Col>
                                 </Row>
