@@ -2,7 +2,6 @@
 
 import { updateClientStatus } from "./client-active";
 import { useState, useEffect, useRef } from "react";
-import supabase from "../src/app/lib/supabase";
 
 export default function AssignAdvocate({
   clients: initialClients = [],
@@ -173,51 +172,41 @@ export default function AssignAdvocate({
     }
 
     try {
-      // Check if the client has already been assigned to the advocate
-      const { data, error } = await supabase
-        .from("Assigned Advocates")
-        .select("*")
-        .eq("client_id", selectedClient.client_id)
-        .eq("advocate_id", selectedAdvocate);
+      const res = await fetch("/api/assigned-advocate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          client_id: selectedClient.client_id,
+          advocate_id: selectedAdvocate,
+        }),
+      });
 
-      if (error) {
-        console.error("Error checking for existing assignment:", error.message);
+      const json = await res.json();
+
+      if (!res.ok) {
+        setMessage("Failed to assign advocate: " + (json.error || res.status));
+        setShowPopup(true);
+        return;
       }
 
-      // If data is not empty, that means the client is already assigned to this advocate
-      if (data.length > 0) {
+      if (json.alreadyAssigned) {
         setMessage("This client is already assigned to the selected advocate.");
         setShowPopup(true);
         setIsAssigned(true);
         return;
       }
 
-      // Proceed with assigning if not already assigned
-      const { insertData, insertError } = await supabase
-        .from("Assigned Advocates")
-        .insert([
-          {
-            client_id: selectedClient.client_id,
-            advocate_id: selectedAdvocate,
-          },
-        ]);
+      setMessage("Client successfully assigned to the selected Advocate.");
+      setShowPopup(true);
 
-      if (insertError) {
-        setMessage("Failed to assign advocate: " + insertError.message);
-        setShowPopup(true);
-      } else {
-        setMessage("Client successfully assigned to the selected Advocate.");
-        setShowPopup(true);
+      // Update client status to 'Active' after successful assignment
+      await updateClientStatus(selectedClient.client_id);
 
-        // Update client status to 'Active' after successful assignment
-        await updateClientStatus(selectedClient.client_id);
-
-        // Reset selection and fetch fresh data
-        setSelectedClient(null);
-        setSelectedAdvocate("");
-        fetchClients();
-        fetchAdvocates();
-      }
+      // Reset selection and fetch fresh data
+      setSelectedClient(null);
+      setSelectedAdvocate("");
+      fetchClients();
+      fetchAdvocates();
     } catch (err) {
       setMessage("Failed to assign advocate: " + err.message);
       setShowPopup(true);

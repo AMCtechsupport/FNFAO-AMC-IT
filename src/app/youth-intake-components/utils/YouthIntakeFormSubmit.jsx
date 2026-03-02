@@ -302,28 +302,21 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, setFormS
         // );
         }
 
-        // Insert a User Log entry for this submission
-        let advocate_id = null;
-        if (user?.id) {
-            const { data: advocateData } = await supabase
-                .from("Advocates")
-                .select("advocate_id")
-                .eq("clerk_user_id", user.id)
-                .single();
-            advocate_id = advocateData?.advocate_id || null;
-        }
-        await supabase.from("User Logs").insert([
-            {
-                description: isEditMode
-                    ? changedFields.length
-                        ? `Youth intake updated. Changed fields:\n${changedFields.join("\n")}`
-                        : `Youth intake updated for client_id: ${clientId}`
-                    : `Youth intake created for client_id: ${clientId}`,
-                logType: isEditMode ? "UPDATE" : "INSERT",
-                advocate_id,
-                client_id: clientId,
-            },
-        ]);
+        // Insert a User Log entry for this submission via API (bypasses RLS)
+        await fetch("/api/user-logs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            description: isEditMode
+              ? changedFields.length
+                ? `Youth intake updated. Changed fields:\n${changedFields.join("\n")}`
+                : `Youth intake updated for client_id: ${clientId}`
+              : `Youth intake created for client_id: ${clientId}`,
+            logType: isEditMode ? "UPDATE" : "INSERT",
+            client_id: clientId,
+            clerkUserId: user?.id || null,
+          }),
+        });
 
         // Reset form and show success message
         setFormSent(true);

@@ -161,29 +161,22 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
             // UPDATE originalData with the new values
             setOriginalData(data[0]);  // Use the data returned by Supabase
 
-            // Insert a User Log entry for this update
-            let advocate_id = null;
-            if (userId) {
-                const { data: advocateData } = await supabase
-                    .from("Advocates")
-                    .select("advocate_id")
-                    .eq("clerk_user_id", userId)
-                    .single();
-                advocate_id = advocateData?.advocate_id || null;
-            }
+            // Insert a User Log entry for this update via API (bypasses RLS)
             const changedFields = buildChangedFieldsDescription(originalData, clientValues);
             const description = changedFields.length
                 ? `Full intake updated. Changed fields:\n${changedFields.join("\n")}`
                 : `Full intake updated for client_id: ${client_id}`;
 
-            await supabase.from("User Logs").insert([
-                {
+            await fetch("/api/user-logs", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
                     description,
                     logType: "UPDATE",
-                    advocate_id,
                     client_id,
-                },
-            ]);
+                    clerkUserId: userId || null,
+                }),
+            });
 
             setShowNewNoteForm(false);
             setIsEditing(false);

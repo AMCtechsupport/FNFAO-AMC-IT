@@ -24,45 +24,28 @@ const UserLogs = () => {
   useEffect(() => {
     const fetchLogs = async () => {
       setLoading(true);
-      // Request exact count from Supabase so pagination can work correctly
-      let query = supabase
-        .from("User Logs")
-        .select("*, Advocates!advocate_id(firstName, lastName)", { count: "exact" });
 
-      if (searchQuery) {
-        query = query.ilike("client_id", `%${searchQuery}%`);
-      }
+      const params = new URLSearchParams({
+        page: String(currentPage),
+        pageSize: String(itemsPerPage),
+      });
+      if (searchQuery) params.set("search", searchQuery);
 
-      query = query.order("createdAt", { ascending: false });
-
-      // Paginate the query
-      query = query.range(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage - 1
-      );
-
-      const { data, error, count } = await query;
-      if (error) {
-        console.error("Error fetching user logs", error);
+      const res = await fetch(`/api/user-logs?${params.toString()}`);
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        console.error("Error fetching user logs", json.error || res.status);
         setLoading(false);
         return;
       }
 
-      const logsData = data || [];
+      const json = await res.json();
+      const total = json.count ?? 0;
 
-      // Attach advocateName to each log using the joined Advocates data
-      const enrichedLogs = logsData.map((log) => ({
-        ...log,
-        advocateName: log.Advocates
-          ? `${log.Advocates.firstName} ${log.Advocates.lastName}`
-          : null,
-      }));
-
-      setLogs(enrichedLogs);
-      const total = typeof count === "number" ? count : logsData.length;
+      setLogs(json.logs || []);
       setTotalLogs(total);
 
-      // If the current page is now out-of-range (e.g., total decreased), clamp it
+      // Clamp current page if it's now out of range
       const totalPages = Math.max(1, Math.ceil(total / itemsPerPage));
       if (currentPage > totalPages) {
         setCurrentPage(totalPages);
@@ -72,14 +55,13 @@ const UserLogs = () => {
 
     fetchLogs();
 
-    // Real-time subscription to changes in the "User Logs" table so the UI updates
+    // Real-time subscription: re-fetch via API when User Logs table changes
     const logsChannel = supabase
       .channel("user-logs-channel")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "User Logs" },
         (payload) => {
-          // When User Logs change (INSERT/UPDATE/DELETE), refresh the displayed logs
           console.log("Change received in User Logs table:", payload);
           fetchLogs();
         }
