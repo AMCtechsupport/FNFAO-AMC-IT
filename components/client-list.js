@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 import { deleteClient } from "../src/app/lib/delete-client-server";
 
 export default function ClientsList({ initialClients, totalCount }) {
