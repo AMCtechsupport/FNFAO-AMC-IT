@@ -100,6 +100,7 @@ const YouthIntakeHousingSituation = ( {} ) => {
                 <Field
                     as="textarea"
                     name="currentlyStaying"
+                    placeholder="Currently staying at..."
                     className={styles.textarea}
                 />
                 </Col>
@@ -108,6 +109,7 @@ const YouthIntakeHousingSituation = ( {} ) => {
                 <Field
                     as="textarea"
                     name="currentlyStayingDuration"
+                    placeholder="Been staying for..."
                     className={styles.textarea}
                 />
                 </Col>

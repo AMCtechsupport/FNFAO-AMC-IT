@@ -30,6 +30,7 @@ const YouthIntakePeopleAtHome = ( {values, errors} ) => {
                                     <Field
                                         id={`homeMembers.${index}.firstName`}
                                         name={`homeMembers.${index}.firstName`}
+                                        placeholder="Person's First Name"
                                         component={ValidNameInput}
                                     />
                                     </div>
@@ -45,6 +46,7 @@ const YouthIntakePeopleAtHome = ( {values, errors} ) => {
                                     <Field
                                         id={`homeMembers.${index}.middleName`}
                                         name={`homeMembers.${index}.middleName`}
+                                        placeholder="Person's Middle Name"
                                         component={ValidNameInput}
                                     />
                                     </div>
@@ -57,6 +59,7 @@ const YouthIntakePeopleAtHome = ( {values, errors} ) => {
                                     <Field
                                         id={`homeMembers.${index}.lastName`}
                                         name={`homeMembers.${index}.lastName`}
+                                        placeholder="Person's Last Name"
                                         component={ValidNameInput}
                                     />
                                     </div>
@@ -73,6 +76,7 @@ const YouthIntakePeopleAtHome = ( {values, errors} ) => {
                                     <Field
                                         id={`homeMembers.${index}.relationship`}
                                         name={`homeMembers.${index}.relationship`}
+                                        placeholder="e.g., Sibling, Grandparent..."
                                         component={ValidNameInput}
                                     />
                                     </div>
@@ -91,7 +95,7 @@ const YouthIntakePeopleAtHome = ( {values, errors} ) => {
                                     name={`homeMembers.${index}.email`}
                                     label="Email Address:"
                                     component={EmailInput}
-                                    placeholder="youremail@example.com"
+                                    placeholder="name@example.com"
                                     />
                                 </Col>
                                 </Row>

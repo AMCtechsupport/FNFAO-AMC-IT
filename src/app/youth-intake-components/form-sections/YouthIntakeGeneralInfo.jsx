@@ -31,7 +31,7 @@ const YouthIntakeGeneralInfo = ( { errors } ) => {
                 <InputField
                     name="firstName"
                     label="First Name: *"
-                    placeholder="John"
+                    placeholder="Enter First Name"
                     error={errors.firstName}
                 />
                 </Col>
@@ -40,6 +40,7 @@ const YouthIntakeGeneralInfo = ( { errors } ) => {
                 <InputField
                     name="middleName"
                     label="Middle Name:"
+                    placeholder="Enter Middle Name"
                     error={errors.middleName}
                 />
                 </Col>
@@ -47,7 +48,7 @@ const YouthIntakeGeneralInfo = ( { errors } ) => {
                 <InputField
                     name="lastName"
                     label="Last Name: *"
-                    placeholder="Connor"
+                    placeholder="Enter Last Name"
                     error={errors.lastName}
                 />
                 </Col>
@@ -79,7 +80,7 @@ const YouthIntakeGeneralInfo = ( { errors } ) => {
                 <InputField
                     name="address"
                     label="Address:"
-                    placeholder="161 Main St, Unit 230"
+                    placeholder="e.g., 123 Main Street"
                     error={errors.address}
                 />
                 </Col>
@@ -88,7 +89,7 @@ const YouthIntakeGeneralInfo = ( { errors } ) => {
                 <InputField
                     name="city"
                     label="City:"
-                    placeholder="Winnipeg"
+                    placeholder="e.g., Winnipeg"
                     error={errors.city}
                 />
                 </Col>
@@ -105,7 +106,7 @@ const YouthIntakeGeneralInfo = ( { errors } ) => {
                 <InputField
                     name="postalCode"
                     label="Postal code:"
-                    placeholder="R3C 0V8"
+                    placeholder="A1A 1A1"
                     error={errors.postalCode}
                 />
                 </Col>
@@ -124,14 +125,14 @@ const YouthIntakeGeneralInfo = ( { errors } ) => {
                 <Col md={3}>
                 <div>
                     <label htmlFor="socialMedia">Social Media Contact:</label>
-                    <Field type="text" id="socialMedia" name="socialMedia" />
+                    <Field type="text" id="socialMedia" name="socialMedia" placeholder="e.g., 'Name' on 'Platform'"/>
                 </div>
                 </Col>
 
                 <Col md={4}>
                 <div>
                     <label htmlFor="email">Email:</label>
-                    <Field type="email" id="email" name="email" />
+                    <Field type="email" id="email" name="email" placeholder="e.g., name@example.com"/>
                     <ErrorMessage
                     name="email"
                     component={() => (
