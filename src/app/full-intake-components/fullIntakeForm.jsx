@@ -213,7 +213,7 @@ export default function FullIntakeForm({
     };
   }, [isViewOnly]);
 
-   const buttonRowStyle = {
+  const buttonRowStyle = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
@@ -222,7 +222,7 @@ export default function FullIntakeForm({
     margin: "20px auto 10px auto",
   };
 
-    const saveBtnStyle = {
+  const saveBtnStyle = {
     backgroundColor: "#7C3AED", // purple
     color: "white",
     padding: "8px 16px",
@@ -234,7 +234,7 @@ export default function FullIntakeForm({
     display: "inline-block",
   };
 
-   const cancelBtnStyle = {
+  const cancelBtnStyle = {
     backgroundColor: "#111827", // keep black
     color: "white",
     padding: "8px 16px",
@@ -381,6 +381,7 @@ export default function FullIntakeForm({
                       values={values}
                       isEditing={isEditing}
                       errors={errors}
+                      setFieldValue={setFieldValue}
                     />
                   </TabPanel>
 
@@ -422,6 +423,7 @@ export default function FullIntakeForm({
                       isEditing={isEditing}
                       isAssignedAdvocate={isAssignedAdvocate}
                       errors={errors}
+                      setFieldValue={setFieldValue}
                     />
                   </TabPanel>
 
@@ -442,6 +444,7 @@ export default function FullIntakeForm({
                       isEditing={isEditing}
                       isAssignedAdvocate={isAssignedAdvocate}
                       errors={errors}
+                      setFieldValue={setFieldValue}
                     />
                   </TabPanel>
                 </Tabs>
@@ -451,23 +454,23 @@ export default function FullIntakeForm({
             {!isViewOnly && (
               <>
                 <div style={buttonRowStyle}>
-                    <>
-                        <button
-                          style={cancelBtnStyle}
-                          onClick={() => {
-                            resetForm();
-                            setIsEditing(false);
-                            setShowNewNoteForm(false);
-                          }}
-                        >
-                          Cancel
-                        </button>
-                      
-                        <button style={saveBtnStyle} type="submit">
-                          Save
-                        </button>
-                    </>
-                  
+                  <>
+                    <button
+                      style={cancelBtnStyle}
+                      onClick={() => {
+                        resetForm();
+                        setIsEditing(false);
+                        setShowNewNoteForm(false);
+                      }}
+                    >
+                      Cancel
+                    </button>
+
+                    <button style={saveBtnStyle} type="submit">
+                      Save
+                    </button>
+                  </>
+
                 </div>
 
                 {formSent && <div className={styles.successfulText}>Form saved successfully!</div>}

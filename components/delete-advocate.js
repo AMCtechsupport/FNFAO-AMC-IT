@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import supabase from "../src/app/lib/supabase";
 import { deleteAdvocate } from "../src/app/lib/delete-advocate-server";
 
 const DeleteAdvocate = () => {
@@ -13,48 +12,22 @@ const DeleteAdvocate = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Fetch advocates based on search query
+  // Fetch advocates via secure server API (uses service role key)
   const fetchAdvocates = async (searchQuery = "") => {
     try {
-      let query = supabase.from("Advocates").select("*");
-
-      if (searchQuery) {
-        const term = searchQuery.trim();
-        // to ignore empty tokens
-        const tokens = term.split(/\s+/).filter(Boolean);
-
-        if (tokens.length >= 2) {
-          const first = tokens[0];
-          const last = tokens[tokens.length - 1];
-
-          // Filter options to match names
-          const orFilters = [
-            `and(firstName.ilike.%${first}%,lastName.ilike.%${last}%)`,
-            `and(firstName.ilike.%${last}%,lastName.ilike.%${first}%)`,
-            `firstName.ilike.%${term}%`,
-            `lastName.ilike.%${term}%`,
-            `email.ilike.%${term}%`
-          ];
-
-          query = query.or(orFilters.join(","));
-        } else {
-          const t = tokens[0];
-          query = query.or(
-            `firstName.ilike.%${t}%,lastName.ilike.%${t}%,email.ilike.%${t}%`
-          );
-        }
+      const params = searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : "";
+      const res = await fetch(`/api/advocates${params}`);
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        const msg = json?.error || `Status ${res.status}`;
+        console.error("Error fetching advocates from API:", msg);
+        setError("Error fetching advocates: " + msg);
+        return;
       }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error("Error fetching advocates:", error.message);
-        setError("Error fetching advocates: " + error.message);
-      } else {
-        setAdvocates(data || []);
-      }
+      const json = await res.json();
+      setAdvocates(json.advocates || []);
     } catch (err) {
-      console.error("Unexpected error:", err);
+      console.error("Unexpected error while fetching advocates:", err);
       setError("Unexpected error occurred while fetching advocates.");
     }
   };

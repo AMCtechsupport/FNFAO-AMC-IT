@@ -29,6 +29,7 @@ const PhoneNumberInput = ({ field, form, ...props }) => {
       <input
         {...field}
         {...props}
+        value={field.value ?? ""}
         type="text"
         className="form-control"
         onChange={handleChange}
