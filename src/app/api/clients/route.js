@@ -1,6 +1,22 @@
 import { NextResponse } from "next/server";
 import supabase from "../../lib/supabase";
 
+// Builds PostgREST or() conditions that match any client_id whose decimal
+// representation starts with `termStr`, e.g. "4" matches 4, 40-49, 400-499…
+// Uses nested and(gte,lte) pairs so no type-cast syntax is needed.
+function buildIdStartsWithConditions(termStr, maxDigits = 7) {
+  const base = parseInt(termStr, 10);
+  const k = termStr.length;
+  const parts = [];
+  for (let d = k; d <= maxDigits; d++) {
+    const scale = Math.pow(10, d - k);
+    const lower = base * scale;
+    const upper = (base + 1) * scale - 1;
+    parts.push(`and(client_id.gte.${lower},client_id.lte.${upper})`);
+  }
+  return parts.join(",");
+}
+
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -38,7 +54,6 @@ export async function GET(request) {
       // Apply search filter if provided (search by firstName, lastName, or client_id)
       if (search && search.trim()) {
         const searchTerm = search.trim();
-        const numericId = !isNaN(searchTerm) && searchTerm !== "" ? parseInt(searchTerm, 10) : null;
 
         // Check if search contains spaces (multi-word search like "John Doe")
         const words = searchTerm.split(/\s+/).filter(w => w.length > 0);
@@ -50,22 +65,21 @@ export async function GET(request) {
           const firstWord = words[0];
           const lastWord = words[words.length - 1];
 
-          // Build OR conditions for multi-word search
-          // Match specific pattern: first word in firstName, last word in lastName
           orConditions = `firstName.ilike.%${firstWord}%,lastName.ilike.%${lastWord}%`;
 
-          // Also try reverse pattern in case names are reversed
           if (firstWord !== lastWord) {
             orConditions += `,firstName.ilike.%${lastWord}%,lastName.ilike.%${firstWord}%`;
           }
         } else {
-          // Single word search: search in both firstName and lastName
-          orConditions = `firstName.ilike.%${searchTerm}%,lastName.ilike.%${searchTerm}%`;
-        }
-
-        // Add numeric ID condition if search term is numeric
-        if (numericId !== null) {
-          orConditions = `client_id.eq.${numericId},` + orConditions;
+          // Single word: search by name (contains) OR ID (starts-with)
+          const isNumeric = /^\d+$/.test(searchTerm);
+          const nameConditions = `firstName.ilike.%${searchTerm}%,lastName.ilike.%${searchTerm}%`;
+          if (isNumeric) {
+            const idConditions = buildIdStartsWithConditions(searchTerm);
+            orConditions = `${nameConditions},${idConditions}`;
+          } else {
+            orConditions = nameConditions;
+          }
         }
 
         // Apply all conditions in a single OR filter
