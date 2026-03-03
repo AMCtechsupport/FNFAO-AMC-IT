@@ -135,7 +135,7 @@ export default function FirstNationsReportPage() {
 
     const element = contentRef.current;
     const options = {
-      margin: 0.5,
+      margin: 0,
       filename: "first_nations_report.pdf",
       image: { type: "jpeg" as const, quality: 0.98 },
       html2canvas: { scale: 2 },
