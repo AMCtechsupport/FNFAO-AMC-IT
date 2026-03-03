@@ -21,150 +21,47 @@ const UserLogs = () => {
   // Compute total pages for the pagination component
   const totalPages = totalLogs > 0 ? Math.ceil(totalLogs / itemsPerPage) : 0;
 
-  // Handle real-time changes in the Clients table
-  const handleRealTimeChange = async (payload) => {
-    console.log("Received payload:", payload);
-
-    // Extract event, new, and old data from payload
-    const { eventType, new: newClient, old: oldClient } = payload;
-
-    // Fallback if eventType is undefined
-    const event = eventType || "UNHANDLED";
-
-    let description = "";
-
-    // Utility function to create a detailed client log description
-    const generateClientDescription = (client) => {
-      const prioritizedFields = [
-        "client_id",
-        "firstName",
-        "lastName",
-        "phoneNumber",
-        "dateOfBirth",
-      ];
-
-      const description = [
-        ...prioritizedFields.map((field) => {
-          return client[field] ? `${field}: ${client[field]}` : `${field}: N/A`;
-        }),
-        ...Object.keys(client)
-          .filter((key) => !prioritizedFields.includes(key))
-          .map((key) => {
-            return `${key}: ${client[key] || "N/A"}`;
-          }),
-      ];
-
-      return description.filter(Boolean).join("\n");
-    };
-
-    // Construct the description based on event type
-    switch (event) {
-      case "INSERT":
-        description = `Client inserted:\n${generateClientDescription(
-          newClient
-        )}\nEvent Type: ${event}`;
-        break;
-      case "UPDATE":
-        description = `Client updated:\n${generateClientDescription(
-          newClient
-        )}\nEvent Type: ${event}`;
-        break;
-      case "DELETE":
-        description = `Client deleted:\n${generateClientDescription(
-          oldClient
-        )}\nEvent Type: ${event}`;
-        break;
-      default:
-        description = `Unhandled event:\nEvent type is ${event}. Payload: ${JSON.stringify(
-          payload
-        )}`;
-        console.log("Unhandled event:", payload);
-        break;
-    }
-
-    // Fetch the client_id from the new or old client, depending on the event
-    const client_id = newClient?.client_id || oldClient?.client_id;
-
-    // Log the event in the User Logs table
-    await logUserEvent(description, event, client_id);
-  };
-
-  // Function to insert a log into the User Logs table
-  const logUserEvent = async (description, eventType, client_id) => {
-    const { data, error } = await supabase.from("User Logs").insert([
-      {
-        description,
-        logType: eventType,
-        clerk_user_id: "admin",
-        client_id,
-      },
-    ]);
-
-    if (error) {
-      console.error("Error logging event:", error);
-    } else {
-      console.log("Event logged in User Logs table:", data);
-    }
-  };
-
   useEffect(() => {
     const fetchLogs = async () => {
       setLoading(true);
-      // Request exact count from Supabase so pagination can work correctly
-      let query = supabase.from("User Logs").select("*", { count: "exact" });
 
-      if (searchQuery) {
-        query = query.ilike("client_id", `%${searchQuery}%`);
+      const params = new URLSearchParams({
+        page: String(currentPage),
+        pageSize: String(itemsPerPage),
+      });
+      if (searchQuery) params.set("search", searchQuery);
+
+      const res = await fetch(`/api/user-logs?${params.toString()}`);
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        console.error("Error fetching user logs", json.error || res.status);
+        setLoading(false);
+        return;
       }
 
-      query = query.order("createdAt", { ascending: false });
+      const json = await res.json();
+      const total = json.count ?? 0;
 
-      // Paginate the query
-      query = query.range(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage - 1
-      );
+      setLogs(json.logs || []);
+      setTotalLogs(total);
 
-      const { data, error, count } = await query;
-      if (error) {
-        console.error("Error fetching user logs", error);
-      } else {
-        setLogs(data || []);
-        const total = typeof count === "number" ? count : (data || []).length;
-        setTotalLogs(total);
-
-        // If the current page is now out-of-range (e.g., total decreased), clamp it
-        const totalPages = Math.max(1, Math.ceil(total / itemsPerPage));
-        if (currentPage > totalPages) {
-          setCurrentPage(totalPages);
-        }
+      // Clamp current page if it's now out of range
+      const totalPages = Math.max(1, Math.ceil(total / itemsPerPage));
+      if (currentPage > totalPages) {
+        setCurrentPage(totalPages);
       }
       setLoading(false);
     };
 
     fetchLogs();
 
-    // Real-time subscription to changes in the "Clients" table
-    const clientChannel = supabase
-      .channel("custom-client-channel")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "Clients" },
-        (payload) => {
-          console.log("Change received in Clients table!", payload);
-          handleRealTimeChange(payload);
-        }
-      )
-      .subscribe();
-
-    // Real-time subscription to changes in the "User Logs" table so the UI updates
+    // Real-time subscription: re-fetch via API when User Logs table changes
     const logsChannel = supabase
       .channel("user-logs-channel")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "User Logs" },
         (payload) => {
-          // When User Logs change (INSERT/UPDATE/DELETE), refresh the displayed logs
           console.log("Change received in User Logs table:", payload);
           fetchLogs();
         }
@@ -172,7 +69,6 @@ const UserLogs = () => {
       .subscribe();
 
     return () => {
-      clientChannel.unsubscribe();
       logsChannel.unsubscribe();
     };
   }, [searchQuery, currentPage]);

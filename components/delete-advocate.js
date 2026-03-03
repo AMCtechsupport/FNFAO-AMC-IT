@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { deleteAdvocate } from "../src/app/lib/delete-advocate-server";
 
 const DeleteAdvocate = () => {
+  const [allAdvocates, setAllAdvocates] = useState([]);
   const [advocates, setAdvocates] = useState([]);
   const [searchAdvocate, setSearchAdvocate] = useState("");
   const [selectedAdvocate, setSelectedAdvocate] = useState(null);
@@ -13,10 +14,9 @@ const DeleteAdvocate = () => {
   const [loading, setLoading] = useState(false);
 
   // Fetch advocates via secure server API (uses service role key)
-  const fetchAdvocates = async (searchQuery = "") => {
+  const fetchAdvocates = async () => {
     try {
-      const params = searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : "";
-      const res = await fetch(`/api/advocates${params}`);
+      const res = await fetch(`/api/advocates`);
       if (!res.ok) {
         const json = await res.json().catch(() => ({}));
         const msg = json?.error || `Status ${res.status}`;
@@ -25,7 +25,9 @@ const DeleteAdvocate = () => {
         return;
       }
       const json = await res.json();
-      setAdvocates(json.advocates || []);
+      const advocatesList = json.advocates || [];
+      setAllAdvocates(advocatesList);
+      setAdvocates(advocatesList);
     } catch (err) {
       console.error("Unexpected error while fetching advocates:", err);
       setError("Unexpected error occurred while fetching advocates.");
@@ -33,8 +35,42 @@ const DeleteAdvocate = () => {
   };
 
   useEffect(() => {
-    fetchAdvocates(searchAdvocate);
-  }, [searchAdvocate]);
+    fetchAdvocates();
+  }, []);
+
+  useEffect(() => {
+    const term = searchAdvocate.trim().toLowerCase();
+
+    if (!term) {
+      setAdvocates(allAdvocates);
+      return;
+    }
+
+    const numericId = /^\d+$/.test(term) ? parseInt(term, 10) : null;
+
+    const filtered = allAdvocates.filter((advocate) => {
+      const firstName = (advocate.firstName || "").toLowerCase();
+      const lastName = (advocate.lastName || "").toLowerCase();
+      const email = (advocate.email || "").toLowerCase();
+
+      if (numericId !== null) {
+        return (
+          advocate.advocate_id === numericId ||
+          firstName.includes(term) ||
+          lastName.includes(term) ||
+          email.includes(term)
+        );
+      }
+
+      return (
+        firstName.includes(term) ||
+        lastName.includes(term) ||
+        email.includes(term)
+      );
+    });
+
+    setAdvocates(filtered);
+  }, [searchAdvocate, allAdvocates]);
 
   const handleSearchChange = (event) => {
     setSearchAdvocate(event.target.value);

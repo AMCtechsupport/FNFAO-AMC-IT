@@ -15,7 +15,7 @@ const LogTable = ({ logs, loading, onLogClick }) => {
             <th className="py-3 px-6 font-medium text-gray-800">Description</th>
             <th className="py-3 px-6 font-medium text-gray-800">Log Type</th>
             <th className="py-3 px-6 font-medium text-gray-800">
-              Clerk User ID
+              Advocate
             </th>
           </tr>
         </thead>
@@ -43,7 +43,9 @@ const LogTable = ({ logs, loading, onLogClick }) => {
                   </button>
                 </td>
                 <td className="py-4 px-6">{log.logType}</td>
-                <td className="py-4 px-6">{log.clerk_user_id}</td>
+                <td className="py-4 px-6">
+                  {log.advocateName || log.clerk_user_id || "—"}
+                </td>
               </tr>
             ))
           )}

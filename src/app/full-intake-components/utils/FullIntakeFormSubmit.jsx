@@ -1,5 +1,6 @@
 "use client";
 import supabase from "../../lib/supabase";
+import { normalizeDates } from "./fetchClientData";
 // Handles form updates
 import { handleNotesUpdate } from "../../utils/notesUpdates";
 import { handleFamilyUpdate }  from "../../utils/familyUpdates";
@@ -9,6 +10,35 @@ import handleChildrenUpdate from "../childrenUpdate";
 
 const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, router, setFormSent, client_id, originalData, childrenData, familyData, homeMembersData, EIAData, notesData, setChildrenData, setFamilyData, setHomeMembersData, setEIAData, setNotesData, setOriginalData, setShowNewNoteForm, setIsEditing) => {
     try {
+        const normalizeValue = (value) => {
+            if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value)) {
+                return value.slice(0, 10);
+            }
+            return value;
+        };
+
+        const formatLogValue = (value) => {
+            if (value === null || value === undefined || value === "") return "N/A";
+            if (typeof value === "boolean") return value ? "true" : "false";
+            if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value)) {
+                return value.slice(0, 10);
+            }
+            if (typeof value === "object") return JSON.stringify(value);
+            return String(value);
+        };
+
+        const buildChangedFieldsDescription = (previous = {}, current = {}) => {
+            const excludedFields = new Set(["dateModified", "createdAt"]);
+            return Object.keys(current)
+                .filter((field) => !excludedFields.has(field))
+                .filter((field) => {
+                    const prevVal = normalizeValue(previous?.[field] ?? null);
+                    const currVal = normalizeValue(current?.[field] ?? null);
+                    return JSON.stringify(prevVal) !== JSON.stringify(currVal);
+                })
+                .map((field) => `${field}: ${formatLogValue(previous?.[field])} → ${formatLogValue(current?.[field])}`);
+        };
+
         // const { getToken } = useAuth();
         const token = await getToken({ template: "supabase" });
 
@@ -140,7 +170,24 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
             }
 
             // UPDATE originalData with the new values
-            setOriginalData(data[0]);  // Use the data returned by Supabase
+            setOriginalData(normalizeDates(data[0]));  // Use the data returned by Supabase
+
+            // Insert a User Log entry for this update via API (bypasses RLS)
+            const changedFields = buildChangedFieldsDescription(originalData, clientValues);
+            const description = changedFields.length
+                ? `Full intake updated. Changed fields:\n${changedFields.join("\n")}`
+                : `Full intake updated for client_id: ${client_id}`;
+
+            await fetch("/api/user-logs", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    description,
+                    logType: "UPDATE",
+                    client_id,
+                    clerkUserId: userId || null,
+                }),
+            });
 
             setShowNewNoteForm(false);
             setIsEditing(false);
@@ -149,7 +196,7 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
             
             // Redirect to client list after successful update (like youth-intake form)
             setTimeout(() => {
-                router.push('/clients');
+                router.push(`/clients/${client_id}/view`);
             }, 1500);
         } else {
             console.warn("Warning: The update did not modify any data.");

@@ -49,15 +49,26 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(isEditMode && !isViewOnly);
   const [formSent, setFormSent] = useState(false);
+  const [assignedAdvocateName, setAssignedAdvocateName] = useState("—");
+
   const { initialValues, isLoading } = YouthIntakeFetchClientData(
     youthIntakeDefaultValues,
     isEditMode,
     editClientId
   );
 
-    useEffect(() => {
-    if (isViewOnly) setIsEditing(false);
-  }, [isViewOnly]);
+  useEffect(() => {
+    if (!editClientId) return;
+    const fetchAssignedAdvocate = async () => {
+      const res = await fetch(`/api/assigned-advocate?client_id=${editClientId}`);
+      if (!res.ok) return;
+      const json = await res.json();
+      if (json.advocateName) {
+        setAssignedAdvocateName(json.advocateName);
+      }
+    };
+    fetchAssignedAdvocate();
+  }, [editClientId]);
 
   // VIEW ONLY PATCH (white boxes + blocked cursor + remove placeholders)
   useEffect(() => {
@@ -85,10 +96,10 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
         focusHandlers.push(() => el.removeEventListener("focus", onFocus));
       }
 
-      // keep white & show blocked cursor
-      el.style.backgroundColor = "#ffffff";
-      el.style.cursor = "not-allowed";
-      el.style.opacity = "1";
+      // keep white look
+      el.style.setProperty("background-color", "#ffffff", "important");
+      el.style.setProperty("opacity", "1", "important");
+      el.style.setProperty("cursor", "default", "important");
 
       if (tag === "textarea") {
         el.readOnly = true;
@@ -99,7 +110,10 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
 
       if (tag === "input") {
         const type = (el.getAttribute("type") || "text").toLowerCase();
-        if (["checkbox", "radio", "file", "date", "time"].includes(type)) {
+        if (type === "checkbox") {
+          el.style.setProperty("pointer-events", "none", "important");
+          el.tabIndex = -1;
+        } else if (["radio", "file", "date", "time"].includes(type)) {
           el.disabled = true;
           el.readOnly = false;
           el.tabIndex = -1;
@@ -117,7 +131,7 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
 
   el.style.setProperty("background-color", "#ffffff", "important");
   el.style.setProperty("opacity", "1", "important");
-  el.style.setProperty("cursor", "not-allowed", "important");
+  el.style.setProperty("cursor", "default", "important");
 
   const selectedOption = el.options?.[el.selectedIndex];
   const selectedText = (selectedOption?.textContent || "").trim();
@@ -142,8 +156,7 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
 }
 
       if (tag === "button") {
-        el.disabled = true;
-        el.tabIndex = -1;
+        el.style.setProperty("display", "none", "important");
       }
     };
 
@@ -215,6 +228,12 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
           </div>
 
           <hr className="separator-line" />
+
+          {editClientId && (
+            <div style={{ marginBottom: "12px" }}>
+              <strong>Assigned to:</strong> {assignedAdvocateName}
+            </div>
+          )}
 
           <YouthIntakeGeneralInfo errors={errors} />
           <YouthIntakeEmergencyContact errors={errors} />
