@@ -164,7 +164,7 @@ const CaseNotesPartition = ({
                             {/* Header bar */}
                             <div style={{ backgroundColor: "#212529", color: "#fff", borderRadius: "6px", padding: "10px 16px", marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                 <span style={{ fontWeight: 600, fontSize: "1rem" }}>Case Note</span>
-                                <span style={{ fontSize: "0.85rem", opacity: 0.8 }}>{new Date(selectedNote.createdAt).toLocaleString()}</span>
+                                <span style={{ fontSize: "0.85rem", opacity: 0.8 }}><FormattedDate dateString={selectedNote.createdAt} /></span>
                             </div>
 
                             {/* Type / Subtype badges */}
