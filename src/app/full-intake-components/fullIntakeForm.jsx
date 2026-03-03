@@ -249,6 +249,8 @@ export default function FullIntakeForm({
   };
 
   const handleSaveNoteEdit = async (note_id, updatedFields, file = null) => {
+    const originalNote = notesData.find((n) => n.note_id === note_id);
+
     const formData = new FormData();
     formData.append("note_id", note_id);
     formData.append("type", updatedFields.type || "");
@@ -264,6 +266,31 @@ export default function FullIntakeForm({
       console.error("[handleSaveNoteEdit] PATCH failed:", await res.text());
       return;
     }
+
+    // Log the note edit
+    const formatVal = (v) => (v === null || v === undefined || v === "") ? "N/A" : String(v);
+    const noteChanges = [];
+    for (const field of ["type", "subType", "description", "actionPlan"]) {
+      const prevVal = formatVal(originalNote?.[field]);
+      const currVal = formatVal(updatedFields[field]);
+      if (prevVal !== currVal) {
+        noteChanges.push(`${field}: ${prevVal} → ${currVal}`);
+      }
+    }
+    const noteType = originalNote?.noteType || "Note";
+    const logDescription = noteChanges.length
+      ? `${noteType} note updated. Changed fields:\n${noteChanges.join("\n")}`
+      : `${noteType} note updated (note_id: ${note_id})`;
+    await fetch("/api/user-logs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        description: logDescription,
+        logType: "UPDATE",
+        client_id,
+        clerkUserId: userId || null,
+      }),
+    });
 
     // Refresh notes from server to reflect updated data (including new file info)
     const notesRes = await fetch(`/api/notes?client_id=${client_id}`);
