@@ -179,7 +179,7 @@ const PreIntakeAboutYou = ( {values, errors} ) => {
                     name="onReserve"
                     value="yes"
                     />
-                    <label className="form-check-label">Yes</label>
+                    <label className="form-check-label">On</label>
                 </div>
                 <div className="form-check form-check-inline">
                     <Field
@@ -188,7 +188,7 @@ const PreIntakeAboutYou = ( {values, errors} ) => {
                     name="onReserve"
                     value="no"
                     />
-                    <label className="form-check-label">No</label>
+                    <label className="form-check-label">Off</label>
                 </div>
                 <ErrorMessage
                     name="onReserve"
