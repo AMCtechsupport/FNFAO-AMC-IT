@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { createAdvocate } from "../src/app/lib/create-advocate-server";
 
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+
 const LinkAdvocate = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -17,6 +19,11 @@ const LinkAdvocate = () => {
 
     if (!firstName.trim() || !lastName.trim() || !email.trim()) {
       setError("Please fill in all required fields.");
+      return;
+    }
+
+    if (!EMAIL_REGEX.test(email.trim())) {
+      setError("Please enter a valid email address (e.g. name@example.com).");
       return;
     }
 
