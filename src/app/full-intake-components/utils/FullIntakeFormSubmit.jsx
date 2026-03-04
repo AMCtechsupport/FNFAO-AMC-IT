@@ -217,7 +217,7 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
             const allChanges = [...changedFields, ...noteChanges];
             const description = allChanges.length
                 ? `Full intake updated. Changed fields:\n${allChanges.join("\n")}`
-                : `Full intake updated for client_id: ${client_id}`;
+                : `Full intake updated for client: ${values.firstName} ${values.lastName}`;
 
             await fetch("/api/user-logs", {
                 method: "POST",

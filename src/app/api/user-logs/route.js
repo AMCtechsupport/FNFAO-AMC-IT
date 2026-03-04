@@ -13,7 +13,18 @@ export async function GET(request) {
       .select("*, Advocates!advocate_id(firstName, lastName)", { count: "exact" });
 
     if (search) {
-      query = query.ilike("client_id", `%${search}%`);
+      const { data: clientData } = await supabase
+        .from("Clients")
+        .select("client_id")
+        .or(`firstName.ilike.%${search}%,lastName.ilike.%${search}%`);
+
+      const clientIds = (clientData || []).map((c) => c.client_id);
+
+      if (clientIds.length > 0) {
+        query = query.in("client_id", clientIds);
+      } else {
+        return NextResponse.json({ logs: [], count: 0 });
+      }
     }
 
     query = query
@@ -31,11 +42,26 @@ export async function GET(request) {
     }
 
     const logsData = data || [];
+
+    // Fetch client names for all unique client_ids in the result
+    const clientIds = [...new Set(logsData.map((l) => l.client_id).filter(Boolean))];
+    let clientMap = {};
+    if (clientIds.length > 0) {
+      const { data: clientsData } = await supabase
+        .from("Clients")
+        .select("client_id, firstName, lastName")
+        .in("client_id", clientIds);
+      (clientsData || []).forEach((c) => {
+        clientMap[c.client_id] = `${c.firstName} ${c.lastName}`;
+      });
+    }
+
     const enrichedLogs = logsData.map((log) => ({
       ...log,
       advocateName: log.Advocates
         ? `${log.Advocates.firstName} ${log.Advocates.lastName}`
         : null,
+      clientName: clientMap[log.client_id] || null,
     }));
 
     return NextResponse.json({

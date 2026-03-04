@@ -20,6 +20,11 @@ const LogModal = ({ log, onClose }) => {
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-xl font-semibold mb-4">Log Description</h2>
+        {log.clientName && (
+          <p className="text-sm text-gray-500 mb-3">
+            Client: <span className="font-medium text-gray-700">{log.clientName}</span>
+          </p>
+        )}
         <div className="space-y-2">{formatDescription(log.description)}</div>
         <button
           onClick={onClose}
