@@ -70,107 +70,10 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
     fetchAssignedAdvocate();
   }, [editClientId]);
 
-  // VIEW ONLY PATCH (white boxes + blocked cursor + remove placeholders)
-  useEffect(() => {
-    if (!isViewOnly) return;
-    if (isLoading) return;
-
-    const form = document.querySelector("form");
-    if (!form) return;
-
-    const focusHandlers = [];
-
-    const apply = (el) => {
-      const tag = el.tagName.toLowerCase();
-
-      // remove placeholders if empty
-      if ((tag === "input" || tag === "textarea") && !el.value) {
-        el.setAttribute("placeholder", "");
-      }
-
-      // prevent caret focus
-      const onFocus = () => el.blur();
-      if (!el.dataset.viewonlyBound) {
-        el.addEventListener("focus", onFocus);
-        el.dataset.viewonlyBound = "true";
-        focusHandlers.push(() => el.removeEventListener("focus", onFocus));
-      }
-
-      // keep white look
-      el.style.setProperty("background-color", "#ffffff", "important");
-      el.style.setProperty("opacity", "1", "important");
-      el.style.setProperty("cursor", "default", "important");
-
-      if (tag === "textarea") {
-        el.readOnly = true;
-        el.disabled = false;
-        el.tabIndex = -1;
-        return;
-      }
-
-      if (tag === "input") {
-        const type = (el.getAttribute("type") || "text").toLowerCase();
-        if (type === "checkbox") {
-          el.style.setProperty("pointer-events", "none", "important");
-          el.tabIndex = -1;
-        } else if (["radio", "file", "date", "time"].includes(type)) {
-          el.disabled = true;
-          el.readOnly = false;
-          el.tabIndex = -1;
-        } else {
-          el.readOnly = true;
-          el.disabled = false;
-          el.tabIndex = -1;
-        }
-        return;
-      }
-
-      if (tag === "select") {
-  el.disabled = true;
-  el.tabIndex = -1;
-
-  el.style.setProperty("background-color", "#ffffff", "important");
-  el.style.setProperty("opacity", "1", "important");
-  el.style.setProperty("cursor", "default", "important");
-
-  const selectedOption = el.options?.[el.selectedIndex];
-  const selectedText = (selectedOption?.textContent || "").trim();
-  const selectedValue = (el.value || "").trim();
-
-  const isEmptySelect =
-    selectedValue === "" ||
-    selectedValue === "0" ||
-    /^select\b/i.test(selectedText);
-
-  if (isEmptySelect) {
-    el.style.setProperty("color", "transparent", "important");
-    el.style.setProperty("-webkit-text-fill-color", "transparent", "important");
-    el.style.setProperty("text-shadow", "0 0 0 transparent", "important");
-  } else {
-    el.style.setProperty("color", "#111827", "important");
-    el.style.setProperty("-webkit-text-fill-color", "#111827", "important");
-    el.style.setProperty("text-shadow", "none", "important");
-  }
-
-  return;
-}
-
-      if (tag === "button") {
-        el.style.setProperty("display", "none", "important");
-      }
-    };
-
-    const elements = form.querySelectorAll("input, textarea, select, button");
-    elements.forEach(apply);
-
-    return () => {
-      focusHandlers.forEach((fn) => fn());
-    };
-  }, [isViewOnly, isLoading]);
 
   
     const submitFullWidthStyle = {
-      backgroundColor: "black",
+      backgroundColor: "#7C3AED",
       color: "white",
       padding: "10px",
       border: "none",
@@ -223,6 +126,7 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
     >
       {({ values, errors, setFieldValue, resetForm }) => (
         <Form className={styles.form}>
+          <fieldset disabled={isViewOnly}>
           <div className={styles.titleContainer}>
             <h2 className={styles.centeredTitle}>YOUTH INTAKE FORM</h2>
           </div>
@@ -234,7 +138,7 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
               <strong>Assigned to:</strong> {assignedAdvocateName}
             </div>
           )}
-
+        
           <YouthIntakeGeneralInfo errors={errors} />
           <YouthIntakeEmergencyContact errors={errors} />
           <YouthIntakeAgencyInfo values={values} errors={errors} />
@@ -282,6 +186,7 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
               )}
             </>
           )}
+          </fieldset>
         </Form>
       )}
     </Formik>
