@@ -131,7 +131,7 @@ export default function YouthClientView() {
           </div>
 
           {/* Form */}
-          <YouthIntakeForm editClientId={client_id} isEditMode={true} isViewOnly={false} />
+          <YouthIntakeForm editClientId={client_id} isEditMode={true} isViewOnly={true} />
 
           {/* BOTTOM BUTTON ROW */}
           <div style={buttonRowStyle}>

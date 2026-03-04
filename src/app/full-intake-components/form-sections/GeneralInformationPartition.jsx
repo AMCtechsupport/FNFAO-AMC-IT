@@ -367,7 +367,7 @@ const GeneralInformationPartition = ({
                                 <Col md={9}></Col>
                                 <Col md={3} className="d-flex align-items-end mt-2">
                                 <Button
-                                    className="w-100 btn btn-danger"
+                                    className="w-100 btn btn-danger opacity-70"
                                     type="button"
                                     onClick={() => remove(index)}
                                     disabled={!isEditing}
