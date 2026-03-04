@@ -14,9 +14,7 @@ const LogTable = ({ logs, loading, onLogClick }) => {
             <th className="py-3 px-6 font-medium text-gray-800">Client</th>
             <th className="py-3 px-6 font-medium text-gray-800">Description</th>
             <th className="py-3 px-6 font-medium text-gray-800">Log Type</th>
-            <th className="py-3 px-6 font-medium text-gray-800">
-              Advocate
-            </th>
+            <th className="py-3 px-6 font-medium text-gray-800">Updated By</th>
           </tr>
         </thead>
         <tbody>
