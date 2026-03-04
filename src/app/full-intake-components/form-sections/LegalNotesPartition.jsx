@@ -9,7 +9,12 @@ import FormattedDate from "@/components/FormattedDate";
 import "react-tabs/style/react-tabs.css";
 
 const isWithin24Hours = (createdAt) => {
-    return new Date() - new Date(createdAt) < 24 * 60 * 60 * 1000;
+    if (!createdAt) return false;
+    const created = new Date(createdAt);
+    if (isNaN(created.getTime())) return false;
+    const nowWinnipeg = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Winnipeg" }));
+    const createdWinnipeg = new Date(created.toLocaleString("en-US", { timeZone: "America/Winnipeg" }));
+    return nowWinnipeg - createdWinnipeg < 24 * 60 * 60 * 1000;
 };
 
 const cardStyle = {
@@ -64,6 +69,7 @@ const LegalNotesPartition = ({
     showNewNoteForm,
     setShowNewNoteForm,
     handleAddNoteClick,
+    handleSaveNewNote,
     editingNote,
     setEditingNote,
     handleSaveNoteEdit,
@@ -238,7 +244,7 @@ const LegalNotesPartition = ({
                                         <span style={{ fontSize: "0.83rem", color: "#6b7280" }}>
                                             <strong>Author:</strong> {selectedNote.authorName || "—"}
                                             {"  ·  "}
-                                            <strong>Last updated:</strong> {selectedNote.modifiedAt}
+                                            <strong>Last updated:</strong> <FormattedDate dateString={selectedNote.modifiedAt} />
                                         </span>
                                     </Col>
                                     <Col xs="auto">
@@ -429,7 +435,13 @@ const LegalNotesPartition = ({
                         />
                     </div>
 
-                    <div className="mt-4">
+                    <div className="mt-4 d-flex gap-2">
+                        <Button
+                            variant="dark"
+                            onClick={() => handleSaveNewNote(values.notes[values.notes.length - 1], setFieldValue, values.notes)}
+                        >
+                            Save
+                        </Button>
                         <Button
                             variant="outline-secondary"
                             onClick={() => {

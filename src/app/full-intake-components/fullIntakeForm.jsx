@@ -263,7 +263,13 @@ export default function FullIntakeForm({
 
     const res = await fetch("/api/notes", { method: "PATCH", body: formData });
     if (!res.ok) {
-      console.error("[handleSaveNoteEdit] PATCH failed:", await res.text());
+      const errData = await res.json().catch(() => ({}));
+      if (res.status === 403) {
+        alert(errData.error || "This note can no longer be edited (24-hour window has passed).");
+        setEditingNote(null);
+      } else {
+        console.error("[handleSaveNoteEdit] PATCH failed:", errData);
+      }
       return;
     }
 
@@ -301,6 +307,46 @@ export default function FullIntakeForm({
     }
 
     setEditingNote(null);
+  };
+
+  const handleSaveNewNote = async (noteData, setFieldValue, currentNotes) => {
+    const formData = new FormData();
+    formData.append("type", noteData.type || "");
+    formData.append("subType", noteData.subType || "");
+    formData.append("description", noteData.description || "");
+    formData.append("actionPlan", noteData.actionPlan || "");
+    formData.append("noteType", noteData.noteType || "Case");
+    formData.append("client_id", client_id || "");
+    if (currentAdvocateId) formData.append("advocate_id", String(currentAdvocateId));
+    if (currentAdvocateId) formData.append("owner_id", String(currentAdvocateId));
+    if (noteData.file instanceof File) formData.append("file", noteData.file);
+
+    const res = await fetch("/api/notes", { method: "POST", body: formData });
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      console.error("[handleSaveNewNote] POST failed:", errData);
+      return;
+    }
+
+    await fetch("/api/user-logs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        description: `${noteData.noteType || "Case"} note added (type: ${noteData.type || "N/A"})`,
+        logType: "CREATE",
+        client_id,
+        clerkUserId: userId || null,
+      }),
+    });
+
+    setFieldValue("notes", currentNotes.slice(0, -1));
+    setShowNewNoteForm(false);
+
+    const notesRes = await fetch(`/api/notes?client_id=${client_id}`);
+    if (notesRes.ok) {
+      const notesJson = await notesRes.json();
+      setNotesData(notesJson.notes || []);
+    }
   };
 
   const validateRadio = () => undefined;
@@ -437,6 +483,7 @@ export default function FullIntakeForm({
                       showNewNoteForm={showNewNoteForm}
                       setShowNewNoteForm={setShowNewNoteForm}
                       handleAddNoteClick={handleAddNoteClick}
+                      handleSaveNewNote={handleSaveNewNote}
                       editingNote={editingNote}
                       setEditingNote={setEditingNote}
                       handleSaveNoteEdit={handleSaveNoteEdit}
@@ -445,7 +492,6 @@ export default function FullIntakeForm({
                       isEditing={isEditing}
                       isAssignedAdvocate={isAssignedAdvocate}
                       errors={errors}
-                      setFieldValue={setFieldValue}
                     />
                   </TabPanel>
 
@@ -458,6 +504,7 @@ export default function FullIntakeForm({
                       showNewNoteForm={showNewNoteForm}
                       setShowNewNoteForm={setShowNewNoteForm}
                       handleAddNoteClick={handleAddNoteClick}
+                      handleSaveNewNote={handleSaveNewNote}
                       editingNote={editingNote}
                       setEditingNote={setEditingNote}
                       handleSaveNoteEdit={handleSaveNoteEdit}
@@ -466,7 +513,6 @@ export default function FullIntakeForm({
                       isEditing={isEditing}
                       isAssignedAdvocate={isAssignedAdvocate}
                       errors={errors}
-                      setFieldValue={setFieldValue}
                     />
                   </TabPanel>
                 </Tabs>
