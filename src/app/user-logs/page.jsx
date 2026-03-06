@@ -85,8 +85,22 @@ const UserLogs = () => {
 
   return (
     <UserHome>
-      <div className="max-w-4xl mx-auto p-6">
-        <h1 className="text-3xl font-semibold text-gray-800 mb-6">User Logs</h1>
+      <div className="min-h-screen bg-gray-50 px-6 py-8">
+        {/* Page Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Activity Logs</h1>
+              <p className="text-sm text-gray-500 mt-1">Track all system activity and client updates</p>
+            </div>
+            {!loading && (
+              <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 text-sm font-medium px-3 py-1.5 rounded-full border border-blue-200">
+                <span className="w-2 h-2 rounded-full bg-blue-500 inline-block"></span>
+                {totalLogs} {totalLogs === 1 ? "entry" : "entries"}
+              </span>
+            )}
+          </div>
+        </div>
 
         {/* Search Bar */}
         <SearchBar value={searchQuery} onSearchChange={handleSearchChange} />
@@ -95,7 +109,7 @@ const UserLogs = () => {
         <LogTable logs={logs} loading={loading} onLogClick={setSelectedLog} />
 
         {/* Pagination */}
-        <Pagination 
+        <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={handlePageChange}

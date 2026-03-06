@@ -2,24 +2,143 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@clerk/nextjs";
 import { deleteClient } from "../src/app/lib/delete-client-server";
+import Pagination from "./report/pages-pagination";
 
-export default function ClientsList({ initialClients, totalCount }) {
+const formTypeBadge = (type) => {
+  const isYouth = type === "Youth";
+  return (
+    <span
+      className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full ${
+        isYouth
+          ? "bg-blue-100 text-blue-700 border border-blue-200"
+          : "bg-green-100 text-green-700 border border-green-200"
+      }`}
+    >
+      {type}
+    </span>
+  );
+};
+
+function ClientTable({
+  title,
+  clients,
+  paginated,
+  currentPage,
+  totalPages,
+  onPageChange,
+  onView,
+  onDelete,
+  activeClientId,
+  deletingClientId,
+  emptyMessage,
+}) {
+  return (
+    <div className="flex flex-col gap-4 h-full">
+      {/* Section header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-bold text-gray-900">{title}</h2>
+        <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 text-xs font-medium px-2.5 py-1 rounded-full border border-blue-200">
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span>
+          {clients.length} {clients.length === 1 ? "client" : "clients"}
+        </span>
+      </div>
+
+      {/* Table */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex-1">
+        <table className="min-w-full text-sm text-left">
+          <thead>
+            <tr className="text-white" style={{ backgroundColor: "#47315E" }}>
+              <th className="py-3 px-4 font-semibold text-xs uppercase tracking-wider">Name</th>
+              <th className="py-3 px-4 font-semibold text-xs uppercase tracking-wider text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {paginated.length === 0 ? (
+              <tr>
+                <td colSpan="2" className="text-center py-12 px-4">
+                  <div className="flex flex-col items-center text-gray-400">
+                    <svg className="w-10 h-10 mb-3 text-gray-300" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                    </svg>
+                    <p className="text-sm font-medium">{emptyMessage}</p>
+                    <p className="text-xs mt-1">Try adjusting your search</p>
+                  </div>
+                </td>
+              </tr>
+            ) : (
+              paginated.map((client, index) => {
+                const fullName = [client.firstName, client.lastName]
+                  .filter(Boolean)
+                  .join(" ");
+                const isDeleting = deletingClientId === client.client_id;
+                const isOpening = activeClientId === client.client_id;
+                const isBusy = activeClientId !== null || deletingClientId !== null;
+
+                return (
+                  <tr
+                    key={client.client_id}
+                    className={`transition-colors hover:bg-blue-50 ${index % 2 !== 0 ? "bg-gray-50/50" : ""}`}
+                  >
+                    <td className="py-3 px-4 font-medium text-gray-800">{fullName || "—"}</td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <button
+                          onClick={() => onView(client)}
+                          disabled={isBusy}
+                          className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
+                          style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#47315E" }}
+                          onMouseEnter={e => { if (!isBusy) e.currentTarget.style.backgroundColor = "#9899C0"; }}
+                          onMouseLeave={e => { if (!isBusy) e.currentTarget.style.backgroundColor = "#B2B3D7"; }}
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          {isOpening ? "Opening..." : "View"}
+                        </button>
+                        <button
+                          onClick={() => onDelete(client)}
+                          disabled={isBusy}
+                          className="inline-flex items-center gap-1.5 text-xs font-medium text-red-500 bg-red-50 hover:bg-red-100 border border-red-200 px-2.5 py-1 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                          </svg>
+                          {isDeleting ? "Deleting..." : "Delete"}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+      />
+    </div>
+  );
+}
+
+export default function ClientsList() {
   const [allYouthClients, setAllYouthClients] = useState([]);
   const [allAdultClients, setAllAdultClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
   const [deletingClientId, setDeletingClientId] = useState(null);
-  const [activeClientId, setactiveClientId] = useState(null);
+  const [activeClientId, setActiveClientId] = useState(null);
   const [currentYouthPage, setCurrentYouthPage] = useState(1);
   const [currentAdultPage, setCurrentAdultPage] = useState(1);
   const clientsPerPage = 10;
-  const { userId } = useAuth();
   const router = useRouter();
 
-  // Load all clients once on mount
   useEffect(() => {
     const fetchAll = async () => {
       setLoading(true);
@@ -40,39 +159,23 @@ export default function ClientsList({ initialClients, totalCount }) {
     fetchAll();
   }, []);
 
-  // Client-side filtering by name (contains) or ID (starts-with), plus DOB
   const filterClients = (clients) => {
     return clients.filter((client) => {
       const term = searchQuery.trim().toLowerCase();
-      let matchesSearch = true;
-      if (term) {
-        const idStr = String(client.client_id);
-        const fullName = [client.firstName, client.middleName, client.lastName]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
-        matchesSearch = idStr.startsWith(term) || fullName.includes(term);
-      }
-
-      const matchesDOB =
-        !dateOfBirth ||
-        (client.dateOfBirth && client.dateOfBirth.startsWith(dateOfBirth));
-
-      return matchesSearch && matchesDOB;
+      if (!term) return true;
+      const fullName = [client.firstName, client.lastName]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return fullName.includes(term);
     });
   };
 
   const filteredYouth = filterClients(allYouthClients);
   const filteredAdult = filterClients(allAdultClients);
 
-  const totalYouthPages = Math.max(
-    1,
-    Math.ceil(filteredYouth.length / clientsPerPage),
-  );
-  const totalAdultPages = Math.max(
-    1,
-    Math.ceil(filteredAdult.length / clientsPerPage),
-  );
+  const totalYouthPages = Math.max(1, Math.ceil(filteredYouth.length / clientsPerPage));
+  const totalAdultPages = Math.max(1, Math.ceil(filteredAdult.length / clientsPerPage));
 
   const paginatedYouth = filteredYouth.slice(
     (currentYouthPage - 1) * clientsPerPage,
@@ -83,34 +186,10 @@ export default function ClientsList({ initialClients, totalCount }) {
     currentAdultPage * clientsPerPage,
   );
 
-  // Determine if client is Youth or Adult based on clientType
-  const getClientTypeLabel = (client) => {
-    if (client.clientType === "Youth Intake") {
-      return "Youth";
-    } else if (client.clientType === "Pre-Intake") {
-      return "Adult";
-    } else {
-      const today = new Date();
-      const birthDate = new Date(client.dateOfBirth);
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
-      if (
-        monthDiff < 0 ||
-        (monthDiff === 0 && today.getDate() < birthDate.getDate())
-      ) {
-        age--;
-      }
-      return age <= 20 ? "Youth" : "Adult";
-    }
-  };
-
-  // Handle view button click
   const handleView = (client) => {
-    setactiveClientId(client.client_id);
-    const clientType = getClientTypeLabel(client);
-
+    setActiveClientId(client.client_id);
     setTimeout(() => {
-      if (clientType === "Youth") {
+      if (client.clientType === "Youth Intake") {
         router.push(`/youth-clients/${client.client_id}/view`);
       } else {
         router.push(`/clients/${client.client_id}/view`);
@@ -118,26 +197,17 @@ export default function ClientsList({ initialClients, totalCount }) {
     }, 50);
   };
 
-  // Handle delete button click
   const handleDelete = async (client) => {
     const confirmDelete = window.confirm(
       `Are you sure you want to permanently delete ${client.firstName} ${client.lastName}? This action cannot be undone.`,
     );
-
     if (!confirmDelete) return;
 
     setDeletingClientId(client.client_id);
-
     try {
       const result = await deleteClient(client.client_id);
-
-      setAllYouthClients((prev) =>
-        prev.filter((c) => c.client_id !== client.client_id),
-      );
-      setAllAdultClients((prev) =>
-        prev.filter((c) => c.client_id !== client.client_id),
-      );
-
+      setAllYouthClients((prev) => prev.filter((c) => c.client_id !== client.client_id));
+      setAllAdultClients((prev) => prev.filter((c) => c.client_id !== client.client_id));
       alert(result.message);
     } catch (error) {
       console.error("Error deleting client:", error);
@@ -147,636 +217,78 @@ export default function ClientsList({ initialClients, totalCount }) {
     }
   };
 
-  const handleYouthPageChange = (page) => {
-    if (page >= 1 && page <= totalYouthPages) {
-      setCurrentYouthPage(page);
-    }
-  };
-
-  const handleAdultPageChange = (page) => {
-    if (page >= 1 && page <= totalAdultPages) {
-      setCurrentAdultPage(page);
-    }
-  };
-
   return (
-    <div
-      style={{
-        padding: "24px",
-        maxWidth: "1280px",
-        margin: "0 auto",
-      }}
-    >
-      <h1
-        style={{
-          fontSize: "30px",
-          fontWeight: "bold",
-          marginBottom: "32px",
-          color: "#1f2937",
-        }}
-      >
-        List of Clients
-      </h1>
+    <div className="py-4">
+      {/* Page header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">List of Clients</h1>
+          <p className="text-sm text-gray-500 mt-1">All youth and adult clients in the system</p>
+        </div>
+        <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 text-xs font-medium px-2.5 py-1 rounded-full border border-blue-200">
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span>
+          {allYouthClients.length + allAdultClients.length} total
+        </span>
+      </div>
 
-      {/* Search and Filter Section */}
-      <div
-        style={{
-          marginBottom: "32px",
-          backgroundColor: "white",
-          padding: "24px",
-          borderRadius: "8px",
-          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-          border: "1px solid #e5e7eb",
-        }}
-      >
-        <h2
-          style={{
-            fontSize: "20px",
-            fontWeight: "600",
-            marginBottom: "16px",
-            color: "#374151",
-          }}
-        >
-          Search & Filter Options
-        </h2>
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "16px",
-            justifyContent: "center",
-          }}
-        >
+      {/* Search */}
+      <div className="mb-6">
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+            </svg>
+          </div>
           <input
             type="text"
-            placeholder="Search by name or client ID..."
+            placeholder="Search by name..."
             value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setCurrentYouthPage(1);
-              setCurrentAdultPage(1);
-            }}
-            style={{
-              padding: "8px 16px",
-              border: "1px solid #d1d5db",
-              borderRadius: "6px",
-              fontSize: "14px",
-              minWidth: "200px",
-              outline: "none",
-            }}
+            onChange={(e) => { setSearchQuery(e.target.value); setCurrentYouthPage(1); setCurrentAdultPage(1); }}
+            className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
           />
-
-          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <label
-              htmlFor="dateOfBirthSearch"
-              style={{
-                fontSize: "15px",
-                color: "#374151",
-                fontWeight: "600",
-              }}
-            >
-              Search by Date of Birth:
-            </label>
-            <input
-              type="date"
-              placeholder="Search by Date of Birth"
-              value={dateOfBirth}
-              onChange={(e) => {
-                setDateOfBirth(e.target.value);
-                setCurrentYouthPage(1);
-                setCurrentAdultPage(1);
-              }}
-              style={{
-                padding: "8px 16px",
-                border: "1px solid #d1d5db",
-                borderRadius: "6px",
-                fontSize: "14px",
-                outline: "none",
-              }}
-            />
-          </div>
         </div>
       </div>
 
-      {loading && (
-        <p style={{ textAlign: "center", color: "#6b7280" }}>
-          Loading clients...
-        </p>
-      )}
+      {/* Loading */}
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+          <svg className="animate-spin h-8 w-8 mb-3 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+          </svg>
+          <span className="text-sm">Loading clients...</span>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          {/* Youth Clients */}
+          <ClientTable
+            title="Youth Clients"
+            clients={filteredYouth}
+            paginated={paginatedYouth}
+            currentPage={currentYouthPage}
+            totalPages={totalYouthPages}
+            onPageChange={setCurrentYouthPage}
+            onView={handleView}
+            onDelete={handleDelete}
+            activeClientId={activeClientId}
+            deletingClientId={deletingClientId}
+            emptyMessage="No youth clients found"
+          />
 
-      {/* Two Column Layout */}
-      {!loading && (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(500px, 1fr))",
-            gap: "32px",
-          }}
-        >
-          {/* Youth Clients Column */}
-          <div
-            style={{
-              backgroundColor: "white",
-              padding: "24px",
-              borderRadius: "8px",
-              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-              border: "1px solid #e5e7eb",
-            }}
-          >
-            <h2
-              style={{
-                fontSize: "20px",
-                fontWeight: "600",
-                marginBottom: "24px",
-                color: "#1d4ed8",
-                textAlign: "center",
-              }}
-            >
-              Total Youth Clients ({filteredYouth.length})
-            </h2>
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "16px" }}
-            >
-              {paginatedYouth.map((client) => (
-                <div
-                  key={client.client_id}
-                  style={{
-                    backgroundColor: "#f9fafb",
-                    padding: "16px",
-                    borderRadius: "6px",
-                    border: "1px solid #e5e7eb",
-                    transition: "all 0.2s ease-in-out",
-                  }}
-                  onMouseEnter={(e) => {
-                    const el = e.currentTarget;
-                    el.style.backgroundColor = "#f3f4f6";
-                    const buttons = el.querySelector('[data-buttons="true"]');
-                    if (buttons) {
-                      buttons.style.opacity = "1";
-                      buttons.style.visibility = "visible";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    const el = e.currentTarget;
-                    el.style.backgroundColor = "#f9fafb";
-                    const buttons = el.querySelector('[data-buttons="true"]');
-                    if (buttons) {
-                      buttons.style.opacity = "0";
-                      buttons.style.visibility = "hidden";
-                    }
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                    }}
-                  >
-                    <div style={{ flex: "1" }}>
-                      <div
-                        style={{
-                          fontWeight: "600",
-                          color: "#111827",
-                          marginBottom: "8px",
-                          fontSize: "16px",
-                        }}
-                      >
-                        {client.firstName} {client.lastName}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "14px",
-                          color: "#6b7280",
-                          marginBottom: "4px",
-                        }}
-                      >
-                        <span style={{ fontWeight: "500" }}>First Nation:</span>{" "}
-                        {client.firstNationMembership || "N/A"}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "14px",
-                          color: "#6b7280",
-                        }}
-                      >
-                        <span style={{ fontWeight: "500" }}>DOB:</span>{" "}
-                        {new Date(client.dateOfBirth).toLocaleDateString(
-                          "en-US",
-                          {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          },
-                        )}
-                      </div>
-                    </div>
-                    <div
-                      data-buttons="true"
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "8px",
-                        marginLeft: "16px",
-                        opacity: "0",
-                        visibility: "hidden",
-                        transition:
-                          "opacity 0.2s ease-in-out, visibility 0.2s ease-in-out",
-                      }}
-                    >
-                      <button
-                        onClick={() => handleView(client)}
-                        disabled={
-                          activeClientId !== null || deletingClientId !== null
-                        }
-                        style={{
-                          padding: "6px 12px",
-                          backgroundColor: "#3b82f6",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "6px",
-                          cursor: activeClientId ? "not-allowed" : "pointer",
-                          fontSize: "12px",
-                          fontWeight: "500",
-                          opacity:
-                            activeClientId &&
-                            activeClientId !== client.client_id
-                              ? 0.6
-                              : 1,
-                        }}
-                      >
-                        {activeClientId === client.client_id
-                          ? "Opening..."
-                          : "View"}
-                      </button>
-
-                      <button
-                        onClick={() => handleDelete(client)}
-                        disabled={
-                          deletingClientId === client.client_id ||
-                          activeClientId !== null
-                        }
-                        style={{
-                          padding: "6px 12px",
-                          backgroundColor:
-                            deletingClientId === client.client_id
-                              ? "#9ca3af"
-                              : activeClientId !== null
-                                ? "#9ca3af"
-                                : "#dc2626",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "6px",
-                          fontSize: "12px",
-                          fontWeight: "500",
-                          opacity:
-                            deletingClientId === client.client_id ||
-                            activeClientId
-                              ? 0.6
-                              : 1,
-                        }}
-                      >
-                        {deletingClientId === client.client_id
-                          ? "Deleting..."
-                          : "Delete"}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {paginatedYouth.length === 0 && (
-                <div
-                  style={{
-                    textAlign: "center",
-                    color: "#6b7280",
-                    fontStyle: "italic",
-                    padding: "32px",
-                  }}
-                >
-                  No youth clients found
-                </div>
-              )}
-
-              {/* Youth Pagination */}
-              {filteredYouth.length > clientsPerPage && (
-                <div
-                  style={{
-                    marginTop: "16px",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    gap: "12px",
-                  }}
-                >
-                  <button
-                    onClick={() => handleYouthPageChange(currentYouthPage - 1)}
-                    disabled={currentYouthPage === 1}
-                    style={{
-                      padding: "6px 12px",
-                      backgroundColor:
-                        currentYouthPage === 1 ? "#f3f4f6" : "#1d4ed8",
-                      color: currentYouthPage === 1 ? "#9ca3af" : "white",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor:
-                        currentYouthPage === 1 ? "not-allowed" : "pointer",
-                      fontSize: "12px",
-                      fontWeight: "500",
-                    }}
-                  >
-                    Previous
-                  </button>
-                  <span
-                    style={{
-                      fontSize: "12px",
-                      color: "#6b7280",
-                      padding: "0 8px",
-                    }}
-                  >
-                    Page {currentYouthPage} of {totalYouthPages}
-                  </span>
-                  <button
-                    onClick={() => handleYouthPageChange(currentYouthPage + 1)}
-                    disabled={currentYouthPage === totalYouthPages}
-                    style={{
-                      padding: "6px 12px",
-                      backgroundColor:
-                        currentYouthPage === totalYouthPages
-                          ? "#f3f4f6"
-                          : "#1d4ed8",
-                      color:
-                        currentYouthPage === totalYouthPages
-                          ? "#9ca3af"
-                          : "white",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor:
-                        currentYouthPage === totalYouthPages
-                          ? "not-allowed"
-                          : "pointer",
-                      fontSize: "12px",
-                      fontWeight: "500",
-                    }}
-                  >
-                    Next
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Adult Clients Column */}
-          <div
-            style={{
-              backgroundColor: "white",
-              padding: "24px",
-              borderRadius: "8px",
-              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-              border: "1px solid #e5e7eb",
-            }}
-          >
-            <h2
-              style={{
-                fontSize: "20px",
-                fontWeight: "600",
-                marginBottom: "24px",
-                color: "#059669",
-                textAlign: "center",
-              }}
-            >
-              Total Adult Clients ({filteredAdult.length})
-            </h2>
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "16px" }}
-            >
-              {paginatedAdult.map((client) => (
-                <div
-                  key={client.client_id}
-                  style={{
-                    backgroundColor: "#f9fafb",
-                    padding: "16px",
-                    borderRadius: "6px",
-                    border: "1px solid #e5e7eb",
-                    transition: "all 0.2s ease-in-out",
-                  }}
-                  onMouseEnter={(e) => {
-                    const el = e.currentTarget;
-                    el.style.backgroundColor = "#f3f4f6";
-                    const buttons = el.querySelector('[data-buttons="true"]');
-                    if (buttons) {
-                      buttons.style.opacity = "1";
-                      buttons.style.visibility = "visible";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    const el = e.currentTarget;
-                    el.style.backgroundColor = "#f9fafb";
-                    const buttons = el.querySelector('[data-buttons="true"]');
-                    if (buttons) {
-                      buttons.style.opacity = "0";
-                      buttons.style.visibility = "hidden";
-                    }
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                    }}
-                  >
-                    <div style={{ flex: "1" }}>
-                      <div
-                        style={{
-                          fontWeight: "600",
-                          color: "#111827",
-                          marginBottom: "8px",
-                          fontSize: "16px",
-                        }}
-                      >
-                        {client.firstName} {client.lastName}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "14px",
-                          color: "#6b7280",
-                          marginBottom: "4px",
-                        }}
-                      >
-                        <span style={{ fontWeight: "500" }}>First Nation:</span>{" "}
-                        {client.firstNationMembership || "N/A"}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "14px",
-                          color: "#6b7280",
-                        }}
-                      >
-                        <span style={{ fontWeight: "500" }}>DOB:</span>{" "}
-                        {new Date(client.dateOfBirth).toLocaleDateString(
-                          "en-US",
-                          {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          },
-                        )}
-                      </div>
-                    </div>
-                    <div
-                      data-buttons="true"
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "8px",
-                        marginLeft: "16px",
-                        opacity: "0",
-                        visibility: "hidden",
-                        transition:
-                          "opacity 0.2s ease-in-out, visibility 0.2s ease-in-out",
-                      }}
-                    >
-                      <button
-                        onClick={() => handleView(client)}
-                        disabled={
-                          activeClientId !== null || deletingClientId !== null
-                        }
-                        style={{
-                          padding: "6px 12px",
-                          backgroundColor: "#15803d",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "6px",
-                          cursor: activeClientId ? "not-allowed" : "pointer",
-                          fontSize: "12px",
-                          fontWeight: "500",
-                          opacity:
-                            activeClientId &&
-                            activeClientId !== client.client_id
-                              ? 0.6
-                              : 1,
-                        }}
-                      >
-                        {activeClientId === client.client_id
-                          ? "Opening..."
-                          : "View"}
-                      </button>
-
-                      <button
-                        onClick={() => handleDelete(client)}
-                        disabled={
-                          deletingClientId === client.client_id ||
-                          activeClientId !== null
-                        }
-                        style={{
-                          padding: "6px 12px",
-                          backgroundColor:
-                            deletingClientId === client.client_id
-                              ? "#9ca3af"
-                              : activeClientId !== null
-                                ? "#9ca3af"
-                                : "#dc2626",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "6px",
-                          cursor: "pointer",
-                          fontSize: "12px",
-                          fontWeight: "500",
-                          opacity:
-                            deletingClientId === client.client_id ||
-                            activeClientId
-                              ? 0.6
-                              : 1,
-                        }}
-                      >
-                        {deletingClientId === client.client_id
-                          ? "Deleting..."
-                          : "Delete"}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {paginatedAdult.length === 0 && (
-                <div
-                  style={{
-                    textAlign: "center",
-                    color: "#6b7280",
-                    fontStyle: "italic",
-                    padding: "32px",
-                  }}
-                >
-                  No adult clients found
-                </div>
-              )}
-
-              {/* Adult Pagination */}
-              {filteredAdult.length > clientsPerPage && (
-                <div
-                  style={{
-                    marginTop: "16px",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    gap: "12px",
-                  }}
-                >
-                  <button
-                    onClick={() => handleAdultPageChange(currentAdultPage - 1)}
-                    disabled={currentAdultPage === 1}
-                    style={{
-                      padding: "6px 12px",
-                      backgroundColor:
-                        currentAdultPage === 1 ? "#f3f4f6" : "#059669",
-                      color: currentAdultPage === 1 ? "#9ca3af" : "white",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor:
-                        currentAdultPage === 1 ? "not-allowed" : "pointer",
-                      fontSize: "12px",
-                      fontWeight: "500",
-                    }}
-                  >
-                    Previous
-                  </button>
-                  <span
-                    style={{
-                      fontSize: "12px",
-                      color: "#6b7280",
-                      padding: "0 8px",
-                    }}
-                  >
-                    Page {currentAdultPage} of {totalAdultPages}
-                  </span>
-                  <button
-                    onClick={() => handleAdultPageChange(currentAdultPage + 1)}
-                    disabled={currentAdultPage === totalAdultPages}
-                    style={{
-                      padding: "6px 12px",
-                      backgroundColor:
-                        currentAdultPage === totalAdultPages
-                          ? "#f3f4f6"
-                          : "#059669",
-                      color:
-                        currentAdultPage === totalAdultPages
-                          ? "#9ca3af"
-                          : "white",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor:
-                        currentAdultPage === totalAdultPages
-                          ? "not-allowed"
-                          : "pointer",
-                      fontSize: "12px",
-                      fontWeight: "500",
-                    }}
-                  >
-                    Next
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
+          {/* Adult Clients */}
+          <ClientTable
+            title="Adult Clients"
+            clients={filteredAdult}
+            paginated={paginatedAdult}
+            currentPage={currentAdultPage}
+            totalPages={totalAdultPages}
+            onPageChange={setCurrentAdultPage}
+            onView={handleView}
+            onDelete={handleDelete}
+            activeClientId={activeClientId}
+            deletingClientId={deletingClientId}
+            emptyMessage="No adult clients found"
+          />
         </div>
       )}
     </div>

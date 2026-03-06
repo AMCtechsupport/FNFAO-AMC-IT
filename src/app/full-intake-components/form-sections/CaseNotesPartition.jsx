@@ -125,7 +125,7 @@ const CaseNotesPartition = ({
                             <tbody>
                                 {[...notesData]
                                 .filter(note => note.noteType?.toLowerCase() === "case")
-                                .sort((a, b) => a.note_id - b.note_id)
+                                .sort((a, b) => b.note_id - a.note_id)
                                 .map((note) => (
                                     <tr key={note.note_id}>
                                         <td className="align-middle"><FormattedDate dateString={note.createdAt}/></td>

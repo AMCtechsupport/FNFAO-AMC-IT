@@ -9,8 +9,8 @@ export default async function ClientsPage() {
   return (
     <UserHome>
       <div className="min-h-screen bg-gray-100 flex flex-col justify-between">
-        <main className="flex-grow flex items-center justify-center text-center p-8">
-          <div className="bg-white-200 p-6 rounded-lg shadow-lg max-w-7xl w-full">
+        <main className="flex-grow p-4">
+          <div className="bg-white-200 rounded-lg shadow-lg w-full p-6">
             {/* Pass initial data and count to the client-side component */}
             <ClientsList initialClients={data} totalCount={count} />
           </div>
