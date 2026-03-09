@@ -13,10 +13,11 @@ import UserHome from "@/app/user-home/page";
 import { useRouter } from "next/navigation";
 import DownloadDropdown from "../../../../../components/report/download-dropdown";
 import ReportPreview from "../../../../../components/report/report-preview";
-import { 
-  downloadCSV, 
-  downloadJSON 
+import {
+  downloadCSV,
+  downloadJSON
 } from "../../../../../components/report/advocates-table-full";
+import { decodeHtml } from "@/app/utils/decode-html";
 
 
 // Format createdAt YYYY-MM-DD 00.00pm
@@ -247,7 +248,7 @@ export default function ClientFilterPage() {
 
         {/* Tags */}
         <div className="flex flex-wrap gap-2 justify-center mb-6">
-          {community && <span className="tag">Community: {community}</span>}
+          {community && <span className="tag">Community: {decodeHtml(community)}</span>}
           {agency && <span className="tag">Agency: {agency}</span>}
           {ageGroup && <span className="tag">Age Group: {ageGroup}</span>}
           {quarter && <span className="tag">Filtered by: {quarter}</span>}
@@ -276,7 +277,7 @@ export default function ClientFilterPage() {
                   <td className="px-6 py-3 border-t text-center">{client.firstName} {client.lastName}</td>
                   <td className="px-6 py-3 border-t text-center">{calculateAge(client.dateOfBirth)}</td>
                   <td className="px-6 py-3 border-t text-center">{client.cfsAgency}</td>
-                  <td className="px-6 py-3 border-t text-center">{client.firstNationMembership}</td>
+                  <td className="px-6 py-3 border-t text-center">{decodeHtml(client.firstNationMembership)}</td>
                   <td className="px-6 py-3 border-t text-center">{client.childCount}</td>
                   <td className="px-6 py-3 border-t text-center">{setClientStatus(client.clientStatus)}</td>
                   <td className="px-6 py-3 border-t text-center">
@@ -356,7 +357,7 @@ export default function ClientFilterPage() {
                     <td className="px-6 py-3 border-t text-center">{client.firstName} {client.lastName}</td>
                     <td className="px-6 py-3 border-t text-center">{calculateAge(client.dateOfBirth)}</td>
                     <td className="px-6 py-3 border-t text-center">{client.cfsAgency}</td>
-                    <td className="px-6 py-3 border-t text-center">{client.firstNationMembership}</td>
+                    <td className="px-6 py-3 border-t text-center">{decodeHtml(client.firstNationMembership)}</td>
                     <td className="px-6 py-3 border-t text-center">{client.childCount}</td>
                     <td className="px-6 py-3 border-t text-center">{setClientStatus(client.clientStatus)}</td>
                     <td className="px-6 py-3 border-t text-center">

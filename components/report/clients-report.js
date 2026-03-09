@@ -9,6 +9,7 @@ family and friends, case notes, and legal notes.
 
 import React, { useEffect, useState } from "react";
 import supabase from "../../src/app/lib/supabase";
+import { decodeHtml } from "../../src/app/utils/decode-html";
 
 function humanLabel(key) {
   return String(key)
@@ -155,7 +156,7 @@ export default function ClientsReport({ clientId, setReportData }) {
   const filterOutIds = (obj) =>
     Object.entries(obj).filter(([key]) => !key.toLowerCase().includes("id"));
 
-  const getValue = (val) => (val ? String(val) : "—");
+  const getValue = (val) => (val ? decodeHtml(String(val)) : "—");
 
   if (loading) return <p className="text-center py-6 text-gray-500">Loading...</p>;
   if (error) return <p className="text-center py-6 text-red-500">{error}</p>;

@@ -1,11 +1,12 @@
 import React from "react";
+import { decodeHtml } from "../src/app/utils/decode-html";
 
 const LogModal = ({ log, onClose }) => {
   const formatDescription = (description) => {
     const content = description || "No description available";
     return content.split("\n").map((line, index) => (
       <div key={index} className="py-1 text-sm text-gray-700 leading-relaxed">
-        {line}
+        {decodeHtml(line)}
       </div>
     ));
   };
