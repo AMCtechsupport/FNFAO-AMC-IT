@@ -130,7 +130,7 @@ const DeleteAdvocate = () => {
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
 
       {/* Header */}
-      <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+      <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider bg-red-600">
         Delete Advocate
       </div>
 
@@ -182,8 +182,8 @@ const DeleteAdvocate = () => {
                 key={advocate.advocate_id}
                 onClick={() => handleSelectAdvocate(advocate)}
                 className="px-3 py-2.5 cursor-pointer transition-colors text-sm"
-                style={{ backgroundColor: selectedAdvocate?.advocate_id === advocate.advocate_id ? "#F0EEF6" : "" }}
-                onMouseEnter={(e) => { if (selectedAdvocate?.advocate_id !== advocate.advocate_id) e.currentTarget.style.backgroundColor = "#F8F7FC"; }}
+                style={{ backgroundColor: selectedAdvocate?.advocate_id === advocate.advocate_id ? "#FEE2E2" : "" }}
+                onMouseEnter={(e) => { if (selectedAdvocate?.advocate_id !== advocate.advocate_id) e.currentTarget.style.backgroundColor = "#FEF2F2"; }}
                 onMouseLeave={(e) => { if (selectedAdvocate?.advocate_id !== advocate.advocate_id) e.currentTarget.style.backgroundColor = ""; }}
               >
                 <p className="font-medium text-gray-800">{advocate.firstName} {advocate.lastName}</p>
@@ -195,8 +195,8 @@ const DeleteAdvocate = () => {
 
         {/* Selected advocate */}
         {selectedAdvocate && (
-          <div className="p-3 rounded-lg border text-sm" style={{ backgroundColor: "#F0EEF6", borderColor: "#B2B3D7" }}>
-            <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: "#47315E" }}>Selected for Deletion</p>
+          <div className="p-3 rounded-lg border text-sm bg-red-50 border-red-200">
+            <p className="text-xs font-semibold uppercase tracking-wider mb-1 text-red-600">Selected for Deletion</p>
             <p className="font-medium text-gray-800">{selectedAdvocate.firstName} {selectedAdvocate.lastName}</p>
             <p className="text-xs text-gray-500 mt-0.5">{selectedAdvocate.email}</p>
           </div>
