@@ -68,7 +68,7 @@ export default function AssignClientSelector({ advocates }) {
             {filteredAdvocates.map((advocate) => (
               <div
                 key={advocate.advocate_id}
-                onClick={() => setSelectedAdvocate(advocate.advocate_id)}
+                onClick={() => setSelectedAdvocate(selectedAdvocate === advocate.advocate_id ? null : advocate.advocate_id)}
                 className="px-3 py-2.5 cursor-pointer transition-colors text-sm"
                 style={{ backgroundColor: selectedAdvocate === advocate.advocate_id ? "#F0EEF6" : "" }}
                 onMouseEnter={(e) => { if (selectedAdvocate !== advocate.advocate_id) e.currentTarget.style.backgroundColor = "#F8F7FC"; }}

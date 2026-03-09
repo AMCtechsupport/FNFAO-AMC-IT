@@ -287,7 +287,7 @@ export default function AssignAdvocate({
               {filteredClients.map((client) => (
                 <div
                   key={client.client_id}
-                  onClick={() => setSelectedClient(client)}
+                  onClick={() => setSelectedClient(selectedClient?.client_id === client.client_id ? null : client)}
                   className="px-3 py-2.5 cursor-pointer transition-colors text-sm"
                   style={{ backgroundColor: selectedClient?.client_id === client.client_id ? "#F0EEF6" : "" }}
                   onMouseEnter={(e) => { if (selectedClient?.client_id !== client.client_id) e.currentTarget.style.backgroundColor = "#F8F7FC"; }}
@@ -345,7 +345,7 @@ export default function AssignAdvocate({
               {advocates.map((advocate) => (
                 <div
                   key={advocate.advocate_id}
-                  onClick={() => setSelectedAdvocate(advocate.advocate_id)}
+                  onClick={() => setSelectedAdvocate(selectedAdvocate === advocate.advocate_id ? "" : advocate.advocate_id)}
                   className="px-3 py-2.5 cursor-pointer transition-colors text-sm"
                   style={{ backgroundColor: selectedAdvocate === advocate.advocate_id ? "#F0EEF6" : "" }}
                   onMouseEnter={(e) => { if (selectedAdvocate !== advocate.advocate_id) e.currentTarget.style.backgroundColor = "#F8F7FC"; }}
