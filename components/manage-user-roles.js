@@ -37,6 +37,7 @@ const normalizeRole = (role) => (role === "admin" ? "admin" : "advocate");
 const ManageUserRoles = () => {
   const [users, setUsers] = useState([]);
   const [draftRoles, setDraftRoles] = useState({});
+  const [currentUserId, setCurrentUserId] = useState(null);
   const [meta, setMeta] = useState({
     totalClerkUsers: 0,
     includedSupabaseUsers: 0,
@@ -86,6 +87,7 @@ const ManageUserRoles = () => {
 
       setUsers(loadedUsers);
       setDraftRoles(initialDrafts);
+      setCurrentUserId(json?.currentUserId || null);
     } catch (err) {
       console.error("Error loading user roles:", err);
       setAdminError(err?.message || "Failed to load users.");
@@ -239,9 +241,10 @@ const ManageUserRoles = () => {
   };
 
   const renderUserRow = (user) => {
+    const isSelf = user.id === currentUserId;
     const currentRole = normalizeRole(user.role);
     const draftRole = normalizeRole(draftRoles[user.id]);
-    const changed = currentRole !== draftRole;
+    const changed = !isSelf && currentRole !== draftRole;
     const currentLabel = ROLE_OPTIONS.find(
       (opt) => opt.value === draftRole,
     )?.label;
@@ -262,17 +265,24 @@ const ManageUserRoles = () => {
 
         <div className="relative flex items-center gap-3 shrink-0">
           <span
-            className={`text-xs font-medium text-amber-700 bg-amber-100 px-2 py-1 rounded-full ${changed ? "" : "invisible"}`}
+            className={`text-xs font-medium px-2 py-1 rounded-full ${
+              isSelf
+                ? "text-blue-700 bg-blue-100"
+                : `text-amber-700 bg-amber-100 ${changed ? "" : "invisible"}`
+            }`}
           >
-            Unsaved
+            {isSelf ? "You" : "Unsaved"}
           </span>
 
           <button
             type="button"
+            disabled={isSelf}
             onClick={() =>
               setOpenDropdownFor((prev) => (prev === user.id ? null : user.id))
             }
-            className="min-w-36 border border-gray-300 rounded-2xl px-4 py-2.5 bg-white text-gray-700 font-semibold flex items-center justify-between gap-2"
+            className={`min-w-36 border border-gray-300 rounded-2xl px-4 py-2.5 bg-white text-gray-700 font-semibold flex items-center justify-between gap-2 ${
+              isSelf ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
             <span>{currentLabel}</span>
             <svg
@@ -291,7 +301,7 @@ const ManageUserRoles = () => {
             </svg>
           </button>
 
-          {openDropdownFor === user.id && (
+          {!isSelf && openDropdownFor === user.id && (
             <div className="absolute right-0 top-12 z-10 bg-white border border-gray-300 rounded-2xl shadow-sm w-36 overflow-hidden">
               {ROLE_OPTIONS.map((option) => (
                 <button
