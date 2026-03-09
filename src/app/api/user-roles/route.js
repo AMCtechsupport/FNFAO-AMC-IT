@@ -66,37 +66,39 @@ export async function GET() {
 
     const users = (usersResponse?.data || [])
       .map((user) => {
-      const clerkEmailRaw =
-        user.primaryEmailAddress?.emailAddress ||
-        user.emailAddresses?.[0]?.emailAddress ||
-        "";
-      const clerkEmail = clerkEmailRaw.toLowerCase().trim();
+        const clerkEmailRaw =
+          user.primaryEmailAddress?.emailAddress ||
+          user.emailAddresses?.[0]?.emailAddress ||
+          "";
+        const clerkEmail = clerkEmailRaw.toLowerCase().trim();
 
-      const advocateByClerkId = advocatesByClerkId.get(user.id);
-      const advocateByEmail = clerkEmail ? advocatesByEmail.get(clerkEmail) : null;
+        const advocateByClerkId = advocatesByClerkId.get(user.id);
+        const advocateByEmail = clerkEmail
+          ? advocatesByEmail.get(clerkEmail)
+          : null;
 
-      const linkedAdvocate = advocateByClerkId || advocateByEmail;
+        const linkedAdvocate = advocateByClerkId || advocateByEmail;
 
-      const email = linkedAdvocate?.email || "";
-      const firstName = linkedAdvocate?.firstName || "";
-      const lastName = linkedAdvocate?.lastName || "";
-      const fullName = `${firstName} ${lastName}`.trim() || "User";
+        const email = linkedAdvocate?.email || "";
+        const firstName = linkedAdvocate?.firstName || "";
+        const lastName = linkedAdvocate?.lastName || "";
+        const fullName = `${firstName} ${lastName}`.trim() || "User";
 
-      return {
-        id: user.id,
-        email,
-        firstName,
-        lastName,
-        fullName,
-        verifiedFromSupabase: !!linkedAdvocate,
-        dataSource: linkedAdvocate
-          ? advocateByClerkId
-            ? "Supabase (clerk_user_id match)"
-            : "Supabase (email match)"
-          : "No Supabase match",
-        role: user.publicMetadata?.role === "admin" ? "admin" : "advocate",
-      };
-    })
+        return {
+          id: user.id,
+          email,
+          firstName,
+          lastName,
+          fullName,
+          verifiedFromSupabase: !!linkedAdvocate,
+          dataSource: linkedAdvocate
+            ? advocateByClerkId
+              ? "Supabase (clerk_user_id match)"
+              : "Supabase (email match)"
+            : "No Supabase match",
+          role: user.publicMetadata?.role === "admin" ? "admin" : "advocate",
+        };
+      })
       .filter((user) => user.verifiedFromSupabase);
 
     return NextResponse.json({
