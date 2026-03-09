@@ -164,39 +164,43 @@ export default function ClientsReport({ clientId, setReportData }) {
   const fullName = `${client.firstName ?? ""} ${client.lastName ?? ""}`.trim();
 
   const renderSection = (title, dataArray) => (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 mb-6">
-      <h3 className="text-indigo-600 font-bold text-center text-lg border-b border-indigo-200 pb-2 mb-4">
+    <div className="bg-white border border-gray-200 rounded-xl shadow-sm mb-6 overflow-hidden">
+      <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
         {title}
-      </h3>
+      </div>
 
-      {dataArray.length > 0 ? (
-        dataArray.map((record, i) => (
-          <div key={i} className="mb-4">
-            {dataArray.length > 1 && (
-              <h4 className="font-medium text-indigo-600 mb-2">
-                {title} #{i + 1}
-              </h4>
-            )}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 border-b">
-              {filterOutIds(record).map(([key, value]) => (
-                <div key={key} className="flex justify-between border-b border-gray-100 py-1">
-                  <span className="font-medium text-gray-600">{humanLabel(key)}:</span>
-                  <span className="text-gray-800">{getValue(value)}</span>
-                </div>
-              ))}
+      <div className="p-6">
+        {dataArray.length > 0 ? (
+          dataArray.map((record, i) => (
+            <div key={i} className="mb-4">
+              {dataArray.length > 1 && (
+                <h4 className="font-medium mb-2" style={{ color: "#47315E" }}>
+                  {title} #{i + 1}
+                </h4>
+              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 border-b">
+                {filterOutIds(record).map(([key, value]) => (
+                  <div key={key} className="flex justify-between border-b border-gray-100 py-1">
+                    <span className="font-medium text-gray-600">{humanLabel(key)}:</span>
+                    <span className="text-gray-800">{getValue(value)}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ))
-      ) : (
-        <p className="text-gray-400 text-sm">No data available.</p>
-      )}
+          ))
+        ) : (
+          <p className="text-gray-400 text-sm">No data available.</p>
+        )}
+      </div>
     </div>
   );
 
   return (
-    <div className="max-w-5xl mx-auto mt-10 p-6 bg-gray-50 rounded-2xl shadow-md">
-      <div className="text-center bg-indigo-50 border border-indigo-200 rounded-xl py-4 mb-8">
-        <h2 className="text-2xl font-bold text-indigo-600">Report of {fullName}</h2>
+    <div className="space-y-0">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm mb-6">
+        <div className="px-4 py-4 text-white text-center" style={{ backgroundColor: "#47315E" }}>
+          <h2 className="text-xl font-bold">Report of {fullName}</h2>
+        </div>
       </div>
 
       {renderSection("General Information", [client])}

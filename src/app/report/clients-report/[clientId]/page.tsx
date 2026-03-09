@@ -76,7 +76,10 @@ export default function ClientReportPage() {
                 <button
                     type="button"
                     onClick={generateAndDownloadPDF}
-                    className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-md transition-colors mt-4"
+                    className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors mt-4"
+                    style={{ backgroundColor: "#47315E" }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
                 >
                     Download PDF
                 </button>
@@ -88,7 +91,7 @@ export default function ClientReportPage() {
                 <button
                     type="button"
                     disabled
-                    className="w-full bg-gray-400 text-white font-medium py-3 px-4 rounded-md mt-4 cursor-not-allowed"
+                    className="w-full bg-gray-400 text-white text-sm font-medium py-2.5 px-4 rounded-lg mt-4 cursor-not-allowed"
                 >
                     Loading data...
                 </button>
@@ -99,7 +102,10 @@ export default function ClientReportPage() {
             <button
                 type="button"
                 onClick={handleFinalDownload}
-                className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-md transition-colors mt-4"
+                className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors mt-4"
+                style={{ backgroundColor: "#47315E" }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
             >
                 Download {downloadFormat.toUpperCase()}
             </button>
@@ -116,35 +122,45 @@ export default function ClientReportPage() {
 
     return (
         <UserHome>
-            <div style={{ padding: 20, background: "#f8fafc", minHeight: "100vh" }}>
+            <main className="min-h-screen bg-gray-100 p-6">
+
+                {/* Page Header */}
+                <div className="flex items-center justify-between mb-6">
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900">Client Report</h1>
+                        <p className="text-sm text-gray-500 mt-1">Detailed report for the selected client</p>
+                    </div>
+                </div>
+
                 <ClientsReport clientId={clientId} setReportData={setReportData} />
 
                 {/* Download Section */}
-                <div className="mt-8">
+                <div className="mt-6">
                     <DownloadDropdown
                         title="Download All"
                         onDownloadSelect={handleDownloadAll}
                         defaultText={`Download All as ${downloadFormat.toUpperCase()}`}
                     />
 
-                {showPreview && (
-                    <ReportPreview
-                        onClose={handleClosePreview}
-                        childrenDownloadButton={<DynamicDownloadButton />}
-                    >
-                        <div ref={contentRef}>
-                            <h2 className="text-xl font-semibold mb-4 text-gray-700">
-                                Client Report Preview
-                            </h2>
-                            <ClientsReport
-                                clientId={clientId}
-                                setReportData={setReportData}
-                            />
-                        </div>
-                    </ReportPreview>
-                )}
-            </div>
-            </div>
+                    {showPreview && (
+                        <ReportPreview
+                            onClose={handleClosePreview}
+                            childrenDownloadButton={<DynamicDownloadButton />}
+                        >
+                            <div ref={contentRef}>
+                                <h2 className="text-xl font-semibold mb-4 text-gray-700">
+                                    Client Report Preview
+                                </h2>
+                                <ClientsReport
+                                    clientId={clientId}
+                                    setReportData={setReportData}
+                                />
+                            </div>
+                        </ReportPreview>
+                    )}
+                </div>
+
+            </main>
         </UserHome>
     );
 }
