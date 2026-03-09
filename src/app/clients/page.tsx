@@ -1,6 +1,9 @@
+import type { ComponentType } from "react";
 import supabase from "../lib/supabase";
 import UserHome from "../user-home/page";
-import ClientsList from "../../../components/client-list";
+import ClientsListJS from "../../../components/client-list";
+
+const ClientsList = ClientsListJS as ComponentType<{ initialClients: any[]; totalCount: number | null }>;
 
 export default async function ClientsPage() {
   // Fetch the initial data

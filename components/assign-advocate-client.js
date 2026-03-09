@@ -315,7 +315,6 @@ export default function AssignAdvocate({
               <p className="font-semibold" style={{ color: "#47315E" }}>
                 Selected: {selectedClient.firstName} {selectedClient.lastName}
               </p>
-              <p className="text-xs text-gray-500 mt-0.5">Client ID: {selectedClient.client_id}</p>
             </div>
           )}
 
