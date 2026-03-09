@@ -12,6 +12,11 @@ const normalizeRole = (role) => (role === "admin" ? "admin" : "advocate");
 const ManageUserRoles = () => {
   const [users, setUsers] = useState([]);
   const [draftRoles, setDraftRoles] = useState({});
+  const [meta, setMeta] = useState({
+    totalClerkUsers: 0,
+    includedSupabaseUsers: 0,
+    excludedWithoutSupabase: 0,
+  });
   const [searchTerm, setSearchTerm] = useState("");
   const [openDropdownFor, setOpenDropdownFor] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -35,6 +40,12 @@ const ManageUserRoles = () => {
         ...user,
         role: normalizeRole(user.role),
       }));
+
+      setMeta({
+        totalClerkUsers: json?.meta?.totalClerkUsers || 0,
+        includedSupabaseUsers: json?.meta?.includedSupabaseUsers || loadedUsers.length,
+        excludedWithoutSupabase: json?.meta?.excludedWithoutSupabase || 0,
+      });
 
       const initialDrafts = loadedUsers.reduce((acc, user) => {
         acc[user.id] = user.role;
@@ -182,6 +193,12 @@ const ManageUserRoles = () => {
         </div>
       )}
 
+      {meta.excludedWithoutSupabase > 0 && (
+        <div className="bg-amber-50 border border-amber-300 text-amber-800 px-4 py-3 rounded">
+          {meta.excludedWithoutSupabase} Clerk user(s) are hidden because they are not linked to a Supabase advocate profile.
+        </div>
+      )}
+
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
         <div className="w-full lg:max-w-md">
           <input
@@ -228,12 +245,9 @@ const ManageUserRoles = () => {
               key={user.id}
               className="border border-gray-300 rounded-3xl px-6 py-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
             >
-              <div className="min-w-0 flex-1 grid grid-cols-1 md:grid-cols-3 gap-y-1 md:gap-4 items-center">
+              <div className="min-w-0 flex-1 grid grid-cols-1 md:grid-cols-2 gap-y-1 md:gap-4 items-center">
                 <p className="text-lg font-semibold text-gray-800 truncate">
-                  {user.firstName || "-"}
-                </p>
-                <p className="text-base font-semibold text-gray-700 truncate">
-                  {user.lastName || "-"}
+                  {user.fullName || "-"}
                 </p>
                 <p className="text-base font-semibold text-gray-600 truncate">
                   {user.email || "-"}

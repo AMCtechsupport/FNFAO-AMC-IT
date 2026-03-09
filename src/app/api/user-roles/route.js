@@ -62,20 +62,24 @@ export async function GET() {
       limit: 200,
     });
 
-    const users = (usersResponse?.data || []).map((user) => {
+    const totalClerkUsers = usersResponse?.data?.length || 0;
+
+    const users = (usersResponse?.data || [])
+      .map((user) => {
       const clerkEmailRaw =
         user.primaryEmailAddress?.emailAddress ||
         user.emailAddresses?.[0]?.emailAddress ||
         "";
       const clerkEmail = clerkEmailRaw.toLowerCase().trim();
 
-      const linkedAdvocate =
-        advocatesByClerkId.get(user.id) ||
-        (clerkEmail ? advocatesByEmail.get(clerkEmail) : null);
+      const advocateByClerkId = advocatesByClerkId.get(user.id);
+      const advocateByEmail = clerkEmail ? advocatesByEmail.get(clerkEmail) : null;
 
-      const email = linkedAdvocate?.email || clerkEmailRaw || "";
-      const firstName = linkedAdvocate?.firstName || user.firstName || "";
-      const lastName = linkedAdvocate?.lastName || user.lastName || "";
+      const linkedAdvocate = advocateByClerkId || advocateByEmail;
+
+      const email = linkedAdvocate?.email || "";
+      const firstName = linkedAdvocate?.firstName || "";
+      const lastName = linkedAdvocate?.lastName || "";
       const fullName = `${firstName} ${lastName}`.trim() || "User";
 
       return {
@@ -85,11 +89,24 @@ export async function GET() {
         lastName,
         fullName,
         verifiedFromSupabase: !!linkedAdvocate,
+        dataSource: linkedAdvocate
+          ? advocateByClerkId
+            ? "Supabase (clerk_user_id match)"
+            : "Supabase (email match)"
+          : "No Supabase match",
         role: user.publicMetadata?.role === "admin" ? "admin" : "advocate",
       };
-    });
+    })
+      .filter((user) => user.verifiedFromSupabase);
 
-    return NextResponse.json({ users });
+    return NextResponse.json({
+      users,
+      meta: {
+        totalClerkUsers,
+        includedSupabaseUsers: users.length,
+        excludedWithoutSupabase: totalClerkUsers - users.length,
+      },
+    });
   } catch (error) {
     console.error("Error fetching users for role management:", error);
     return NextResponse.json(
