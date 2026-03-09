@@ -29,6 +29,16 @@ export const getAdvocateProfile = async () => {
           .select("advocate_id, firstName, lastName, email, clerk_user_id")
           .eq("email", email.toLowerCase())
           .single();
+
+        // Auto-link: persist the Clerk user ID so future logins use the fast path
+        if (!result.error && result.data && !result.data.clerk_user_id) {
+          await supabase
+            .from("Advocates")
+            .update({ clerk_user_id: user.id })
+            .eq("advocate_id", result.data.advocate_id);
+
+          result.data.clerk_user_id = user.id;
+        }
       }
     }
 

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { createAdvocate } from "../src/app/lib/create-advocate-server";
 
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+
 const LinkAdvocate = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -20,6 +22,11 @@ const LinkAdvocate = () => {
       return;
     }
 
+    if (!EMAIL_REGEX.test(email.trim())) {
+      setError("Please enter a valid email address (e.g. name@example.com).");
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setSuccess(null);
@@ -31,55 +38,22 @@ const LinkAdvocate = () => {
         email: email.trim(),
       });
 
-      // if (result.success) {
-      //   let successMsg = `Advocate ${firstName} ${lastName} has been successfully created! with the email id ${email}.`;
-
-      //   setSuccess(successMsg);
-      //   // Clear form
-      //   clearForm();
-      // }
       if (result.success) {
-        let successMsg = `Advocate ${firstName} ${lastName} has been successfully created with the email id ${email}.`;
-
-        if (result.clerkUserId) {
-          successMsg += ` Clerk User ID: ${result.clerkUserId}`;
-        }
-
-        setSuccess(successMsg);
+        setSuccess(result.message);
+        setFirstName("");
+        setLastName("");
+        setEmail("");
       }
     } catch (error) {
       console.error("Error creating advocate:", error);
-
-      const errorMessage = error?.message?.toLowerCase() || "";
-
-      if (
-        errorMessage.includes("already") ||
-        errorMessage.includes("exists") ||
-        errorMessage.includes("taken")
-      ) {
-        setError(
-          "Error creating advocate: The user with this email already exists.",
-        );
-      } else {
-        setError("Error creating advocate: Please use valid information.");
-      }
+      setError(error?.message || "Error creating advocate. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const clearForm = () => {
-    setFirstName("");
-    setLastName("");
-    setEmail("");
-    setError(null);
-    // Don't clear success message - let user see it
-  };
-
   return (
     <div>
-      {/* Title moved to header - removed duplicate */}
-
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
           {error}
@@ -94,87 +68,45 @@ const LinkAdvocate = () => {
 
       <form onSubmit={handleCreateAdvocate} className="space-y-6">
         <div>
-          <label
-            htmlFor="firstName"
-            className="block text-lg font-medium text-gray-700 mb-2"
-          >
+          <label htmlFor="firstName" className="block text-lg font-medium text-gray-700 mb-2">
             First Name: <span className="text-red-500">*</span>
           </label>
           <input
             id="firstName"
             type="text"
             value={firstName}
-            placeholder="Advocate's First Name"
-            onChange={(e) => {
-              setFirstName(e.target.value);
-              if (success) setSuccess(null); // Clear success message when user starts typing
-            }}
+            onChange={(e) => setFirstName(e.target.value)}
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label
-            htmlFor="lastName"
-            className="block text-lg font-medium text-gray-700 mb-2"
-          >
+          <label htmlFor="lastName" className="block text-lg font-medium text-gray-700 mb-2">
             Last Name: <span className="text-red-500">*</span>
           </label>
           <input
             id="lastName"
             type="text"
             value={lastName}
-            placeholder="Advocate's Last Name"
-            onChange={(e) => {
-              setLastName(e.target.value);
-              if (success) setSuccess(null); // Clear success message when user starts typing
-            }}
+            onChange={(e) => setLastName(e.target.value)}
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label
-            htmlFor="email"
-            className="block text-lg font-medium text-gray-700 mb-2"
-          >
+          <label htmlFor="email" className="block text-lg font-medium text-gray-700 mb-2">
             Email: <span className="text-red-500">*</span>
           </label>
           <input
             id="email"
             type="email"
             value={email}
-            placeholder="e.g., name@example.com"
-            onChange={(e) => {
-              setEmail(e.target.value);
-              if (success) setSuccess(null); // Clear success message when user starts typing
-            }}
+            onChange={(e) => setEmail(e.target.value)}
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-        </div>
-
-        {/* Clerk Account Options */}
-        <div className="space-y-3 p-4 bg-gray-50 border border-gray-200 rounded-md">
-          <div className="flex items-center">
-            <label
-              htmlFor="createClerkAccount"
-              className="ml-2 text-sm text-gray-700"
-            >
-              Create user account (allows advocate to login)
-            </label>
-          </div>
-
-          <div className="flex items-center">
-            <label
-              htmlFor="sendInvitation"
-              className="ml-2 text-sm text-gray-700"
-            >
-              Send invitation email to set up their password
-            </label>
-          </div>
         </div>
 
         <button
@@ -188,9 +120,7 @@ const LinkAdvocate = () => {
 
       <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
         <p className="text-sm text-blue-700">
-          <strong>Note:</strong> This creates a new advocate record that can be
-          assigned to clients. An invitation will be sent to their email address
-          to set up their account.
+          <strong>Note:</strong> After creating the advocate, their Clerk account will be linked automatically when they sign in with this email.
         </p>
       </div>
     </div>
