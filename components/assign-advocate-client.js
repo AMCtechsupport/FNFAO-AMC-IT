@@ -300,7 +300,13 @@ export default function AssignAdvocate({
             </div>
           )}
           {searchClient.trim() && filteredClients.length === 0 && (
-            <p className="text-xs text-red-500 mt-1">No clients found.</p>
+            <div className="flex flex-col items-center py-6 text-gray-400">
+              <svg className="w-10 h-10 mb-3 text-gray-300" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+              </svg>
+              <p className="text-sm font-medium">No clients found.</p>
+              <p className="text-xs mt-1">Try adjusting your search</p>
+            </div>
           )}
 
           {/* Selected client */}
@@ -353,7 +359,13 @@ export default function AssignAdvocate({
             </div>
           )}
           {searchAdvocate.trim() && advocates.length === 0 && (
-            <p className="text-xs text-red-500 mt-1">No advocates found.</p>
+            <div className="flex flex-col items-center py-6 text-gray-400">
+              <svg className="w-10 h-10 mb-3 text-gray-300" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+              </svg>
+              <p className="text-sm font-medium">No advocates found.</p>
+              <p className="text-xs mt-1">Try adjusting your search</p>
+            </div>
           )}
 
           {/* Selected advocate */}

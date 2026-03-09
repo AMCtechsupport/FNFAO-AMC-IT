@@ -289,7 +289,7 @@ export default function FirstNationsReportPage() {
             )}
 
             {/* Action Buttons */}
-            <div className="flex flex-col gap-4 max-w-sm">
+            <div className="flex flex-col gap-4 max-w-sm mx-auto">
               <button
                 type="button"
                 onClick={handleFind}
