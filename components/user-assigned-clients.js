@@ -1,15 +1,14 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { getAssignedClients } from "@/app/lib/get-assigned-clients-server";
 
 export default function AssignedClientsList({ advocateId }) {
-  const [assignedClients, setAssignedClients] = useState([]);
+  const [allClients, setAllClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalClients, setTotalClients] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const clientsPerPage = 5;
 
@@ -23,43 +22,58 @@ export default function AssignedClientsList({ advocateId }) {
         advocateId === null ||
         advocateId === ""
       ) {
-        setAssignedClients([]);
-        setTotalClients(0);
+        setAllClients([]);
         setError("No advocate is linked to this login yet.");
         setLoading(false);
         return;
       }
 
       try {
-        const result = await getAssignedClients(
-          advocateId,
-          currentPage,
-          clientsPerPage,
-          searchQuery,
-        );
+        const result = await getAssignedClients(advocateId);
 
         if (result.error) {
           setError(result.error);
-          setAssignedClients([]);
-          setTotalClients(0);
+          setAllClients([]);
         } else {
-          setAssignedClients(result.data || []);
-          setTotalClients(result.count || 0);
+          setAllClients(result.data || []);
         }
       } catch (err) {
         console.error("Error fetching assigned clients:", err);
         setError("Failed to fetch assigned clients: " + err.message);
-        setAssignedClients([]);
-        setTotalClients(0);
+        setAllClients([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchClients();
-  }, [advocateId, currentPage, searchQuery]);
+  }, [advocateId]);
 
-  const totalPages = Math.max(1, Math.ceil(totalClients / clientsPerPage) || 0);
+  // Client-side filtering by ID (starts-with) or name (contains)
+  const filteredClients = allClients.filter((assignment) => {
+    if (!searchQuery.trim()) return true;
+    const client = assignment.Clients;
+    const term = searchQuery.trim().toLowerCase();
+
+    const idStr = String(client.client_id);
+    if (idStr.startsWith(term)) return true;
+
+    const fullName = [client.firstName, client.middleName, client.lastName]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    if (fullName.includes(term)) return true;
+
+    return false;
+  });
+
+  const totalClients = filteredClients.length;
+  const totalPages = Math.max(1, Math.ceil(totalClients / clientsPerPage));
+
+  const paginatedClients = filteredClients.slice(
+    (currentPage - 1) * clientsPerPage,
+    currentPage * clientsPerPage,
+  );
 
   return (
     <div className="w-full">
@@ -67,7 +81,7 @@ export default function AssignedClientsList({ advocateId }) {
       <div className="mb-4">
         <input
           type="text"
-          placeholder="Search by Client ID"
+          placeholder="Search by name or client ID"
           value={searchQuery}
           onChange={(e) => {
             setSearchQuery(e.target.value);
@@ -81,9 +95,9 @@ export default function AssignedClientsList({ advocateId }) {
       {error && <p className="text-red-500">{error}</p>}
 
       {/* List */}
-      {assignedClients.length > 0 ? (
+      {paginatedClients.length > 0 ? (
         <ul className="space-y-3">
-          {assignedClients.map((assignment) => {
+          {paginatedClients.map((assignment) => {
             const client = assignment.Clients;
             const fullName = [
               client.firstName,
@@ -108,9 +122,6 @@ export default function AssignedClientsList({ advocateId }) {
                     </div>
                   </div>
 
-                  {/* Keep same role routing logic you already use:
-                      adult: /clients/:id
-                      youth: your logic happens inside client page, or you can change later if needed */}
                   <Link
                     href={`/clients/${client.client_id}/view`}
                     className="px-4 py-2 rounded-md bg-green-500 text-white hover:bg-green-600 transition no-underline"

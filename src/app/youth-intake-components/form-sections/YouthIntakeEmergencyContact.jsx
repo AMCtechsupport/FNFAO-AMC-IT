@@ -16,7 +16,7 @@ const YouthIntakeEmergencyContact = ( { errors} ) => {
                 <InputField
                     name="emergencyContactFirstName"
                     label="First Name:"
-                    placeholder=""
+                    placeholder="Enter First Name"
                     error={errors.emergencyContactFirstName}
                 />
                 </Col>
@@ -25,7 +25,7 @@ const YouthIntakeEmergencyContact = ( { errors} ) => {
                 <InputField
                     name="emergencyContactLastName"
                     label="Last Name:"
-                    placeholder=""
+                    placeholder="Enter Last Name"
                     error={errors.emergencyContactLastName}
                 />
                 </Col>

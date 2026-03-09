@@ -2,7 +2,8 @@ import React from "react";
 
 const LogModal = ({ log, onClose }) => {
   const formatDescription = (description) => {
-    return description.split("\n").map((line, index) => (
+    const content = description || "No description available";
+    return content.split("\n").map((line, index) => (
       <div key={index} className="mb-2">
         {line}
       </div>

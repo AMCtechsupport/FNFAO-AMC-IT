@@ -36,6 +36,12 @@ const validationSchema = Yup.object({
       email: Yup.string().email("Please enter a valid email address"),
     })
   ),
+
+  firstNationMembership: Yup.string() // added firt nation membership validation
+    .required("First Nation Membership is required"), 
+
+  otherFirstNation: Yup.string()
+    .nullable(), // added other first nation validation only if needed
 });
 
 function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
@@ -43,121 +49,39 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(isEditMode && !isViewOnly);
   const [formSent, setFormSent] = useState(false);
+  const [assignedAdvocateName, setAssignedAdvocateName] = useState("—");
+
   const { initialValues, isLoading } = YouthIntakeFetchClientData(
     youthIntakeDefaultValues,
     isEditMode,
     editClientId
   );
 
-    useEffect(() => {
-    if (isViewOnly) setIsEditing(false);
-  }, [isViewOnly]);
-
-  // VIEW ONLY PATCH (white boxes + blocked cursor + remove placeholders)
   useEffect(() => {
-    if (!isViewOnly) return;
-    if (isLoading) return;
-
-    const form = document.querySelector("form");
-    if (!form) return;
-
-    const focusHandlers = [];
-
-    const apply = (el) => {
-      const tag = el.tagName.toLowerCase();
-
-      // remove placeholders if empty
-      if ((tag === "input" || tag === "textarea") && !el.value) {
-        el.setAttribute("placeholder", "");
-      }
-
-      // prevent caret focus
-      const onFocus = () => el.blur();
-      if (!el.dataset.viewonlyBound) {
-        el.addEventListener("focus", onFocus);
-        el.dataset.viewonlyBound = "true";
-        focusHandlers.push(() => el.removeEventListener("focus", onFocus));
-      }
-
-      // keep white & show blocked cursor
-      el.style.backgroundColor = "#ffffff";
-      el.style.cursor = "not-allowed";
-      el.style.opacity = "1";
-
-      if (tag === "textarea") {
-        el.readOnly = true;
-        el.disabled = false;
-        el.tabIndex = -1;
-        return;
-      }
-
-      if (tag === "input") {
-        const type = (el.getAttribute("type") || "text").toLowerCase();
-        if (["checkbox", "radio", "file", "date", "time"].includes(type)) {
-          el.disabled = true;
-          el.readOnly = false;
-          el.tabIndex = -1;
-        } else {
-          el.readOnly = true;
-          el.disabled = false;
-          el.tabIndex = -1;
-        }
-        return;
-      }
-
-      if (tag === "select") {
-  el.disabled = true;
-  el.tabIndex = -1;
-
-  el.style.setProperty("background-color", "#ffffff", "important");
-  el.style.setProperty("opacity", "1", "important");
-  el.style.setProperty("cursor", "not-allowed", "important");
-
-  const selectedOption = el.options?.[el.selectedIndex];
-  const selectedText = (selectedOption?.textContent || "").trim();
-  const selectedValue = (el.value || "").trim();
-
-  const isEmptySelect =
-    selectedValue === "" ||
-    selectedValue === "0" ||
-    /^select\b/i.test(selectedText);
-
-  if (isEmptySelect) {
-    el.style.setProperty("color", "transparent", "important");
-    el.style.setProperty("-webkit-text-fill-color", "transparent", "important");
-    el.style.setProperty("text-shadow", "0 0 0 transparent", "important");
-  } else {
-    el.style.setProperty("color", "#111827", "important");
-    el.style.setProperty("-webkit-text-fill-color", "#111827", "important");
-    el.style.setProperty("text-shadow", "none", "important");
-  }
-
-  return;
-}
-
-      if (tag === "button") {
-        el.disabled = true;
-        el.tabIndex = -1;
+    if (!editClientId) return;
+    const fetchAssignedAdvocate = async () => {
+      const res = await fetch(`/api/assigned-advocate?client_id=${editClientId}`);
+      if (!res.ok) return;
+      const json = await res.json();
+      if (json.advocateName) {
+        setAssignedAdvocateName(json.advocateName);
       }
     };
+    fetchAssignedAdvocate();
+  }, [editClientId]);
 
-    const elements = form.querySelectorAll("input, textarea, select, button");
-    elements.forEach(apply);
-
-    return () => {
-      focusHandlers.forEach((fn) => fn());
-    };
-  }, [isViewOnly, isLoading]);
 
   
-   const buttonRowStyle = {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-    maxWidth: "1000px",
-    margin: "20px auto 10px auto",
-  };
+    const submitFullWidthStyle = {
+      backgroundColor: "#7C3AED",
+      color: "white",
+      padding: "10px",
+      border: "none",
+      borderRadius: "5px",
+      cursor: "pointer",
+      fontSize: "16px",
+      width: "100%",
+    };
 
     const saveBtnStyle = {
     backgroundColor: "#7C3AED", // purple
@@ -202,12 +126,19 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
     >
       {({ values, errors, setFieldValue, resetForm }) => (
         <Form className={styles.form}>
+          <fieldset disabled={isViewOnly}>
           <div className={styles.titleContainer}>
             <h2 className={styles.centeredTitle}>YOUTH INTAKE FORM</h2>
           </div>
 
           <hr className="separator-line" />
 
+          {editClientId && (
+            <div style={{ marginBottom: "12px" }}>
+              <strong>Assigned to:</strong> {assignedAdvocateName}
+            </div>
+          )}
+        
           <YouthIntakeGeneralInfo errors={errors} />
           <YouthIntakeEmergencyContact errors={errors} />
           <YouthIntakeAgencyInfo values={values} errors={errors} />
@@ -220,21 +151,33 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
 
           {!isViewOnly && (
             <>
-            <div style={buttonRowStyle}>
-              <button
-                style={cancelBtnStyle}
-                onClick={() => {
-                  resetForm();
-                  setIsEditing(false);
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: isEditMode ? "space-between" : "flex-end",
+                  alignItems: "center",
+                  width: "100%",
+                  maxWidth: "1000px",
+                  margin: "20px auto 10px auto",
                 }}
               >
-                Cancel
-              </button>
+                {isEditMode && (
+                  <button
+                    style={cancelBtnStyle}
+                    onClick={() => {
+                      resetForm();
+                      setIsEditing(false);
+                    }}
+                  >
+                    Cancel
+                  </button>
 
-              <button type="submit" style={saveBtnStyle}>
-                {isEditMode ? "Save" : "Submit Youth Intake"}
-              </button>
-            </div>
+                )}
+
+                  <button type="submit" style={isEditMode ? saveBtnStyle : submitFullWidthStyle}>
+                    {isEditMode ? "Save" : "Submit Youth Intake"}
+                  </button>
+              </div>
 
               {formSent && (
                 <p className={styles.successfulText}>
@@ -243,6 +186,7 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
               )}
             </>
           )}
+          </fieldset>
         </Form>
       )}
     </Formik>

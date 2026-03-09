@@ -47,6 +47,29 @@ export default function FullIntakeForm({
 
   const [selectedNote, setSelectedNote] = useState(null);
   const [showNewNoteForm, setShowNewNoteForm] = useState(false);
+  const [editingNote, setEditingNote] = useState(null);
+  const [isAssignedAdvocate, setIsAssignedAdvocate] = useState(false);
+  const [assignedAdvocateName, setAssignedAdvocateName] = useState("—");
+  const [currentAdvocateId, setCurrentAdvocateId] = useState(null);
+
+  useEffect(() => {
+    if (!client_id) return;
+    const checkAssignment = async () => {
+      const params = new URLSearchParams({ client_id });
+      if (userId) params.set("userId", userId);
+      const res = await fetch(`/api/assigned-advocate?${params.toString()}`);
+      if (!res.ok) return;
+      const json = await res.json();
+      if (json.advocateName) {
+        setAssignedAdvocateName(json.advocateName);
+        setIsAssignedAdvocate(json.isAssignedAdvocate ?? false);
+      }
+      if (json.currentAdvocateId) {
+        setCurrentAdvocateId(json.currentAdvocateId);
+      }
+    };
+    checkAssignment();
+  }, [userId, client_id]);
 
   useEffect(() => {
     if (isViewOnly) setIsEditing(false);
@@ -63,17 +86,28 @@ export default function FullIntakeForm({
       const forceWhiteBlockedLook = (el) => {
         el.style.setProperty("background-color", "#ffffff", "important");
         el.style.setProperty("opacity", "1", "important");
-        el.style.setProperty("cursor", "not-allowed", "important");
         el.style.setProperty("color", "#111827", "important");
         el.style.setProperty("-webkit-text-fill-color", "#111827", "important");
+        el.style.setProperty("cursor", "default", "important");
       };
 
       const applyToElement = (el) => {
         const tag = el.tagName.toLowerCase();
 
+        // Skip buttons that are explicitly allowed in view-only mode
+        if (tag === "button" && el.dataset.viewAllow) return;
+
         // remove placeholders if empty
         if ((tag === "input" || tag === "textarea") && !el.value) {
           el.setAttribute("placeholder", "");
+        }
+
+        // Preserve native checkbox appearance (blue when checked) — skip white look
+        if (tag === "input" && (el.getAttribute("type") || "text").toLowerCase() === "checkbox") {
+          el.disabled = false;
+          el.style.setProperty("pointer-events", "none", "important");
+          el.tabIndex = -1;
+          return;
         }
 
         // prevent caret focus
@@ -95,7 +129,7 @@ export default function FullIntakeForm({
         if (tag === "input") {
           const type = (el.getAttribute("type") || "text").toLowerCase();
 
-          if (["checkbox", "radio", "file", "date", "time"].includes(type)) {
+          if (["radio", "file", "date", "time"].includes(type)) {
             el.disabled = true;
             el.readOnly = false;
             el.tabIndex = -1;
@@ -137,8 +171,7 @@ export default function FullIntakeForm({
         }
 
         if (tag === "button") {
-          el.disabled = true;
-          el.tabIndex = -1;
+          el.style.setProperty("display", "none", "important");
         }
       };
 
@@ -205,7 +238,7 @@ export default function FullIntakeForm({
       subType: values.subType || "Uncategorized",
       description: values.description?.trim() || "No description provided",
       actionPlan: values.actionPlan?.trim() || "No action plan provided",
-      advocate_id: "19",
+      advocate_id: currentAdvocateId,
       createdAt: new Date().toISOString(),
       modifiedAt: new Date().toISOString(),
       noteType: noteType,
@@ -213,6 +246,34 @@ export default function FullIntakeForm({
 
     push(newNote);
     setShowNewNoteForm(true);
+  };
+
+  const handleSaveNoteEdit = async (note_id, updatedFields, file = null) => {
+    const formData = new FormData();
+    formData.append("note_id", note_id);
+    formData.append("type", updatedFields.type || "");
+    formData.append("subType", updatedFields.subType || "");
+    formData.append("description", updatedFields.description || "");
+    formData.append("actionPlan", updatedFields.actionPlan || "");
+    formData.append("client_id", client_id || "");
+    if (currentAdvocateId) formData.append("owner_id", String(currentAdvocateId));
+    if (file) formData.append("file", file);
+
+    const res = await fetch("/api/notes", { method: "PATCH", body: formData });
+    if (!res.ok) {
+      console.error("[handleSaveNoteEdit] PATCH failed:", await res.text());
+      return;
+    }
+
+    // Refresh notes from server to reflect updated data (including new file info)
+    const notesRes = await fetch(`/api/notes?client_id=${client_id}`);
+    if (notesRes.ok) {
+      const notesJson = await notesRes.json();
+      const safeNotes = notesJson.notes || [];
+      setNotesData(safeNotes);
+    }
+
+    setEditingNote(null);
   };
 
   const validateRadio = () => undefined;
@@ -284,7 +345,7 @@ export default function FullIntakeForm({
 
             <hr className="separator-line" />
 
-            <GeneralInformationHeader values={values} isEditing={isEditing} errors={errors} />
+            <GeneralInformationHeader values={values} isEditing={isEditing} errors={errors} assignedAdvocateName={assignedAdvocateName} />
 
             <Row className={styles.tabsContainer}>
               <div className={styles.tabContainer}>
@@ -347,9 +408,15 @@ export default function FullIntakeForm({
                       handleShowNoteDetails={handleShowNoteDetails}
                       handleCloseNoteDetails={handleCloseNoteDetails}
                       showNewNoteForm={showNewNoteForm}
+                      setShowNewNoteForm={setShowNewNoteForm}
                       handleAddNoteClick={handleAddNoteClick}
+                      editingNote={editingNote}
+                      setEditingNote={setEditingNote}
+                      handleSaveNoteEdit={handleSaveNoteEdit}
                       values={values}
+                      setFieldValue={setFieldValue}
                       isEditing={isEditing}
+                      isAssignedAdvocate={isAssignedAdvocate}
                       errors={errors}
                       setFieldValue={setFieldValue}
                     />
@@ -362,9 +429,15 @@ export default function FullIntakeForm({
                       handleShowNoteDetails={handleShowNoteDetails}
                       handleCloseNoteDetails={handleCloseNoteDetails}
                       showNewNoteForm={showNewNoteForm}
+                      setShowNewNoteForm={setShowNewNoteForm}
                       handleAddNoteClick={handleAddNoteClick}
+                      editingNote={editingNote}
+                      setEditingNote={setEditingNote}
+                      handleSaveNoteEdit={handleSaveNoteEdit}
                       values={values}
+                      setFieldValue={setFieldValue}
                       isEditing={isEditing}
+                      isAssignedAdvocate={isAssignedAdvocate}
                       errors={errors}
                       setFieldValue={setFieldValue}
                     />

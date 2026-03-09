@@ -17,6 +17,7 @@ const PreIntakeStaffOnly = ( {  } ) => {
                     <Field
                         as="textarea"
                         name="unableToAssistExplained"
+                        placeholder="Unable to assist because..."
                         className={styles.textarea}
                     />
                     <ErrorMessage
@@ -35,6 +36,7 @@ const PreIntakeStaffOnly = ( {  } ) => {
                 <Field
                     as="textarea"
                     name="referForSupport"
+                    placeholder="Referring to..."
                     className={styles.textarea}
                 />
                 <ErrorMessage

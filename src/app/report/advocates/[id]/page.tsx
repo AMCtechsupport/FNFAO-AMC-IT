@@ -194,11 +194,11 @@ export default function AdvocateDetailsPage() {
 
     await html2pdf()
       .set({
-        margin: 0.5,
+        margin: 0,
         filename: `${advocateName || "advocate-report"}.pdf`,
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2 },
-        jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+        jsPDF: { unit: "in", format: "letter", orientation: "landscape" },
       })
       .from(contentRef.current)
       .save();

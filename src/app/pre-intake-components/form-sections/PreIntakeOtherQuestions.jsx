@@ -49,6 +49,7 @@ const PreIntakeOtherQuestions = ( { values, validateRadio, errors } ) => {
                 <Field
                   as="textarea"
                   name="prenatalSupportSpecified"
+                  placeholder="Needs prenatal support because..."
                   className={styles.textarea}
                 />
                 <ErrorMessage
@@ -97,6 +98,7 @@ const PreIntakeOtherQuestions = ( { values, validateRadio, errors } ) => {
                 <Field
                   as="textarea"
                   name="housingSupportSpecified"
+                  placeholder="Needs housing support because..."
                   className={styles.textarea}
                 />
                 <ErrorMessage
@@ -145,6 +147,7 @@ const PreIntakeOtherQuestions = ( { values, validateRadio, errors } ) => {
                 <Field
                   as="textarea"
                   name="addictionsSupportSpecified"
+                  placeholder="Needs addiction support because..."
                   className={styles.textarea}
                 />
                 <ErrorMessage
@@ -195,6 +198,7 @@ const PreIntakeOtherQuestions = ( { values, validateRadio, errors } ) => {
                 <Field
                   as="textarea"
                   name="youthSupportSpecified"
+                  placeholder="Needs youth support because..."
                   className={styles.textarea}
                 />
                 <ErrorMessage
@@ -245,6 +249,7 @@ const PreIntakeOtherQuestions = ( { values, validateRadio, errors } ) => {
                 <Field
                   as="textarea"
                   name="custodySupportSpecified"
+                  placeholder="Needs custody support because..."
                   className={styles.textarea}
                 />
                 <ErrorMessage
@@ -293,6 +298,7 @@ const PreIntakeOtherQuestions = ( { values, validateRadio, errors } ) => {
                 <Field
                   as="textarea"
                   name="criminalChargesSpecified"
+                  placeholder="e.g., Past criminal charge of..."
                   className={styles.textarea}
                 />
                 <ErrorMessage
@@ -340,6 +346,7 @@ const PreIntakeOtherQuestions = ( { values, validateRadio, errors } ) => {
                 <Field
                   as="textarea"
                   name="activeWarrantSpecified"
+                  placeholder="Warrent because of..."
                   className={styles.textarea}
                 />
                 <ErrorMessage
@@ -442,6 +449,7 @@ const PreIntakeOtherQuestions = ( { values, validateRadio, errors } ) => {
                 <Field
                   as="textarea"
                   name="activeOrdersExplained"
+                  placeholder="e.g., Client has No Contact Orders against them by..."
                   className={styles.textarea}
                 />
                 <ErrorMessage
@@ -517,6 +525,7 @@ const PreIntakeOtherQuestions = ( { values, validateRadio, errors } ) => {
                     <Field
                       as="textarea"
                       name="legalAssistanceSpecified"
+                      placeholder="Needs legal assistance because..."
                       className={styles.textarea}
                     />
                     <ErrorMessage

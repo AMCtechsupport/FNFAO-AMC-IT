@@ -46,12 +46,14 @@ const YouthIntakeEducation = ( { values, setFieldValue, errors } ) => {
                 <Field
                   as="textarea"
                   name="schoolAttending"
+                  placeholder="Attending at..."
                   className={styles.textarea}
                 />
                 <label>What grade are you currently in?</label>
                 <Field
                   as="textarea"
                   name="currentGrade"
+                  placeholder="Current grade level is..."
                   className={styles.textarea}
                 />
 
@@ -88,6 +90,7 @@ const YouthIntakeEducation = ( { values, setFieldValue, errors } ) => {
                     <Field
                       as="textarea"
                       name="schoolSchedule"
+                      placeholder="e.g., Client attends X hours over X days..."
                       className={styles.textarea}
                     />
                   </div>
@@ -206,6 +209,7 @@ const YouthIntakeEducation = ( { values, setFieldValue, errors } ) => {
                 <Field
                   as="textarea"
                   name="accessElderExplained"
+                  placeholder="Is/Isn't interested in access to Elder/Counsellor because..."
                   className={styles.textarea}
                 />
               </Col>
@@ -233,6 +237,7 @@ const YouthIntakeEducation = ( { values, setFieldValue, errors } ) => {
                             <Field
                               id={`educationalPersons.${index}.firstName`}
                               name={`educationalPersons.${index}.firstName`}
+                              placeholder="Person's First Name"
                               component={ValidNameInput}
                             />
                           </div>
@@ -248,6 +253,7 @@ const YouthIntakeEducation = ( { values, setFieldValue, errors } ) => {
                             <Field
                               id={`educationalPersons.${index}.middleName`}
                               name={`educationalPersons.${index}.middleName`}
+                              placeholder="Person's Middle Name"
                               component={ValidNameInput}
                             />
                           </div>
@@ -262,6 +268,7 @@ const YouthIntakeEducation = ( { values, setFieldValue, errors } ) => {
                             <Field
                               id={`educationalPersons.${index}.lastName`}
                               name={`educationalPersons.${index}.lastName`}
+                              placeholder="Person's Last Name"
                               component={ValidNameInput}
                             />
                           </div>
@@ -278,6 +285,7 @@ const YouthIntakeEducation = ( { values, setFieldValue, errors } ) => {
                             <Field
                               id={`educationalPersons.${index}.relationship`}
                               name={`educationalPersons.${index}.relationship`}
+                              placeholder="e.g., Counsellor, Instructor..."
                               component={ValidNameInput}
                             />
                           </div>
@@ -298,7 +306,7 @@ const YouthIntakeEducation = ( { values, setFieldValue, errors } ) => {
                             name={`educationalPersons.${index}.email`}
                             label="Email Address:"
                             component={EmailInput}
-                            placeholder="youremail@example.com"
+                            placeholder="e.g., name@example.com"
                           />
                         </Col>
                       </Row>
@@ -306,7 +314,7 @@ const YouthIntakeEducation = ( { values, setFieldValue, errors } ) => {
                         <Col md={9}></Col>
                         <Col md={3} className="d-flex align-items-end mt-2">
                           <Button
-                            className="w-100 btn btn-danger"
+                            className="w-100 btn btn-danger opacity-70"
                             type="button"
                             onClick={() => remove(index)}
                           >

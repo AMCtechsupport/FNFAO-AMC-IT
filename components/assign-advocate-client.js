@@ -1,8 +1,7 @@
 "use client";
 
 import { updateClientStatus } from "./client-active";
-import { useState, useEffect, useRef } from "react";
-import supabase from "../src/app/lib/supabase";
+import { useState, useEffect } from "react";
 
 export default function AssignAdvocate({
   clients: initialClients = [],
@@ -10,6 +9,7 @@ export default function AssignAdvocate({
 }) {
   const [allClients, setAllClients] = useState([]);
   const [filteredClients, setFilteredClients] = useState([]);
+  const [allAdvocates, setAllAdvocates] = useState([]);
   const [advocates, setAdvocates] = useState([]);
   const [searchClient, setSearchClient] = useState("");
   const [searchAdvocate, setSearchAdvocate] = useState("");
@@ -18,9 +18,18 @@ export default function AssignAdvocate({
   const [message, setMessage] = useState("");
   const [showPopup, setShowPopup] = useState(false);
   const [isAssigned, setIsAssigned] = useState(false);
-  const searchClientTimeoutRef = useRef(null);
-  const searchAdvocateTimeoutRef = useRef(null);
-  const isFirstRenderRef = useRef(true);
+
+  useEffect(() => {
+    const initialClientsList = [...(initialClients || [])].sort(
+      (a, b) => new Date(b.dateModified || 0) - new Date(a.dateModified || 0),
+    );
+    setAllClients(initialClientsList);
+    setFilteredClients(initialClientsList);
+
+    const initialAdvocatesList = [...(initialAdvocates || [])];
+    setAllAdvocates(initialAdvocatesList);
+    setAdvocates(initialAdvocatesList);
+  }, [initialClients, initialAdvocates]);
 
   // Client-side filter for immediate feedback (debounced)
   const filterClients = (query) => {
@@ -42,6 +51,39 @@ export default function AssignAdvocate({
     });
 
     setFilteredClients(filtered.slice(0, 50)); // Limit to 50 results
+  };
+
+  const filterAdvocates = (query) => {
+    if (!query.trim()) {
+      setAdvocates(allAdvocates);
+      return;
+    }
+
+    const term = query.toLowerCase().trim();
+    const numericId = /^\d+$/.test(term) ? parseInt(term, 10) : null;
+
+    const filtered = allAdvocates.filter((advocate) => {
+      const firstName = (advocate.firstName || "").toLowerCase();
+      const lastName = (advocate.lastName || "").toLowerCase();
+      const email = (advocate.email || "").toLowerCase();
+
+      if (numericId !== null) {
+        return (
+          advocate.advocate_id === numericId ||
+          firstName.includes(term) ||
+          lastName.includes(term) ||
+          email.includes(term)
+        );
+      }
+
+      return (
+        firstName.includes(term) ||
+        lastName.includes(term) ||
+        email.includes(term)
+      );
+    });
+
+    setAdvocates(filtered);
   };
 
   const fetchClients = async () => {
@@ -84,12 +126,9 @@ export default function AssignAdvocate({
     }
   };
 
-  const fetchAdvocates = async (searchQuery = "") => {
+  const fetchAdvocates = async () => {
     try {
-      const params = searchQuery
-        ? `?search=${encodeURIComponent(searchQuery)}`
-        : "";
-      const res = await fetch(`/api/advocates${params}`);
+      const res = await fetch(`/api/advocates`);
 
       if (!res.ok) {
         const json = await res.json().catch(() => ({}));
@@ -102,58 +141,30 @@ export default function AssignAdvocate({
       }
 
       const json = await res.json();
-      setAdvocates(json.advocates || []);
+      const advocatesList = json.advocates || [];
+      setAllAdvocates(advocatesList);
+      setAdvocates(advocatesList);
     } catch (err) {
       console.error("Unexpected error:", err);
+      setAllAdvocates([]);
       setAdvocates([]);
     }
   };
 
   useEffect(() => {
     fetchClients();
+    fetchAdvocates();
   }, []);
 
-  // Debounced client search
+  // Instant client search
   useEffect(() => {
-    if (searchClientTimeoutRef.current) {
-      clearTimeout(searchClientTimeoutRef.current);
-    }
-
-    searchClientTimeoutRef.current = setTimeout(() => {
-      filterClients(searchClient);
-    }, 300);
-
-    return () => {
-      if (searchClientTimeoutRef.current) {
-        clearTimeout(searchClientTimeoutRef.current);
-      }
-    };
+    filterClients(searchClient);
   }, [searchClient, allClients]);
 
-  // Debounced advocate search (skip debounce on first render)
+  // Instant advocate search
   useEffect(() => {
-    // On first render, fetch without debounce
-    if (isFirstRenderRef.current) {
-      isFirstRenderRef.current = false;
-      fetchAdvocates(searchAdvocate);
-      return;
-    }
-
-    // On subsequent renders, apply debounce
-    if (searchAdvocateTimeoutRef.current) {
-      clearTimeout(searchAdvocateTimeoutRef.current);
-    }
-
-    searchAdvocateTimeoutRef.current = setTimeout(() => {
-      fetchAdvocates(searchAdvocate);
-    }, 300);
-
-    return () => {
-      if (searchAdvocateTimeoutRef.current) {
-        clearTimeout(searchAdvocateTimeoutRef.current);
-      }
-    };
-  }, [searchAdvocate]);
+    filterAdvocates(searchAdvocate);
+  }, [searchAdvocate, allAdvocates]);
 
   const handleSearchClientChange = (event) => {
     setSearchClient(event.target.value);
@@ -173,51 +184,41 @@ export default function AssignAdvocate({
     }
 
     try {
-      // Check if the client has already been assigned to the advocate
-      const { data, error } = await supabase
-        .from("Assigned Advocates")
-        .select("*")
-        .eq("client_id", selectedClient.client_id)
-        .eq("advocate_id", selectedAdvocate);
+      const res = await fetch("/api/assigned-advocate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          client_id: selectedClient.client_id,
+          advocate_id: selectedAdvocate,
+        }),
+      });
 
-      if (error) {
-        console.error("Error checking for existing assignment:", error.message);
+      const json = await res.json();
+
+      if (!res.ok) {
+        setMessage("Failed to assign advocate: " + (json.error || res.status));
+        setShowPopup(true);
+        return;
       }
 
-      // If data is not empty, that means the client is already assigned to this advocate
-      if (data.length > 0) {
+      if (json.alreadyAssigned) {
         setMessage("This client is already assigned to the selected advocate.");
         setShowPopup(true);
         setIsAssigned(true);
         return;
       }
 
-      // Proceed with assigning if not already assigned
-      const { insertData, insertError } = await supabase
-        .from("Assigned Advocates")
-        .insert([
-          {
-            client_id: selectedClient.client_id,
-            advocate_id: selectedAdvocate,
-          },
-        ]);
+      setMessage("Client successfully assigned to the selected Advocate.");
+      setShowPopup(true);
 
-      if (insertError) {
-        setMessage("Failed to assign advocate: " + insertError.message);
-        setShowPopup(true);
-      } else {
-        setMessage("Client successfully assigned to the selected Advocate.");
-        setShowPopup(true);
+      // Update client status to 'Active' after successful assignment
+      await updateClientStatus(selectedClient.client_id);
 
-        // Update client status to 'Active' after successful assignment
-        await updateClientStatus(selectedClient.client_id);
-
-        // Reset selection and fetch fresh data
-        setSelectedClient(null);
-        setSelectedAdvocate("");
-        fetchClients();
-        fetchAdvocates();
-      }
+      // Reset selection and fetch fresh data
+      setSelectedClient(null);
+      setSelectedAdvocate("");
+      fetchClients();
+      fetchAdvocates();
     } catch (err) {
       setMessage("Failed to assign advocate: " + err.message);
       setShowPopup(true);
