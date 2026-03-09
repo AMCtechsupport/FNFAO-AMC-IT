@@ -19,49 +19,61 @@ export default function AssignClientSelector({ advocates }) {
   }, [searchTerm, advocates]);
 
   return (
-    <div>
-      <div className="mt-6">
-        <label className="block text-lg font-semibold p-2 text-gray-700">
-          Search for Advocate:
-        </label>
-        <input
-          type="text"
-          placeholder="Search by name..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-        />
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden min-h-[580px]">
+
+      {/* Header */}
+      <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+        View Advocate's Clients
       </div>
 
-      {/* Display filtered advocates */}
-      {filteredAdvocates.length > 0 && (
-        <div className="mt-4 border-2 rounded-lg p-4 max-h-96 bg-gray-200 overflow-y-auto">
-          <ul>
+      <div className="p-6 space-y-5">
+
+        {/* Search */}
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+            Search for Advocate
+          </label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              placeholder="Search by name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition"
+            />
+          </div>
+        </div>
+
+        {/* Advocate results */}
+        {filteredAdvocates.length > 0 && (
+          <div className="border border-gray-200 rounded-lg max-h-72 overflow-y-auto divide-y divide-gray-100">
             {filteredAdvocates.map((advocate) => (
-              <li
+              <div
                 key={advocate.advocate_id}
                 onClick={() => setSelectedAdvocate(advocate.advocate_id)}
-                className={`p-2 cursor-pointer hover:bg-gray-100 ${
-                  selectedAdvocate === advocate.advocate_id ? "bg-gray-100" : ""
-                }`}
+                className="px-3 py-2.5 cursor-pointer transition-colors text-sm"
+                style={{ backgroundColor: selectedAdvocate === advocate.advocate_id ? "#F0EEF6" : "" }}
+                onMouseEnter={(e) => { if (selectedAdvocate !== advocate.advocate_id) e.currentTarget.style.backgroundColor = "#F8F7FC"; }}
+                onMouseLeave={(e) => { if (selectedAdvocate !== advocate.advocate_id) e.currentTarget.style.backgroundColor = ""; }}
               >
-                <span className="font-semibold">
-                  {advocate.firstName} {advocate.lastName}
-                </span>
-                <br />
-                <span className="text-sm text-gray-600">
-                  Email: {advocate.email}
-                </span>
-              </li>
+                <p className="font-medium text-gray-800">{advocate.firstName} {advocate.lastName}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{advocate.email}</p>
+              </div>
             ))}
-          </ul>
-        </div>
-      )}
+          </div>
+        )}
 
-      {/* If an advocate is selected, show their assigned clients */}
-      {selectedAdvocate && (
-        <AssignedClientsToAdvocate advocateId={selectedAdvocate} />
-      )}
+        {/* Assigned clients for selected advocate */}
+        {selectedAdvocate && (
+          <AssignedClientsToAdvocate advocateId={selectedAdvocate} />
+        )}
+
+      </div>
     </div>
   );
 }

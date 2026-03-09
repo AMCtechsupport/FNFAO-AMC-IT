@@ -45,29 +45,27 @@ export default function UnassignClient({ advocateId, clientId, onUnassign }) {
   };
 
   return (
-    <div>
+    <div className="flex items-center gap-2 flex-wrap">
       <select
         value={clientStatus}
         onChange={(e) => handleStatusChange(e.target.value)}
-        className="px-4 py-2 border rounded-md"
+        className="text-xs px-2.5 py-1 border border-gray-200 rounded-lg bg-gray-50 text-gray-700 focus:outline-none focus:ring-1 focus:ring-purple-300"
       >
         <option value="Select Status">Select status</option>
         <option value="Active">Active</option>
         <option value="Inactive">Inactive</option>
-        <option value="Critical Incident Working Group">
-          Critical Incident Working Group
-        </option>
+        <option value="Critical Incident Working Group">Critical Incident Working Group</option>
       </select>
 
       <button
         onClick={handleUnassign}
         disabled={loading}
-        className="px-4 py-2 bg-red-500 text-white rounded-md disabled:bg-gray-500 ml-2"
+        className="inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full border transition-colors text-red-500 bg-red-50 hover:bg-red-100 border-red-200 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {loading ? "Unassigning..." : "Unassign"}
+        {loading ? "..." : "Unassign"}
       </button>
 
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="text-xs text-red-500 w-full mt-1">{error}</p>}
     </div>
   );
 }
