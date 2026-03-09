@@ -163,10 +163,20 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
               >
                 {isEditMode && (
                   <button
+                    type="button"
                     style={cancelBtnStyle}
                     onClick={() => {
                       resetForm();
                       setIsEditing(false);
+
+                       // Navigate depending on context
+                      if (editClientId) {
+                        // If editing a client, go to that client's view page
+                        router.push(`/youth-clients/${editClientId}/view`);
+                      } else {
+                        // Otherwise, fallback to main clients list
+                        router.push(`/youth-clients`);
+                      }
                     }}
                   >
                     Cancel

@@ -18,7 +18,11 @@ export default function AdultClientView() {
   const [isLoading, setIsLoading] = useState(true);
 
   const handleClose = () => {
-    router.push("/clients");
+    if (history.state && history.state.idx > 0) {
+      router.back();
+    } else {
+      router.push("/clients");
+    }
   };
 
   useEffect(() => {
