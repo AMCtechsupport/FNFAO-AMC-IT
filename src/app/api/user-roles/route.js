@@ -64,11 +64,14 @@ export async function GET() {
 
     const users = (usersResponse?.data || []).map((user) => {
       const clerkEmailRaw =
-        user.primaryEmailAddress?.emailAddress || user.emailAddresses?.[0]?.emailAddress || "";
+        user.primaryEmailAddress?.emailAddress ||
+        user.emailAddresses?.[0]?.emailAddress ||
+        "";
       const clerkEmail = clerkEmailRaw.toLowerCase().trim();
 
       const linkedAdvocate =
-        advocatesByClerkId.get(user.id) || (clerkEmail ? advocatesByEmail.get(clerkEmail) : null);
+        advocatesByClerkId.get(user.id) ||
+        (clerkEmail ? advocatesByEmail.get(clerkEmail) : null);
 
       const email = linkedAdvocate?.email || clerkEmailRaw || "";
       const firstName = linkedAdvocate?.firstName || user.firstName || "";

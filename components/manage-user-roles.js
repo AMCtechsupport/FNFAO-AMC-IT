@@ -57,7 +57,10 @@ const ManageUserRoles = () => {
 
   const changedUsers = useMemo(() => {
     return users
-      .filter((user) => normalizeRole(draftRoles[user.id]) !== normalizeRole(user.role))
+      .filter(
+        (user) =>
+          normalizeRole(draftRoles[user.id]) !== normalizeRole(user.role),
+      )
       .map((user) => ({
         userId: user.id,
         fullName: user.fullName,
@@ -142,7 +145,9 @@ const ManageUserRoles = () => {
       }
 
       if (response.status === 207) {
-        const failed = (json?.results || []).filter((item) => !item.success).length;
+        const failed = (json?.results || []).filter(
+          (item) => !item.success,
+        ).length;
         setSuccess(
           `Updated ${changedUsers.length - failed} role(s). ${failed} update(s) failed.`,
         );
@@ -214,7 +219,9 @@ const ManageUserRoles = () => {
           const currentRole = normalizeRole(user.role);
           const draftRole = normalizeRole(draftRoles[user.id]);
           const changed = currentRole !== draftRole;
-          const currentLabel = ROLE_OPTIONS.find((opt) => opt.value === draftRole)?.label;
+          const currentLabel = ROLE_OPTIONS.find(
+            (opt) => opt.value === draftRole,
+          )?.label;
 
           return (
             <div
@@ -243,7 +250,9 @@ const ManageUserRoles = () => {
                 <button
                   type="button"
                   onClick={() =>
-                    setOpenDropdownFor((prev) => (prev === user.id ? null : user.id))
+                    setOpenDropdownFor((prev) =>
+                      prev === user.id ? null : user.id,
+                    )
                   }
                   className="min-w-36 border border-gray-300 rounded-2xl px-4 py-2.5 bg-white text-gray-700 font-semibold flex items-center justify-between gap-2"
                 >
