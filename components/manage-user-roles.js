@@ -254,18 +254,18 @@ const ManageUserRoles = () => {
         key={user.id}
         className="border border-gray-300 rounded-3xl px-6 py-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
       >
-        <div className="min-w-0 flex-1 grid grid-cols-1 md:grid-cols-2 gap-y-1 md:gap-4 items-center">
-          <p className="text-lg font-semibold text-gray-800 truncate">
+        <div className="min-w-0 flex-1 flex flex-col md:flex-row md:items-center gap-1 md:gap-4">
+          <p className="md:basis-1/2 md:shrink-0 md:min-w-0 text-lg font-semibold text-gray-800 truncate">
             {user.fullName || "-"}
           </p>
-          <p className="text-base font-semibold text-gray-600 truncate">
+          <p className="min-w-0 text-base font-semibold text-gray-600 truncate">
             {user.email || "-"}
           </p>
         </div>
 
         <div className="relative flex items-center gap-3 shrink-0">
           <span
-            className={`text-xs font-medium px-2 py-1 rounded-full ${
+            className={`min-w-[4.5rem] text-center text-xs font-medium px-2 py-1 rounded-full ${
               isSelf
                 ? "text-blue-700 bg-blue-100"
                 : `text-amber-700 bg-amber-100 ${changed ? "" : "invisible"}`
