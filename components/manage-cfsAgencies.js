@@ -118,7 +118,7 @@ const CFSAgenciesManagement = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search CFS Agencies..."
-          className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#B2B3D7] focus:border-transparent transition"
+          className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 text-gray-700 focus:outline-none transition"
         />
       </div>
 
@@ -141,7 +141,7 @@ const CFSAgenciesManagement = () => {
               value={newCfsAgency}
               onChange={(e) => setNewCfsAgency(e.target.value)}
               placeholder="Enter a new CFS Agency"
-              className="w-full px-3 py-2.5 text-sm bg-white border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#B2B3D7] focus:border-transparent transition"
+              className="w-full px-3 py-2.5 text-sm bg-white border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 text-gray-700 focus:outline-none transition"
             />
             <button
               onClick={handleAddCfsAgency}
@@ -198,7 +198,7 @@ const CFSAgenciesManagement = () => {
                           type="text"
                           value={editValue}
                           onChange={(e) => setEditValue(e.target.value)}
-                          className="w-full px-2 py-1 text-sm bg-white border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B2B3D7]"
+                          className="w-full px-2 py-1 text-sm bg-white border border-blue-300 rounded-lg focus:outline-none"
                           autoFocus
                         />
                       ) : (

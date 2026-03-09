@@ -75,7 +75,7 @@ export default function UnassignClient({ advocateId, clientId, initialStatus, on
       <select
         value={pendingStatus}
         onChange={(e) => handleStatusSelect(e.target.value)}
-        className="text-xs px-2.5 py-1 border border-gray-200 rounded-lg bg-gray-50 text-gray-700 focus:outline-none focus:ring-1 focus:ring-purple-300"
+        className="text-xs px-2.5 py-1 border border-gray-200 rounded-lg bg-gray-50 text-gray-700 focus:outline-none"
       >
         <option value="Select Status">Select status</option>
         <option value="Active">Active</option>

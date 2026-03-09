@@ -57,7 +57,7 @@ export default function AssignClientSelector({ advocates }) {
               placeholder="Search by name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition"
+              className="w-full pl-9 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none transition"
             />
           </div>
         </div>
@@ -79,6 +79,9 @@ export default function AssignClientSelector({ advocates }) {
               </div>
             ))}
           </div>
+        )}
+        {searchTerm.trim() && filteredAdvocates.length === 0 && (
+          <p className="text-xs text-red-500 mt-1">No advocates found.</p>
         )}
 
         {/* Assigned clients for selected advocate */}

@@ -276,7 +276,7 @@ export default function AssignAdvocate({
                 placeholder="Search by name..."
                 value={searchClient}
                 onChange={handleSearchClientChange}
-                className="w-full pl-9 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition"
+                className="w-full pl-9 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none transition"
               />
             </div>
           </div>
@@ -298,6 +298,9 @@ export default function AssignAdvocate({
                 </div>
               ))}
             </div>
+          )}
+          {searchClient.trim() && filteredClients.length === 0 && (
+            <p className="text-xs text-red-500 mt-1">No clients found.</p>
           )}
 
           {/* Selected client */}
@@ -326,12 +329,9 @@ export default function AssignAdvocate({
                 placeholder="Search by advocate name..."
                 value={searchAdvocate}
                 onChange={handleSearchAdvocateChange}
-                className="w-full pl-9 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition"
+                className="w-full pl-9 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none transition"
               />
             </div>
-            {advocates.length === 0 && (
-              <p className="text-xs text-orange-500 mt-1.5">No advocates found. Check database connection.</p>
-            )}
           </div>
 
           {/* Advocate results */}
@@ -351,6 +351,9 @@ export default function AssignAdvocate({
                 </div>
               ))}
             </div>
+          )}
+          {searchAdvocate.trim() && advocates.length === 0 && (
+            <p className="text-xs text-red-500 mt-1">No advocates found.</p>
           )}
 
           {/* Selected advocate */}

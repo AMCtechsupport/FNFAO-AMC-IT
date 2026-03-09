@@ -169,7 +169,7 @@ const DeleteAdvocate = () => {
               placeholder="Search by name or email"
               value={searchAdvocate}
               onChange={handleSearchChange}
-              className="w-full pl-9 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition"
+              className="w-full pl-9 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none transition"
             />
           </div>
         </div>

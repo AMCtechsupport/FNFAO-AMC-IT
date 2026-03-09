@@ -110,7 +110,7 @@ const LinkAdvocate = () => {
               placeholder="Advocate's first name"
               onChange={(e) => { setFirstName(e.target.value); if (success) setSuccess(null); }}
               required
-              className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition"
+              className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none transition"
             />
           </div>
 
@@ -125,7 +125,7 @@ const LinkAdvocate = () => {
               placeholder="Advocate's last name"
               onChange={(e) => { setLastName(e.target.value); if (success) setSuccess(null); }}
               required
-              className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition"
+              className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none transition"
             />
           </div>
 
@@ -140,7 +140,7 @@ const LinkAdvocate = () => {
               placeholder="e.g., name@example.com"
               onChange={(e) => { setEmail(e.target.value); if (success) setSuccess(null); }}
               required
-              className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition"
+              className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none transition"
             />
           </div>
 
