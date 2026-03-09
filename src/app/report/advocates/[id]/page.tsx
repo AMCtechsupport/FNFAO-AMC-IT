@@ -79,9 +79,9 @@ function getQuarterDateRangeLocal(year: string, quarter: string) {
   }
 
   const start = new Date(Date.UTC(y, startMonth, 1));
-  
+
   const endMonth = startMonth + 2;
-  const end = new Date(Date.UTC(y, endMonth + 1, 0)); 
+  const end = new Date(Date.UTC(y, endMonth + 1, 0));
 
   const toISODate = (d: Date) => d.toISOString().split("T")[0];
 
@@ -90,7 +90,7 @@ function getQuarterDateRangeLocal(year: string, quarter: string) {
 
 function isDateWithinRange(createdAt?: string, start?: string, end?: string) {
   if (!createdAt) return false;
-  if (!start && !end) return true; 
+  if (!start && !end) return true;
   try {
     const created = new Date(createdAt);
     const startDt = start ? new Date(`${start}T00:00:00.000Z`) : null;
@@ -120,7 +120,7 @@ export default function AdvocateDetailsPage() {
   const [endDate, setEndDate] = useState<string>("");
 
   const [quarterYear, setQuarterYear] = useState<string>("");
-  const [quarterName, setQuarterName] = useState<string>(""); 
+  const [quarterName, setQuarterName] = useState<string>("");
 
   const contentRef = useRef<HTMLDivElement | null>(null);
 
@@ -217,7 +217,10 @@ export default function AdvocateDetailsPage() {
       return (
         <button
           onClick={generateAndDownloadPDF}
-          className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-md mt-4"
+          className="w-full text-white font-medium py-3 px-4 rounded-md mt-4"
+          style={{ backgroundColor: "#47315E" }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#47315E")}
         >
           Download PDF
         </button>
@@ -227,7 +230,10 @@ export default function AdvocateDetailsPage() {
     return (
       <button
         onClick={handleFinalDownload}
-        className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-md mt-4"
+        className="w-full text-white font-medium py-3 px-4 rounded-md mt-4"
+        style={{ backgroundColor: "#47315E" }}
+        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
+        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#47315E")}
       >
         Download {downloadFormat.toUpperCase()}
       </button>
@@ -246,12 +252,15 @@ export default function AdvocateDetailsPage() {
 
   return (
     <UserHome>
-      <div className="p-6 bg-gray-50 min-h-screen">
-        <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
-          {advocateName} Clients Report
-        </h1>
+      <main className="min-h-screen bg-gray-100 p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{advocateName} Clients Report</h1>
+            <p className="text-sm text-gray-500 mt-1">Advocate clients report</p>
+          </div>
+        </div>
 
-        <div className="max-w-3xl mx-auto text-sm text-gray-600 mb-4">
+        <div className="text-sm text-gray-600 mb-4">
           <div className="flex gap-4 flex-wrap justify-center">
             <div>
               <strong>Filtered by:</strong>{" "}
@@ -263,7 +272,8 @@ export default function AdvocateDetailsPage() {
             </div>
           </div>
         </div>
-        <div className="max-w-4xl mx-auto">
+
+        <div>
           {(!clients || clients.length === 0) && (
             <p className="text-center text-gray-600 text-lg">This advocate has no clients.</p>
           )}
@@ -281,7 +291,7 @@ export default function AdvocateDetailsPage() {
                 style={{ maxHeight: "800px" }}
               >
                 <table className="w-full border border-gray-200 rounded-xl">
-                  <thead className="bg-indigo-500 text-white text-left">
+                  <thead className="text-white text-left" style={{ backgroundColor: "#47315E" }}>
                     <tr>
                       <th className="px-6 py-3 text-center">Name</th>
                       <th className="px-6 py-3 text-center">Age</th>
@@ -297,7 +307,7 @@ export default function AdvocateDetailsPage() {
                     {filteredClients.map((client) => (
                       <tr
                         key={client.client_id}
-                        className="cursor-pointer hover:bg-indigo-50 text-center transition"
+                        className="cursor-pointer hover:bg-gray-50 text-center transition"
                         onClick={() => handleRowClick(client.client_id)}
                       >
                         <td className="px-6 py-3 border-t">
@@ -317,7 +327,7 @@ export default function AdvocateDetailsPage() {
                 </table>
               </div>
 
-              <div className="mt-8 w-full max-w-sm mx-auto">
+              <div className="mt-8">
                 <DownloadDropdown
                   title="Download All"
                   onDownloadSelect={handleDownloadAll}
@@ -346,7 +356,7 @@ export default function AdvocateDetailsPage() {
             </div>
           </ReportPreviewAdvocates>
         )}
-      </div>
+      </main>
     </UserHome>
   );
 }

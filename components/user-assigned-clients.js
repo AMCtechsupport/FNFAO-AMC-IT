@@ -86,7 +86,7 @@ export default function AssignedClientsList({ advocateId }) {
           <h2 className="text-2xl font-bold text-gray-900">Assigned Clients</h2>
           <p className="text-sm text-gray-500 mt-1">Clients currently assigned to you</p>
         </div>
-        <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 text-xs font-medium px-2.5 py-1 rounded-full border border-blue-200">
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: "#F0EEF6", color: "#47315E", border: "1px solid #B2B3D7" }}>
           <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span>
           {allClients.length} {allClients.length === 1 ? "client" : "clients"}
         </span>
@@ -104,7 +104,7 @@ export default function AssignedClientsList({ advocateId }) {
           value={searchQuery}
           onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
           placeholder="Search by client name..."
-          className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+          className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#B2B3D7] focus:border-transparent transition"
         />
       </div>
 
@@ -114,7 +114,7 @@ export default function AssignedClientsList({ advocateId }) {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-            <svg className="animate-spin h-8 w-8 mb-3 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg className="animate-spin h-8 w-8 mb-3 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
             </svg>
@@ -158,7 +158,7 @@ export default function AssignedClientsList({ advocateId }) {
                     return (
                       <tr
                         key={client.client_id}
-                        className={`transition-colors hover:bg-blue-50 ${index % 2 !== 0 ? "bg-gray-50/50" : ""}`}
+                        className={`transition-colors hover:bg-gray-50 ${index % 2 !== 0 ? "bg-gray-50/50" : ""}`}
                       >
                         <td className="py-3.5 px-5 font-medium text-gray-800">
                           {fullName || <span className="text-gray-400">(No name)</span>}

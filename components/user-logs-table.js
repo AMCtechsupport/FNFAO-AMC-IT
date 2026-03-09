@@ -24,7 +24,7 @@ const LogTable = ({ logs, loading, onLogClick }) => {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-gray-400">
         <svg
-          className="animate-spin h-8 w-8 mb-3 text-blue-500"
+          className="animate-spin h-8 w-8 mb-3 text-gray-400"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -79,7 +79,7 @@ const LogTable = ({ logs, loading, onLogClick }) => {
               logs.map((log, index) => (
                 <tr
                   key={log.log_id}
-                  className={`transition-colors hover:bg-blue-50 ${
+                  className={`transition-colors hover:bg-gray-50 ${
                     index % 2 !== 0 ? "bg-gray-50/50" : ""
                   }`}
                 >

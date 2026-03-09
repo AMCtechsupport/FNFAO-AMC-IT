@@ -8,19 +8,9 @@ export default async function ClientsPage() {
 
   return (
     <UserHome>
-      <div className="min-h-screen bg-gray-100 flex flex-col justify-between">
-        <main className="flex-grow p-4">
-          <div className="bg-white-200 rounded-lg shadow-lg w-full p-6">
-            {/* Pass initial data and count to the client-side component */}
-            <ClientsList initialClients={data} totalCount={count} />
-          </div>
-        </main>
-
-        {/* Footer Component */}
-        <footer className="bg-gray-800 text-white text-center p-4">
-          <p>&copy; 2025 My Next.js App</p>
-        </footer>
-      </div>
+      <main className="min-h-screen bg-gray-100 p-6">
+        <ClientsList initialClients={data} totalCount={count} />
+      </main>
     </UserHome>
   );
 }

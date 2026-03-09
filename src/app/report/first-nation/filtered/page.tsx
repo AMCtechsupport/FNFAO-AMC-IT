@@ -223,7 +223,10 @@ export default function ClientFilterPage() {
         <button
           type="button"
           onClick={generateAndDownloadPDF}
-          className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-md transition-colors mt-4"
+          className="w-full text-white font-medium py-3 px-4 rounded-md transition-colors mt-4"
+          style={{ backgroundColor: "#47315E" }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#47315E")}
         >
           Download PDF
         </button>
@@ -234,7 +237,10 @@ export default function ClientFilterPage() {
       <button
         type="button"
         onClick={handleFinalDownload}
-        className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-md transition-colors mt-4"
+        className="w-full text-white font-medium py-3 px-4 rounded-md transition-colors mt-4"
+        style={{ backgroundColor: "#47315E" }}
+        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
+        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#47315E")}
       >
         Download {downloadFormat.toUpperCase()}
       </button>
@@ -243,15 +249,36 @@ export default function ClientFilterPage() {
 
   return (
     <UserHome>
-      <div className="p-6 bg-gray-50 min-h-screen">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Client's Report</h1>
+      <main className="min-h-screen bg-gray-100 p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Client&apos;s Report</h1>
+            <p className="text-sm text-gray-500 mt-1">Filtered clients report</p>
+          </div>
+        </div>
 
         {/* Tags */}
-        <div className="flex flex-wrap gap-2 justify-center mb-6">
-          {community && <span className="tag">Community: {decodeHtml(community)}</span>}
-          {agency && <span className="tag">Agency: {agency}</span>}
-          {ageGroup && <span className="tag">Age Group: {ageGroup}</span>}
-          {quarter && <span className="tag">Filtered by: {quarter}</span>}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {community && (
+            <span className="inline-flex items-center text-xs px-2.5 py-1 rounded-full text-white" style={{ backgroundColor: "#47315E" }}>
+              Community: {decodeHtml(community)}
+            </span>
+          )}
+          {agency && (
+            <span className="inline-flex items-center text-xs px-2.5 py-1 rounded-full text-white" style={{ backgroundColor: "#47315E" }}>
+              Agency: {agency}
+            </span>
+          )}
+          {ageGroup && (
+            <span className="inline-flex items-center text-xs px-2.5 py-1 rounded-full text-white" style={{ backgroundColor: "#47315E" }}>
+              Age Group: {ageGroup}
+            </span>
+          )}
+          {quarter && (
+            <span className="inline-flex items-center text-xs px-2.5 py-1 rounded-full text-white" style={{ backgroundColor: "#47315E" }}>
+              Filtered by: {quarter}
+            </span>
+          )}
         </div>
 
         {fetchError && <p className="text-red-600 font-medium text-center mb-4">{fetchError}</p>}
@@ -260,7 +287,7 @@ export default function ClientFilterPage() {
         {/* Table */}
         {clients.length > 0 && (
           <table className="w-full border bg-white border-gray-200 rounded-xl">
-            <thead className="bg-indigo-500 text-white text-left">
+            <thead className="text-white text-left" style={{ backgroundColor: "#47315E" }}>
               <tr>
                 <th className="px-6 py-3 font-medium text-center">Name</th>
                 <th className="px-6 py-3 font-medium text-center">Age</th>
@@ -273,7 +300,7 @@ export default function ClientFilterPage() {
             </thead>
             <tbody>
               {clients.map((client) => (
-                <tr key={client.client_id} className="cursor-pointer hover:bg-indigo-50 text-center transition" onClick={() => handleRowClick(client.client_id)}>
+                <tr key={client.client_id} className="cursor-pointer hover:bg-gray-50 text-center transition" onClick={() => handleRowClick(client.client_id)}>
                   <td className="px-6 py-3 border-t text-center">{client.firstName} {client.lastName}</td>
                   <td className="px-6 py-3 border-t text-center">{calculateAge(client.dateOfBirth)}</td>
                   <td className="px-6 py-3 border-t text-center">{client.cfsAgency}</td>
@@ -291,14 +318,14 @@ export default function ClientFilterPage() {
 
         {/* Download */}
         {/* dropdown */}
-              <div className="mt-8 w-full max-w-sm mx-auto">
-                <DownloadDropdown
-                  title="Download All"
-                  onDownloadSelect={handleDownloadAll}
-                  defaultText={`Download All as ${downloadFormat.toUpperCase()}`}
-                />
-            </div>
-      </div>
+        <div className="mt-8">
+          <DownloadDropdown
+            title="Download All"
+            onDownloadSelect={handleDownloadAll}
+            defaultText={`Download All as ${downloadFormat.toUpperCase()}`}
+          />
+        </div>
+      </main>
 
       {/* Preview */}
       {showPreview && (
@@ -310,17 +337,17 @@ export default function ClientFilterPage() {
             <h2>Download All - Filtered Clients</h2>
             <div className="flex flex-wrap gap-2 justify-center mb-6">
               {community && (
-                <span className="px-3 py-1 bg-gradient-to-r from-purple-400 to-indigo-600 text-white rounded-full">
+                <span className="px-3 py-1 text-white text-xs rounded-full" style={{ backgroundColor: "#47315E" }}>
                   Community: {community}
                 </span>
               )}
               {agency && (
-                <span className="px-3 py-1 bg-gradient-to-r from-purple-400 to-indigo-600 text-white rounded-full">
+                <span className="px-3 py-1 text-white text-xs rounded-full" style={{ backgroundColor: "#47315E" }}>
                   Agency: {agency}
                 </span>
               )}
               {ageGroup && (
-                <span className="px-3 py-1 bg-gradient-to-r from-purple-400 to-indigo-600 text-white rounded-full">
+                <span className="px-3 py-1 text-white text-xs rounded-full" style={{ backgroundColor: "#47315E" }}>
                   Age Group: {ageGroup}
                 </span>
               )}
@@ -340,7 +367,7 @@ export default function ClientFilterPage() {
 
           {clients.length > 0 && (
             <table className="w-full border border-gray-200 rounded-xl mt-4">
-              <thead className="bg-indigo-100">
+              <thead className="text-white" style={{ backgroundColor: "#47315E" }}>
                 <tr>
                   <th className="px-6 py-3 font-medium text-center">Name</th>
                   <th className="px-6 py-3 font-medium text-center">Age</th>

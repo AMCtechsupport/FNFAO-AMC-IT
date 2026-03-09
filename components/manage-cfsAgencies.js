@@ -100,7 +100,7 @@ const CFSAgenciesManagement = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold text-gray-900">Manage CFS Agencies</h3>
-        <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 text-xs font-medium px-2.5 py-1 rounded-full border border-blue-200">
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: "#F0EEF6", color: "#47315E", border: "1px solid #B2B3D7" }}>
           <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span>
           {cfsAgencies.length} {cfsAgencies.length === 1 ? "entry" : "entries"}
         </span>
@@ -118,7 +118,7 @@ const CFSAgenciesManagement = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search CFS Agencies..."
-          className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+          className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#B2B3D7] focus:border-transparent transition"
         />
       </div>
 
@@ -141,11 +141,14 @@ const CFSAgenciesManagement = () => {
               value={newCfsAgency}
               onChange={(e) => setNewCfsAgency(e.target.value)}
               placeholder="Enter a new CFS Agency"
-              className="w-full px-3 py-2.5 text-sm bg-white border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              className="w-full px-3 py-2.5 text-sm bg-white border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#B2B3D7] focus:border-transparent transition"
             />
             <button
               onClick={handleAddCfsAgency}
-              className="mt-3 w-full py-2.5 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="mt-3 w-full py-2.5 text-sm font-medium rounded-lg transition-colors"
+              style={{ backgroundColor: "#47315E", color: "white" }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
             >
               Save
             </button>
@@ -161,7 +164,7 @@ const CFSAgenciesManagement = () => {
       {/* Table */}
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-10 text-gray-400">
-          <svg className="animate-spin h-6 w-6 mb-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin h-6 w-6 mb-2 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
           </svg>
@@ -187,7 +190,7 @@ const CFSAgenciesManagement = () => {
                 filtered.map((agency, index) => (
                   <tr
                     key={agency.agencyName}
-                    className={`transition-colors hover:bg-blue-50 ${index % 2 !== 0 ? "bg-gray-50/50" : ""}`}
+                    className={`transition-colors hover:bg-gray-50 ${index % 2 !== 0 ? "bg-gray-50/50" : ""}`}
                   >
                     <td className="py-3 px-4 font-medium text-gray-800 align-middle">
                       {editingItem === agency.agencyName ? (
@@ -195,7 +198,7 @@ const CFSAgenciesManagement = () => {
                           type="text"
                           value={editValue}
                           onChange={(e) => setEditValue(e.target.value)}
-                          className="w-full px-2 py-1 text-sm bg-white border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-2 py-1 text-sm bg-white border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B2B3D7]"
                           autoFocus
                         />
                       ) : (

@@ -85,21 +85,19 @@ const UserLogs = () => {
 
   return (
     <UserHome>
-      <div className="min-h-screen bg-gray-50 px-6 py-8">
+      <main className="min-h-screen bg-gray-100 p-6">
         {/* Page Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Activity Logs</h1>
-              <p className="text-sm text-gray-500 mt-1">Track all system activity and client updates</p>
-            </div>
-            {!loading && (
-              <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 text-sm font-medium px-3 py-1.5 rounded-full border border-blue-200">
-                <span className="w-2 h-2 rounded-full bg-blue-500 inline-block"></span>
-                {totalLogs} {totalLogs === 1 ? "entry" : "entries"}
-              </span>
-            )}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Activity Logs</h1>
+            <p className="text-sm text-gray-500 mt-1">Track all system activity and client updates</p>
           </div>
+          {!loading && (
+            <span className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-full" style={{ backgroundColor: "#F0EEF6", color: "#47315E", border: "1px solid #B2B3D7" }}>
+              <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: "#47315E" }}></span>
+              {totalLogs} {totalLogs === 1 ? "entry" : "entries"}
+            </span>
+          )}
         </div>
 
         {/* Search Bar */}
@@ -119,7 +117,7 @@ const UserLogs = () => {
         {selectedLog && (
           <LogModal log={selectedLog} onClose={() => setSelectedLog(null)} />
         )}
-      </div>
+      </main>
     </UserHome>
   );
 };

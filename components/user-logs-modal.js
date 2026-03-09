@@ -23,8 +23,8 @@ const LogModal = ({ log, onClose }) => {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100" style={{ backgroundColor: "#47315E" }}>
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-full bg-blue-500/20 flex items-center justify-center">
-              <svg className="w-3.5 h-3.5 text-blue-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
+              <svg className="w-3.5 h-3.5 text-white/70" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75M6.75 21h10.5A2.25 2.25 0 0019.5 18.75V6.108a2.25 2.25 0 00-.66-1.591L15.659 1.34A2.25 2.25 0 0014.068.75H6.75A2.25 2.25 0 004.5 3v15.75A2.25 2.25 0 006.75 21z" />
               </svg>
             </div>

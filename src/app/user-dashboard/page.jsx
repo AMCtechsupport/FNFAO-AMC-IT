@@ -15,14 +15,14 @@ export default async function AssignedClientsToAdvocate() {
 
   return (
     <UserHome>
-      <div className="max-w-6xl mx-auto px-6 py-8">
+      <main className="min-h-screen bg-gray-100 p-6">
         {advocateError && (
           <p className="text-red-500 mb-4">{advocateError}</p>
         )}
         {advocate ? (
           <AssignedClientsList advocateId={advocate.advocate_id} />
         ) : null}
-      </div>
+      </main>
     </UserHome>
   );
 }
