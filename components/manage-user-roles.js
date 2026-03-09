@@ -229,18 +229,16 @@ const ManageUserRoles = () => {
         </div>
 
         <div className="relative flex items-center gap-3 shrink-0">
-          {changed && (
-            <span className="text-xs font-medium text-amber-700 bg-amber-100 px-2 py-1 rounded-full">
-              Unsaved
-            </span>
-          )}
+          <span
+            className={`text-xs font-medium text-amber-700 bg-amber-100 px-2 py-1 rounded-full ${changed ? "" : "invisible"}`}
+          >
+            Unsaved
+          </span>
 
           <button
             type="button"
             onClick={() =>
-              setOpenDropdownFor((prev) =>
-                prev === user.id ? null : user.id,
-              )
+              setOpenDropdownFor((prev) => (prev === user.id ? null : user.id))
             }
             className="min-w-36 border border-gray-300 rounded-2xl px-4 py-2.5 bg-white text-gray-700 font-semibold flex items-center justify-between gap-2"
           >
