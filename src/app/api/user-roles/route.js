@@ -90,6 +90,7 @@ export async function GET() {
           firstName,
           lastName,
           fullName,
+          createdAt: user.createdAt ?? null,
           verifiedFromSupabase: !!linkedAdvocate,
           dataSource: linkedAdvocate
             ? advocateByClerkId

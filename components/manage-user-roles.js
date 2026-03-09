@@ -7,6 +7,31 @@ const ROLE_OPTIONS = [
   { value: "advocate", label: "Advocate" },
 ];
 
+const SORT_OPTIONS = [
+  { value: "az", label: "Name (A\u2013Z)" },
+  { value: "za", label: "Name (Z\u2013A)" },
+  { value: "newest", label: "Newest First" },
+  { value: "oldest", label: "Oldest First" },
+];
+
+const applySort = (list, sort) => {
+  const sorted = [...list];
+  switch (sort) {
+    case "za":
+      return sorted.sort((a, b) =>
+        (b.fullName || "").localeCompare(a.fullName || ""),
+      );
+    case "newest":
+      return sorted.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    case "oldest":
+      return sorted.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+    default:
+      return sorted.sort((a, b) =>
+        (a.fullName || "").localeCompare(b.fullName || ""),
+      );
+  }
+};
+
 const normalizeRole = (role) => (role === "admin" ? "admin" : "advocate");
 
 const ManageUserRoles = () => {
@@ -19,6 +44,9 @@ const ManageUserRoles = () => {
   });
   const [adminSearchTerm, setAdminSearchTerm] = useState("");
   const [advocateSearchTerm, setAdvocateSearchTerm] = useState("");
+  const [adminSort, setAdminSort] = useState("az");
+  const [advocateSort, setAdvocateSort] = useState("az");
+  const [openFilterFor, setOpenFilterFor] = useState(null);
   const [openDropdownFor, setOpenDropdownFor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [adminSaving, setAdminSaving] = useState(false);
@@ -82,23 +110,27 @@ const ManageUserRoles = () => {
 
   const filteredAdmins = useMemo(() => {
     const term = adminSearchTerm.trim().toLowerCase();
-    if (!term) return adminUsers;
-    return adminUsers.filter((user) => {
-      const fullName = (user.fullName || "").toLowerCase();
-      const email = (user.email || "").toLowerCase();
-      return fullName.includes(term) || email.includes(term);
-    });
-  }, [adminUsers, adminSearchTerm]);
+    const filtered = term
+      ? adminUsers.filter((user) => {
+          const fullName = (user.fullName || "").toLowerCase();
+          const email = (user.email || "").toLowerCase();
+          return fullName.includes(term) || email.includes(term);
+        })
+      : adminUsers;
+    return applySort(filtered, adminSort);
+  }, [adminUsers, adminSearchTerm, adminSort]);
 
   const filteredAdvocates = useMemo(() => {
     const term = advocateSearchTerm.trim().toLowerCase();
-    if (!term) return advocateUsers;
-    return advocateUsers.filter((user) => {
-      const fullName = (user.fullName || "").toLowerCase();
-      const email = (user.email || "").toLowerCase();
-      return fullName.includes(term) || email.includes(term);
-    });
-  }, [advocateUsers, advocateSearchTerm]);
+    const filtered = term
+      ? advocateUsers.filter((user) => {
+          const fullName = (user.fullName || "").toLowerCase();
+          const email = (user.email || "").toLowerCase();
+          return fullName.includes(term) || email.includes(term);
+        })
+      : advocateUsers;
+    return applySort(filtered, advocateSort);
+  }, [advocateUsers, advocateSearchTerm, advocateSort]);
 
   const changedAdmins = useMemo(
     () =>
@@ -287,6 +319,8 @@ const ManageUserRoles = () => {
     filteredList,
     searchValue,
     onSearchChange,
+    sortValue,
+    onSortChange,
     changedList,
     group,
     saving,
@@ -303,13 +337,66 @@ const ManageUserRoles = () => {
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <input
-            type="text"
-            value={searchValue}
-            onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search by name or email"
-            className="w-full sm:w-64 rounded-xl border border-gray-300 px-4 py-2.5 text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-300"
-          />
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() =>
+                  setOpenFilterFor((prev) => (prev === group ? null : group))
+                }
+                className="border border-gray-300 rounded-xl px-3 py-2.5 bg-white text-gray-700 font-semibold flex items-center gap-2 hover:bg-gray-50"
+                title="Sort order"
+              >
+                <svg
+                  className="w-4 h-4 text-gray-500"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5h14M6 10h8M9 15h2"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <span className="text-sm">
+                  {SORT_OPTIONS.find((o) => o.value === sortValue)?.label}
+                </span>
+              </button>
+
+              {openFilterFor === group && (
+                <div className="absolute left-0 top-12 z-10 bg-white border border-gray-300 rounded-2xl shadow-sm w-40 overflow-hidden">
+                  {SORT_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => {
+                        onSortChange(option.value);
+                        setOpenFilterFor(null);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm font-semibold ${
+                        sortValue === option.value
+                          ? "bg-gray-100 text-gray-800"
+                          : "text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <input
+              type="text"
+              value={searchValue}
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder="Search by name or email"
+              className="w-full sm:w-64 rounded-xl border border-gray-300 px-4 py-2.5 text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-300"
+            />
+          </div>
+
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -373,6 +460,8 @@ const ManageUserRoles = () => {
         filteredList: filteredAdmins,
         searchValue: adminSearchTerm,
         onSearchChange: setAdminSearchTerm,
+        sortValue: adminSort,
+        onSortChange: setAdminSort,
         changedList: changedAdmins,
         group: "admin",
         saving: adminSaving,
@@ -387,6 +476,8 @@ const ManageUserRoles = () => {
         filteredList: filteredAdvocates,
         searchValue: advocateSearchTerm,
         onSearchChange: setAdvocateSearchTerm,
+        sortValue: advocateSort,
+        onSortChange: setAdvocateSort,
         changedList: changedAdvocates,
         group: "advocate",
         saving: advocateSaving,
