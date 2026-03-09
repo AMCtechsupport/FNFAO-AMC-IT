@@ -111,6 +111,7 @@ export default function AssignedClientsToAdvocate({ advocateId }) {
                 <UnassignClient
                   advocateId={advocateId}
                   clientId={assignment.Clients.client_id}
+                  initialStatus={assignment.Clients.clientStatus}
                   onUnassign={handleUnassign}
                 />
               </div>

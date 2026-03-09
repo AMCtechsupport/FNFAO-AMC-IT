@@ -1,12 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import AssignedClientsToAdvocate from "./assigned-clients";
 
 export default function AssignClientSelector({ advocates }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredAdvocates, setFilteredAdvocates] = useState(advocates);
   const [selectedAdvocate, setSelectedAdvocate] = useState(null);
+
+  const containerRef = useRef(null);
+
+  // Deselect advocate when clicking outside this block
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setSelectedAdvocate(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Filter advocates based on the search term
   useEffect(() => {
@@ -19,7 +32,7 @@ export default function AssignClientSelector({ advocates }) {
   }, [searchTerm, advocates]);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden min-h-[580px]">
+    <div ref={containerRef} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden min-h-[580px]">
 
       {/* Header */}
       <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>

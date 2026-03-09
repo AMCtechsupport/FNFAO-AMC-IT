@@ -1,7 +1,7 @@
 "use client";
 
 import { updateClientStatus } from "./client-active";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function AssignAdvocate({
   clients: initialClients = [],
@@ -18,6 +18,20 @@ export default function AssignAdvocate({
   const [message, setMessage] = useState("");
   const [showPopup, setShowPopup] = useState(false);
   const [isAssigned, setIsAssigned] = useState(false);
+
+  const containerRef = useRef(null);
+
+  // Deselect client and advocate when clicking outside this block
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setSelectedClient(null);
+        setSelectedAdvocate("");
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const initialClientsList = [...(initialClients || [])].sort(
@@ -236,7 +250,7 @@ export default function AssignAdvocate({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden min-h-[580px]">
+    <div ref={containerRef} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden min-h-[580px]">
 
       {/* Header */}
       <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
