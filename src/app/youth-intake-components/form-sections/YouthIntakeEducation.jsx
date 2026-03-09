@@ -1,351 +1,173 @@
 "use client";
 import styles from "../../youth-intake/youthIntake.module.css";
 import { Field, FieldArray } from "formik";
-import { Button, Row, Col } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
 import ValidNameInput from "@/components/ValidNameInput";
 import PhoneNumberInput from "@/components/ValidPhoneNumber";
 import EmailInput from "@/components/ValidEmailInput";
 
-const YouthIntakeEducation = ( { values, setFieldValue, errors } ) => {
-    return(
-        <>
-          <Row>
-            <h3 className="text-dark">Education:</h3>
-          </Row>
-          <Row className={styles.group}>
-            <Col md={4}>
-              <div>
-                <label>
-                  Are you currently in school? Or any other program?
-                </label>
-                <div className="form-check form-check-inline">
-                  <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="inSchool"
-                    value="yes"
-                  />
-                  <label className="form-check-label">Yes</label>
-                </div>
-                <div className="form-check form-check-inline">
-                  <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="inSchool"
-                    value="no"
-                  />
-                  <label className="form-check-label">No</label>
-                </div>
-              </div>
-            </Col>
+const labelCls = "block text-xs font-medium text-gray-600 mb-1";
 
+const RadioPair = ({ name, labelYes = "Yes", labelNo = "No" }) => (
+  <div className="flex items-center gap-4 mt-1.5">
+    <label className="flex items-center gap-1.5 cursor-pointer text-sm font-normal text-gray-700">
+      <Field type="radio" name={name} value="yes" /><span>{labelYes}</span>
+    </label>
+    <label className="flex items-center gap-1.5 cursor-pointer text-sm font-normal text-gray-700">
+      <Field type="radio" name={name} value="no" /><span>{labelNo}</span>
+    </label>
+  </div>
+);
+
+const YouthIntakeEducation = ({ values, setFieldValue, errors }) => {
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+      <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+        Education
+      </div>
+      <div className="p-5 space-y-4">
+
+        {/* In School */}
+        <div className="bg-gray-50 rounded-lg border border-gray-100 p-4">
+          <div className="grid grid-cols-12 gap-4">
+            <div className="col-span-4">
+              <label className={labelCls}>Are you currently in school or any other program?</label>
+              <RadioPair name="inSchool" />
+            </div>
             {values.inSchool === "yes" && (
-              <Col md={8}>
-                <label>What school or program are you attending?</label>
-                <Field
-                  as="textarea"
-                  name="schoolAttending"
-                  placeholder="Attending at..."
-                  className={styles.textarea}
-                />
-                <label>What grade are you currently in?</label>
-                <Field
-                  as="textarea"
-                  name="currentGrade"
-                  placeholder="Current grade level is..."
-                  className={styles.textarea}
-                />
-
+              <div className="col-span-8 space-y-3">
                 <div>
-                  <label>
-                    Are you a full-time student or a part-time student?
-                  </label>
-                  <div className="form-check form-check-inline">
-                    <Field
-                      className="form-check-input"
-                      type="radio"
-                      name="fullStudent"
-                      value="yes"
-                    />
-                    <label className="form-check-label">F/T</label>
-                  </div>
-                  <div className="form-check form-check-inline">
-                    <Field
-                      className="form-check-input"
-                      type="radio"
-                      name="fullStudent"
-                      value="no"
-                    />
-                    <label className="form-check-label">P/T</label>
+                  <label className={labelCls}>What school or program are you attending?</label>
+                  <Field as="textarea" name="schoolAttending" placeholder="Attending at..." className={styles.textarea} />
+                </div>
+                <div>
+                  <label className={labelCls}>What grade are you currently in?</label>
+                  <Field as="textarea" name="currentGrade" placeholder="Current grade level is..." className={styles.textarea} />
+                </div>
+                <div>
+                  <label className={labelCls}>Are you a full-time or part-time student?</label>
+                  <div className="flex items-center gap-4 mt-1.5">
+                    <label className="flex items-center gap-1.5 cursor-pointer text-sm font-normal text-gray-700">
+                      <Field type="radio" name="fullStudent" value="yes" /><span>Full-Time</span>
+                    </label>
+                    <label className="flex items-center gap-1.5 cursor-pointer text-sm font-normal text-gray-700">
+                      <Field type="radio" name="fullStudent" value="no" /><span>Part-Time</span>
+                    </label>
                   </div>
                 </div>
-
                 {values.fullStudent === "no" && (
                   <div>
-                    <label>
-                      What days of the week, and/or number of hours do you
-                      attend school?
-                    </label>
-                    <Field
-                      as="textarea"
-                      name="schoolSchedule"
-                      placeholder="e.g., Client attends X hours over X days..."
-                      className={styles.textarea}
-                    />
+                    <label className={labelCls}>What days/hours do you attend school?</label>
+                    <Field as="textarea" name="schoolSchedule" placeholder="e.g., Client attends X hours over X days..." className={styles.textarea} />
                   </div>
                 )}
-              </Col>
+              </div>
             )}
-          </Row>
+          </div>
+        </div>
 
-          <Row className={styles.group}>
-            <Col md={6}>
-              <div>
-                <label className="text-xl font-bold">
-                  What Personal Identification do you have? (Check all that
-                  apply)
-                </label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '10px 0' }}>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <label style={{ margin: 0, whiteSpace: 'nowrap', width: '200px' }}>Birth Certificate</label>
-                    <Field
-                      type="checkbox"
-                      name="birthCertificate"
-                      onChange={({ target: { checked } }) => {
-                        setFieldValue("birthCertificate", checked);
-                      }}
-                    />
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <label style={{ margin: 0, whiteSpace: 'nowrap', width: '200px' }}>Driver's License</label>
-                    <Field
-                      type="checkbox"
-                      name="driversLicense"
-                      onChange={({ target: { checked } }) => {
-                        setFieldValue("driversLicense", checked);
-                      }}
-                    />
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <label style={{ margin: 0, whiteSpace: 'nowrap', width: '200px' }}>Manitoba Health Card</label>
-                    <Field
-                      type="checkbox"
-                      name="healthCard"
-                      onChange={({ target: { checked } }) => {
-                        setFieldValue("healthCard", checked);
-                      }}
-                    />
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <label style={{ margin: 0, whiteSpace: 'nowrap', width: '200px' }}>Status Card</label>
-                    <Field
-                      type="checkbox"
-                      name="statusCard"
-                      onChange={({ target: { checked } }) => {
-                        setFieldValue("statusCard", checked);
-                      }}
-                    />
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <label style={{ margin: 0, whiteSpace: 'nowrap', width: '200px' }}>Enhanced I.D.</label>
-                    <Field
-                      type="checkbox"
-                      name="enhancedID"
-                      onChange={({ target: { checked } }) => {
-                        setFieldValue("enhancedID", checked);
-                      }}
-                    />
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <label style={{ margin: 0, whiteSpace: 'nowrap', width: '200px' }}>Student I.D.</label>
-                    <Field
-                      type="checkbox"
-                      name="studentID"
-                      onChange={({ target: { checked } }) => {
-                        setFieldValue("studentID", checked);
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </Col>
-          </Row>
-          <Row className={styles.group}>
-            <Col md={4}>
-              <div>
-                <label>Do you have access to an elder or Counsellor?</label>
-                <div className="form-check form-check-inline">
-                  <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="accessElder"
-                    value="yes"
-                  />
-                  <label className="form-check-label">Yes</label>
-                </div>
-                <div className="form-check form-check-inline">
-                  <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="accessElder"
-                    value="no"
-                  />
-                  <label className="form-check-label">No</label>
-                </div>
-              </div>
-            </Col>
-            {values.accessElder === "no" && (
-              <Col md={8}>
-                <label>
-                  Are you interested in getting access to an Elder or
-                  Counsellor?
-                </label>
+        {/* Personal ID */}
+        <div className="bg-gray-50 rounded-lg border border-gray-100 p-4">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Personal Identification (Check all that apply)</p>
+          <div className="grid grid-cols-12 gap-2">
+            {[
+              { name: "birthCertificate", label: "Birth Certificate" },
+              { name: "driversLicense", label: "Driver's License" },
+              { name: "healthCard", label: "Manitoba Health Card" },
+              { name: "statusCard", label: "Status Card" },
+              { name: "enhancedID", label: "Enhanced I.D." },
+              { name: "studentID", label: "Student I.D." },
+            ].map(({ name, label }) => (
+              <div key={name} className="col-span-4 flex items-center gap-2">
                 <Field
-                  as="textarea"
-                  name="accessElderExplained"
-                  placeholder="Is/Isn't interested in access to Elder/Counsellor because..."
-                  className={styles.textarea}
+                  type="checkbox"
+                  name={name}
+                  id={name}
+                  onChange={({ target: { checked } }) => setFieldValue(name, checked)}
+                  className="w-4 h-4 accent-purple-600"
                 />
-              </Col>
+                <label htmlFor={name} className="text-sm font-normal text-gray-700 cursor-pointer">{label}</label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Elder Access */}
+        <div className="bg-gray-50 rounded-lg border border-gray-100 p-4">
+          <div className="grid grid-cols-12 gap-4">
+            <div className="col-span-4">
+              <label className={labelCls}>Do you have access to an Elder or Counsellor?</label>
+              <RadioPair name="accessElder" />
+            </div>
+            {values.accessElder === "no" && (
+              <div className="col-span-8">
+                <label className={labelCls}>Are you interested in getting access to an Elder or Counsellor?</label>
+                <Field as="textarea" name="accessElderExplained" placeholder="Is/Isn't interested in access to Elder/Counsellor because..." className={styles.textarea} />
+              </div>
             )}
-          </Row>
+          </div>
+        </div>
 
-          <Row className={styles.group}>
-            <label>Is there an educational support person you contact?</label>
-            <FieldArray name="educationalPersons">
-              {({ push, remove }) => (
-                <div>
-                  {values.educationalPersons.map((educationalPerson, index) => (
-                    <div
-                      key={index}
-                      className={`${styles.bglightgrey} border rounded p-2 mb-3`}
-                    >
-                      <Row className="align-items-center">
-                        <Col md={4}>
-                          <div>
-                            <label
-                              htmlFor={`educationalPersons.${index}.firstName`}
-                            >
-                              First Name:
-                            </label>
-                            <Field
-                              id={`educationalPersons.${index}.firstName`}
-                              name={`educationalPersons.${index}.firstName`}
-                              placeholder="Person's First Name"
-                              component={ValidNameInput}
-                            />
-                          </div>
-                        </Col>
-
-                        <Col md={4}>
-                          <div>
-                            <label
-                              htmlFor={`educationalPersons.${index}.middleName`}
-                            >
-                              Middle Name:
-                            </label>
-                            <Field
-                              id={`educationalPersons.${index}.middleName`}
-                              name={`educationalPersons.${index}.middleName`}
-                              placeholder="Person's Middle Name"
-                              component={ValidNameInput}
-                            />
-                          </div>
-                        </Col>
-                        <Col md={4}>
-                          <div>
-                            <label
-                              htmlFor={`educationalPersons.${index}.lastName`}
-                            >
-                              Last Name:
-                            </label>
-                            <Field
-                              id={`educationalPersons.${index}.lastName`}
-                              name={`educationalPersons.${index}.lastName`}
-                              placeholder="Person's Last Name"
-                              component={ValidNameInput}
-                            />
-                          </div>
-                        </Col>
-                      </Row>
-                      <Row>
-                        <Col md={4}>
-                          <div>
-                            <label
-                              htmlFor={`educationalPersons.${index}.relationship`}
-                            >
-                              Relationship:
-                            </label>
-                            <Field
-                              id={`educationalPersons.${index}.relationship`}
-                              name={`educationalPersons.${index}.relationship`}
-                              placeholder="e.g., Counsellor, Instructor..."
-                              component={ValidNameInput}
-                            />
-                          </div>
-                        </Col>
-                        <Col md={4}>
-                          <Field
-                            name={`educationalPersons.${index}.phoneNumber`}
-                            label="Phone Number:"
-                            component={PhoneNumberInput}
-                            placeholder="(123) 456-7890"
-                            error={
-                              errors.educationalPersons?.[index]?.phoneNumber
-                            }
-                          />
-                        </Col>
-                        <Col md={4}>
-                          <Field
-                            name={`educationalPersons.${index}.email`}
-                            label="Email Address:"
-                            component={EmailInput}
-                            placeholder="e.g., name@example.com"
-                          />
-                        </Col>
-                      </Row>
-                      <Row>
-                        <Col md={9}></Col>
-                        <Col md={3} className="d-flex align-items-end mt-2">
-                          <Button
-                            className="w-100 btn btn-danger"
-                            type="button"
-                            onClick={() => remove(index)}
-                          >
-                            Delete
-                          </Button>
-                        </Col>
-                      </Row>
+        {/* Educational Support Persons */}
+        <div className="bg-gray-50 rounded-lg border border-gray-100 p-4">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Educational Support Persons</p>
+          <FieldArray name="educationalPersons">
+            {({ push, remove }) => (
+              <div className="space-y-4">
+                {values.educationalPersons.map((educationalPerson, index) => (
+                  <div key={index} className="bg-white rounded-lg border border-gray-200 p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Person {index + 1}</p>
+                      <button type="button" onClick={() => remove(index)} className="text-xs px-3 py-1 rounded-full text-white font-medium transition-colors" style={{ backgroundColor: "#ef4444" }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#dc2626")} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#ef4444")}>
+                        Delete
+                      </button>
                     </div>
-                  ))}
-                  <Button
-                    className="btn-dark"
-                    type="button"
-                    onClick={() =>
-                      push({
-                        firstName: "",
-                        middleName: "",
-                        lastName: "",
-                        relationship: "",
-                        phoneNumber: "",
-                        email: "",
-                      })
-                    }
-                  >
-                    + Add Educational Support Person
-                  </Button>
-                </div>
-              )}
-            </FieldArray>
-          </Row>
-        </>
-    );
+                    <div className="grid grid-cols-12 gap-4 mb-3">
+                      <div className="col-span-3">
+                        <label className={labelCls} htmlFor={`educationalPersons.${index}.firstName`}>First Name:</label>
+                        <Field id={`educationalPersons.${index}.firstName`} name={`educationalPersons.${index}.firstName`} placeholder="Person's First Name" component={ValidNameInput} />
+                      </div>
+                      <div className="col-span-3">
+                        <label className={labelCls} htmlFor={`educationalPersons.${index}.middleName`}>Middle Name:</label>
+                        <Field id={`educationalPersons.${index}.middleName`} name={`educationalPersons.${index}.middleName`} placeholder="Person's Middle Name" component={ValidNameInput} />
+                      </div>
+                      <div className="col-span-4">
+                        <label className={labelCls} htmlFor={`educationalPersons.${index}.lastName`}>Last Name:</label>
+                        <Field id={`educationalPersons.${index}.lastName`} name={`educationalPersons.${index}.lastName`} placeholder="Person's Last Name" component={ValidNameInput} />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-12 gap-4">
+                      <div className="col-span-4">
+                        <label className={labelCls} htmlFor={`educationalPersons.${index}.relationship`}>Relationship:</label>
+                        <Field id={`educationalPersons.${index}.relationship`} name={`educationalPersons.${index}.relationship`} placeholder="e.g., Counsellor, Instructor..." component={ValidNameInput} />
+                      </div>
+                      <div className="col-span-4">
+                        <label className={labelCls}>Phone Number:</label>
+                        <Field name={`educationalPersons.${index}.phoneNumber`} component={PhoneNumberInput} placeholder="(123) 456-7890" />
+                      </div>
+                      <div className="col-span-4">
+                        <Field name={`educationalPersons.${index}.email`} label="Email:" component={EmailInput} placeholder="e.g., name@example.com" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => push({ firstName: "", middleName: "", lastName: "", relationship: "", phoneNumber: "", email: "" })}
+                  className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-colors border text-white"
+                  style={{ backgroundColor: "#47315E", borderColor: "#3a2649" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#47315E")}
+                >
+                  + Add Educational Support Person
+                </button>
+              </div>
+            )}
+          </FieldArray>
+        </div>
+
+      </div>
+    </div>
+  );
 };
 
 export default YouthIntakeEducation;

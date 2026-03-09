@@ -2,278 +2,122 @@
 import React from "react";
 import styles from "../../pre-intake/preIntake.module.css";
 import { Field, ErrorMessage, useFormikContext } from "formik";
-import { Row, Col } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
 import RelationshipToChildrenSelect from "@/components/RelationshipToChildrenSelect";
 import FirstNationSelect from "@/components/FirstNationSelect";
 
-const PreIntakeAboutYou = ( {values, errors} ) => {
-    const { setFieldValue } = useFormikContext();
+const fieldCls = "w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white";
+const labelCls = "block text-xs font-medium text-gray-600 mb-1";
 
-    return (
-        <>
-            <Row>
-                <h3 className="text-dark">About You</h3>
-                <Col md={6}>
-                    <RelationshipToChildrenSelect
-                    name="relationshipToChildren"
-                    label="What is your relationship to the child(ren)?"
-                    error={errors.relationshipToChildren}
-                    />
-                </Col>
-            </Row>
-            <Row className={styles.group}>
-                <Col md={6}>
-                    <div>
-                    <label>
-                        Are there any other adults involved in your matter?
-                    </label>
-                    <div className="form-check form-check-inline">
-                        <Field
-                        className="form-check-input"
-                        type="radio"
-                        name="otherAdultsInvolved"
-                        value="yes"
-                        />
-                        <label className="form-check-label">Yes</label>
-                    </div>
-                    <div className="form-check form-check-inline">
-                        <Field
-                        className="form-check-input"
-                        type="radio"
-                        name="otherAdultsInvolved"
-                        value="no"
-                        />
-                        <label className="form-check-label">No</label>
-                    </div>
-                    <ErrorMessage
-                        name="otherAdultsInvolved"
-                        component="div"
-                        className={styles.errorText}
-                    />
-                    </div>
-                </Col>
-                    {values.otherAdultsInvolved === "yes" && (
-                        <Col md={8}>
-                        <label>Please specify:</label>
-                        <Field
-                            as="textarea"
-                            name="otherAdultsInvolvedExplained"
-                            placeholder="The other adults involved are..."
-                            className={styles.textarea}
-                        />
-                        <ErrorMessage
-                            name="otherAdultsInvolvedExplained"
-                            component="div"
-                            className={styles.errorText}
-                        />
-                </Col>
+const RadioPair = ({ name, validate }) => (
+  <div className="flex items-center gap-4 mt-1.5">
+    <label className="flex items-center gap-1.5 cursor-pointer text-sm font-normal text-gray-700">
+      <Field type="radio" name={name} value="yes" validate={validate} />
+      <span>Yes</span>
+    </label>
+    <label className="flex items-center gap-1.5 cursor-pointer text-sm font-normal text-gray-700">
+      <Field type="radio" name={name} value="no" validate={validate} />
+      <span>No</span>
+    </label>
+  </div>
+);
+
+const PreIntakeAboutYou = ({ values, errors }) => {
+  const { setFieldValue } = useFormikContext();
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+      <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+        About You
+      </div>
+      <div className="p-5 space-y-4">
+
+        <div className="grid grid-cols-12 gap-4">
+          <div className="col-span-6">
+            <RelationshipToChildrenSelect name="relationshipToChildren" label="What is your relationship to the child(ren)?" error={errors.relationshipToChildren} />
+          </div>
+        </div>
+
+        {/* Other adults */}
+        <div className="bg-gray-50 rounded-lg border border-gray-100 p-4">
+          <div className="grid grid-cols-12 gap-4">
+            <div className="col-span-5">
+              <label className={labelCls}>Are there any other adults involved in your matter?</label>
+              <RadioPair name="otherAdultsInvolved" />
+              <ErrorMessage name="otherAdultsInvolved" component="div" className={styles.errorText} />
+            </div>
+            {values.otherAdultsInvolved === "yes" && (
+              <div className="col-span-7">
+                <label className={labelCls}>Please specify:</label>
+                <Field as="textarea" name="otherAdultsInvolvedExplained" placeholder="The other adults involved are..." className={styles.textarea} />
+                <ErrorMessage name="otherAdultsInvolvedExplained" component="div" className={styles.errorText} />
+              </div>
             )}
-            </Row>
-            <Row>
-                <Col md={4}>
-                    <Field
-                    name="firstNationMembership"
-                    component={FirstNationSelect}
-                    label="First Nation Membership"
-                    error={errors.firstNationMembership}
-                    />
-                </Col>
-                <Col md={4}>
-                    <div>
-                    <label>TreatyNumber (10-Digit):</label>
-                    <Field
-                        type="text"
-                        inputMode="numeric"
-                        pattern="\d*"
-                        maxLength={10}
-                        id="treatyNumber"
-                        placeholder="1234567890"
-                        name="treatyNumber"
-                        onChange={(e) => {
-                            const digits = String(e.target.value || "").replace(/\D/g, "");
-                            setFieldValue("treatyNumber", digits);
-                        }}
-                        onBlur={(e) => {
-                            const raw = String(e.target.value || "");
-                            const digits = raw.replace(/\D/g, "");
-                            if (digits.length > 0) {
-                                const padded = digits.padStart(10, "0");
-                                setFieldValue("treatyNumber", padded);
-                            } else {
-                                setFieldValue("treatyNumber", "");
-                            }
-                        }}
-                    />
-                    <ErrorMessage
-                        name="treatyNumber"
-                        component={() => (
-                        <p className={styles.errorText}>
-                            {errors.treatyNumber}
-                        </p>
-                        )}
-                    />
-                    </div>
-                </Col>
-                <Col md={4}>
-                    <Field
-                    name="otherFirstNation"
-                    component={FirstNationSelect}
-                    label="Other First Nation"
-                    error={errors.otherFirstNation}
-                    />
-                </Col>
-            </Row>
-            <Row className={styles.group}>
-                <Col md={5}>
-                    <div>
-                    <label>Personal Health Identification Numbers (9-Digit):</label>
-                    <Field
-                        type="text"
-                        inputMode="numeric"
-                        pattern="\d*"
-                        maxLength={9}
-                        id="ninePersonalHealthNumber"
-                        placeholder="123456789"
-                        name="ninePersonalHealthNumber"
-                    />
-                    <ErrorMessage
-                        name="ninePersonalHealthNumber"
-                        component={() => (
-                        <p className={styles.errorText}>
-                            {errors.ninePersonalHealthNumber}
-                        </p>
-                        )}
-                    />
-                    </div>
-                </Col>
-                <Col md={2}>
-                    <label>(6-Digit):</label>
-                    <Field
-                    type="text"
-                    inputMode="numeric"
-                    pattern="\d*"
-                    maxLength={6}
-                    id="sixPersonalHealthNumber"
-                    placeholder="000000"
-                    name="sixPersonalHealthNumber"
-                    />
-                    <ErrorMessage
-                    name="sixPersonalHealthNumber"
-                    component={() => (
-                        <p className={styles.errorText}>
-                        {errors.sixPersonalHealthNumber}
-                        </p>
-                    )}
-                    />
-                </Col>
-            </Row>
-            <Row>
-            <Col md={4}>
-                <div>
-                <label>Are you living on or off reserve?  </label>
-                <div className="form-check form-check-inline">
-                    <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="onReserve"
-                    value="yes"
-                    />
-                    <label className="form-check-label">Yes</label>
-                </div>
-                <div className="form-check form-check-inline">
-                    <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="onReserve"
-                    value="no"
-                    />
-                    <label className="form-check-label">No</label>
-                </div>
-                <ErrorMessage
-                    name="onReserve"
-                    component="div"
-                    className={styles.onReserve}
-                />
-                </div>
-            </Col>
-            <Col md={4}>
-                <div>
-                <label>
-                    Have you transitioned from a reserve to the city recently?
-                </label>
-                <div className="form-check form-check-inline">
-                    <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="transitionFromReserve"
-                    value="yes"
-                    />
-                    <label className="form-check-label">Yes</label>
-                </div>
-                <div className="form-check form-check-inline">
-                    <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="transitionFromReserve"
-                    value="no"
-                    />
-                    <label className="form-check-label">No</label>
-                </div>
-                <ErrorMessage
-                    name="transitionFromReserve"
-                    component="div"
-                    className={styles.transitionFromReserve}
-                />
-                </div>
-            </Col>
-            <Col md={4}>
-                <div>
-                <label>Are you a previous client of FNFAO?</label>
-                <div className="form-check form-check-inline">
-                    <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="previousFNFAOClient"
-                    value="yes"
-                    />
-                    <label className="form-check-label">Yes</label>
-                </div>
-                <div className="form-check form-check-inline">
-                    <Field
-                    className="form-check-input"
-                    type="radio"
-                    name="previousFNFAOClient"
-                    value="no"
-                    />
-                    <label className="form-check-label">No</label>
-                </div>
-                <ErrorMessage
-                    name="previousFNFAOClient"
-                    component="div"
-                    className={styles.previousFNFAOClient}
-                />
-                </div>
-            </Col>
-            </Row>
-            <Row className={styles.group}>
-            <Col>
-                <label>Why are you seeking advocacy today?</label>
-                <Field
-                as="textarea"
-                name="seekingAdvocacy"
-                placeholder="I am seeking advocacy because..."
-                className={styles.textarea}
-                />
-                <ErrorMessage
-                name="seekingAdvocacy"
-                component="div"
-                className={styles.errorText}
-                />
-            </Col>
-            </Row>
-        </>
-    );
+          </div>
+        </div>
+
+        {/* First Nation */}
+        <div className="grid grid-cols-12 gap-4">
+          <div className="col-span-4">
+            <Field name="firstNationMembership" component={FirstNationSelect} label="First Nation Membership" error={errors.firstNationMembership} />
+          </div>
+          <div className="col-span-4">
+            <label className={labelCls}>Treaty Number (10-Digit):</label>
+            <Field
+              type="text" inputMode="numeric" pattern="\d*" maxLength={10}
+              id="treatyNumber" placeholder="1234567890" name="treatyNumber"
+              className={fieldCls}
+              onChange={(e) => { const d = String(e.target.value || "").replace(/\D/g, ""); setFieldValue("treatyNumber", d); }}
+              onBlur={(e) => { const d = String(e.target.value || "").replace(/\D/g, ""); setFieldValue("treatyNumber", d.length > 0 ? d.padStart(10, "0") : ""); }}
+            />
+            <ErrorMessage name="treatyNumber" component={() => <p className={styles.errorText}>{errors.treatyNumber}</p>} />
+          </div>
+          <div className="col-span-4">
+            <Field name="otherFirstNation" component={FirstNationSelect} label="Other First Nation" error={errors.otherFirstNation} />
+          </div>
+        </div>
+
+        {/* Health numbers */}
+        <div className="bg-gray-50 rounded-lg border border-gray-100 p-4">
+          <div className="grid grid-cols-12 gap-4">
+            <div className="col-span-5">
+              <label className={labelCls}>Personal Health Identification Numbers (9-Digit):</label>
+              <Field type="text" inputMode="numeric" maxLength={9} id="ninePersonalHealthNumber" placeholder="123456789" name="ninePersonalHealthNumber" className={fieldCls} />
+              <ErrorMessage name="ninePersonalHealthNumber" component={() => <p className={styles.errorText}>{errors.ninePersonalHealthNumber}</p>} />
+            </div>
+            <div className="col-span-3">
+              <label className={labelCls}>(6-Digit):</label>
+              <Field type="text" inputMode="numeric" maxLength={6} id="sixPersonalHealthNumber" placeholder="000000" name="sixPersonalHealthNumber" className={fieldCls} />
+              <ErrorMessage name="sixPersonalHealthNumber" component={() => <p className={styles.errorText}>{errors.sixPersonalHealthNumber}</p>} />
+            </div>
+          </div>
+        </div>
+
+        {/* Reserve / transition */}
+        <div className="grid grid-cols-12 gap-4">
+          <div className="col-span-4">
+            <label className={labelCls}>Are you living on or off reserve?</label>
+            <RadioPair name="onReserve" />
+          </div>
+          <div className="col-span-4">
+            <label className={labelCls}>Have you transitioned from a reserve to the city recently?</label>
+            <RadioPair name="transitionFromReserve" />
+          </div>
+          <div className="col-span-4">
+            <label className={labelCls}>Are you a previous client of FNFAO?</label>
+            <RadioPair name="previousFNFAOClient" />
+          </div>
+        </div>
+
+        {/* Seeking advocacy */}
+        <div className="bg-gray-50 rounded-lg border border-gray-100 p-4">
+          <label className={labelCls}>Why are you seeking advocacy today?</label>
+          <Field as="textarea" name="seekingAdvocacy" placeholder="I am seeking advocacy because..." className={styles.textarea} />
+          <ErrorMessage name="seekingAdvocacy" component="div" className={styles.errorText} />
+        </div>
+
+      </div>
+    </div>
+  );
 };
 
 export default PreIntakeAboutYou;

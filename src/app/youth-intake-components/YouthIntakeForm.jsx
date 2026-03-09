@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "../youth-intake/youthIntake.module.css";
 import { Formik, Form } from "formik";
-import "bootstrap/dist/css/bootstrap.min.css";
 import * as Yup from "yup";
 import { useUser } from "@clerk/clerk-react";
 
@@ -168,45 +167,10 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
     };
   }, [isViewOnly, isLoading]);
 
-  
-    const submitFullWidthStyle = {
-      backgroundColor: "black",
-      color: "white",
-      padding: "10px",
-      border: "none",
-      borderRadius: "5px",
-      cursor: "pointer",
-      fontSize: "16px",
-      width: "100%",
-    };
-
-    const saveBtnStyle = {
-    backgroundColor: "#7C3AED", // purple
-    color: "white",
-    padding: "8px 16px",
-    borderRadius: "8px",
-    border: "none",
-    fontWeight: "600",
-    cursor: "pointer",
-    textDecoration: "none",
-    display: "inline-block",
-  };
-
-   const cancelBtnStyle = {
-    backgroundColor: "#111827", // keep black
-    color: "white",
-    padding: "8px 16px",
-    borderRadius: "8px",
-    border: "none",
-    fontWeight: "600",
-    cursor: "pointer",
-  };
 
   if (isLoading) {
     return (
-      <div style={{ textAlign: "center", padding: "50px" }}>
-        <h3>Loading client data...</h3>
-      </div>
+      <div className="text-center py-12 text-gray-500 text-sm">Loading client data...</div>
     );
   }
 
@@ -222,18 +186,19 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
       }}
     >
       {({ values, errors, setFieldValue, resetForm }) => (
-        <Form className={styles.form}>
-          <div className={styles.titleContainer}>
-            <h2 className={styles.centeredTitle}>YOUTH INTAKE FORM</h2>
-          </div>
-
-          <hr className="separator-line" />
-
-          {editClientId && (
-            <div style={{ marginBottom: "12px" }}>
-              <strong>Assigned to:</strong> {assignedAdvocateName}
+        <Form>
+          {/* Page Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Youth Intake Form</h1>
+              <p className="text-sm text-gray-500 mt-1">Complete all sections and submit when ready</p>
             </div>
-          )}
+            {editClientId && (
+              <div className="text-sm text-gray-600 bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-sm">
+                <span className="font-semibold text-gray-800">Assigned to:</span> {assignedAdvocateName}
+              </div>
+            )}
+          </div>
 
           <YouthIntakeGeneralInfo errors={errors} />
           <YouthIntakeEmergencyContact errors={errors} />
@@ -245,35 +210,42 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
           <YouthIntakeFinancialInfo errors={errors} />
           <YouthIntakeOtherInformation values={values} />
 
+
           {!isViewOnly && (
             <>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: isEditMode ? "space-between" : "flex-end",
-                  alignItems: "center",
-                  width: "100%",
-                  maxWidth: "1000px",
-                  margin: "20px auto 10px auto",
-                }}
-              >
-                {isEditMode && (
+              {isEditMode ? (
+                <div className="flex items-center justify-between mt-4 mb-2">
                   <button
-                    style={cancelBtnStyle}
-                    onClick={() => {
-                      resetForm();
-                      setIsEditing(false);
-                    }}
+                    type="button"
+                    className="px-5 py-2.5 text-sm font-semibold rounded-lg transition-colors text-white"
+                    style={{ backgroundColor: "#6b7280" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#4b5563")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6b7280")}
+                    onClick={() => { resetForm(); setIsEditing(false); }}
                   >
                     Cancel
                   </button>
-
-                )}
-
-                  <button type="submit" style={isEditMode ? saveBtnStyle : submitFullWidthStyle}>
-                    {isEditMode ? "Save" : "Submit Youth Intake"}
+                  <button
+                    type="submit"
+                    className="px-5 py-2.5 text-sm font-semibold rounded-lg transition-colors text-white"
+                    style={{ backgroundColor: "#47315E" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#47315E")}
+                  >
+                    Save
                   </button>
-              </div>
+                </div>
+              ) : (
+                <button
+                  type="submit"
+                  className="w-full py-3 text-sm font-semibold rounded-lg transition-colors text-white mb-2"
+                  style={{ backgroundColor: "#8060A0" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#6B4E8A")}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#8060A0")}
+                >
+                  Submit Youth Intake
+                </button>
+              )}
 
               {formSent && (
                 <p className={styles.successfulText}>

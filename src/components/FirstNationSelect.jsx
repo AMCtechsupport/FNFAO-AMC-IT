@@ -31,7 +31,7 @@ const FirstNationSelect = ({ field, form, label, error, disabled }) => {
 
   return (
     <>
-      {label && <label htmlFor={name}>{label}:</label>}
+      {label && <label htmlFor={name} className="block text-xs font-medium text-gray-600 mb-1">{label}:</label>}
 
       <select
         {...field} // Bind Formik's field props
@@ -40,7 +40,7 @@ const FirstNationSelect = ({ field, form, label, error, disabled }) => {
         value={value || ""}
         disabled={disabled}
         onChange={handleChange}
-        className={errors[name] && touched[name] ? styles.errorInput : ""}
+        className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none bg-white ${errors[name] && touched[name] ? "border-red-400" : "border-gray-200 focus:border-purple-400"}`}
       >
         <option value="">Select a first nation</option>
         {firstNations.map((nation) => (
