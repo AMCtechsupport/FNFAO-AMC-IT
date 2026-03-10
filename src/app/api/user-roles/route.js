@@ -26,7 +26,7 @@ async function requireAdmin() {
     };
   }
 
-  return { ok: true, user };
+  return { ok: true };
 }
 
 export async function GET() {
@@ -90,7 +90,6 @@ export async function GET() {
           firstName,
           lastName,
           fullName,
-          createdAt: user.createdAt ?? null,
           verifiedFromSupabase: !!linkedAdvocate,
           dataSource: linkedAdvocate
             ? advocateByClerkId
@@ -104,7 +103,6 @@ export async function GET() {
 
     return NextResponse.json({
       users,
-      currentUserId: auth.user.id,
       meta: {
         totalClerkUsers,
         includedSupabaseUsers: users.length,
@@ -145,12 +143,6 @@ export async function PATCH(req) {
         return NextResponse.json(
           { error: "Invalid role update payload." },
           { status: 400 },
-        );
-      }
-      if (item.userId === auth.user.id) {
-        return NextResponse.json(
-          { error: "You cannot change your own role." },
-          { status: 403 },
         );
       }
     }

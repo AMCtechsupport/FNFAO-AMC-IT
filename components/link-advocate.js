@@ -40,6 +40,29 @@ const LinkAdvocate = () => {
 
       if (result.success) {
         setSuccess(result.message);
+
+        // Send welcome email and surface API errors to help troubleshooting
+        try {
+          const emailResponse = await fetch("/api/send-welcome-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              firstName: firstName.trim(),
+              lastName: lastName.trim(),
+              email: email.trim(),
+            }),
+          });
+
+          if (!emailResponse.ok) {
+            const emailResult = await emailResponse.json().catch(() => ({}));
+            const message = emailResult?.error || "Welcome email could not be sent.";
+            setError(`Advocate created, but email was not sent: ${message}`);
+          }
+        } catch (emailErr) {
+          console.error("Welcome email failed:", emailErr);
+          setError("Advocate created, but email was not sent due to a network error.");
+        }
+
         setFirstName("");
         setLastName("");
         setEmail("");
