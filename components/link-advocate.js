@@ -55,12 +55,15 @@ const LinkAdvocate = () => {
 
           if (!emailResponse.ok) {
             const emailResult = await emailResponse.json().catch(() => ({}));
-            const message = emailResult?.error || "Welcome email could not be sent.";
+            const message =
+              emailResult?.error || "Welcome email could not be sent.";
             setError(`Advocate created, but email was not sent: ${message}`);
           }
         } catch (emailErr) {
           console.error("Welcome email failed:", emailErr);
-          setError("Advocate created, but email was not sent due to a network error.");
+          setError(
+            "Advocate created, but email was not sent due to a network error.",
+          );
         }
 
         setFirstName("");
@@ -91,7 +94,10 @@ const LinkAdvocate = () => {
 
       <form onSubmit={handleCreateAdvocate} className="space-y-6">
         <div>
-          <label htmlFor="firstName" className="block text-lg font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="firstName"
+            className="block text-lg font-medium text-gray-700 mb-2"
+          >
             First Name: <span className="text-red-500">*</span>
           </label>
           <input
@@ -105,7 +111,10 @@ const LinkAdvocate = () => {
         </div>
 
         <div>
-          <label htmlFor="lastName" className="block text-lg font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="lastName"
+            className="block text-lg font-medium text-gray-700 mb-2"
+          >
             Last Name: <span className="text-red-500">*</span>
           </label>
           <input
@@ -119,7 +128,10 @@ const LinkAdvocate = () => {
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-lg font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="email"
+            className="block text-lg font-medium text-gray-700 mb-2"
+          >
             Email: <span className="text-red-500">*</span>
           </label>
           <input
@@ -143,7 +155,9 @@ const LinkAdvocate = () => {
 
       <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
         <p className="text-sm text-blue-700">
-          <strong>Note:</strong> After creating the advocate, their Clerk account will be linked automatically when they sign in with this email.
+          <strong>Note:</strong> After creating the advocate, their Clerk
+          account will be linked automatically when they sign in with this
+          email.
         </p>
       </div>
     </div>

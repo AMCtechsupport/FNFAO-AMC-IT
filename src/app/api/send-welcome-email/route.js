@@ -9,7 +9,7 @@ export async function POST(request) {
     if (!process.env.RESEND_API_KEY) {
       return NextResponse.json(
         { error: "RESEND_API_KEY is not configured." },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -18,7 +18,7 @@ export async function POST(request) {
     if (!firstName || !lastName || !email) {
       return NextResponse.json(
         { error: "firstName, lastName, and email are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -80,7 +80,7 @@ export async function POST(request) {
     console.error("Send welcome email error:", err);
     return NextResponse.json(
       { error: "Failed to send welcome email" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
