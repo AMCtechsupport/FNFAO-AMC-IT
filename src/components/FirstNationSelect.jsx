@@ -14,7 +14,7 @@ const FirstNationSelect = ({ field, form, label, error, disabled }) => {
       const { data, error } = await supabase
         .from("First Nations")
         .select("nation_id,firstNationMembership")
-        .order("nation_id", { ascending: false});
+        
 
       if (error) {
         console.error("Error fetching first nations:", error);
