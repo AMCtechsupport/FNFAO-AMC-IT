@@ -14,17 +14,23 @@ const FirstNationSelect = ({ field, form, label, error, disabled }) => {
       const { data, error } = await supabase
         .from("First Nations")
         .select("nation_id,firstNationMembership")
-        
+          if (error) {
+              console.error(error);
+            } else {
+              const priority = ["Non-Status", "Metis", "New Nation"];
 
-      if (error) {
-        console.error("Error fetching first nations:", error);
-      } else {
-        setFirstNations(data || []);
-      }
-    };
+              const sorted = data.sort((a, b) => {
+                if (priority.includes(a.firstNationMembership)) return -1;
+                if (priority.includes(b.firstNationMembership)) return 1;
+                return 0;
+              });
 
-    fetchFirstNations();
-  }, []);
+              setFirstNations(sorted);
+            }
+          };
+
+          fetchFirstNations();
+        }, []);
 
     const handleChange = (e) => {
     setFieldValue(name, e.target.value);
