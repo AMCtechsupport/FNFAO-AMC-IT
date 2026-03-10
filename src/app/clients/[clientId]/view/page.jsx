@@ -68,7 +68,7 @@ export default function AdultClientView() {
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#4b5563")}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6b7280")}
             >
-              ← Close
+              Close
             </button>
             <Link
               href={`/clients/${client_id}`}
@@ -102,7 +102,7 @@ export default function AdultClientView() {
             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#4b5563")}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6b7280")}
           >
-            ← Close
+            Close
           </button>
           <Link
             href={`/clients/${client_id}`}

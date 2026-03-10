@@ -73,7 +73,7 @@ export default function AdultClientEdit({}) {
             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#4b5563")}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6b7280")}
           >
-            ← Close
+            Close
           </button>
         </div>
 
