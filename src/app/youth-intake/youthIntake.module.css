@@ -35,7 +35,7 @@
   box-shadow: 0 0 0 2px rgba(71, 49, 94, 0.1);
 }
 
-:global(select:disabled) {
+select:disabled {
   background-color: #f0f0f0;
   cursor: not-allowed;
 }
