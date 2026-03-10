@@ -157,7 +157,6 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
               )}
             </>
           )}
-          </fieldset>
         </Form>
       )}
     </Formik>
