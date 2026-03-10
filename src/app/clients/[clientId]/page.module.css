@@ -160,7 +160,7 @@
 
 
 /* Select component */
-select:disabled {
+:global(select:disabled) {
   background-color: #f0f0f0 ; /* Background color to indicate disabled */
   cursor: not-allowed; /* Changes the cursor to indicate disabled */
 }
