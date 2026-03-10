@@ -1,8 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import UserHome from "../../user-home/page";
-import styles from "./page.module.css";
-import "bootstrap/dist/css/bootstrap.min.css";
 import { useAuth } from "@clerk/nextjs";
 import supabase from "../../lib/supabase";
 
@@ -58,53 +56,35 @@ export default function YouthClientEdit({}) {
 
   return (
     <UserHome>
-        <div className={styles.container}>
-          {/* Close button: top-left */}
-          <div style={{ marginTop: "30px", marginBottom: "10px" }}>
-            <button
-              onClick={handleClose}
-              style={{
-                backgroundColor: "#070707",
-                color: "white",
-                padding: "8px 16px",
-                borderRadius: "6px",
-                border: "none",
-                fontWeight: "500",
-                cursor: "pointer",
-              }}
-            >
-              Close
-            </button>
-          </div>
+      <main className="min-h-screen bg-gray-100 p-6">
 
-          <div
-            style={{
-              backgroundColor: "#dbeafe",
-              border: "1px solid #3b82f6",
-              borderRadius: "8px",
-              padding: "16px",
-              marginBottom: "24px",
-              textAlign: "center",
-            }}
+        {/* Page header */}
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {isLoading ? "Loading..." : clientName}
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">Youth client — editing record</p>
+          </div>
+          <button
+            onClick={handleClose}
+            className="px-4 py-2 text-sm font-semibold rounded-lg transition-colors text-white"
+            style={{ backgroundColor: "#6b7280" }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#4b5563")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6b7280")}
           >
-            <h2
-              style={{
-                color: "#1d4ed8",
-                margin: "0 0 8px 0",
-                fontSize: "20px",
-                fontWeight: "bold",
-              }}
-            >
-              Editing Youth Client
-            </h2>
-            <p style={{ color: "#1e40af", margin: 0, fontSize: "14px" }}>
-              You are editing an existing youth client record (Name:{" "}
-              {isLoading ? "Loading..." : clientName})
-            </p>
-          </div>
-
-          <YouthIntakeForm editClientId={client_id} isEditMode={true} getToken={getToken} />
+            Close
+          </button>
         </div>
+
+        {/* Edit mode notice */}
+        <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 mb-6 text-sm text-amber-800">
+          <strong>Edit Mode:</strong> You are editing an existing youth client record.
+        </div>
+
+        <YouthIntakeForm editClientId={client_id} isEditMode={true} getToken={getToken} />
+
+      </main>
     </UserHome>
   );
 }

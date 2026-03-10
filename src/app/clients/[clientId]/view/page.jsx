@@ -1,8 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import UserHome from "../../../user-home/page";
-import styles from "../page.module.css";
-import "bootstrap/dist/css/bootstrap.min.css";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import supabase from "../../../lib/supabase";
@@ -50,104 +48,74 @@ export default function AdultClientView() {
     fetchClientName();
   }, [client_id]);
 
-  const buttonRowStyle = {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-    maxWidth: "1000px",
-    margin: "20px auto 10px auto",
-  };
-
-  const closeBtnStyle = {
-    backgroundColor: "#111827", // keep black
-    color: "white",
-    padding: "8px 16px",
-    borderRadius: "8px",
-    border: "none",
-    fontWeight: "600",
-    cursor: "pointer",
-  };
-
-  const editBtnStyle = {
-    backgroundColor: "#7C3AED", // purple
-    color: "white",
-    padding: "8px 16px",
-    borderRadius: "8px",
-    border: "none",
-    fontWeight: "600",
-    cursor: "pointer",
-    textDecoration: "none",
-    display: "inline-block",
-  };
-
   return (
     <UserHome>
-      <div className={styles.fullIntakeContainer}>
-        <div className={styles.container}>
-          {/* TOP BUTTON ROW */}
-          <div style={buttonRowStyle}>
-            <button onClick={handleClose} style={closeBtnStyle}>
-              Close
-            </button>
+      <main className="min-h-screen bg-gray-100 p-6">
 
-            <Link href={`/clients/${client_id}`} style={editBtnStyle}>
-              Edit
-            </Link>
+        {/* Page header */}
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {isLoading ? "Loading..." : clientName}
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">Adult client — read-only view</p>
           </div>
-
-          {/* Header Box (same) */}
-          <div
-            style={{
-              backgroundColor: "#f0f9ff",
-              border: "1px solid #0ea5e9",
-              borderRadius: "8px",
-              padding: "20px",
-              marginBottom: "24px",
-              textAlign: "center",
-              width: "100%",
-              maxWidth: "1000px",
-              boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
-              marginLeft: "auto",
-              marginRight: "auto",
-            }}
-          >
-            <h2
-              style={{
-                color: "#0c4a6e",
-                margin: "0 0 8px 0",
-                fontSize: "20px",
-                fontWeight: "bold",
-              }}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleClose}
+              className="px-4 py-2 text-sm font-semibold rounded-lg transition-colors text-white"
+              style={{ backgroundColor: "#6b7280" }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#4b5563")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6b7280")}
             >
-              Viewing Adult Client
-            </h2>
-            <p style={{ color: "#075985", margin: 0, fontSize: "14px" }}>
-              Read-only view (Name: {isLoading ? "Loading..." : clientName})
-            </p>
-          </div>
-
-          {/* Form */}
-          <div style={{ marginTop: "0px" }}>
-            <FullIntakeForm
-              client_id={client_id}
-              isEditMode={false}
-              isViewOnly={true}
-            />
-          </div>
-
-          {/* BOTTOM BUTTON ROW */}
-          <div style={buttonRowStyle}>
-            <button onClick={handleClose} style={closeBtnStyle}>
-              Close
+              ← Close
             </button>
-
-            <Link href={`/clients/${client_id}`} style={editBtnStyle}>
+            <Link
+              href={`/clients/${client_id}`}
+              className="px-4 py-2 text-sm font-semibold rounded-lg transition-colors text-white no-underline"
+              style={{ backgroundColor: "#47315E" }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#47315E")}
+            >
               Edit
             </Link>
           </div>
         </div>
-      </div>
+
+        {/* View-only notice */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 mb-6 text-sm text-blue-800">
+          <strong>Read-Only:</strong> You are viewing an adult client record. Switch to Edit to make changes.
+        </div>
+
+        <FullIntakeForm
+          client_id={client_id}
+          isEditMode={false}
+          isViewOnly={true}
+        />
+
+        {/* Bottom action bar */}
+        <div className="flex items-center justify-between mt-4">
+          <button
+            onClick={handleClose}
+            className="px-4 py-2 text-sm font-semibold rounded-lg transition-colors text-white"
+            style={{ backgroundColor: "#6b7280" }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#4b5563")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6b7280")}
+          >
+            ← Close
+          </button>
+          <Link
+            href={`/clients/${client_id}`}
+            className="px-4 py-2 text-sm font-semibold rounded-lg transition-colors text-white no-underline"
+            style={{ backgroundColor: "#47315E" }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#47315E")}
+          >
+            Edit
+          </Link>
+        </div>
+
+      </main>
     </UserHome>
   );
 }
