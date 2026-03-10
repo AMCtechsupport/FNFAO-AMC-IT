@@ -1,12 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import styles from "../full-intake/fullIntake.module.css";
 import { Formik, Form } from "formik";
-import { Button, Row, Col } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
-import { Tabs, TabList, Tab, TabPanel } from "react-tabs";
-import "react-tabs/style/react-tabs.css";
 
 // Form sections
 import HealthWellnessPartition from "./form-sections/HealthWellnessPartition";
@@ -22,6 +17,8 @@ import fetchFullIntakeValues from "./utils/fetchFullIntakeValues";
 import fullIntakeInputValidation from "./utils/fullIntakeInputValidation";
 import { fetchClientData } from "./utils/fetchClientData";
 import FullIntakeFormSubmit from "./utils/FullIntakeFormSubmit";
+
+const TABS = ["General", "Children", "Health & Wellness", "Child & Family Services", "Case Notes", "Legal Notes"];
 
 export default function FullIntakeForm({
   client_id,
@@ -44,6 +41,7 @@ export default function FullIntakeForm({
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(isEditMode && !isViewOnly);
   const [formSent, setFormSent] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
 
   const [selectedNote, setSelectedNote] = useState(null);
   const [showNewNoteForm, setShowNewNoteForm] = useState(false);
@@ -95,7 +93,7 @@ export default function FullIntakeForm({
         const tag = el.tagName.toLowerCase();
 
         // Skip buttons that are explicitly allowed in view-only mode
-        if (tag === "button" && el.dataset.viewAllow) return;
+        if (tag === "button" && el.getAttribute("data-view-allow") !== null) return;
 
         // remove placeholders if empty
         if ((tag === "input" || tag === "textarea") && !el.value) {
@@ -196,37 +194,6 @@ export default function FullIntakeForm({
       document.removeEventListener("click", onClick);
     };
   }, [isViewOnly]);
-
-  const buttonRowStyle = {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-    maxWidth: "1000px",
-    margin: "20px auto 10px auto",
-  };
-
-  const saveBtnStyle = {
-    backgroundColor: "#7C3AED", // purple
-    color: "white",
-    padding: "8px 16px",
-    borderRadius: "8px",
-    border: "none",
-    fontWeight: "600",
-    cursor: "pointer",
-    textDecoration: "none",
-    display: "inline-block",
-  };
-
-  const cancelBtnStyle = {
-    backgroundColor: "#111827", // keep black
-    color: "white",
-    padding: "8px 16px",
-    borderRadius: "8px",
-    border: "none",
-    fontWeight: "600",
-    cursor: "pointer",
-  };
 
   const handleShowNoteDetails = (note) => setSelectedNote(note);
   const handleCloseNoteDetails = () => setSelectedNote(null);
@@ -369,7 +336,7 @@ export default function FullIntakeForm({
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="form-container">
+    <div>
       <Formik
         initialValues={fetchFullIntakeValues({
           originalData,
@@ -411,138 +378,143 @@ export default function FullIntakeForm({
         }}
       >
         {({ values, errors, resetForm, setFieldValue }) => (
-          <Form className={styles.form}>
-            <div className={styles.titleContainer}>
-              <h2 className={styles.centeredTitle}>FULL-INTAKE FORM</h2>
-            </div>
-
-            <hr className="separator-line" />
-
+          <Form>
             <GeneralInformationHeader values={values} isEditing={isEditing} errors={errors} assignedAdvocateName={assignedAdvocateName} />
 
-            <Row className={styles.tabsContainer}>
-              <div className={styles.tabContainer}>
-                <Tabs>
-                  <TabList>
-                    <Tab>General</Tab>
-                    <Tab>Children</Tab>
-                    <Tab>Health & Wellness</Tab>
-                    <Tab>Child & Family Services</Tab>
-                    <Tab>Case Notes</Tab>
-                    <Tab>Legal Notes</Tab>
-                  </TabList>
-
-                  <TabPanel>
-                    <GeneralInformationPartition
-                      values={values}
-                      isEditing={isEditing}
-                      errors={errors}
-                      validateRadio={validateRadio}
-                      setFieldValue={setFieldValue}
-                    />
-                  </TabPanel>
-
-                  {/* FIX: pass childrenData */}
-                  <TabPanel>
-                    <ChildrenPartition
-                      childrenData={childrenData}
-                      values={values}
-                      isEditing={isEditing}
-                      errors={errors}
-                      setFieldValue={setFieldValue}
-                    />
-                  </TabPanel>
-
-                  <TabPanel>
-                    <HealthWellnessPartition
-                      values={values}
-                      isEditing={isEditing}
-                      errors={errors}
-                      validateRadio={validateRadio}
-                      setFieldValue={setFieldValue}
-                    />
-                  </TabPanel>
-
-                  {/* FIX: pass childrenData */}
-                  <TabPanel>
-                    <ChildFamilyServicesPartition
-                      childrenData={childrenData}
-                      values={values}
-                      isEditing={isEditing}
-                      errors={errors}
-                      validateRadio={validateRadio}
-                    />
-                  </TabPanel>
-
-                  <TabPanel>
-                    <CaseNotesPartition
-                      notesData={notesData}
-                      selectedNote={selectedNote}
-                      handleShowNoteDetails={handleShowNoteDetails}
-                      handleCloseNoteDetails={handleCloseNoteDetails}
-                      showNewNoteForm={showNewNoteForm}
-                      setShowNewNoteForm={setShowNewNoteForm}
-                      handleAddNoteClick={handleAddNoteClick}
-                      handleSaveNewNote={handleSaveNewNote}
-                      editingNote={editingNote}
-                      setEditingNote={setEditingNote}
-                      handleSaveNoteEdit={handleSaveNoteEdit}
-                      values={values}
-                      setFieldValue={setFieldValue}
-                      isEditing={isEditing}
-                      isAssignedAdvocate={isAssignedAdvocate}
-                      errors={errors}
-                    />
-                  </TabPanel>
-
-                  <TabPanel>
-                    <LegalNotesPartition
-                      notesData={notesData}
-                      selectedNote={selectedNote}
-                      handleShowNoteDetails={handleShowNoteDetails}
-                      handleCloseNoteDetails={handleCloseNoteDetails}
-                      showNewNoteForm={showNewNoteForm}
-                      setShowNewNoteForm={setShowNewNoteForm}
-                      handleAddNoteClick={handleAddNoteClick}
-                      handleSaveNewNote={handleSaveNewNote}
-                      editingNote={editingNote}
-                      setEditingNote={setEditingNote}
-                      handleSaveNoteEdit={handleSaveNoteEdit}
-                      values={values}
-                      setFieldValue={setFieldValue}
-                      isEditing={isEditing}
-                      isAssignedAdvocate={isAssignedAdvocate}
-                      errors={errors}
-                    />
-                  </TabPanel>
-                </Tabs>
+            {/* Tab bar */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+              <div className="flex border-b border-gray-200 overflow-x-auto">
+                {TABS.map((tab, i) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    data-view-allow="true"
+                    onClick={() => setActiveTab(i)}
+                    className="px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors"
+                    style={
+                      activeTab === i
+                        ? { backgroundColor: "#47315E", color: "#fff", borderBottom: "2px solid #47315E" }
+                        : { color: "#6b7280", borderBottom: "2px solid transparent" }
+                    }
+                  >
+                    {tab}
+                  </button>
+                ))}
               </div>
-            </Row>
+
+              <div className="p-6">
+                {activeTab === 0 && (
+                  <GeneralInformationPartition
+                    values={values}
+                    isEditing={isEditing}
+                    errors={errors}
+                    validateRadio={validateRadio}
+                    setFieldValue={setFieldValue}
+                  />
+                )}
+                {activeTab === 1 && (
+                  <ChildrenPartition
+                    childrenData={childrenData}
+                    values={values}
+                    isEditing={isEditing}
+                    errors={errors}
+                    setFieldValue={setFieldValue}
+                  />
+                )}
+                {activeTab === 2 && (
+                  <HealthWellnessPartition
+                    values={values}
+                    isEditing={isEditing}
+                    errors={errors}
+                    validateRadio={validateRadio}
+                    setFieldValue={setFieldValue}
+                  />
+                )}
+                {activeTab === 3 && (
+                  <ChildFamilyServicesPartition
+                    childrenData={childrenData}
+                    values={values}
+                    isEditing={isEditing}
+                    errors={errors}
+                    validateRadio={validateRadio}
+                  />
+                )}
+                {activeTab === 4 && (
+                  <CaseNotesPartition
+                    notesData={notesData}
+                    selectedNote={selectedNote}
+                    handleShowNoteDetails={handleShowNoteDetails}
+                    handleCloseNoteDetails={handleCloseNoteDetails}
+                    showNewNoteForm={showNewNoteForm}
+                    setShowNewNoteForm={setShowNewNoteForm}
+                    handleAddNoteClick={handleAddNoteClick}
+                    handleSaveNewNote={handleSaveNewNote}
+                    editingNote={editingNote}
+                    setEditingNote={setEditingNote}
+                    handleSaveNoteEdit={handleSaveNoteEdit}
+                    values={values}
+                    setFieldValue={setFieldValue}
+                    isEditing={isEditing}
+                    isAssignedAdvocate={isAssignedAdvocate}
+                    errors={errors}
+                  />
+                )}
+                {activeTab === 5 && (
+                  <LegalNotesPartition
+                    notesData={notesData}
+                    selectedNote={selectedNote}
+                    handleShowNoteDetails={handleShowNoteDetails}
+                    handleCloseNoteDetails={handleCloseNoteDetails}
+                    showNewNoteForm={showNewNoteForm}
+                    setShowNewNoteForm={setShowNewNoteForm}
+                    handleAddNoteClick={handleAddNoteClick}
+                    handleSaveNewNote={handleSaveNewNote}
+                    editingNote={editingNote}
+                    setEditingNote={setEditingNote}
+                    handleSaveNoteEdit={handleSaveNoteEdit}
+                    values={values}
+                    setFieldValue={setFieldValue}
+                    isEditing={isEditing}
+                    isAssignedAdvocate={isAssignedAdvocate}
+                    errors={errors}
+                  />
+                )}
+              </div>
+            </div>
 
             {!isViewOnly && (
-              <>
-                <div style={buttonRowStyle}>
-                  <>
-                    <button
-                      style={cancelBtnStyle}
-                      onClick={() => {
-                        resetForm();
-                        setIsEditing(false);
-                        setShowNewNoteForm(false);
-                      }}
-                    >
-                      Cancel
-                    </button>
+              <div className="flex justify-between items-center mb-6">
+                <button
+                  type="button"
+                  className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors"
+                  style={{ backgroundColor: "#6b7280" }}
+                  onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#4b5563")}
+                  onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#6b7280")}
+                  onClick={() => {
+                    resetForm();
+                    setIsEditing(false);
+                    setShowNewNoteForm(false);
+                  }}
+                >
+                  Cancel
+                </button>
 
-                    <button style={saveBtnStyle} type="submit">
-                      Save
-                    </button>
-                  </>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors"
+                  style={{ backgroundColor: "#47315E" }}
+                  onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
+                  onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#47315E")}
+                >
+                  Save
+                </button>
+              </div>
+            )}
 
-                </div>
-
-                {formSent && <div className={styles.successfulText}>Form saved successfully!</div>}
-              </>
+            {formSent && (
+              <div className="text-center text-sm text-green-600 font-medium mb-4">
+                Form saved successfully!
+              </div>
             )}
           </Form>
         )}
