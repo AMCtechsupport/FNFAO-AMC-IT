@@ -1,59 +1,17 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Field, ErrorMessage, FieldArray } from "formik";
-import { Button, Row, Col } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
 import TypeNoteSelect from "@/components/TypeNoteSelect";
-import SubTypeNoteSelect from "@/components/SubTypeNoteSelect"
+import SubTypeNoteSelect from "@/components/SubTypeNoteSelect";
 import FormattedDate from "@/components/FormattedDate";
-import "react-tabs/style/react-tabs.css";
 
 const isWithin24Hours = (createdAt) => {
-    return new Date() - new Date(createdAt) < 24 * 60 * 60 * 1000;
-};
-
-const cardStyle = {
-    backgroundColor: "#fff",
-    border: "1px solid #e2e2e2",
-    borderRadius: "8px",
-    padding: "20px",
-    boxShadow: "rgba(0, 0, 0, 0.08) 0px 2px 8px",
-    marginBottom: "16px",
-};
-
-const sectionHeaderStyle = {
-    backgroundColor: "#212529",
-    color: "#fff",
-    padding: "8px 14px",
-    borderRadius: "6px",
-    marginBottom: "16px",
-    fontSize: "1rem",
-    fontWeight: 600,
-    letterSpacing: "0.02em",
-};
-
-const metaBarStyle = {
-    backgroundColor: "#f8f9fa",
-    borderTop: "1px solid #dee2e6",
-    borderRadius: "0 0 6px 6px",
-    padding: "12px",
-    marginTop: "16px",
-};
-
-const fieldLabelStyle = {
-    fontWeight: 600,
-    fontSize: "14px",
-    marginBottom: "4px",
-    display: "block",
-    color: "#374151",
-};
-
-const attachmentBoxStyle = {
-    backgroundColor: "#f8f9fa",
-    border: "1px dashed #ced4da",
-    borderRadius: "6px",
-    padding: "12px",
-    marginTop: "8px",
+    if (!createdAt) return false;
+    const created = new Date(createdAt);
+    if (isNaN(created.getTime())) return false;
+    const nowWinnipeg = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Winnipeg" }));
+    const createdWinnipeg = new Date(created.toLocaleString("en-US", { timeZone: "America/Winnipeg" }));
+    return nowWinnipeg - createdWinnipeg < 24 * 60 * 60 * 1000;
 };
 
 const LegalNotesPartition = ({
@@ -64,6 +22,7 @@ const LegalNotesPartition = ({
     showNewNoteForm,
     setShowNewNoteForm,
     handleAddNoteClick,
+    handleSaveNewNote,
     editingNote,
     setEditingNote,
     handleSaveNoteEdit,
@@ -103,155 +62,148 @@ const LegalNotesPartition = ({
     return (
         <>
             {notesData.length === 0 ? (
-                <p style={{ color: "#6b7280", fontStyle: "italic", marginTop: "8px" }}>No notes found for this client.</p>
+                <p className="text-gray-500 italic mt-2">No notes found for this client.</p>
             ) : (
                 <>
                     {/* Notes table */}
                     {!selectedNote && !editingNote && (
-                        <table className="table table-striped table-bordered table-hover" style={{ fontSize: "0.95rem" }}>
-                            <thead style={{ backgroundColor: "#212529", color: "#fff" }}>
-                                <tr>
-                                    <th style={{ width: "30%" }}>Created At</th>
-                                    <th style={{ width: "30%" }}>Type</th>
-                                    <th style={{ width: "20%", textAlign: "center" }}>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {[...notesData]
-                                    .filter(note => note.noteType?.toLowerCase() === "legal")
-                                    .sort((a, b) => a.note_id - b.note_id)
-                                    .map((note) => (
-                                    <tr key={note.note_id}>
-                                        <td className="align-middle"><FormattedDate dateString={note.createdAt}/></td>
-                                        <td className="align-middle">
-                                            <span style={{ backgroundColor: "#e9ecef", padding: "3px 10px", borderRadius: "20px", fontSize: "0.85em", fontWeight: 500 }}>
-                                                {note.type}
-                                            </span>
-                                        </td>
-                                        <td className="align-middle text-center">
-                                            <div className="d-flex gap-2 justify-content-center">
-                                                <Button
-                                                    size="sm"
-                                                    variant="primary"
-                                                    onClick={() => handleShowNoteDetails(note)}
-                                                    data-view-allow="true"
-                                                >
-                                                    View
-                                                </Button>
-                                                {isEditing && isAssignedAdvocate && isWithin24Hours(note.createdAt) && (
-                                                    <Button
-                                                        size="sm"
-                                                        variant="warning"
-                                                        onClick={() => {
-                                                            handleCloseNoteDetails();
-                                                            setEditingNote(note);
-                                                        }}
-                                                    >
-                                                        Edit
-                                                    </Button>
-                                                )}
-                                            </div>
-                                        </td>
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+                            <table className="w-full text-sm border-collapse">
+                                <thead>
+                                    <tr className="text-white text-xs uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+                                        <th className="px-4 py-2 text-left" style={{ width: "30%" }}>Created At</th>
+                                        <th className="px-4 py-2 text-left" style={{ width: "30%" }}>Type</th>
+                                        <th className="px-4 py-2 text-left text-center" style={{ width: "20%" }}>Actions</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {[...notesData]
+                                        .filter(note => note.noteType?.toLowerCase() === "legal")
+                                        .sort((a, b) => b.note_id - a.note_id)
+                                        .map((note) => (
+                                        <tr key={note.note_id} className="border-b border-gray-100 hover:bg-gray-50">
+                                            <td className="px-4 py-3 text-gray-700"><FormattedDate dateString={note.createdAt}/></td>
+                                            <td className="px-4 py-3 text-gray-700">
+                                                <span className="bg-gray-100 px-3 py-0.5 rounded-full text-xs font-medium text-gray-700">
+                                                    {note.type}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3 text-gray-700 text-center">
+                                                <div className="flex gap-2 justify-center">
+                                                    <button
+                                                        className="px-3 py-1 text-xs font-semibold rounded-lg text-white transition-colors"
+                                                        style={{ backgroundColor: "#3b82f6" }}
+                                                        onClick={() => handleShowNoteDetails(note)}
+                                                        data-view-allow="true"
+                                                    >
+                                                        View
+                                                    </button>
+                                                    {isEditing && isAssignedAdvocate && isWithin24Hours(note.createdAt) && (
+                                                        <button
+                                                            className="px-3 py-1 text-xs font-semibold rounded-lg text-white transition-colors"
+                                                            style={{ backgroundColor: "#f59e0b" }}
+                                                            onClick={() => {
+                                                                handleCloseNoteDetails();
+                                                                setEditingNote(note);
+                                                            }}
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     )}
 
                     {/* Note detail view */}
                     {selectedNote && !editingNote && (
-                        <div style={cardStyle}>
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4">
                             {/* Header bar */}
-                            <div style={{ backgroundColor: "#212529", color: "#fff", borderRadius: "6px", padding: "10px 16px", marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                <span style={{ fontWeight: 600, fontSize: "1rem" }}>Legal Note</span>
-                                <span style={{ fontSize: "0.85rem", opacity: 0.8 }}>{new Date(selectedNote.createdAt).toLocaleString()}</span>
+                            <div className="px-5 py-3 text-white flex items-center justify-between" style={{ backgroundColor: "#47315E" }}>
+                                <span className="font-semibold text-sm">Legal Note</span>
+                                <span className="text-xs opacity-80"><FormattedDate dateString={selectedNote.createdAt} /></span>
                             </div>
 
                             {/* Type / Subtype badges */}
-                            <Row className="mb-3">
-                                <Col md="auto">
-                                    <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em" }}>Type</span>
-                                    <div style={{ backgroundColor: "#e9ecef", display: "inline-block", padding: "4px 12px", borderRadius: "20px", marginLeft: "8px", fontSize: "0.9rem", fontWeight: 500 }}>
+                            <div className="px-5 pt-4 pb-2 flex gap-6">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</span>
+                                    <span className="bg-gray-100 px-3 py-0.5 rounded-full text-xs font-medium text-gray-700">
                                         {selectedNote.type || "—"}
-                                    </div>
-                                </Col>
-                                <Col md="auto" className="ms-3">
-                                    <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em" }}>Subtype</span>
-                                    <div style={{ backgroundColor: "#e9ecef", display: "inline-block", padding: "4px 12px", borderRadius: "20px", marginLeft: "8px", fontSize: "0.9rem", fontWeight: 500 }}>
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Subtype</span>
+                                    <span className="bg-gray-100 px-3 py-0.5 rounded-full text-xs font-medium text-gray-700">
                                         {selectedNote.subType || "—"}
-                                    </div>
-                                </Col>
-                            </Row>
+                                    </span>
+                                </div>
+                            </div>
 
                             {/* Description + Action Plan */}
-                            <Row className="g-3">
-                                <Col md={6}>
-                                    <label style={fieldLabelStyle}>Legal Note</label>
+                            <div className="grid grid-cols-2 gap-4 p-5">
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">Legal Note</label>
                                     <Field
                                         as="textarea"
                                         name="description"
-                                        className="form-control"
+                                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 resize-none focus:outline-none"
                                         value={selectedNote.description}
                                         rows={10}
                                         disabled
-                                        style={{ resize: "none", backgroundColor: "#f9fafb", border: "1px solid #e2e2e2" }}
                                     />
-                                </Col>
-                                <Col md={6}>
-                                    <label style={fieldLabelStyle}>Action Plan</label>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">Action Plan</label>
                                     <Field
                                         as="textarea"
                                         name="actionPlan"
-                                        className="form-control"
+                                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 resize-none focus:outline-none"
                                         value={selectedNote.actionPlan}
                                         rows={10}
                                         disabled
-                                        style={{ resize: "none", backgroundColor: "#f9fafb", border: "1px solid #e2e2e2" }}
                                     />
-                                </Col>
-                            </Row>
+                                </div>
+                            </div>
 
                             {/* Attachment */}
                             {selectedNote.fileName && (
-                                <div style={{ ...attachmentBoxStyle, marginTop: "16px" }}>
-                                    <span style={fieldLabelStyle}>Attachment</span>
-                                    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "4px" }}>
-                                        <span style={{ backgroundColor: "#dee2e6", padding: "4px 12px", borderRadius: "20px", fontSize: "0.85rem", fontWeight: 500 }}>
+                                <div className="mx-5 mb-5 bg-gray-50 border border-dashed border-gray-300 rounded-lg p-4">
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">Attachment</label>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span className="bg-gray-200 px-3 py-1 rounded-full text-sm font-medium text-gray-700">
                                             {selectedNote.fileName}
                                         </span>
-                                        <Button
-                                            size="sm"
-                                            variant="outline-primary"
+                                        <button
+                                            className="px-3 py-1 text-xs font-semibold rounded-lg transition-colors border border-blue-300 text-blue-600 bg-white hover:bg-blue-50"
                                             onClick={() => handleDownloadFile(selectedNote.filePath, selectedNote.fileName)}
                                             data-view-allow="true"
                                         >
                                             Download
-                                        </Button>
+                                        </button>
                                     </div>
                                 </div>
                             )}
 
                             {/* Footer metadata */}
-                            <div style={metaBarStyle}>
-                                <Row className="align-items-center">
-                                    <Col>
-                                        <span style={{ fontSize: "0.83rem", color: "#6b7280" }}>
-                                            <strong>Author:</strong> {selectedNote.authorName || "—"}
-                                            {"  ·  "}
-                                            <strong>Last updated:</strong> {selectedNote.modifiedAt}
-                                        </span>
-                                    </Col>
-                                    <Col xs="auto">
-                                        <Button
-                                            variant="secondary"
-                                            size="sm"
-                                            onClick={handleCloseNoteDetails}
-                                            data-view-allow="true"
-                                        >
-                                            Close
-                                        </Button>
-                                    </Col>
-                                </Row>
+                            <div className="px-5 py-3 bg-gray-50 border-t border-gray-200 flex items-center justify-between text-xs text-gray-500">
+                                <span>
+                                    <strong>Author:</strong> {selectedNote.authorName || "—"}
+                                    {"  ·  "}
+                                    <strong>Last updated:</strong> <FormattedDate dateString={selectedNote.modifiedAt} />
+                                </span>
+                                <button
+                                    className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors"
+                                    style={{ backgroundColor: "#6b7280" }}
+                                    onClick={handleCloseNoteDetails}
+                                    data-view-allow="true"
+                                >
+                                    Close
+                                </button>
                             </div>
                         </div>
                     )}
@@ -260,104 +212,102 @@ const LegalNotesPartition = ({
 
             {/* Edit note form */}
             {editingNote && editValues && (
-                <div style={cardStyle}>
-                    <div style={sectionHeaderStyle}>Edit Legal Note</div>
-
-                    <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
-                        <div style={{ flex: 1 }}>
-                            <label style={fieldLabelStyle}>Type</label>
-                            <select
-                                className="form-select"
-                                value={editValues.type}
-                                onChange={(e) => setEditValues({ ...editValues, type: e.target.value })}
-                                style={{ border: "2px solid #e2e2e2", width: "100%" }}
-                            >
-                                <option value="">Select an option</option>
-                                <option value="general">General</option>
-                                <option value="initialMeeting">Initial Meeting</option>
-                                <option value="agencyMeeting">Agency Meeting</option>
-                                <option value="networkMeeting">Network Meeting</option>
-                                <option value="court">Court</option>
-                                <option value="otherType">Other</option>
-                            </select>
-                        </div>
-                        <div style={{ flex: 1 }}>
-                            <label style={fieldLabelStyle}>Subtype</label>
-                            <select
-                                className="form-select"
-                                value={editValues.subType}
-                                onChange={(e) => setEditValues({ ...editValues, subType: e.target.value })}
-                                style={{ border: "2px solid #e2e2e2", width: "100%" }}
-                            >
-                                <option value="">Select an option</option>
-                                <option value="inOffice">In Office</option>
-                                <option value="outOffice">Out of Office</option>
-                                <option value="onLineMeeting">On-Line Meeting</option>
-                                <option value="otherSubType">Other</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
-                        <div style={{ flex: 1 }}>
-                            <label style={fieldLabelStyle}>Description</label>
-                            <textarea
-                                className="form-control"
-                                rows={5}
-                                value={editValues.description}
-                                onChange={(e) => setEditValues({ ...editValues, description: e.target.value })}
-                                style={{ border: "2px solid #e2e2e2", resize: "vertical", width: "100%" }}
-                            />
-                        </div>
-                        <div style={{ flex: 1 }}>
-                            <label style={fieldLabelStyle}>Action Plan</label>
-                            <textarea
-                                className="form-control"
-                                rows={5}
-                                value={editValues.actionPlan}
-                                onChange={(e) => setEditValues({ ...editValues, actionPlan: e.target.value })}
-                                style={{ border: "2px solid #e2e2e2", resize: "vertical", width: "100%" }}
-                            />
-                        </div>
-                    </div>
-
-                    <div style={attachmentBoxStyle}>
-                        <label style={fieldLabelStyle}>Attachment</label>
-                        {editingNote.fileName && !editFile && (
-                            <div style={{ marginBottom: "8px" }}>
-                                <span style={{ fontSize: "0.85rem", color: "#6b7280" }}>Current file: </span>
-                                <span style={{ backgroundColor: "#dee2e6", padding: "3px 10px", borderRadius: "20px", fontSize: "0.85rem", fontWeight: 500 }}>
-                                    {editingNote.fileName}
-                                </span>
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+                    <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>Edit Legal Note</div>
+                    <div className="p-5">
+                        <div className="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label className="block text-xs font-medium text-gray-600 mb-1">Type</label>
+                                <select
+                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
+                                    value={editValues.type}
+                                    onChange={(e) => setEditValues({ ...editValues, type: e.target.value })}
+                                >
+                                    <option value="">Select an option</option>
+                                    <option value="general">General</option>
+                                    <option value="initialMeeting">Initial Meeting</option>
+                                    <option value="agencyMeeting">Agency Meeting</option>
+                                    <option value="networkMeeting">Network Meeting</option>
+                                    <option value="court">Court</option>
+                                    <option value="otherType">Other</option>
+                                </select>
                             </div>
-                        )}
-                        <input
-                            type="file"
-                            accept="image/*,.pdf,.doc,.docx"
-                            className="form-control"
-                            onChange={(e) => setEditFile(e.target.files[0] || null)}
-                            style={{ border: "1px solid #ced4da" }}
-                        />
-                        {editFile && (
-                            <div style={{ marginTop: "6px", fontSize: "0.85rem", color: "#374151" }}>
-                                New file: <strong>{editFile.name}</strong>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-600 mb-1">Subtype</label>
+                                <select
+                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
+                                    value={editValues.subType}
+                                    onChange={(e) => setEditValues({ ...editValues, subType: e.target.value })}
+                                >
+                                    <option value="">Select an option</option>
+                                    <option value="inOffice">In Office</option>
+                                    <option value="outOffice">Out of Office</option>
+                                    <option value="onLineMeeting">On-Line Meeting</option>
+                                    <option value="otherSubType">Other</option>
+                                </select>
                             </div>
-                        )}
-                    </div>
+                        </div>
 
-                    <div className="mt-4 d-flex gap-2">
-                        <Button
-                            variant="dark"
-                            onClick={() => handleSaveNoteEdit(editingNote.note_id, editValues, editFile)}
-                        >
-                            Save Changes
-                        </Button>
-                        <Button
-                            variant="outline-secondary"
-                            onClick={() => setEditingNote(null)}
-                        >
-                            Cancel
-                        </Button>
+                        <div className="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label className="block text-xs font-medium text-gray-600 mb-1">Description</label>
+                                <textarea
+                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-vertical"
+                                    rows={5}
+                                    value={editValues.description}
+                                    onChange={(e) => setEditValues({ ...editValues, description: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-600 mb-1">Action Plan</label>
+                                <textarea
+                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-vertical"
+                                    rows={5}
+                                    value={editValues.actionPlan}
+                                    onChange={(e) => setEditValues({ ...editValues, actionPlan: e.target.value })}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="bg-gray-50 border border-dashed border-gray-300 rounded-lg p-4 mb-4">
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Attachment</label>
+                            {editingNote.fileName && !editFile && (
+                                <div className="mb-2">
+                                    <span className="text-xs text-gray-500">Current file: </span>
+                                    <span className="bg-gray-200 px-3 py-1 rounded-full text-sm font-medium text-gray-700">
+                                        {editingNote.fileName}
+                                    </span>
+                                </div>
+                            )}
+                            <input
+                                type="file"
+                                accept="image/*,.pdf,.doc,.docx"
+                                className="w-full text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700"
+                                onChange={(e) => setEditFile(e.target.files[0] || null)}
+                            />
+                            {editFile && (
+                                <div className="mt-1.5 text-xs text-gray-700">
+                                    New file: <strong>{editFile.name}</strong>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex gap-2 mt-4">
+                            <button
+                                className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors"
+                                style={{ backgroundColor: "#47315E" }}
+                                onClick={() => handleSaveNoteEdit(editingNote.note_id, editValues, editFile)}
+                            >
+                                Save Changes
+                            </button>
+                            <button
+                                className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors"
+                                style={{ backgroundColor: "#6b7280" }}
+                                onClick={() => setEditingNote(null)}
+                            >
+                                Cancel
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
@@ -366,79 +316,85 @@ const LegalNotesPartition = ({
             {!showNewNoteForm && !editingNote && (
                 <FieldArray name="notes">
                     {({ push }) => (
-                        <Button
-                            variant="dark"
+                        <button
+                            className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                            style={{ backgroundColor: "#47315E" }}
                             onClick={() => handleAddNoteClick(values, push, "legal")}
                             disabled={!isEditing || !isAssignedAdvocate}
-                            style={{ marginTop: "4px" }}
                         >
                             + Add Legal Note
-                        </Button>
+                        </button>
                     )}
                 </FieldArray>
             )}
 
             {/* New note form */}
             {showNewNoteForm && !editingNote && (
-                <div style={cardStyle}>
-                    <div style={sectionHeaderStyle}>New Legal Note</div>
-
-                    <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
-                        <div style={{ flex: 1 }}>
-                            <TypeNoteSelect name={`notes.${values.notes.length - 1}.type`} label="Type" placeholder="" error={errors.type} disabled={!isEditing}/>
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+                    <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>New Legal Note</div>
+                    <div className="p-5">
+                        <div className="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <TypeNoteSelect name={`notes.${values.notes.length - 1}.type`} label="Type" placeholder="" error={errors.type} disabled={!isEditing}/>
+                            </div>
+                            <div>
+                                <SubTypeNoteSelect name={`notes.${values.notes.length - 1}.subType`} label="Subtype" placeholder="" error={errors.subType} disabled={!isEditing}/>
+                            </div>
                         </div>
-                        <div style={{ flex: 1 }}>
-                            <SubTypeNoteSelect name={`notes.${values.notes.length - 1}.subType`} label="Subtype" placeholder="" error={errors.subType} disabled={!isEditing}/>
-                        </div>
-                    </div>
 
-                    <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
-                        <div style={{ flex: 1 }}>
-                            <label style={fieldLabelStyle}>Description</label>
-                            <Field
-                                name={`notes.${values.notes.length - 1}.description`}
-                                as="textarea"
-                                className="form-control"
-                                rows={5}
-                                style={{ border: "2px solid #e2e2e2", resize: "vertical", width: "100%" }}
+                        <div className="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label className="block text-xs font-medium text-gray-600 mb-1">Description</label>
+                                <Field
+                                    name={`notes.${values.notes.length - 1}.description`}
+                                    as="textarea"
+                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-vertical"
+                                    rows={5}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-600 mb-1">Action Plan</label>
+                                <Field
+                                    name={`notes.${values.notes.length - 1}.actionPlan`}
+                                    as="textarea"
+                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-vertical"
+                                    rows={5}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="bg-gray-50 border border-dashed border-gray-300 rounded-lg p-4 mb-4">
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Attach File</label>
+                            <input
+                                type="file"
+                                accept="image/*,.pdf,.doc,.docx"
+                                className="w-full text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700"
+                                onChange={(event) => {
+                                    const file = event.currentTarget.files[0];
+                                    setFieldValue(`notes.${values.notes.length - 1}.file`, file);
+                                }}
                             />
                         </div>
-                        <div style={{ flex: 1 }}>
-                            <label style={fieldLabelStyle}>Action Plan</label>
-                            <Field
-                                name={`notes.${values.notes.length - 1}.actionPlan`}
-                                as="textarea"
-                                className="form-control"
-                                rows={5}
-                                style={{ border: "2px solid #e2e2e2", resize: "vertical", width: "100%" }}
-                            />
+
+                        <div className="flex gap-2 mt-4">
+                            <button
+                                className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors"
+                                style={{ backgroundColor: "#47315E" }}
+                                onClick={() => handleSaveNewNote(values.notes[values.notes.length - 1], setFieldValue, values.notes)}
+                            >
+                                Save
+                            </button>
+                            <button
+                                className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors"
+                                style={{ backgroundColor: "#6b7280" }}
+                                onClick={() => {
+                                    setFieldValue("notes", values.notes.slice(0, -1));
+                                    setShowNewNoteForm(false);
+                                }}
+                            >
+                                Cancel
+                            </button>
                         </div>
-                    </div>
-
-                    <div style={attachmentBoxStyle}>
-                        <label style={fieldLabelStyle}>Attach File</label>
-                        <input
-                            type="file"
-                            accept="image/*,.pdf,.doc,.docx"
-                            className="form-control"
-                            onChange={(event) => {
-                                const file = event.currentTarget.files[0];
-                                setFieldValue(`notes.${values.notes.length - 1}.file`, file);
-                            }}
-                            style={{ border: "1px solid #ced4da" }}
-                        />
-                    </div>
-
-                    <div className="mt-4">
-                        <Button
-                            variant="outline-secondary"
-                            onClick={() => {
-                                setFieldValue("notes", values.notes.slice(0, -1));
-                                setShowNewNoteForm(false);
-                            }}
-                        >
-                            Cancel
-                        </Button>
                     </div>
                 </div>
             )}

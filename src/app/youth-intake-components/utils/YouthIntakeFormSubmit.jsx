@@ -309,9 +309,9 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, setFormS
           body: JSON.stringify({
             description: isEditMode
               ? changedFields.length
-                ? `Youth intake updated. Changed fields:\n${changedFields.join("\n")}`
-                : `Youth intake updated for client_id: ${clientId}`
-              : `Youth intake created for client_id: ${clientId}`,
+                ? `Youth intake updated for client: ${values.firstName} ${values.lastName}. Changed fields:\n${changedFields.join("\n")}`
+                : `Youth intake updated for client: ${values.firstName} ${values.lastName}`
+              : `Youth intake created for client: ${values.firstName} ${values.lastName}`,
             logType: isEditMode ? "UPDATE" : "INSERT",
             client_id: clientId,
             clerkUserId: user?.id || null,

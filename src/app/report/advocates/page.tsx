@@ -1,6 +1,6 @@
 /*
-This component shows the content of advocates report 
-after clicking Advocates button on the Reports page. 
+This component shows the content of advocates report
+after clicking Advocates button on the Reports page.
 */
 "use client";
 
@@ -84,7 +84,7 @@ export default function AdvocatesReportPage() {
     params.set("active", String(activeCheck));
     params.set("inactive", String(inactiveCheck));
 
-    // Add date/quarter 
+    // Add date/quarter
     if (filterMode === "quarter" && quarter) {
       params.set("quarterYear", quarter.year);
       params.set("quarterName", quarter.quarter);
@@ -148,7 +148,10 @@ export default function AdvocatesReportPage() {
         <button
           type="button"
           onClick={generateAndDownloadPDF}
-          className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-md transition-colors mt-4"
+          className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors mt-4"
+          style={{ backgroundColor: "#47315E" }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
         >
           Download PDF
         </button>
@@ -160,7 +163,7 @@ export default function AdvocatesReportPage() {
         <button
           type="button"
           disabled
-          className="w-full bg-gray-400 text-white font-medium py-3 px-4 rounded-md mt-4 cursor-not-allowed"
+          className="w-full bg-gray-400 text-white text-sm font-medium py-2.5 px-4 rounded-lg mt-4 cursor-not-allowed"
         >
           Loading data...
         </button>
@@ -171,7 +174,10 @@ export default function AdvocatesReportPage() {
       <button
         type="button"
         onClick={handleFinalDownload}
-        className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-md transition-colors mt-4"
+        className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors mt-4"
+        style={{ backgroundColor: "#47315E" }}
+        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
+        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
       >
         Download {downloadFormat.toUpperCase()}
       </button>
@@ -180,116 +186,129 @@ export default function AdvocatesReportPage() {
 
   return (
     <UserHome>
-      <div className="min-h-screen bg-gray-100 p-6">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
-          Advocates Report
-        </h1>
+      <main className="min-h-screen bg-gray-100 p-6">
 
-        <div className="bg-white shadow-md w-full max-w-3xl mx-auto rounded-2xl p-6">
-          {/* Active / Inactive Filters */}
-          <div className="form-check form-check-inline">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              onChange={(e) => setActiveCheck(e.target.checked)}
-              checked={activeCheck}
-              id="activeCheck"
+        {/* Page Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Advocates Report</h1>
+            <p className="text-sm text-gray-500 mt-1">Select an advocate and filters to generate a report</p>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+
+          {/* Header */}
+          <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider rounded-t-xl" style={{ backgroundColor: "#47315E" }}>
+            Report Filters
+          </div>
+
+          <div className="p-6 space-y-5">
+
+            {/* Active / Inactive Filters */}
+            <div className="flex gap-6">
+              <div className="form-check form-check-inline">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  onChange={(e) => setActiveCheck(e.target.checked)}
+                  checked={activeCheck}
+                  id="activeCheck"
+                />
+                <label className="form-check-label px-2 text-sm font-medium text-gray-700" htmlFor="activeCheck">
+                  Active clients
+                </label>
+              </div>
+
+              <div className="form-check form-check-inline">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  onChange={(e) => setInactiveCheck(e.target.checked)}
+                  checked={inactiveCheck}
+                  id="inactiveCheck"
+                />
+                <label className="form-check-label px-2 text-sm font-medium text-gray-700" htmlFor="inactiveCheck">
+                  Inactive clients
+                </label>
+              </div>
+            </div>
+
+            <AdvocatesTable
+              onSelect={setSelectedAdvocate}
+              active={activeCheck}
+              inactive={inactiveCheck}
+              startDate={effectiveDateRange.startDate}
+              endDate={effectiveDateRange.endDate}
             />
-            <label className="form-check-label px-2 font-medium" htmlFor="activeCheck">
-              Active clients
-            </label>
-          </div>
 
-          <div className="form-check form-check-inline">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              onChange={(e) => setInactiveCheck(e.target.checked)}
-              checked={inactiveCheck}
-              id="inactiveCheck"
-            />
-            <label className="form-check-label px-2 font-medium" htmlFor="inactiveCheck">
-              Inactive clients
-            </label>
-          </div>
+            {/* Filter Section */}
+            <div>
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">Filter by:</h3>
 
-          <AdvocatesTable
-            onSelect={setSelectedAdvocate}
-            active={activeCheck}
-            inactive={inactiveCheck}
-            startDate={effectiveDateRange.startDate}
-            endDate={effectiveDateRange.endDate}
-          />
+              <div className="flex items-center gap-8">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="filterMode"
+                    value="quarter"
+                    checked={filterMode === "quarter"}
+                    onChange={() => setFilterMode("quarter")}
+                  />
+                  Quarter
+                </label>
 
-          {/* Filter Section */}
-          <div className="max-w-3xl mx-auto mt-4">
-            <h3 className="text-lg font-semibold text-gray-700 mb-3">Filter by:</h3>
-          </div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="filterMode"
+                    value="dateRange"
+                    checked={filterMode === "dateRange"}
+                    onChange={() => setFilterMode("dateRange")}
+                  />
+                  Date Range
+                </label>
+              </div>
+            </div>
 
-          {/* RADIO BUTTONS */}
-          <div className="max-w-3xl mx-auto flex items-left gap-8 mt-2 justify-start">
-            <label className="form-check-label flex items-center gap-2 font-medium">
-              <input
-                type="radio"
-                name="filterMode"
-                value="quarter"
-                checked={filterMode === "quarter"}
-                onChange={() => setFilterMode("quarter")}
-              />
-              Quarter
-            </label>
-
-            <label className="form-check-label flex items-center gap-2 font-medium">
-              <input
-                type="radio"
-                name="filterMode"
-                value="dateRange"
-                checked={filterMode === "dateRange"}
-                onChange={() => setFilterMode("dateRange")}
-              />
-              Date Range
-            </label>
-          </div>
-
-          {/* Quarter Filter */}
-          {filterMode === "quarter" && (
-            <div className="max-w-3xl mx-auto">
+            {/* Quarter Filter */}
+            {filterMode === "quarter" && (
               <QuarterFilter value={quarter} onChange={setQuarter} />
-            </div>
-          )}
+            )}
 
-          {/* Date Range Filter */}
-          {filterMode === "dateRange" && (
-            <div className="flex flex-col gap-2 mt-6 w-full max-w-lg mx-auto">
+            {/* Date Range Filter */}
+            {filterMode === "dateRange" && (
               <DateFilterPage setStartDate={setStartDate} setEndDate={setEndDate} />
-            </div>
-          )}
+            )}
 
-          {validationError && (
-            <div className="text-red-500 text-center mt-2">{validationError}</div>
-          )}
+            {validationError && (
+              <div className="text-red-500 text-sm">{validationError}</div>
+            )}
 
-          <div className="flex flex-col gap-4 mt-6 w-full max-w-sm mx-auto">
-            <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-              <h2 className="text-xl font-semibold mb-4 text-gray-700">Find</h2>
-
+            {/* Action Buttons */}
+            <div className="flex flex-col gap-4 max-w-sm mx-auto">
               <button
                 type="button"
                 onClick={handleFind}
-                className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-md transition-colors"
+                className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors"
+                style={{ backgroundColor: "#47315E" }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
               >
                 Find
               </button>
+
+              <DownloadDropdown
+                title="Download All"
+                onDownloadSelect={handleDownloadAll}
+                defaultText={`Download All as ${downloadFormat.toUpperCase()}`}
+              />
             </div>
 
-            <DownloadDropdown
-              title="Download All"
-              onDownloadSelect={handleDownloadAll}
-              defaultText={`Download All as ${downloadFormat.toUpperCase()}`}
-            />
           </div>
         </div>
-      </div>
+
+      </main>
 
       {showPreview && (
         <ReportPreviewAdvocates

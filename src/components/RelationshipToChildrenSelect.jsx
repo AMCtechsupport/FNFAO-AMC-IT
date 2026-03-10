@@ -6,7 +6,7 @@ import styles from "@/app/pre-intake/preIntake.module.css";
 const RelationshipToChildrenSelect = ({name, label, error, disabled }) => {
     return(
         <>
-            <label htmlFor="relationshipToChildren">{label}</label>
+            <label htmlFor="relationshipToChildren" className="block text-xs font-medium text-gray-600 mb-1">{label}</label>
             <Field as="select" name={name} className={styles.select} disabled={disabled}>
                 <option value="">Select an option</option>
                 <option value="parent">Parent</option>

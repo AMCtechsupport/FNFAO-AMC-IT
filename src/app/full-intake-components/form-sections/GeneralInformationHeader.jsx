@@ -1,12 +1,8 @@
 "use client";
-import styles from "../../full-intake/fullIntake.module.css"
 import { Field, ErrorMessage } from "formik";
-import { Row, Col } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
 import PhoneNumberInput from "@/components/ValidPhoneNumber";
 import InputField from "@/components/InputField";
 import ProvincesSelect from "@/components/ProvincesSelect";
-import "react-tabs/style/react-tabs.css";
 
 const GeneralInformationHeader = ({
     values,
@@ -15,124 +11,101 @@ const GeneralInformationHeader = ({
     assignedAdvocateName,
 }) => {
     return (
-        <>
-            <div >
-                <Row>
-                    <Col md={4}><label htmlFor="createdAt"> <strong> Created At: </strong> {values.createdAt}</label>
-
-                    </Col>
-
-                    <Col md={4}><label htmlFor="dateModified"> <strong> Last Updated: </strong> {values.dateModified}</label>
-
-                    </Col>
-
-                    <Col md={4}>
-                        <label><strong>Assigned to:</strong> {assignedAdvocateName || ""}</label>
-                    </Col>
-                </Row>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+            <div
+                className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider"
+                style={{ backgroundColor: "#47315E" }}
+            >
+                Client Information
             </div>
-            <hr className="separator-line" />
 
-            <div className="bg- p-2 rounded border border-light border-1">
-                <Row className="mt-3">
-                    <Col md={3}>
-                        <InputField name="firstName" label="First Name:" placeholder="John" error={errors.firstName} disabled={!isEditing} />
-                    </Col>
+            <div className="p-5">
+                {/* Meta row */}
+                <div className="grid grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Created At</span>
+                        <span className="text-sm text-gray-800">{values.createdAt || "—"}</span>
+                    </div>
+                    <div>
+                        <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Last Updated</span>
+                        <span className="text-sm text-gray-800">{values.dateModified || "—"}</span>
+                    </div>
+                    <div>
+                        <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Assigned To</span>
+                        <span className="text-sm text-gray-800">{assignedAdvocateName || "—"}</span>
+                    </div>
+                </div>
 
-                    <Col md={3}>
-                        <InputField name="middleName" label="Middle Name:" error={errors.middleName} disabled={!isEditing} />
-                    </Col>
-                    <Col md={3}>
-                        <InputField name="lastName" label="Last Name:" placeholder="Connor" error={errors.lastName} disabled={!isEditing} />
-                    </Col>
-
-                    <Col md={3}>
-                        <div>
-                            <label htmlFor="dateOfBirth">Birth Date:</label>
-                            <Field type="date" id="dateOfBirth" name="dateOfBirth" disabled={!isEditing} />
-                            <ErrorMessage name="dateOfBirth" component={() => <p className={styles.errorText}>{errors.dateOfBirth}</p>} />
+                <div className="border-t border-gray-100 pt-4">
+                    {/* Name + DOB row */}
+                    <div className="grid grid-cols-12 gap-4 mb-4">
+                        <div className="col-span-3">
+                            <InputField name="firstName" label="First Name" placeholder="John" error={errors.firstName} disabled={!isEditing} />
                         </div>
-                    </Col>
-                </Row>
-
-                <Row >
-                    <Col md={3}>
-                        <InputField name="address" label="Address:" placeholder="161 Main St, Unit 230" error={errors.address} disabled={!isEditing} />
-                    </Col>
-
-                    <Col md={3}>
-                        <InputField name="city" label="City:" placeholder="Winnipeg" error={errors.city} disabled={!isEditing} />
-                    </Col>
-
-                    <Col md={4}>
-
-                        <ProvincesSelect name="province" label="Province:" error={errors.province} disabled={!isEditing} />
-                    </Col>
-
-                    <Col md={2}>
-                        <InputField name="postalCode" label="Postal code:" placeholder="R3C 0V8" error={errors.postalCode} disabled={!isEditing} />
-                    </Col>
-                </Row>
-
-                <Row className="mb-4">
-                    <Col md={3}>
-                        <div>
-                            <label htmlFor="phoneNumber">Phone Number:</label>
-                            <Field type="number" id="phoneNumber" name="phoneNumber" component={PhoneNumberInput} placeholder="(123) 456-7890" disabled={!isEditing} />
-                            <ErrorMessage name="phoneNumber" component={() => <p className={styles.errorText}>{errors.phoneNumber}</p>} />
+                        <div className="col-span-3">
+                            <InputField name="middleName" label="Middle Name" error={errors.middleName} disabled={!isEditing} />
                         </div>
-                    </Col>
-
-                    <Col md={4}>
-                        <div>
-                            <label htmlFor="email">Email:</label>
-                            <Field type="email" id="email" name="email" disabled={!isEditing} />
-                            <ErrorMessage name="email" component={() => <p className={styles.errorText}>{errors.email}</p>} />
+                        <div className="col-span-3">
+                            <InputField name="lastName" label="Last Name" placeholder="Connor" error={errors.lastName} disabled={!isEditing} />
                         </div>
-                    </Col>
-                </Row>
-            </div>
-            {/* Emergency contact */}
-            {/* <div className="p-2 rounded border border-light border-1 bg-transparent">
-
-                <Row className={styles.emergencyContact}>
-                    <Col md={3}><label><strong>Emergency Contact</strong></label></Col>
-                    <Col md={3}>
-                        <InputField
-                            name="emergencyContactFirstName"
-                            label="First Name:"
-                            placeholder=""
-                            error={errors.emergencyContactFirstName}
-                            disabled={!isEditing}
-                        />
-                    </Col>
-
-                    <Col md={3}>
-                        <InputField
-                            name="emergencyContactLastName"
-                            label="Last Name:"
-                            placeholder=""
-                            error={errors.emergencyContactLastName}
-                            disabled={!isEditing}
-                        />
-                    </Col>
-
-                    <Col md={3}>
-                        <div>
-                            <label htmlFor="emergencyContactNumber">Phone Number:</label>
+                        <div className="col-span-3">
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Birth Date</label>
                             <Field
-                            type="number"
-                            id="emergencyContactNumber"
-                            name="emergencyContactNumber"
-                            component={PhoneNumberInput}
-                            placeholder="(123) 456-7890"
-                            disabled={!isEditing}
+                                type="date"
+                                id="dateOfBirth"
+                                name="dateOfBirth"
+                                disabled={!isEditing}
+                                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
                             />
+                            <ErrorMessage name="dateOfBirth" component={() => <p className="text-xs text-red-500 mt-1">{errors.dateOfBirth}</p>} />
                         </div>
-                    </Col>
-                </Row>
-            </div> */}
-        </>
+                    </div>
+
+                    {/* Address row */}
+                    <div className="grid grid-cols-12 gap-4 mb-4">
+                        <div className="col-span-3">
+                            <InputField name="address" label="Address" placeholder="161 Main St, Unit 230" error={errors.address} disabled={!isEditing} />
+                        </div>
+                        <div className="col-span-3">
+                            <InputField name="city" label="City" placeholder="Winnipeg" error={errors.city} disabled={!isEditing} />
+                        </div>
+                        <div className="col-span-4">
+                            <ProvincesSelect name="province" label="Province" error={errors.province} disabled={!isEditing} />
+                        </div>
+                        <div className="col-span-2">
+                            <InputField name="postalCode" label="Postal Code" placeholder="R3C 0V8" error={errors.postalCode} disabled={!isEditing} />
+                        </div>
+                    </div>
+
+                    {/* Contact row */}
+                    <div className="grid grid-cols-12 gap-4">
+                        <div className="col-span-4">
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Phone Number</label>
+                            <Field
+                                type="number"
+                                id="phoneNumber"
+                                name="phoneNumber"
+                                component={PhoneNumberInput}
+                                placeholder="(123) 456-7890"
+                                disabled={!isEditing}
+                            />
+                            <ErrorMessage name="phoneNumber" component={() => <p className="text-xs text-red-500 mt-1">{errors.phoneNumber}</p>} />
+                        </div>
+                        <div className="col-span-4">
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Email</label>
+                            <Field
+                                type="email"
+                                id="email"
+                                name="email"
+                                disabled={!isEditing}
+                                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
+                            />
+                            <ErrorMessage name="email" component={() => <p className="text-xs text-red-500 mt-1">{errors.email}</p>} />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 };
 

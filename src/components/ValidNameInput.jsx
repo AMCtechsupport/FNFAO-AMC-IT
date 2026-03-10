@@ -20,18 +20,18 @@ const ValidNameInput = ({ field, form, label, ...props }) => {
 
   return (
     <div>
-      {label && <label htmlFor={name}>{label}</label>}
+      {label && <label htmlFor={name} className="block text-xs font-medium text-gray-600 mb-1">{label}</label>}
       <input
         {...field}
         {...props}
         id={name}
         name={name}
         type="text"
-        className={errors[name] && touched[name] ? styles.errorInput : ""}
+        className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none bg-white ${errors[name] && touched[name] ? "border-red-400 focus:border-red-400" : "border-gray-200 focus:border-purple-400"}`}
         onChange={handleChange}
       />
       {/* Error message */}
-      <ErrorMessage name={name} component="p" />
+      <ErrorMessage name={name} component="p" className="text-red-500 text-xs mt-1" />
     </div>
   );
 };

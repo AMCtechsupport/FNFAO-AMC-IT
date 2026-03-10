@@ -8,6 +8,7 @@ for active and inactive clients.
 
 import { useEffect } from "react";
 import useAdvocateData from "../report/use-advocate-data";
+import { decodeHtml } from "../../src/app/utils/decode-html";
 
 // Format createdAt YYYY-MM-DD 00.00pm
 function formatDateTime(dateString) {
@@ -116,7 +117,7 @@ export default function DetailedClientsTable({
                 <td className="px-6 py-3 border-t">{client.firstName} {client.lastName}</td>
                         <td className="px-6 py-3 border-t">{calculateAge(client.dateOfBirth)}</td>
                         <td className="px-6 py-3 border-t">{client.cfsAgency}</td>
-                        <td className="px-6 py-3 border-t">{client.firstNationMembership}</td>
+                        <td className="px-6 py-3 border-t">{decodeHtml(client.firstNationMembership)}</td>
                         <td className="px-6 py-3 border-t">{client.childCount}</td>
                         <td className="px-6 py-3 border-t">{client.clientStatus}</td>
                         <td className="px-6 py-3 border-t text-center">

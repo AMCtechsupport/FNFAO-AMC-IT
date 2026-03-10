@@ -4,7 +4,7 @@ export async function handleNotesUpdate(notes, client_id, setNotesData, supabase
   const cleanedUserId = (userId || "").trim();
 
   try {
-    // 1) Get existing notes for client
+    // 1) Get existing note IDs for this client (used only for deletion tracking)
     const { data: existingNotes, error: fetchError } = await supabase
       .from("Notes")
       .select("note_id")
@@ -18,7 +18,6 @@ export async function handleNotesUpdate(notes, client_id, setNotesData, supabase
     const existingIds = (existingNotes || []).map((n) => n.note_id);
 
     const newNotes = [];
-    const updatedNotes = [];
     const receivedIds = [];
 
     const isRealFile = (val) => typeof File !== "undefined" && val instanceof File;
@@ -110,12 +109,13 @@ export async function handleNotesUpdate(notes, client_id, setNotesData, supabase
       return sanitize(payload);
     };
 
-    // 2) Split incoming notes into NEW vs UPDATE
+    // 2) Split incoming notes: track existing IDs (for deletion), queue new notes for insert
     for (const note of Array.isArray(notes) ? notes : []) {
       if (note?.note_id) {
+        // Existing note — track so it is not deleted; never update via form save
         receivedIds.push(note.note_id);
-        updatedNotes.push(note);
       } else {
+        // New note — queue for insert
         let file_id = note?.file_id ?? null;
 
         if (isRealFile(note?.file)) {
@@ -124,13 +124,10 @@ export async function handleNotesUpdate(notes, client_id, setNotesData, supabase
 
         const insertPayload = buildPayload(note, { file_id });
 
-        // Enforce required fields so UI + DB both work
         if (!insertPayload.type) {
-          // If user didn’t select "Type", set a safe default that your UI already uses
           insertPayload.type = "initialMeeting";
         }
 
-        // If noteType missing, default to Case so it appears in Case Notes tab
         if (!insertPayload.noteType) {
           insertPayload.noteType = "Case";
         }
@@ -151,34 +148,7 @@ export async function handleNotesUpdate(notes, client_id, setNotesData, supabase
       }
     }
 
-    // 5) UPDATE existing
-    for (const note of updatedNotes) {
-      const note_id = note.note_id;
-      if (!note_id) continue;
-
-      let file_id = note?.file_id ?? null;
-
-      if (isRealFile(note?.file)) {
-        file_id = await uploadAndCreateFileRow(note.file);
-      }
-
-      const updatePayload = buildPayload(note, { file_id });
-
-      if (!updatePayload.type) updatePayload.type = "initialMeeting";
-      if (!updatePayload.noteType) updatePayload.noteType = "Case";
-
-      const { error: updateError } = await supabase
-        .from("Notes")
-        .update(updatePayload)
-        .eq("note_id", note_id);
-
-      if (updateError) {
-        console.error(`Notes UPDATE failed for ${note_id}:`, updateError.message, updateError);
-        return false;
-      }
-    }
-
-    // 6) DELETE removed
+    // 5) DELETE removed
     if (deletedIds.length > 0) {
       const { error: deleteError } = await supabase.from("Notes").delete().in("note_id", deletedIds);
       if (deleteError) {
@@ -187,7 +157,7 @@ export async function handleNotesUpdate(notes, client_id, setNotesData, supabase
       }
     }
 
-    // 7) REFRESH NOTES so UI shows newly created rows immediately
+    // 6) REFRESH NOTES so UI shows newly created rows immediately
     const { data: refreshed, error: refreshError } = await supabase
       .from("Notes")
       .select("*")

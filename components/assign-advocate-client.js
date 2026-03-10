@@ -1,7 +1,7 @@
 "use client";
 
 import { updateClientStatus } from "./client-active";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function AssignAdvocate({
   clients: initialClients = [],
@@ -18,6 +18,20 @@ export default function AssignAdvocate({
   const [message, setMessage] = useState("");
   const [showPopup, setShowPopup] = useState(false);
   const [isAssigned, setIsAssigned] = useState(false);
+
+  const containerRef = useRef(null);
+
+  // Deselect client and advocate when clicking outside this block
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setSelectedClient(null);
+        setSelectedAdvocate("");
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const initialClientsList = [...(initialClients || [])].sort(
@@ -236,175 +250,181 @@ export default function AssignAdvocate({
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg border ">
-      <h2 className="text-2xl font-bold mb-4 text-gray-800">
+    <div ref={containerRef} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden min-h-[580px]">
+
+      {/* Header */}
+      <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
         Assign Client to Advocate
-      </h2>
+      </div>
 
-      <form onSubmit={handleAssignAdvocate} className="space-y-6">
-        {/* Client Search */}
-        <div className="flex flex-col border-black pb-4">
-          <label className="mb-2 text-lg font-semibold text-gray-700">
-            Search for Client
-          </label>
-          <input
-            type="text"
-            placeholder="Search by Name"
-            value={searchClient}
-            onChange={handleSearchClientChange}
-            className="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+      <div className="p-6">
+        <form onSubmit={handleAssignAdvocate} className="space-y-5">
 
-        {/* Display search results for clients */}
-        {filteredClients.length > 0 && (
-          <div className="mt-4 border-2  rounded-lg p-4 max-h-96 bg-gray-200 overflow-y-auto">
-            <ul>
+          {/* Client Search */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+              Search for Client
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+                </svg>
+              </div>
+              <input
+                type="text"
+                placeholder="Search by name..."
+                value={searchClient}
+                onChange={handleSearchClientChange}
+                className="w-full pl-9 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none transition"
+              />
+            </div>
+          </div>
+
+          {/* Client results */}
+          {filteredClients.length > 0 && (
+            <div className="border border-gray-200 rounded-lg max-h-72 overflow-y-auto divide-y divide-gray-100">
               {filteredClients.map((client) => (
-                <li
+                <div
                   key={client.client_id}
-                  onClick={() => setSelectedClient(client)}
-                  className={`p-2 cursor-pointer hover:bg-gray-100 ${
-                    selectedClient?.client_id === client.client_id
-                      ? "bg-gray-100"
-                      : ""
-                  }`}
+                  onClick={() => setSelectedClient(selectedClient?.client_id === client.client_id ? null : client)}
+                  className="px-3 py-2.5 cursor-pointer transition-colors text-sm"
+                  style={{ backgroundColor: selectedClient?.client_id === client.client_id ? "#F0EEF6" : "" }}
+                  onMouseEnter={(e) => { if (selectedClient?.client_id !== client.client_id) e.currentTarget.style.backgroundColor = "#F8F7FC"; }}
+                  onMouseLeave={(e) => { if (selectedClient?.client_id !== client.client_id) e.currentTarget.style.backgroundColor = ""; }}
                 >
-                  <span className="font-semibold">
-                    {client.firstName} {client.middleName} {client.lastName}
-                  </span>
-                  <br />
-                  <span className="text-sm text-gray-600">
-                    {client.phoneNumber} {client.firstNationMembership} |{" "}
-                    {new Date(client.dateOfBirth).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </span>
-
-                  <span className="text-sm text-gray-600 block">
-                    Client Status: {client.clientStatus}
-                  </span>
-                </li>
+                  <p className="font-medium text-gray-800">{client.firstName} {client.middleName} {client.lastName}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Status: {client.clientStatus}</p>
+                </div>
               ))}
-            </ul>
+            </div>
+          )}
+          {searchClient.trim() && filteredClients.length === 0 && (
+            <div className="flex flex-col items-center py-6 text-gray-400">
+              <svg className="w-10 h-10 mb-3 text-gray-300" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+              </svg>
+              <p className="text-sm font-medium">No clients found.</p>
+              <p className="text-xs mt-1">Try adjusting your search</p>
+            </div>
+          )}
+
+          {/* Selected client */}
+          {selectedClient && (
+            <div className="p-3 rounded-lg border text-sm" style={{ backgroundColor: "#F0EEF6", borderColor: "#B2B3D7" }}>
+              <p className="font-semibold" style={{ color: "#47315E" }}>
+                Selected: {selectedClient.firstName} {selectedClient.lastName}
+              </p>
+            </div>
+          )}
+
+          {/* Advocate Search */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+              Search for Advocate
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+                </svg>
+              </div>
+              <input
+                type="text"
+                placeholder="Search by advocate name..."
+                value={searchAdvocate}
+                onChange={handleSearchAdvocateChange}
+                className="w-full pl-9 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none transition"
+              />
+            </div>
           </div>
-        )}
 
-        {/* If a client is selected, show their info */}
-        {selectedClient && (
-          <div className="mt-4 p-4 border border-black rounded-lg bg-gray-200">
-            <p className="font-semibold text-blue-700">
-              Selected Client: {selectedClient.firstName}{" "}
-              {selectedClient.lastName}
-            </p>
-            <p className="text-sm text-gray-600">
-              Client ID: {selectedClient.client_id}
-            </p>
-          </div>
-        )}
-
-        {/* Advocate Search */}
-        <div className="flex flex-col border-black pt-4 pb-4 p-4">
-          <label className="mb-2 text-lg font-semibold text-gray-700">
-            Search for Advocate
-          </label>
-          <input
-            type="text"
-            placeholder="Search by Advocate Name"
-            value={searchAdvocate}
-            onChange={handleSearchAdvocateChange}
-            className="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <p className="text-sm text-gray-600 mt-2">
-            {advocates.length === 0 ? (
-              <span className="text-orange-600">
-                No advocates found. Check database connection.
-              </span>
-            ) : null}
-          </p>
-        </div>
-
-        {/* Display search results for advocates */}
-        {advocates.length > 0 && (
-          <div className="mt-4 border-2 rounded-lg p-4 max-h-96 overflow-y-auto bg-gray-200">
-            <ul>
+          {/* Advocate results */}
+          {advocates.length > 0 && (
+            <div className="border border-gray-200 rounded-lg max-h-72 overflow-y-auto divide-y divide-gray-100">
               {advocates.map((advocate) => (
-                <li
+                <div
                   key={advocate.advocate_id}
-                  onClick={() => setSelectedAdvocate(advocate.advocate_id)}
-                  className={`p-3 cursor-pointer hover:bg-gray-100 p-2 ${
-                    selectedAdvocate === advocate.advocate_id
-                      ? "bg-gray-100"
-                      : ""
-                  }`}
+                  onClick={() => setSelectedAdvocate(selectedAdvocate === advocate.advocate_id ? "" : advocate.advocate_id)}
+                  className="px-3 py-2.5 cursor-pointer transition-colors text-sm"
+                  style={{ backgroundColor: selectedAdvocate === advocate.advocate_id ? "#F0EEF6" : "" }}
+                  onMouseEnter={(e) => { if (selectedAdvocate !== advocate.advocate_id) e.currentTarget.style.backgroundColor = "#F8F7FC"; }}
+                  onMouseLeave={(e) => { if (selectedAdvocate !== advocate.advocate_id) e.currentTarget.style.backgroundColor = ""; }}
                 >
-                  <span className="font-semibold">
-                    {advocate.firstName} {advocate.lastName}
-                  </span>
-                  <br />
-                  <span className="text-sm text-gray-600">
-                    Email: {advocate.email}
-                  </span>
-                </li>
+                  <p className="font-medium text-gray-800">{advocate.firstName} {advocate.lastName}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{advocate.email}</p>
+                </div>
               ))}
-            </ul>
-          </div>
-        )}
+            </div>
+          )}
+          {searchAdvocate.trim() && advocates.length === 0 && (
+            <div className="flex flex-col items-center py-6 text-gray-400">
+              <svg className="w-10 h-10 mb-3 text-gray-300" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+              </svg>
+              <p className="text-sm font-medium">No advocates found.</p>
+              <p className="text-xs mt-1">Try adjusting your search</p>
+            </div>
+          )}
 
-        {/* If an advocate is selected, show their info */}
-        {selectedAdvocate && (
-          <div className="mt-4 p-4 border border-black rounded-lg bg-blue-50 bg-gray-200">
-            <p className="font-semibold text-blue-700">
-              Selected Advocate:{" "}
-              {
-                advocates.find(
-                  (advocate) => advocate.advocate_id === selectedAdvocate,
-                )?.firstName
-              }{" "}
-              {
-                advocates.find(
-                  (advocate) => advocate.advocate_id === selectedAdvocate,
-                )?.lastName
-              }
-            </p>
-          </div>
-        )}
+          {/* Selected advocate */}
+          {selectedAdvocate && (
+            <div className="p-3 rounded-lg border text-sm" style={{ backgroundColor: "#F0EEF6", borderColor: "#B2B3D7" }}>
+              <p className="font-semibold" style={{ color: "#47315E" }}>
+                Selected: {advocates.find(a => a.advocate_id === selectedAdvocate)?.firstName} {advocates.find(a => a.advocate_id === selectedAdvocate)?.lastName}
+              </p>
+            </div>
+          )}
 
-        {/* Submit Button */}
-        <button
-          type="submit"
-          className="w-full py-3 bg-blue-600 text-black rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 p-2"
-          disabled={isAssigned}
-        >
-          Assign Advocate
-        </button>
-
-        {/* Clear Button */}
-        <button
-          type="button"
-          onClick={handleClearForm}
-          className="w-full mt-4 py-3 bg-gray-400 text-black rounded-md hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 p-2"
-        >
-          Clear Search
-        </button>
-      </form>
-
-      {/* Modal Popup */}
-      {showPopup && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-            <p>{message}</p>
+          {/* Buttons */}
+          <div className="space-y-2 pt-1">
             <button
-              className="mt-4 bg-blue-500 text-white p-2 rounded-md"
-              onClick={() => setShowPopup(false)}
+              type="submit"
+              disabled={isAssigned}
+              className="w-full py-2.5 text-sm font-medium rounded-lg transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#47315E" }}
+              onMouseEnter={(e) => { if (!isAssigned) e.currentTarget.style.backgroundColor = "#9899C0"; }}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#B2B3D7"}
             >
-              Close
+              Assign Advocate
             </button>
+            <button
+              type="button"
+              onClick={handleClearForm}
+              className="w-full py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-lg transition-colors"
+            >
+              Clear Search
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+      {/* Modal */}
+      {showPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full overflow-hidden">
+            <div className="px-6 py-4" style={{ backgroundColor: "#47315E" }}>
+              <h3 className="text-base font-semibold text-white">Assignment Status</h3>
+            </div>
+            <div className="px-6 py-4">
+              <p className="text-sm text-gray-700">{message}</p>
+            </div>
+            <div className="bg-gray-50 px-6 py-4 flex justify-end border-t border-gray-200">
+              <button
+                className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors"
+                style={{ backgroundColor: "#47315E" }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
+                onClick={() => setShowPopup(false)}
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
+
     </div>
   );
 }

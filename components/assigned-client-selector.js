@@ -1,12 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import AssignedClientsToAdvocate from "./assigned-clients";
 
 export default function AssignClientSelector({ advocates }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredAdvocates, setFilteredAdvocates] = useState(advocates);
   const [selectedAdvocate, setSelectedAdvocate] = useState(null);
+
+  const containerRef = useRef(null);
+
+  // Deselect advocate when clicking outside this block
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setSelectedAdvocate(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Filter advocates based on the search term
   useEffect(() => {
@@ -19,49 +32,70 @@ export default function AssignClientSelector({ advocates }) {
   }, [searchTerm, advocates]);
 
   return (
-    <div>
-      <div className="mt-6">
-        <label className="block text-lg font-semibold p-2 text-gray-700">
-          Search for Advocate:
-        </label>
-        <input
-          type="text"
-          placeholder="Search by name..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-        />
+    <div ref={containerRef} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden min-h-[580px]">
+
+      {/* Header */}
+      <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+        View Advocate's Clients
       </div>
 
-      {/* Display filtered advocates */}
-      {filteredAdvocates.length > 0 && (
-        <div className="mt-4 border-2 rounded-lg p-4 max-h-96 bg-gray-200 overflow-y-auto">
-          <ul>
-            {filteredAdvocates.map((advocate) => (
-              <li
-                key={advocate.advocate_id}
-                onClick={() => setSelectedAdvocate(advocate.advocate_id)}
-                className={`p-2 cursor-pointer hover:bg-gray-100 ${
-                  selectedAdvocate === advocate.advocate_id ? "bg-gray-100" : ""
-                }`}
-              >
-                <span className="font-semibold">
-                  {advocate.firstName} {advocate.lastName}
-                </span>
-                <br />
-                <span className="text-sm text-gray-600">
-                  Email: {advocate.email}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <div className="p-6 space-y-5">
 
-      {/* If an advocate is selected, show their assigned clients */}
-      {selectedAdvocate && (
-        <AssignedClientsToAdvocate advocateId={selectedAdvocate} />
-      )}
+        {/* Search */}
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+            Search for Advocate
+          </label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              placeholder="Search by name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none transition"
+            />
+          </div>
+        </div>
+
+        {/* Advocate results */}
+        {filteredAdvocates.length > 0 && (
+          <div className="border border-gray-200 rounded-lg max-h-72 overflow-y-auto divide-y divide-gray-100">
+            {filteredAdvocates.map((advocate) => (
+              <div
+                key={advocate.advocate_id}
+                onClick={() => setSelectedAdvocate(selectedAdvocate === advocate.advocate_id ? null : advocate.advocate_id)}
+                className="px-3 py-2.5 cursor-pointer transition-colors text-sm"
+                style={{ backgroundColor: selectedAdvocate === advocate.advocate_id ? "#F0EEF6" : "" }}
+                onMouseEnter={(e) => { if (selectedAdvocate !== advocate.advocate_id) e.currentTarget.style.backgroundColor = "#F8F7FC"; }}
+                onMouseLeave={(e) => { if (selectedAdvocate !== advocate.advocate_id) e.currentTarget.style.backgroundColor = ""; }}
+              >
+                <p className="font-medium text-gray-800">{advocate.firstName} {advocate.lastName}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{advocate.email}</p>
+              </div>
+            ))}
+          </div>
+        )}
+        {searchTerm.trim() && filteredAdvocates.length === 0 && (
+          <div className="flex flex-col items-center py-6 text-gray-400">
+            <svg className="w-10 h-10 mb-3 text-gray-300" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
+            <p className="text-sm font-medium">No advocates found.</p>
+            <p className="text-xs mt-1">Try adjusting your search</p>
+          </div>
+        )}
+
+        {/* Assigned clients for selected advocate */}
+        {selectedAdvocate && (
+          <AssignedClientsToAdvocate advocateId={selectedAdvocate} />
+        )}
+
+      </div>
     </div>
   );
 }

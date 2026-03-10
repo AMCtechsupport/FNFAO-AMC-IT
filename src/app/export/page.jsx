@@ -149,7 +149,6 @@ export default function ExportPage() {
     setShowConfirmModal(false);
     setConfirmAction(null);
     setConfirmMessage("");
-    setExportStatus("Export cancelled by user.");
   };
 
   const tables = [
@@ -171,212 +170,167 @@ export default function ExportPage() {
 
   return (
     <UserHome>
-      <div className="p-6 max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-gray-800">Data Export</h1>
+      <main className="min-h-screen bg-gray-100 p-6">
 
-        {/* Format Selection */}
-        <div className="mb-8 bg-white p-6 rounded-lg shadow-md border border-gray-200">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">
-            Export Format
-          </h2>
-          <div className="flex flex-wrap gap-4">
-            <label className="flex items-center">
-              <input
-                type="radio"
-                name="format"
-                value="json"
-                checked={selectedFormat === "json"}
-                onChange={(e) => setSelectedFormat(e.target.value)}
-                className="mr-2"
-              />
-              <span className="text-gray-700">JSON (Structured data)</span>
-            </label>
-            <label className="flex items-center">
-              <input
-                type="radio"
-                name="format"
-                value="csv"
-                checked={selectedFormat === "csv"}
-                onChange={(e) => setSelectedFormat(e.target.value)}
-                className="mr-2"
-              />
-              <span className="text-gray-700">CSV (Spreadsheet format)</span>
-            </label>
-            <label className="flex items-center">
-              <input
-                type="radio"
-                name="format"
-                value="pdf"
-                checked={selectedFormat === "pdf"}
-                onChange={(e) => setSelectedFormat(e.target.value)}
-                className="mr-2"
-              />
-              <span className="text-gray-700">PDF (Text report format)</span>
-            </label>
+        {/* Page Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Data Export</h1>
+            <p className="text-sm text-gray-500 mt-1">Export database records in JSON, CSV, or PDF format</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Format Selection */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+          <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+            Export Format
+          </div>
+          <div className="p-6">
+            <div className="flex flex-wrap gap-6">
+              <label className="flex items-center cursor-pointer">
+                <input type="radio" name="format" value="json" checked={selectedFormat === "json"} onChange={(e) => setSelectedFormat(e.target.value)} className="mr-2 w-4 h-4" style={{ accentColor: "#47315E" }} />
+                <span className="text-sm text-gray-700">JSON <span className="text-gray-400">(Structured data)</span></span>
+              </label>
+              <label className="flex items-center cursor-pointer">
+                <input type="radio" name="format" value="csv" checked={selectedFormat === "csv"} onChange={(e) => setSelectedFormat(e.target.value)} className="mr-2 w-4 h-4" style={{ accentColor: "#47315E" }} />
+                <span className="text-sm text-gray-700">CSV <span className="text-gray-400">(Spreadsheet format)</span></span>
+              </label>
+              <label className="flex items-center cursor-pointer">
+                <input type="radio" name="format" value="pdf" checked={selectedFormat === "pdf"} onChange={(e) => setSelectedFormat(e.target.value)} className="mr-2 w-4 h-4" style={{ accentColor: "#47315E" }} />
+                <span className="text-sm text-gray-700">PDF <span className="text-gray-400">(Text report format)</span></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Export Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           {/* Export All Data */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-            <h2 className="text-xl font-semibold mb-4 text-gray-700">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
               Export All Data
-            </h2>
-            <p className="text-gray-600 mb-4">
-              Export all tables from the database as a single{" "}
-              {selectedFormat.toUpperCase()} file.
-            </p>
-            <button
-              onClick={handleExportAll}
-              disabled={isExporting}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-3 px-4 rounded-md transition-colors"
-            >
-              {isExporting
-                ? "Exporting..."
-                : `Export All Data (${selectedFormat.toUpperCase()})`}
-            </button>
+            </div>
+            <div className="p-6">
+              <p className="text-gray-500 text-sm mb-4">
+                Export all tables from the database as a single {selectedFormat.toUpperCase()} file.
+              </p>
+              <button
+                onClick={handleExportAll}
+                disabled={isExporting}
+                className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: "#47315E" }}
+                onMouseEnter={(e) => { if (!isExporting) e.currentTarget.style.backgroundColor = "#3a2649"; }}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
+              >
+                {isExporting ? "Exporting..." : `Export All Data (${selectedFormat.toUpperCase()})`}
+              </button>
+            </div>
           </div>
 
           {/* Export Youth Intake Data */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-            <h2 className="text-xl font-semibold mb-4 text-gray-700">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
               Export Youth Intake Data
-            </h2>
-            <p className="text-gray-600 mb-4">
-              Export only Youth Intake clients and their related data as{" "}
-              {selectedFormat.toUpperCase()}.
-            </p>
-            <button
-              onClick={handleExportYouthIntake}
-              disabled={isExporting}
-              className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium py-3 px-4 rounded-md transition-colors"
-            >
-              {isExporting
-                ? "Exporting..."
-                : `Export Youth Intake Data (${selectedFormat.toUpperCase()})`}
-            </button>
+            </div>
+            <div className="p-6">
+              <p className="text-gray-500 text-sm mb-4">
+                Export only Youth Intake clients and their related data as {selectedFormat.toUpperCase()}.
+              </p>
+              <button
+                onClick={handleExportYouthIntake}
+                disabled={isExporting}
+                className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: "#47315E" }}
+                onMouseEnter={(e) => { if (!isExporting) e.currentTarget.style.backgroundColor = "#3a2649"; }}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
+              >
+                {isExporting ? "Exporting..." : `Export Youth Intake (${selectedFormat.toUpperCase()})`}
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Individual Table Exports */}
-        <div className="mt-8">
-          <h2 className="text-2xl font-semibold mb-6 text-gray-800">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+          <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
             Export Individual Tables
-          </h2>
-          <p className="text-gray-600 mb-4">
-            Export specific tables as {selectedFormat.toUpperCase()} files.
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {tables.map((tableName) => (
-              <button
-                key={tableName}
-                onClick={() => handleExportTable(tableName)}
-                disabled={isExporting}
-                className="bg-gray-100 hover:bg-gray-200 disabled:bg-gray-300 text-gray-700 font-medium py-3 px-4 rounded-md transition-colors text-sm"
-              >
-                {isExporting
-                  ? "..."
-                  : `${tableName} (${selectedFormat.toUpperCase()})`}
-              </button>
-            ))}
+          </div>
+          <div className="p-6">
+            <p className="text-gray-500 text-sm mb-4">Export specific tables as {selectedFormat.toUpperCase()} files.</p>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {tables.map((tableName) => (
+                <button
+                  key={tableName}
+                  onClick={() => handleExportTable(tableName)}
+                  disabled={isExporting}
+                  className="inline-flex items-center justify-center text-xs font-medium px-3 py-2 rounded-lg transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#47315E" }}
+                  onMouseEnter={(e) => { if (!isExporting) e.currentTarget.style.backgroundColor = "#9899C0"; }}
+                  onMouseLeave={(e) => { if (!isExporting) e.currentTarget.style.backgroundColor = "#B2B3D7"; }}
+                >
+                  {isExporting ? "..." : `${tableName} (${selectedFormat.toUpperCase()})`}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Status Display */}
         {exportStatus && (
-          <div className="mt-6 p-4 rounded-md bg-gray-50 border border-gray-200">
-            <p className="text-sm font-medium text-gray-700">{exportStatus}</p>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6 border-l-4" style={{ borderLeftColor: "#47315E" }}>
+            <div className="p-4">
+              <p className="text-gray-700 text-sm font-medium">{exportStatus}</p>
+            </div>
           </div>
         )}
 
         {/* Instructions */}
-        <div className="mt-8 bg-blue-50 p-6 rounded-lg border border-blue-200">
-          <h3 className="text-lg font-semibold mb-3 text-blue-800">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
             Export Instructions
-          </h3>
-          <ul className="text-sm text-blue-700 space-y-2">
-            <li>
-              • <strong>JSON Format:</strong> Structured data format, best for
-              data analysis and processing
-            </li>
-            <li>
-              • <strong>CSV Format:</strong> Spreadsheet-compatible format, opens
-              in Excel, Google Sheets, etc.
-            </li>
-            <li>
-              • <strong>PDF Format:</strong> Text-based report format, good for
-              printing and sharing
-            </li>
-            <li>
-              • <strong>Export All Data:</strong> Downloads a comprehensive file
-              with all database tables
-            </li>
-            <li>
-              • <strong>Export Youth Intake Data:</strong> Downloads only Youth
-              Intake clients and related records
-            </li>
-            <li>
-              • <strong>Individual Tables:</strong> Export specific tables as
-              separate files
-            </li>
-            <li>
-              • Files are automatically downloaded to your default downloads
-              folder
-            </li>
-            <li>
-              • Check the browser console for detailed export progress and any
-              errors
-            </li>
-            <li>
-              • <strong>Confirmation:</strong> You will be asked to confirm
-              before each export
-            </li>
-          </ul>
+          </div>
+          <div className="p-6">
+            <ul className="text-gray-600 space-y-2 text-sm">
+              <li>• <strong>JSON Format:</strong> Structured data format, best for data analysis and processing</li>
+              <li>• <strong>CSV Format:</strong> Spreadsheet-compatible format, opens in Excel, Google Sheets, etc.</li>
+              <li>• <strong>PDF Format:</strong> Text-based report format, good for printing and sharing</li>
+              <li>• <strong>Export All Data:</strong> Downloads a comprehensive file with all database tables</li>
+              <li>• <strong>Export Youth Intake Data:</strong> Downloads only Youth Intake clients and related records</li>
+              <li>• <strong>Individual Tables:</strong> Export specific tables as separate files</li>
+              <li>• Files are automatically downloaded to your default downloads folder</li>
+              <li>• <strong>Confirmation:</strong> You will be asked to confirm before each export</li>
+            </ul>
+          </div>
         </div>
 
-        {/* Custom Confirmation Modal */}
+        {/* Confirmation Modal */}
         {showConfirmModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 p-6">
-              <div className="flex items-center mb-4">
-                <div className="flex-shrink-0">
-                  <svg
-                    className="h-8 w-8 text-yellow-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                    />
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden">
+              <div className="px-6 py-4" style={{ backgroundColor: "#47315E" }}>
+                <div className="flex items-center">
+                  <svg className="h-5 w-5 text-white flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                   </svg>
-                </div>
-                <div className="ml-3">
-                  <h3 className="text-lg font-medium text-gray-900">
-                    Confirm Export
-                  </h3>
+                  <h3 className="ml-3 text-base font-semibold text-white">Confirm Export</h3>
                 </div>
               </div>
-
-              <div className="mt-4">
-                <p className="text-sm text-gray-700 whitespace-pre-line">
-                  {confirmMessage}
-                </p>
+              <div className="px-6 py-4">
+                <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">{confirmMessage}</p>
               </div>
-
-              <div className="mt-6 flex justify-end space-x-3">
+              <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t border-gray-200">
                 <button
                   onClick={handleCancel}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleConfirm}
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors"
+                  style={{ backgroundColor: "#47315E" }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
                 >
                   Confirm Export
                 </button>
@@ -384,7 +338,8 @@ export default function ExportPage() {
             </div>
           </div>
         )}
-      </div>
+
+      </main>
     </UserHome>
   );
 }

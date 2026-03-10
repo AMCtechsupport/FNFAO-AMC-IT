@@ -111,6 +111,7 @@ export default function FirstNationsReportPage() {
 
     setValidationError("");
   };
+
   const handleClosePreview = () => {
     setShowPreview(false);
     setReportData([]);
@@ -118,13 +119,13 @@ export default function FirstNationsReportPage() {
 
   const handleDownloadAll = async (format: "pdf" | "csv" | "json") => {
     setDownloadFormat(format);
-    
+
     // Fetching data for CSV and JSON downloads
     if (format === "csv" || format === "json") {
       const { data } = await supabase.from("Clients").select("*");
       setReportData(data || []);
     }
-    
+
     setShowPreview(true);
   };
 
@@ -166,7 +167,10 @@ export default function FirstNationsReportPage() {
         <button
           type="button"
           onClick={generateAndDownloadPDF}
-          className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-md transition-colors mt-4"
+          className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors mt-4"
+          style={{ backgroundColor: "#47315E" }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
         >
           Download PDF
         </button>
@@ -177,7 +181,10 @@ export default function FirstNationsReportPage() {
       <button
         type="button"
         onClick={handleFinalDownload}
-        className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-md transition-colors mt-4"
+        className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors mt-4"
+        style={{ backgroundColor: "#47315E" }}
+        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
+        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
       >
         Download {downloadFormat.toUpperCase()}
       </button>
@@ -187,13 +194,25 @@ export default function FirstNationsReportPage() {
   return (
     <UserHome>
       <main className="min-h-screen bg-gray-100 p-6">
-        <section className="max-w-5xl mx-auto">
-          <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
-            Client&apos;s Report
-          </h1>
 
-          <div className="space-y-6 bg-white shadow-md rounded-2xl p-6">
-            <div className="flex flex-col md:flex-row gap-4 max-w-4xl mx-auto">
+        {/* Page Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Client&apos;s Report</h1>
+            <p className="text-sm text-gray-500 mt-1">Filter by community, agency, age group, or date to generate a report</p>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+
+          {/* Header */}
+          <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider rounded-t-xl" style={{ backgroundColor: "#47315E" }}>
+            Report Filters
+          </div>
+
+          <div className="p-6 space-y-5">
+
+            <div className="flex flex-col md:flex-row gap-4">
               <FirstNationFilters
                 type="Community"
                 array={DataColumn("First Nations", "firstNationMembership")}
@@ -217,85 +236,70 @@ export default function FirstNationsReportPage() {
               />
             </div>
 
-            <div className="max-w-4xl mx-auto">
-                <h3 className="text-lg font-semibold text-gray-700 mb-3">
-                  Filter by:
-                </h3>
+            {/* Filter Section */}
+            <div>
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">Filter by:</h3>
+
+              <div className="flex items-center gap-8">
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    onChange={(e) =>
+                      e.target.checked ? setFilterMode("quarter") : setFilterMode("dateRange")
+                    }
+                    checked={filterMode === "quarter"}
+                    id="quarterCheck"
+                  />
+                  <label className="form-check-label px-2 text-sm font-medium text-gray-700" htmlFor="quarterCheck">
+                    Quarter
+                  </label>
                 </div>
 
-            <div className="max-w-4xl mx-auto flex items-left gap-8 mt-2 justify-start">
-
-              <div className="form-check form-check-inline">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  onChange={(e) =>
-                    e.target.checked ? setFilterMode("quarter") : setFilterMode("dateRange")
-                  }
-                  checked={filterMode === "quarter"}
-                  id="quarterCheck"
-                />
-                <label
-                  className="form-check-label px-2 font-medium text-center"
-                  htmlFor="quarterCheck"
-                >
-                  Quarter
-                </label>
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    onChange={(e) =>
+                      e.target.checked ? setFilterMode("dateRange") : setFilterMode("quarter")
+                    }
+                    checked={filterMode === "dateRange"}
+                    id="dateRangeCheck"
+                  />
+                  <label className="form-check-label px-2 text-sm font-medium text-gray-700" htmlFor="dateRangeCheck">
+                    Date Range
+                  </label>
+                </div>
               </div>
-
-              <div className="form-check form-check-inline">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  onChange={(e) =>
-                    e.target.checked ? setFilterMode("dateRange") : setFilterMode("quarter")
-                  }
-                  checked={filterMode === "dateRange"}
-                  id="dateRangeCheck"
-                />
-                <label
-                  className="form-check-label px-2 font-medium text-center"
-                  htmlFor="dateRangeCheck"
-                >
-                  Date Range
-                </label>
-              </div>
-
             </div>
 
             {filterMode === "quarter" && (
-              <div className="max-w-4xl mx-auto">
               <QuarterFilter value={quarter} onChange={handleQuarterChange} />
-              </div>
             )}
 
             {filterMode === "dateRange" && (
-              <div className="max-w-4xl mx-auto">
-                <DateFilterPage
-                  setStartDate={handleSetStartDate}
-                  setEndDate={handleSetEndDate}
-                />
-              </div>
+              <DateFilterPage
+                setStartDate={handleSetStartDate}
+                setEndDate={handleSetEndDate}
+              />
             )}
 
             {validationError && (
-              <div className="text-red-500 text-center">{validationError}</div>
+              <div className="text-red-500 text-sm">{validationError}</div>
             )}
 
-            <div className="flex flex-col gap-3 mt-6 w-full max-w-sm mx-auto">
-              <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                <h2 className="text-xl font-semibold mb-4 text-gray-700">
-                  Find
-                </h2>
-
-                <button
-                  type="button"
-                  onClick={handleFind}
-                  className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-md transition-colors"
-                >
-                  Find
-                </button>
-              </div>
+            {/* Action Buttons */}
+            <div className="flex flex-col gap-4 max-w-sm mx-auto">
+              <button
+                type="button"
+                onClick={handleFind}
+                className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors"
+                style={{ backgroundColor: "#47315E" }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
+              >
+                Find
+              </button>
 
               <DownloadDropdown
                 title="Download All"
@@ -303,8 +307,10 @@ export default function FirstNationsReportPage() {
                 defaultText={`Download All as ${downloadFormat.toUpperCase()}`}
               />
             </div>
+
           </div>
-        </section>
+        </div>
+
       </main>
 
       {showPreview && (

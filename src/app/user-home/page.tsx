@@ -16,48 +16,48 @@ export default function UserHome(props: { children: ReactNode }) {
   if (!isLoaded) return null;
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#cccccc" }}>
-      <div className="flex">
-        <aside className="w-64 bg-black p-4 border-r">
-          <nav className="space-y-4">
-            {userRole === "admin" && (
-              <UserHomeLink name="Admin" path="admin" />
-            )}
+    <div className="min-h-screen flex" style={{ backgroundColor: "#cccccc" }}>
 
-            {userRole === "advocate" && (
-              <UserHomeLink name="Dashboard" path="user-dashboard" />
-            )}
+      {/* Sidebar */}
+      <aside className="w-56 min-h-screen flex-shrink-0 bg-black px-2 py-3">
+        <nav className="flex flex-col gap-0.5">
 
-            {/* Profile is admin-only in your UI */}
-            {userRole !== "advocate" && (
-              <UserHomeLink name="Profile" path="profile" />
-            )}
+          {/* Role-based links */}
+          {userRole === "admin" && (
+            <UserHomeLink name="Admin" path="admin" />
+          )}
+          {userRole === "advocate" && (
+            <UserHomeLink name="Dashboard" path="user-dashboard" />
+          )}
+          {userRole !== "advocate" && (
+            <UserHomeLink name="Profile" path="profile" />
+          )}
 
-            <div className="mt-6">
-              <h3 className="text-gray-300 text-sm font-semibold uppercase tracking-wide px-3 pb-2 border-b border-gray-700">
-                New Client
-              </h3>
-              <div className="mt-3 space-y-2">
-                <UserHomeLink name="Pre-Intake" path="pre-intake" />
-                <UserHomeLink name="Youth-Intake" path="youth-intake" />
-              </div>
-            </div>
+          {/* New Client section */}
+          <p className="px-3 pt-4 pb-1 text-xs font-semibold uppercase tracking-wider text-gray-500">
+            New Client
+          </p>
+          <UserHomeLink name="Pre-Intake" path="pre-intake" />
+          <UserHomeLink name="Youth-Intake" path="youth-intake" />
 
-            <hr className="my-6 border-gray-700" />
+          {/* Management section */}
+          <p className="px-3 pt-4 pb-1 text-xs font-semibold uppercase tracking-wider text-gray-500">
+            Management
+          </p>
+          <UserHomeLink name="Client List" path="clients" />
+          <UserHomeLink name="User Logs" path="user-logs" />
+          <UserHomeLink name="Settings" path="settings" />
+          <UserHomeLink name="Export" path="export" />
+          {userRole === "admin" && (
+            <UserHomeLink name="Report" path="report" />
+          )}
 
-            <UserHomeLink name="Client List" path="clients" />
-            <UserHomeLink name="User Logs" path="user-logs" />
-            <UserHomeLink name="Settings" path="settings" />
-            <UserHomeLink name="Export" path="export" />
+        </nav>
+      </aside>
 
-            {userRole === "admin" && (
-              <UserHomeLink name="Report" path="report" />
-            )}
-          </nav>
-        </aside>
+      {/* Main content */}
+      <main className="flex-1 p-6">{props.children}</main>
 
-        <main className="flex-1 p-6">{props.children}</main>
-      </div>
     </div>
   );
 }
