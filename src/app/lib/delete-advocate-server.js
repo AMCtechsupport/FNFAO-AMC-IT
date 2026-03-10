@@ -66,6 +66,18 @@ export const deleteAdvocate = async (advocateId) => {
       }
     }
 
+    // Delete advocate's notes first to satisfy foreign key constraint
+    const { error: notesDeleteError } = await supabase
+      .from("Notes")
+      .delete()
+      .eq("advocate_id", advocateId);
+
+    if (notesDeleteError) {
+      throw new Error(
+        "Error deleting advocate's notes: " + notesDeleteError.message,
+      );
+    }
+
     // Delete from Supabase database
     const { error: deleteError } = await supabase
       .from("Advocates")
