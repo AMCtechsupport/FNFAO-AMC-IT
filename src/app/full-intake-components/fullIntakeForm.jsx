@@ -73,101 +73,72 @@ export default function FullIntakeForm({
     if (isViewOnly) setIsEditing(false);
   }, [isViewOnly]);
 
-  // View-only patch (same behavior as Youth Intake)
+  // View-only patch - block fields without styling changes
   useEffect(() => {
     if (!isViewOnly) return;
+
+    // Inject CSS to restore text cursor on readonly text inputs
+    const styleId = "view-only-style";
+    if (!document.getElementById(styleId)) {
+      const styleEl = document.createElement("style");
+      styleEl.id = styleId;
+      styleEl.textContent = `
+        form input:not([type="checkbox"]):not([type="radio"]):not([type="date"]):not([type="time"]):not([type="file"]) {
+          cursor: text !important;
+        }
+        form input[type="radio"] {
+          accent-color: #3b82f6 !important;
+        }
+      `;
+      document.head.appendChild(styleEl);
+    }
 
     const runPatch = () => {
       const form = document.querySelector("form");
       if (!form) return;
 
-      const forceWhiteBlockedLook = (el) => {
-        el.style.setProperty("background-color", "#ffffff", "important");
-        el.style.setProperty("opacity", "1", "important");
-        el.style.setProperty("color", "#111827", "important");
-        el.style.setProperty("-webkit-text-fill-color", "#111827", "important");
-        el.style.setProperty("cursor", "default", "important");
-      };
-
       const applyToElement = (el) => {
         const tag = el.tagName.toLowerCase();
 
-        // Skip buttons that are explicitly allowed in view-only mode
+        // Skip buttons that are explicitly allowed in view-only mode (tabs)
         if (tag === "button" && el.getAttribute("data-view-allow") !== null) return;
 
-        // remove placeholders if empty
-        if ((tag === "input" || tag === "textarea") && !el.value) {
-          el.setAttribute("placeholder", "");
-        }
-
-        // Preserve native checkbox appearance (blue when checked) — skip white look
+        // Handle checkboxes
         if (tag === "input" && (el.getAttribute("type") || "text").toLowerCase() === "checkbox") {
-          el.disabled = false;
+          el.removeAttribute("disabled");
           el.style.setProperty("pointer-events", "none", "important");
-          el.tabIndex = -1;
           return;
         }
 
-        // prevent caret focus
-        if (!el.dataset.viewonlyBound) {
-          const onFocus = () => el.blur();
-          el.addEventListener("focus", onFocus);
-          el.dataset.viewonlyBound = "true";
-        }
-
-        forceWhiteBlockedLook(el);
-
+        // Handle textareas
         if (tag === "textarea") {
+          el.removeAttribute("disabled");
           el.readOnly = true;
-          el.disabled = false;
-          el.tabIndex = -1;
           return;
         }
 
+        // Handle text inputs
         if (tag === "input") {
           const type = (el.getAttribute("type") || "text").toLowerCase();
 
           if (["radio", "file", "date", "time"].includes(type)) {
-            el.disabled = true;
-            el.readOnly = false;
-            el.tabIndex = -1;
-            forceWhiteBlockedLook(el);
-            return;
-          }
-
-          el.disabled = false;
-          el.readOnly = true;
-          el.tabIndex = -1;
-          forceWhiteBlockedLook(el);
-          return;
-        }
-
-        if (tag === "select") {
-          el.disabled = true;
-          el.tabIndex = -1;
-          forceWhiteBlockedLook(el);
-
-          const selectedOption = el.options?.[el.selectedIndex];
-          const selectedText = (selectedOption?.textContent || "").trim();
-          const selectedValue = (el.value || "").trim();
-
-          const isEmptySelect =
-            selectedValue === "" ||
-            selectedValue === "0" ||
-            /^select\b/i.test(selectedText);
-
-          if (isEmptySelect) {
-            el.style.setProperty("color", "transparent", "important");
-            el.style.setProperty("-webkit-text-fill-color", "transparent", "important");
-            el.style.setProperty("text-shadow", "0 0 0 transparent", "important");
+            el.removeAttribute("disabled");
+            el.style.setProperty("pointer-events", "none", "important");
           } else {
-            el.style.setProperty("color", "#111827", "important");
-            el.style.setProperty("-webkit-text-fill-color", "#111827", "important");
-            el.style.setProperty("text-shadow", "none", "important");
+            el.removeAttribute("disabled");
+            el.readOnly = true;
           }
           return;
         }
 
+        // Handle selects
+        if (tag === "select") {
+          el.removeAttribute("disabled");
+          el.style.setProperty("pointer-events", "none", "important");
+          return;
+        }
+
+        // Hide buttons
         if (tag === "button") {
           el.style.setProperty("display", "none", "important");
         }
@@ -175,6 +146,11 @@ export default function FullIntakeForm({
 
       const elements = form.querySelectorAll("input, textarea, select, button");
       elements.forEach(applyToElement);
+
+      // Block label clicks (prevents triggering radio/checkbox via their labels)
+      form.querySelectorAll("label").forEach((label) => {
+        label.style.setProperty("pointer-events", "none", "important");
+      });
     };
 
     runPatch();
@@ -192,6 +168,7 @@ export default function FullIntakeForm({
     return () => {
       timers.forEach(clearTimeout);
       document.removeEventListener("click", onClick);
+      document.getElementById("view-only-style")?.remove();
     };
   }, [isViewOnly]);
 

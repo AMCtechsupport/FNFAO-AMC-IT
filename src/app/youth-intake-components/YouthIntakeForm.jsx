@@ -69,6 +69,76 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
     fetchAssignedAdvocate();
   }, [editClientId]);
 
+  // View-only patch - block fields without styling changes
+  useEffect(() => {
+    if (!isViewOnly) return;
+
+    const runPatch = () => {
+      const form = document.querySelector("form");
+      if (!form) return;
+
+      const applyToElement = (el) => {
+        const tag = el.tagName.toLowerCase();
+
+        if (tag === "button" && el.getAttribute("data-view-allow") !== null) return;
+
+        if (tag === "input" && (el.getAttribute("type") || "text").toLowerCase() === "checkbox") {
+          el.style.setProperty("pointer-events", "none", "important");
+          return;
+        }
+
+        if (tag === "textarea") {
+          el.readOnly = true;
+          return;
+        }
+
+        if (tag === "input") {
+          const type = (el.getAttribute("type") || "text").toLowerCase();
+          if (["radio", "file", "date", "time"].includes(type)) {
+            el.style.setProperty("pointer-events", "none", "important");
+          } else {
+            el.readOnly = true;
+          }
+          return;
+        }
+
+        if (tag === "select") {
+          el.style.setProperty("pointer-events", "none", "important");
+          return;
+        }
+
+        if (tag === "button") {
+          el.style.setProperty("display", "none", "important");
+        }
+      };
+
+      const elements = form.querySelectorAll("input, textarea, select, button");
+      elements.forEach(applyToElement);
+
+      // Block label clicks (prevents triggering radio/checkbox via their labels)
+      form.querySelectorAll("label").forEach((label) => {
+        label.style.setProperty("pointer-events", "none", "important");
+      });
+    };
+
+    runPatch();
+    const timers = [
+      setTimeout(runPatch, 50),
+      setTimeout(runPatch, 150),
+      setTimeout(runPatch, 300),
+      setTimeout(runPatch, 600),
+      setTimeout(runPatch, 1000),
+    ];
+
+    const onClick = () => runPatch();
+    document.addEventListener("click", onClick);
+
+    return () => {
+      timers.forEach(clearTimeout);
+      document.removeEventListener("click", onClick);
+    };
+  }, [isViewOnly]);
+
 
 
   if (isLoading) {
