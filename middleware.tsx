@@ -6,7 +6,7 @@ import type { NextRequest } from "next/server";
  * RULES
  * - admin: can access ALL protected app routes
  * - advocate: can access only advocate/shared routes
- * - no role: redirect to /unauthorized
+ * - no role: redirect to /setup (auto-links their advocate account)
  *
  * NOTE: Uses role from sessionClaims.metadata.role (as per your token debug)
  */
@@ -59,9 +59,10 @@ export default clerkMiddleware(async (auth, req) => {
     | "advocate"
     | undefined;
 
-  // Signed in but no role
+  // Signed in but no role — redirect to /setup to auto-link their advocate account
   if (!role) {
-    return Response.redirect(new URL("/unauthorized", req.url));
+    if (req.nextUrl.pathname === "/setup") return;
+    return Response.redirect(new URL("/setup", req.url));
   }
 
   // ✅ ADMIN = ALLOW EVERYTHING

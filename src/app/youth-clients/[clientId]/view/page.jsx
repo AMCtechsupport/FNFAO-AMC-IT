@@ -15,11 +15,11 @@ export default function YouthClientView() {
   const [clientName, setClientName] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  const handleClose = () => {
-    if (window.history.length > 1) {
+    const handleClose = () => {
+    if (history.state && history.state.idx > 0) {
       router.back();
     } else {
-      router.push("/user-dashboard");
+      router.push("/clients");
     }
   };
 

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { createAdvocate } from "../src/app/lib/create-advocate-server";
 
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+
 const LinkAdvocate = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -20,6 +22,11 @@ const LinkAdvocate = () => {
       return;
     }
 
+    if (!EMAIL_REGEX.test(email.trim())) {
+      setError("Please enter a valid email address (e.g. name@example.com).");
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setSuccess(null);
@@ -31,49 +38,18 @@ const LinkAdvocate = () => {
         email: email.trim(),
       });
 
-      // if (result.success) {
-      //   let successMsg = `Advocate ${firstName} ${lastName} has been successfully created! with the email id ${email}.`;
-
-      //   setSuccess(successMsg);
-      //   // Clear form
-      //   clearForm();
-      // }
       if (result.success) {
-        let successMsg = `Advocate ${firstName} ${lastName} has been successfully created with the email id ${email}.`;
-
-        if (result.clerkUserId) {
-          successMsg += ` Clerk User ID: ${result.clerkUserId}`;
-        }
-
-        setSuccess(successMsg);
+        setSuccess(result.message);
+        setFirstName("");
+        setLastName("");
+        setEmail("");
       }
     } catch (error) {
       console.error("Error creating advocate:", error);
-
-      const errorMessage = error?.message?.toLowerCase() || "";
-
-      if (
-        errorMessage.includes("already") ||
-        errorMessage.includes("exists") ||
-        errorMessage.includes("taken")
-      ) {
-        setError(
-          "Error creating advocate: The user with this email already exists.",
-        );
-      } else {
-        setError("Error creating advocate: Please use valid information.");
-      }
+      setError(error?.message || "Error creating advocate. Please try again.");
     } finally {
       setLoading(false);
     }
-  };
-
-  const clearForm = () => {
-    setFirstName("");
-    setLastName("");
-    setEmail("");
-    setError(null);
-    // Don't clear success message - let user see it
   };
 
   return (
