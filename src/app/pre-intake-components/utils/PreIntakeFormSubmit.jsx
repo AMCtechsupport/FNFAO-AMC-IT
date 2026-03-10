@@ -127,6 +127,17 @@ const PreIntakeFormSubmit = () => {
                 }
 
                 // Reset form and show success message
+                await fetch("/api/user-logs", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        description: `Pre-intake created for client: ${values.firstName} ${values.lastName}`,
+                        logType: "INSERT",
+                        client_id: clientId,
+                        clerkUserId: user?.id || null,
+                    }),
+                });
+
                 setFormSent(true);
                 resetForm();
                 setTimeout(() => setFormSent(false), 5000);

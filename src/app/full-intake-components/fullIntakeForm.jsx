@@ -1,12 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import styles from "../full-intake/fullIntake.module.css";
 import { Formik, Form } from "formik";
-import { Button, Row, Col } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
-import { Tabs, TabList, Tab, TabPanel } from "react-tabs";
-import "react-tabs/style/react-tabs.css";
 
 // Form sections
 import HealthWellnessPartition from "./form-sections/HealthWellnessPartition";
@@ -22,6 +17,8 @@ import fetchFullIntakeValues from "./utils/fetchFullIntakeValues";
 import fullIntakeInputValidation from "./utils/fullIntakeInputValidation";
 import { fetchClientData } from "./utils/fetchClientData";
 import FullIntakeFormSubmit from "./utils/FullIntakeFormSubmit";
+
+const TABS = ["General", "Children", "Health & Wellness", "Child & Family Services", "Case Notes", "Legal Notes"];
 
 export default function FullIntakeForm({
   client_id,
@@ -44,6 +41,7 @@ export default function FullIntakeForm({
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(isEditMode && !isViewOnly);
   const [formSent, setFormSent] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
 
   const [selectedNote, setSelectedNote] = useState(null);
   const [showNewNoteForm, setShowNewNoteForm] = useState(false);
@@ -75,101 +73,72 @@ export default function FullIntakeForm({
     if (isViewOnly) setIsEditing(false);
   }, [isViewOnly]);
 
-  // View-only patch (same behavior as Youth Intake)
+  // View-only patch - block fields without styling changes
   useEffect(() => {
     if (!isViewOnly) return;
+
+    // Inject CSS to restore text cursor on readonly text inputs
+    const styleId = "view-only-style";
+    if (!document.getElementById(styleId)) {
+      const styleEl = document.createElement("style");
+      styleEl.id = styleId;
+      styleEl.textContent = `
+        form input:not([type="checkbox"]):not([type="radio"]):not([type="date"]):not([type="time"]):not([type="file"]) {
+          cursor: text !important;
+        }
+        form input[type="radio"] {
+          accent-color: #3b82f6 !important;
+        }
+      `;
+      document.head.appendChild(styleEl);
+    }
 
     const runPatch = () => {
       const form = document.querySelector("form");
       if (!form) return;
 
-      const forceWhiteBlockedLook = (el) => {
-        el.style.setProperty("background-color", "#ffffff", "important");
-        el.style.setProperty("opacity", "1", "important");
-        el.style.setProperty("color", "#111827", "important");
-        el.style.setProperty("-webkit-text-fill-color", "#111827", "important");
-        el.style.setProperty("cursor", "default", "important");
-      };
-
       const applyToElement = (el) => {
         const tag = el.tagName.toLowerCase();
 
-        // Skip buttons that are explicitly allowed in view-only mode
-        if (tag === "button" && el.dataset.viewAllow) return;
+        // Skip buttons that are explicitly allowed in view-only mode (tabs)
+        if (tag === "button" && el.getAttribute("data-view-allow") !== null) return;
 
-        // remove placeholders if empty
-        if ((tag === "input" || tag === "textarea") && !el.value) {
-          el.setAttribute("placeholder", "");
-        }
-
-        // Preserve native checkbox appearance (blue when checked) — skip white look
+        // Handle checkboxes
         if (tag === "input" && (el.getAttribute("type") || "text").toLowerCase() === "checkbox") {
-          el.disabled = false;
+          el.removeAttribute("disabled");
           el.style.setProperty("pointer-events", "none", "important");
-          el.tabIndex = -1;
           return;
         }
 
-        // prevent caret focus
-        if (!el.dataset.viewonlyBound) {
-          const onFocus = () => el.blur();
-          el.addEventListener("focus", onFocus);
-          el.dataset.viewonlyBound = "true";
-        }
-
-        forceWhiteBlockedLook(el);
-
+        // Handle textareas
         if (tag === "textarea") {
+          el.removeAttribute("disabled");
           el.readOnly = true;
-          el.disabled = false;
-          el.tabIndex = -1;
           return;
         }
 
+        // Handle text inputs
         if (tag === "input") {
           const type = (el.getAttribute("type") || "text").toLowerCase();
 
           if (["radio", "file", "date", "time"].includes(type)) {
-            el.disabled = true;
-            el.readOnly = false;
-            el.tabIndex = -1;
-            forceWhiteBlockedLook(el);
-            return;
-          }
-
-          el.disabled = false;
-          el.readOnly = true;
-          el.tabIndex = -1;
-          forceWhiteBlockedLook(el);
-          return;
-        }
-
-        if (tag === "select") {
-          el.disabled = true;
-          el.tabIndex = -1;
-          forceWhiteBlockedLook(el);
-
-          const selectedOption = el.options?.[el.selectedIndex];
-          const selectedText = (selectedOption?.textContent || "").trim();
-          const selectedValue = (el.value || "").trim();
-
-          const isEmptySelect =
-            selectedValue === "" ||
-            selectedValue === "0" ||
-            /^select\b/i.test(selectedText);
-
-          if (isEmptySelect) {
-            el.style.setProperty("color", "transparent", "important");
-            el.style.setProperty("-webkit-text-fill-color", "transparent", "important");
-            el.style.setProperty("text-shadow", "0 0 0 transparent", "important");
+            el.removeAttribute("disabled");
+            el.style.setProperty("pointer-events", "none", "important");
           } else {
-            el.style.setProperty("color", "#111827", "important");
-            el.style.setProperty("-webkit-text-fill-color", "#111827", "important");
-            el.style.setProperty("text-shadow", "none", "important");
+            el.removeAttribute("disabled");
+            el.readOnly = true;
           }
           return;
         }
 
+        // Handle selects
+        if (tag === "select") {
+          el.removeAttribute("disabled");
+          el.style.setProperty("pointer-events", "none", "important");
+          return;
+        }
+
+        // Hide buttons
         if (tag === "button") {
           el.style.setProperty("display", "none", "important");
         }
@@ -177,6 +146,11 @@ export default function FullIntakeForm({
 
       const elements = form.querySelectorAll("input, textarea, select, button");
       elements.forEach(applyToElement);
+
+      // Block label clicks (prevents triggering radio/checkbox via their labels)
+      form.querySelectorAll("label").forEach((label) => {
+        label.style.setProperty("pointer-events", "none", "important");
+      });
     };
 
     runPatch();
@@ -194,39 +168,9 @@ export default function FullIntakeForm({
     return () => {
       timers.forEach(clearTimeout);
       document.removeEventListener("click", onClick);
+      document.getElementById("view-only-style")?.remove();
     };
   }, [isViewOnly]);
-
-  const buttonRowStyle = {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-    maxWidth: "1000px",
-    margin: "20px auto 10px auto",
-  };
-
-  const saveBtnStyle = {
-    backgroundColor: "#7C3AED", // purple
-    color: "white",
-    padding: "8px 16px",
-    borderRadius: "8px",
-    border: "none",
-    fontWeight: "600",
-    cursor: "pointer",
-    textDecoration: "none",
-    display: "inline-block",
-  };
-
-  const cancelBtnStyle = {
-    backgroundColor: "#111827", // keep black
-    color: "white",
-    padding: "8px 16px",
-    borderRadius: "8px",
-    border: "none",
-    fontWeight: "600",
-    cursor: "pointer",
-  };
 
   const handleShowNoteDetails = (note) => setSelectedNote(note);
   const handleCloseNoteDetails = () => setSelectedNote(null);
@@ -249,6 +193,8 @@ export default function FullIntakeForm({
   };
 
   const handleSaveNoteEdit = async (note_id, updatedFields, file = null) => {
+    const originalNote = notesData.find((n) => n.note_id === note_id);
+
     const formData = new FormData();
     formData.append("note_id", note_id);
     formData.append("type", updatedFields.type || "");
@@ -261,9 +207,40 @@ export default function FullIntakeForm({
 
     const res = await fetch("/api/notes", { method: "PATCH", body: formData });
     if (!res.ok) {
-      console.error("[handleSaveNoteEdit] PATCH failed:", await res.text());
+      const errData = await res.json().catch(() => ({}));
+      if (res.status === 403) {
+        alert(errData.error || "This note can no longer be edited (24-hour window has passed).");
+        setEditingNote(null);
+      } else {
+        console.error("[handleSaveNoteEdit] PATCH failed:", errData);
+      }
       return;
     }
+
+    // Log the note edit
+    const formatVal = (v) => (v === null || v === undefined || v === "") ? "N/A" : String(v);
+    const noteChanges = [];
+    for (const field of ["type", "subType", "description", "actionPlan"]) {
+      const prevVal = formatVal(originalNote?.[field]);
+      const currVal = formatVal(updatedFields[field]);
+      if (prevVal !== currVal) {
+        noteChanges.push(`${field}: ${prevVal} → ${currVal}`);
+      }
+    }
+    const noteType = originalNote?.noteType || "Note";
+    const logDescription = noteChanges.length
+      ? `${noteType} note updated. Changed fields:\n${noteChanges.join("\n")}`
+      : `${noteType} note updated (note_id: ${note_id})`;
+    await fetch("/api/user-logs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        description: logDescription,
+        logType: "UPDATE",
+        client_id,
+        clerkUserId: userId || null,
+      }),
+    });
 
     // Refresh notes from server to reflect updated data (including new file info)
     const notesRes = await fetch(`/api/notes?client_id=${client_id}`);
@@ -274,6 +251,46 @@ export default function FullIntakeForm({
     }
 
     setEditingNote(null);
+  };
+
+  const handleSaveNewNote = async (noteData, setFieldValue, currentNotes) => {
+    const formData = new FormData();
+    formData.append("type", noteData.type || "");
+    formData.append("subType", noteData.subType || "");
+    formData.append("description", noteData.description || "");
+    formData.append("actionPlan", noteData.actionPlan || "");
+    formData.append("noteType", noteData.noteType || "Case");
+    formData.append("client_id", client_id || "");
+    if (currentAdvocateId) formData.append("advocate_id", String(currentAdvocateId));
+    if (currentAdvocateId) formData.append("owner_id", String(currentAdvocateId));
+    if (noteData.file instanceof File) formData.append("file", noteData.file);
+
+    const res = await fetch("/api/notes", { method: "POST", body: formData });
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      console.error("[handleSaveNewNote] POST failed:", errData);
+      return;
+    }
+
+    await fetch("/api/user-logs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        description: `${noteData.noteType || "Case"} note added (type: ${noteData.type || "N/A"})`,
+        logType: "CREATE",
+        client_id,
+        clerkUserId: userId || null,
+      }),
+    });
+
+    setFieldValue("notes", currentNotes.slice(0, -1));
+    setShowNewNoteForm(false);
+
+    const notesRes = await fetch(`/api/notes?client_id=${client_id}`);
+    if (notesRes.ok) {
+      const notesJson = await notesRes.json();
+      setNotesData(notesJson.notes || []);
+    }
   };
 
   const validateRadio = () => undefined;
@@ -296,7 +313,7 @@ export default function FullIntakeForm({
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="form-container">
+    <div>
       <Formik
         initialValues={fetchFullIntakeValues({
           originalData,
@@ -338,138 +355,143 @@ export default function FullIntakeForm({
         }}
       >
         {({ values, errors, resetForm, setFieldValue }) => (
-          <Form className={styles.form}>
-            <div className={styles.titleContainer}>
-              <h2 className={styles.centeredTitle}>FULL-INTAKE FORM</h2>
-            </div>
-
-            <hr className="separator-line" />
-
+          <Form>
             <GeneralInformationHeader values={values} isEditing={isEditing} errors={errors} assignedAdvocateName={assignedAdvocateName} />
 
-            <Row className={styles.tabsContainer}>
-              <div className={styles.tabContainer}>
-                <Tabs>
-                  <TabList>
-                    <Tab>General</Tab>
-                    <Tab>Children</Tab>
-                    <Tab>Health & Wellness</Tab>
-                    <Tab>Child & Family Services</Tab>
-                    <Tab>Case Notes</Tab>
-                    <Tab>Legal Notes</Tab>
-                  </TabList>
-
-                  <TabPanel>
-                    <GeneralInformationPartition
-                      values={values}
-                      isEditing={isEditing}
-                      errors={errors}
-                      validateRadio={validateRadio}
-                      setFieldValue={setFieldValue}
-                    />
-                  </TabPanel>
-
-                  {/* FIX: pass childrenData */}
-                  <TabPanel>
-                    <ChildrenPartition
-                      childrenData={childrenData}
-                      values={values}
-                      isEditing={isEditing}
-                      errors={errors}
-                      setFieldValue={setFieldValue}
-                    />
-                  </TabPanel>
-
-                  <TabPanel>
-                    <HealthWellnessPartition
-                      values={values}
-                      isEditing={isEditing}
-                      errors={errors}
-                      validateRadio={validateRadio}
-                      setFieldValue={setFieldValue}
-                    />
-                  </TabPanel>
-
-                  {/* FIX: pass childrenData */}
-                  <TabPanel>
-                    <ChildFamilyServicesPartition
-                      childrenData={childrenData}
-                      values={values}
-                      isEditing={isEditing}
-                      errors={errors}
-                      validateRadio={validateRadio}
-                    />
-                  </TabPanel>
-
-                  <TabPanel>
-                    <CaseNotesPartition
-                      notesData={notesData}
-                      selectedNote={selectedNote}
-                      handleShowNoteDetails={handleShowNoteDetails}
-                      handleCloseNoteDetails={handleCloseNoteDetails}
-                      showNewNoteForm={showNewNoteForm}
-                      setShowNewNoteForm={setShowNewNoteForm}
-                      handleAddNoteClick={handleAddNoteClick}
-                      editingNote={editingNote}
-                      setEditingNote={setEditingNote}
-                      handleSaveNoteEdit={handleSaveNoteEdit}
-                      values={values}
-                      setFieldValue={setFieldValue}
-                      isEditing={isEditing}
-                      isAssignedAdvocate={isAssignedAdvocate}
-                      errors={errors}
-                      setFieldValue={setFieldValue}
-                    />
-                  </TabPanel>
-
-                  <TabPanel>
-                    <LegalNotesPartition
-                      notesData={notesData}
-                      selectedNote={selectedNote}
-                      handleShowNoteDetails={handleShowNoteDetails}
-                      handleCloseNoteDetails={handleCloseNoteDetails}
-                      showNewNoteForm={showNewNoteForm}
-                      setShowNewNoteForm={setShowNewNoteForm}
-                      handleAddNoteClick={handleAddNoteClick}
-                      editingNote={editingNote}
-                      setEditingNote={setEditingNote}
-                      handleSaveNoteEdit={handleSaveNoteEdit}
-                      values={values}
-                      setFieldValue={setFieldValue}
-                      isEditing={isEditing}
-                      isAssignedAdvocate={isAssignedAdvocate}
-                      errors={errors}
-                      setFieldValue={setFieldValue}
-                    />
-                  </TabPanel>
-                </Tabs>
+            {/* Tab bar */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+              <div className="flex border-b border-gray-200 overflow-x-auto">
+                {TABS.map((tab, i) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    data-view-allow="true"
+                    onClick={() => setActiveTab(i)}
+                    className="px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors"
+                    style={
+                      activeTab === i
+                        ? { backgroundColor: "#47315E", color: "#fff", borderBottom: "2px solid #47315E" }
+                        : { color: "#6b7280", borderBottom: "2px solid transparent" }
+                    }
+                  >
+                    {tab}
+                  </button>
+                ))}
               </div>
-            </Row>
+
+              <div className="p-6">
+                {activeTab === 0 && (
+                  <GeneralInformationPartition
+                    values={values}
+                    isEditing={isEditing}
+                    errors={errors}
+                    validateRadio={validateRadio}
+                    setFieldValue={setFieldValue}
+                  />
+                )}
+                {activeTab === 1 && (
+                  <ChildrenPartition
+                    childrenData={childrenData}
+                    values={values}
+                    isEditing={isEditing}
+                    errors={errors}
+                    setFieldValue={setFieldValue}
+                  />
+                )}
+                {activeTab === 2 && (
+                  <HealthWellnessPartition
+                    values={values}
+                    isEditing={isEditing}
+                    errors={errors}
+                    validateRadio={validateRadio}
+                    setFieldValue={setFieldValue}
+                  />
+                )}
+                {activeTab === 3 && (
+                  <ChildFamilyServicesPartition
+                    childrenData={childrenData}
+                    values={values}
+                    isEditing={isEditing}
+                    errors={errors}
+                    validateRadio={validateRadio}
+                  />
+                )}
+                {activeTab === 4 && (
+                  <CaseNotesPartition
+                    notesData={notesData}
+                    selectedNote={selectedNote}
+                    handleShowNoteDetails={handleShowNoteDetails}
+                    handleCloseNoteDetails={handleCloseNoteDetails}
+                    showNewNoteForm={showNewNoteForm}
+                    setShowNewNoteForm={setShowNewNoteForm}
+                    handleAddNoteClick={handleAddNoteClick}
+                    handleSaveNewNote={handleSaveNewNote}
+                    editingNote={editingNote}
+                    setEditingNote={setEditingNote}
+                    handleSaveNoteEdit={handleSaveNoteEdit}
+                    values={values}
+                    setFieldValue={setFieldValue}
+                    isEditing={isEditing}
+                    isAssignedAdvocate={isAssignedAdvocate}
+                    errors={errors}
+                  />
+                )}
+                {activeTab === 5 && (
+                  <LegalNotesPartition
+                    notesData={notesData}
+                    selectedNote={selectedNote}
+                    handleShowNoteDetails={handleShowNoteDetails}
+                    handleCloseNoteDetails={handleCloseNoteDetails}
+                    showNewNoteForm={showNewNoteForm}
+                    setShowNewNoteForm={setShowNewNoteForm}
+                    handleAddNoteClick={handleAddNoteClick}
+                    handleSaveNewNote={handleSaveNewNote}
+                    editingNote={editingNote}
+                    setEditingNote={setEditingNote}
+                    handleSaveNoteEdit={handleSaveNoteEdit}
+                    values={values}
+                    setFieldValue={setFieldValue}
+                    isEditing={isEditing}
+                    isAssignedAdvocate={isAssignedAdvocate}
+                    errors={errors}
+                  />
+                )}
+              </div>
+            </div>
 
             {!isViewOnly && (
-              <>
-                <div style={buttonRowStyle}>
-                  <>
-                    <button
-                      style={cancelBtnStyle}
-                      onClick={() => {
-                        resetForm();
-                        setIsEditing(false);
-                        setShowNewNoteForm(false);
-                      }}
-                    >
-                      Cancel
-                    </button>
+              <div className="flex justify-between items-center mb-6">
+                <button
+                  type="button"
+                  className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors"
+                  style={{ backgroundColor: "#6b7280" }}
+                  onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#4b5563")}
+                  onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#6b7280")}
+                  onClick={() => {
+                    resetForm();
+                    setIsEditing(false);
+                    setShowNewNoteForm(false);
+                  }}
+                >
+                  Cancel
+                </button>
 
-                    <button style={saveBtnStyle} type="submit">
-                      Save
-                    </button>
-                  </>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors"
+                  style={{ backgroundColor: "#47315E" }}
+                  onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
+                  onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#47315E")}
+                >
+                  Save
+                </button>
+              </div>
+            )}
 
-                </div>
-
-                {formSent && <div className={styles.successfulText}>Form saved successfully!</div>}
-              </>
+            {formSent && (
+              <div className="text-center text-sm text-green-600 font-medium mb-4">
+                Form saved successfully!
+              </div>
             )}
           </Form>
         )}

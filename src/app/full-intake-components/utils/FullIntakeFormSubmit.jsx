@@ -39,6 +39,45 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
                 .map((field) => `${field}: ${formatLogValue(previous?.[field])} → ${formatLogValue(current?.[field])}`);
         };
 
+        const buildNoteChangesDescription = (originalNotes = [], updatedNotes = []) => {
+            const lines = [];
+            const originalMap = new Map((originalNotes || []).map((n) => [n.note_id, n]));
+            const updatedMap = new Map((updatedNotes || []).filter((n) => n.note_id).map((n) => [n.note_id, n]));
+
+            // Added notes (no note_id yet)
+            const added = (updatedNotes || []).filter((n) => !n.note_id);
+            for (const n of added) {
+                lines.push(`${n.noteType || "Case"} note added (type: ${n.type || "N/A"}, subType: ${n.subType || "N/A"})`);
+            }
+
+            // Updated notes
+            for (const [id, orig] of originalMap.entries()) {
+                const updated = updatedMap.get(id);
+                if (!updated) continue;
+                const noteChanges = [];
+                for (const field of ["type", "subType", "description", "actionPlan"]) {
+                    const prevVal = formatLogValue(orig[field]);
+                    const currVal = formatLogValue(updated[field]);
+                    if (prevVal !== currVal) {
+                        noteChanges.push(`${field}: ${prevVal} → ${currVal}`);
+                    }
+                }
+                if (noteChanges.length > 0) {
+                    lines.push(`${orig.noteType || "Note"} note updated (id: ${id}):\n  ${noteChanges.join("\n  ")}`);
+                }
+            }
+
+            // Deleted notes
+            const updatedIds = new Set((updatedNotes || []).filter((n) => n.note_id).map((n) => n.note_id));
+            for (const [id, orig] of originalMap.entries()) {
+                if (!updatedIds.has(id)) {
+                    lines.push(`${orig.noteType || "Note"} note deleted (type: ${orig.type || "N/A"})`);
+                }
+            }
+
+            return lines;
+        };
+
         // const { getToken } = useAuth();
         const token = await getToken({ template: "supabase" });
 
@@ -174,9 +213,11 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
 
             // Insert a User Log entry for this update via API (bypasses RLS)
             const changedFields = buildChangedFieldsDescription(originalData, clientValues);
-            const description = changedFields.length
-                ? `Full intake updated. Changed fields:\n${changedFields.join("\n")}`
-                : `Full intake updated for client_id: ${client_id}`;
+            const noteChanges = buildNoteChangesDescription(notesData, values.notes);
+            const allChanges = [...changedFields, ...noteChanges];
+            const description = allChanges.length
+                ? `Full intake updated for client: ${values.firstName} ${values.lastName}. Changed fields:\n${allChanges.join("\n")}`
+                : `Full intake updated for client: ${values.firstName} ${values.lastName}`;
 
             await fetch("/api/user-logs", {
                 method: "POST",

@@ -22,11 +22,12 @@ const StatusCFSFileSelect = ({ field, form, label, error, disabled }) => {
 
   return (
     <>
-      <label>{label}:</label>
-      
+      <label className="block text-xs font-medium text-gray-600 mb-1">{label}:</label>
+
       <select
         {...field} // Bind Formik's field props
         disabled={disabled}
+        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
       >
         <option value="">Select a status</option>
         {statuses.map((status) => (

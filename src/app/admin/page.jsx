@@ -16,25 +16,23 @@ export default async function AssignPage() {
 
   return (
     <UserHome>
-      <div className="assign-page-wrapper flex space-x-8">
-        {/* Left side: AssignAdvocate component */}
-        <div className="flex-1 p-4 bg-gray-100 border border-gray-300 rounded-md shadow-sm">
-          <h2 className="text-xl font-semibold mb-4">
-            Assign Client to Advocate
-          </h2>
-          {/* Pass clients and advocates data as props to the AssignAdvocate component */}
-          <AssignAdvocate clients={clientsData} advocates={advocatesData} />
+      <main className="min-h-screen bg-gray-100 p-6">
+
+        {/* Page Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Admin</h1>
+            <p className="text-sm text-gray-500 mt-1">Assign advocates to clients and manage assignments</p>
+          </div>
         </div>
 
-        {/* Right side: AssignClientSelector component */}
-        <div className="flex-1 p-4 bg-gray-100 border border-gray-300 rounded-md shadow-sm">
-          <h2 className="text-xl font-semibold mb-4">
-            Select Advocate and View Clients
-          </h2>
-          {/* Render the AssignClientSelector to allow user to select an advocate and see assigned clients */}
+        {/* Two-column layout */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <AssignAdvocate clients={clientsData} advocates={advocatesData} />
           <AssignClientSelector advocates={advocatesData} />
         </div>
-      </div>
+
+      </main>
     </UserHome>
   );
 }

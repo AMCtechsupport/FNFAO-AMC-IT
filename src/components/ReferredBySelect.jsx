@@ -7,7 +7,7 @@ const ReferredBySelect = ({ name, label, error, disabled }) => {
 
   return (
     <>
-      <label htmlFor={name}>{label}</label>
+      <label htmlFor={name} className="block text-xs font-medium text-gray-600 mb-1">{label}</label>
       <Field as="select" name={name} className={styles.select} disabled={disabled}>
         <option value="">Select an option</option>
         <option value="family_friend">By family/friend</option>

@@ -24,17 +24,16 @@ const PhoneNumberInput = ({ field, form, ...props }) => {
   };
 
   return (
-    <div className="form-group">
-      <label htmlFor={field.name}>{props.label}</label>
+    <div>
       <input
         {...field}
         {...props}
         value={field.value ?? ""}
         type="text"
-        className="form-control"
+        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
         onChange={handleChange}
       />
-      <ErrorMessage name={field.name} component="div" className="text-danger" />
+      <ErrorMessage name={field.name} component="div" className="text-red-500 text-xs mt-1" />
     </div>
   );
 };

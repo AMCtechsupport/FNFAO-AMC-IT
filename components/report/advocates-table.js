@@ -70,15 +70,15 @@ export default function AdvocatesTable({ onSelect, active, inactive, startDate, 
         style={{ maxHeight: "300px" }}
       >
         <table className="w-full border border-gray-200 rounded-xl">
-          <thead className="bg-gray-100">
+          <thead style={{ backgroundColor: "#47315E" }}>
             <tr>
-              <th className="text-center px-6 py-3 text-gray-700 font-semibold border-b">
+              <th className="text-center px-6 py-3 text-white font-semibold border-b border-purple-900">
                 Advocate Name
               </th>
-              <th className="text-center px-6 py-3 text-gray-700 font-semibold border-b">
+              <th className="text-center px-6 py-3 text-white font-semibold border-b border-purple-900">
                 Number of Clients in Service
               </th>
-              <th className="text-center px-6 py-3 text-gray-700 font-semibold border-b">
+              <th className="text-center px-6 py-3 text-white font-semibold border-b border-purple-900">
                 Number of New Clients
               </th>
             </tr>
@@ -91,11 +91,8 @@ export default function AdvocatesTable({ onSelect, active, inactive, startDate, 
                 <tr
                   key={index}
                   onClick={() => handleRowClick(advocate)}
-                  className={`cursor-pointer transition-colors duration-300 ${
-                    isSelected
-                      ? "bg-gradient-to-r from-purple-400 to-indigo-600 text-white"
-                      : "hover:bg-gray-50 text-gray-800"
-                  }`}
+                  className="cursor-pointer transition-colors duration-300 hover:bg-gray-50"
+                  style={isSelected ? { backgroundColor: "#F0EEF6" } : {}}
                 >
                   <td className="px-6 py-3 border-b text-center">
                     {advocate.name}
@@ -129,7 +126,7 @@ export default function AdvocatesTable({ onSelect, active, inactive, startDate, 
       {selectedAdvocate && (
         <div className="mt-4 text-center text-gray-700">
           Selected Advocate:{" "}
-          <span className="text-indigo-600 font-semibold">
+          <span className="font-semibold" style={{ color: "#47315E" }}>
             {selectedAdvocate.name} ({selectedAdvocate.clientCount} clients, {selectedAdvocate.newClientCount} new)
           </span>
         </div>

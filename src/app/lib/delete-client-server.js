@@ -67,6 +67,27 @@ export const deleteClient = async (clientId) => {
       throw new Error("Error finding client: " + selectError.message);
     }
 
+    // Look up advocate_id and name for the current user
+    const { data: advocateData } = await supabase
+      .from("Advocates")
+      .select("advocate_id, firstName, lastName")
+      .eq("clerk_user_id", user.id)
+      .single();
+    const advocate_id = advocateData?.advocate_id || null;
+    const advocateName = advocateData
+      ? `${advocateData.firstName || ""} ${advocateData.lastName || ""}`.trim()
+      : null;
+
+    // Insert DELETE log before removing the client record
+    // Embed advocate name so it survives advocate deletion
+    const deleteDescription = `Client deleted: ${clientData.firstName} ${clientData.lastName}${advocateName ? `||by:${advocateName}` : ""}`;
+    await supabase.from("User Logs").insert([{
+      description: deleteDescription,
+      logType: "DELETE",
+      advocate_id,
+      client_id: clientId,
+    }]);
+
     const { error: clientError } = await supabase
       .from("Clients")
       .delete()

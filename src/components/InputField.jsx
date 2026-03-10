@@ -4,8 +4,8 @@ import InputMask from "react-input-mask";
 
 const InputField = ({ label, name, type = "text", placeholder, error, disabled }) => {
   return (
-    <div className="form-group">
-      <label htmlFor={name}>{label}</label>
+    <div>
+      <label htmlFor={name} className="block text-xs font-medium text-gray-600 mb-1">{label}</label>
       {type === "phoneNumber" ? (
         <Field name={name}>
           {({ field }) => (
@@ -13,7 +13,7 @@ const InputField = ({ label, name, type = "text", placeholder, error, disabled }
               {...field}
               mask="(999) 999-9999"
               maskChar=""
-              className="form-control"
+              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
               placeholder={placeholder}
               disabled={disabled}
             />
@@ -24,12 +24,12 @@ const InputField = ({ label, name, type = "text", placeholder, error, disabled }
           type={type}
           id={name}
           name={name}
-          className="form-control"
+          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
           placeholder={placeholder}
           disabled={disabled}
         />
       )}
-      <ErrorMessage name={name} component="div" className="text-danger" />
+      <ErrorMessage name={name} component="div" className="text-red-500 text-xs mt-1" />
     </div>
   );
 };
