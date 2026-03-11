@@ -159,7 +159,7 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
         return YouthIntakeFormSubmit(values, { resetForm }, user, router, setFormSent, isEditMode, editClientId);
       }}
     >
-      {({ values, errors, setFieldValue, resetForm }) => (
+      {({ values, errors, setFieldValue, resetForm, submitCount }) => (
         <Form>
           {/* Page Header */}
           <div className="flex items-center justify-between mb-6">
@@ -217,15 +217,22 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
                   </button>
                 </div>
               ) : (
-                <button
-                  type="submit"
-                  className="w-full py-3 text-sm font-semibold rounded-lg transition-colors text-white mb-2"
-                  style={{ backgroundColor: "#8060A0" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#6B4E8A")}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#8060A0")}
-                >
-                  Submit Youth Intake
-                </button>
+                <>
+                  <button
+                    type="submit"
+                    className="w-full py-3 text-sm font-semibold rounded-lg transition-colors text-white mb-2"
+                    style={{ backgroundColor: "#8060A0" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#6B4E8A")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#8060A0")}
+                  >
+                    Submit Youth Intake
+                  </button>
+                  {submitCount > 0 && Object.keys(errors).length > 0 && (
+                    <p className="text-center text-sm text-red-600 font-medium mb-2">
+                      Some required fields are incomplete. Please scroll up to check for errors.
+                    </p>
+                  )}
+                </>
               )}
 
               {formSent && (
