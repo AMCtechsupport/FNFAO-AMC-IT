@@ -136,6 +136,8 @@ export default function ClientsList() {
   const [activeClientId, setActiveClientId] = useState(null);
   const [currentYouthPage, setCurrentYouthPage] = useState(1);
   const [currentAdultPage, setCurrentAdultPage] = useState(1);
+  const [clientToDelete, setClientToDelete] = useState(null);
+  const [toast, setToast] = useState(null);
   const clientsPerPage = 10;
   const router = useRouter();
 
@@ -158,6 +160,11 @@ export default function ClientsList() {
     };
     fetchAll();
   }, []);
+
+  const showToast = (type, message) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 4000);
+  };
 
   const filterClients = (clients) => {
     return clients.filter((client) => {
@@ -197,24 +204,29 @@ export default function ClientsList() {
     }, 50);
   };
 
-  const handleDelete = async (client) => {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to permanently delete ${client.firstName} ${client.lastName}? This action cannot be undone.`,
-    );
-    if (!confirmDelete) return;
+  const handleDeleteClick = (client) => {
+    setClientToDelete(client);
+  };
 
+  const handleConfirmDelete = async () => {
+    const client = clientToDelete;
+    setClientToDelete(null);
     setDeletingClientId(client.client_id);
     try {
       const result = await deleteClient(client.client_id);
       setAllYouthClients((prev) => prev.filter((c) => c.client_id !== client.client_id));
       setAllAdultClients((prev) => prev.filter((c) => c.client_id !== client.client_id));
-      alert(result.message);
+      showToast("success", result.message);
     } catch (error) {
       console.error("Error deleting client:", error);
-      alert(`Failed to delete client: ${error.message}`);
+      showToast("error", `Failed to delete client: ${error.message}`);
     } finally {
       setDeletingClientId(null);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setClientToDelete(null);
   };
 
   return (
@@ -269,7 +281,7 @@ export default function ClientsList() {
             totalPages={totalYouthPages}
             onPageChange={setCurrentYouthPage}
             onView={handleView}
-            onDelete={handleDelete}
+            onDelete={handleDeleteClick}
             activeClientId={activeClientId}
             deletingClientId={deletingClientId}
             emptyMessage="No youth clients found"
@@ -284,11 +296,69 @@ export default function ClientsList() {
             totalPages={totalAdultPages}
             onPageChange={setCurrentAdultPage}
             onView={handleView}
-            onDelete={handleDelete}
+            onDelete={handleDeleteClick}
             activeClientId={activeClientId}
             deletingClientId={deletingClientId}
             emptyMessage="No adult clients found"
           />
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {clientToDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl p-6 max-w-md w-full mx-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-gray-900">Delete Client</h3>
+                <p className="text-xs text-gray-500">This action cannot be undone</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 mb-6">
+              Are you sure you want to permanently delete{" "}
+              <span className="font-semibold text-gray-900">
+                {clientToDelete.firstName} {clientToDelete.lastName}
+              </span>
+              ?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={handleCancelDelete}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white transition-all ${
+          toast.type === "success" ? "bg-green-500" : "bg-red-500"
+        }`}>
+          {toast.type === "success" ? (
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+          ) : (
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          )}
+          {toast.message}
         </div>
       )}
     </div>
