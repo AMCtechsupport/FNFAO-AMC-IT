@@ -86,7 +86,7 @@ export default function AssignedClientsList({ advocateId }) {
           <h2 className="text-2xl font-bold text-gray-900">Assigned Clients</h2>
           <p className="text-sm text-gray-500 mt-1">Clients currently assigned to you</p>
         </div>
-        <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: "#F0EEF6", color: "#47315E", border: "1px solid #B2B3D7" }}>
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: "#F0EEF6", color: "#6100D7", border: "1px solid #B2B3D7" }}>
           <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span>
           {allClients.length} {allClients.length === 1 ? "client" : "clients"}
         </span>
@@ -124,7 +124,7 @@ export default function AssignedClientsList({ advocateId }) {
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm text-left">
               <thead>
-                <tr className="text-white" style={{ backgroundColor: "#47315E" }}>
+                <tr className="text-white" style={{ backgroundColor: "#6100D7" }}>
                   <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">Client Name</th>
                   <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">Form Type</th>
                   <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">Date Assigned</th>
@@ -179,7 +179,7 @@ export default function AssignedClientsList({ advocateId }) {
                           <Link
                             href={viewHref}
                             className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-colors no-underline border"
-                            style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#47315E" }}
+                            style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#6100D7" }}
                             onMouseEnter={e => e.currentTarget.style.backgroundColor = "#9899C0"}
                             onMouseLeave={e => e.currentTarget.style.backgroundColor = "#B2B3D7"}
                           >

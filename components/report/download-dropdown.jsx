@@ -29,9 +29,9 @@ export default function DownloadDropdown({ title, onDownloadSelect, defaultText 
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors flex justify-center items-center gap-2"
-                style={{ backgroundColor: "#47315E" }}
+                style={{ backgroundColor: "#6100D7" }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#6100D7"}
             >
                 {defaultText}
                 <svg

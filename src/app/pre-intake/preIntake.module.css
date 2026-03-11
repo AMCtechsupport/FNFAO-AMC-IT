@@ -30,9 +30,9 @@
 }
 
 .textarea:focus {
-  border-color: #47315E;
+  border-color: #6100D7;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(71, 49, 94, 0.1);
+  box-shadow: 0 0 0 2px rgba(97, 0, 215, 0.1);
 }
 
 .select {
@@ -49,9 +49,9 @@
 }
 
 .select:focus {
-  border-color: #47315E;
+  border-color: #6100D7;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(71, 49, 94, 0.1);
+  box-shadow: 0 0 0 2px rgba(97, 0, 215, 0.1);
 }
 
 select:disabled {

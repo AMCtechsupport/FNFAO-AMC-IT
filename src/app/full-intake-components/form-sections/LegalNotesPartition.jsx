@@ -70,7 +70,7 @@ const LegalNotesPartition = ({
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
                             <table className="w-full text-sm border-collapse">
                                 <thead>
-                                    <tr className="text-white text-xs uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+                                    <tr className="text-white text-xs uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>
                                         <th className="px-4 py-2 text-left" style={{ width: "30%" }}>Created At</th>
                                         <th className="px-4 py-2 text-left" style={{ width: "30%" }}>Type</th>
                                         <th className="px-4 py-2 text-left text-center" style={{ width: "20%" }}>Actions</th>
@@ -123,7 +123,7 @@ const LegalNotesPartition = ({
                     {selectedNote && !editingNote && (
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4">
                             {/* Header bar */}
-                            <div className="px-5 py-3 text-white flex items-center justify-between" style={{ backgroundColor: "#47315E" }}>
+                            <div className="px-5 py-3 text-white flex items-center justify-between" style={{ backgroundColor: "#6100D7" }}>
                                 <span className="font-semibold text-sm">Legal Note</span>
                                 <span className="text-xs opacity-80"><FormattedDate dateString={selectedNote.createdAt} /></span>
                             </div>
@@ -213,7 +213,7 @@ const LegalNotesPartition = ({
             {/* Edit note form */}
             {editingNote && editValues && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-                    <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>Edit Legal Note</div>
+                    <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>Edit Legal Note</div>
                     <div className="p-5">
                         <div className="grid grid-cols-2 gap-4 mb-4">
                             <div>
@@ -295,7 +295,7 @@ const LegalNotesPartition = ({
                         <div className="flex gap-2 mt-4">
                             <button
                                 className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors"
-                                style={{ backgroundColor: "#47315E" }}
+                                style={{ backgroundColor: "#6100D7" }}
                                 onClick={() => handleSaveNoteEdit(editingNote.note_id, editValues, editFile)}
                             >
                                 Save Changes
@@ -318,7 +318,7 @@ const LegalNotesPartition = ({
                     {({ push }) => (
                         <button
                             className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                            style={{ backgroundColor: "#47315E" }}
+                            style={{ backgroundColor: "#6100D7" }}
                             onClick={() => handleAddNoteClick(values, push, "legal")}
                             disabled={!isEditing || !isAssignedAdvocate}
                         >
@@ -331,7 +331,7 @@ const LegalNotesPartition = ({
             {/* New note form */}
             {showNewNoteForm && !editingNote && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-                    <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>New Legal Note</div>
+                    <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>New Legal Note</div>
                     <div className="p-5">
                         <div className="grid grid-cols-2 gap-4 mb-4">
                             <div>
@@ -379,7 +379,7 @@ const LegalNotesPartition = ({
                         <div className="flex gap-2 mt-4">
                             <button
                                 className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors"
-                                style={{ backgroundColor: "#47315E" }}
+                                style={{ backgroundColor: "#6100D7" }}
                                 onClick={() => handleSaveNewNote(values.notes[values.notes.length - 1], setFieldValue, values.notes)}
                             >
                                 Save

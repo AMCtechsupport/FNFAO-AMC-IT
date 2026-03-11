@@ -218,9 +218,9 @@ export default function AdvocateDetailsPage() {
         <button
           onClick={generateAndDownloadPDF}
           className="w-full text-white font-medium py-3 px-4 rounded-md mt-4"
-          style={{ backgroundColor: "#47315E" }}
+          style={{ backgroundColor: "#6100D7" }}
           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#47315E")}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6100D7")}
         >
           Download PDF
         </button>
@@ -231,9 +231,9 @@ export default function AdvocateDetailsPage() {
       <button
         onClick={handleFinalDownload}
         className="w-full text-white font-medium py-3 px-4 rounded-md mt-4"
-        style={{ backgroundColor: "#47315E" }}
+        style={{ backgroundColor: "#6100D7" }}
         onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
-        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#47315E")}
+        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6100D7")}
       >
         Download {downloadFormat.toUpperCase()}
       </button>
@@ -291,7 +291,7 @@ export default function AdvocateDetailsPage() {
                 style={{ maxHeight: "800px" }}
               >
                 <table className="w-full border border-gray-200 rounded-xl">
-                  <thead className="text-white text-left" style={{ backgroundColor: "#47315E" }}>
+                  <thead className="text-white text-left" style={{ backgroundColor: "#6100D7" }}>
                     <tr>
                       <th className="px-6 py-3 text-center">Name</th>
                       <th className="px-6 py-3 text-center">Age</th>

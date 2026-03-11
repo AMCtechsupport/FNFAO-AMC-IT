@@ -38,7 +38,7 @@ function ClientTable({
       {/* Section header */}
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-bold text-gray-900">{title}</h2>
-        <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: "#F0EEF6", color: "#47315E", border: "1px solid #B2B3D7" }}>
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: "#F0EEF6", color: "#6100D7", border: "1px solid #B2B3D7" }}>
           <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span>
           {clients.length} {clients.length === 1 ? "client" : "clients"}
         </span>
@@ -48,7 +48,7 @@ function ClientTable({
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex-1">
         <table className="min-w-full text-sm text-left">
           <thead>
-            <tr className="text-white" style={{ backgroundColor: "#47315E" }}>
+            <tr className="text-white" style={{ backgroundColor: "#6100D7" }}>
               <th className="py-3 px-4 font-semibold text-xs uppercase tracking-wider">Name</th>
               <th className="py-3 px-4 font-semibold text-xs uppercase tracking-wider text-center">Action</th>
             </tr>
@@ -87,7 +87,7 @@ function ClientTable({
                           onClick={() => onView(client)}
                           disabled={isBusy}
                           className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
-                          style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#47315E" }}
+                          style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#6100D7" }}
                           onMouseEnter={e => { if (!isBusy) e.currentTarget.style.backgroundColor = "#9899C0"; }}
                           onMouseLeave={e => { if (!isBusy) e.currentTarget.style.backgroundColor = "#B2B3D7"; }}
                         >
@@ -225,7 +225,7 @@ export default function ClientsList() {
           <h1 className="text-2xl font-bold text-gray-900">List of Clients</h1>
           <p className="text-sm text-gray-500 mt-1">All youth and adult clients in the system</p>
         </div>
-        <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: "#F0EEF6", color: "#47315E", border: "1px solid #B2B3D7" }}>
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: "#F0EEF6", color: "#6100D7", border: "1px solid #B2B3D7" }}>
           <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span>
           {allYouthClients.length + allAdultClients.length} total
         </span>

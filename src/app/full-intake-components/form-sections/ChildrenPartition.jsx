@@ -18,7 +18,7 @@ const ChildrenPartition = ({
 }) => {
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-            <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+            <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>
                 Children
             </div>
             <div className="p-5">
@@ -273,9 +273,9 @@ const ChildrenPartition = ({
                             <button
                                 type="button"
                                 className="px-4 py-2 text-xs font-semibold rounded-lg text-white transition-colors"
-                                style={{ backgroundColor: "#47315E" }}
+                                style={{ backgroundColor: "#6100D7" }}
                                 onMouseEnter={e => e.currentTarget.style.backgroundColor = "#3a2649"}
-                                onMouseLeave={e => e.currentTarget.style.backgroundColor = "#47315E"}
+                                onMouseLeave={e => e.currentTarget.style.backgroundColor = "#6100D7"}
                                 onClick={() =>
                                     push({
                                         firstName: "",

@@ -21,7 +21,7 @@ const RadioPair = ({ name, labelYes = "Yes", labelNo = "No" }) => (
 const YouthIntakeEducation = ({ values, setFieldValue, errors }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-      <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+      <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>
         Education
       </div>
       <div className="p-5 space-y-4">
@@ -154,9 +154,9 @@ const YouthIntakeEducation = ({ values, setFieldValue, errors }) => {
                   type="button"
                   onClick={() => push({ firstName: "", middleName: "", lastName: "", relationship: "", phoneNumber: "", email: "" })}
                   className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-colors border text-white"
-                  style={{ backgroundColor: "#47315E", borderColor: "#3a2649" }}
+                  style={{ backgroundColor: "#6100D7", borderColor: "#3a2649" }}
                   onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#47315E")}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6100D7")}
                 >
                   + Add Educational Support Person
                 </button>

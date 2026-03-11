@@ -16,7 +16,7 @@ const GeneralInformationHeader = ({
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
             <div
                 className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider"
-                style={{ backgroundColor: "#47315E" }}
+                style={{ backgroundColor: "#6100D7" }}
             >
                 Client Information
             </div>

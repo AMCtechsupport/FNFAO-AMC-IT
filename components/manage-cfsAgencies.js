@@ -100,7 +100,7 @@ const CFSAgenciesManagement = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold text-gray-900">Manage CFS Agencies</h3>
-        <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: "#F0EEF6", color: "#47315E", border: "1px solid #B2B3D7" }}>
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: "#F0EEF6", color: "#6100D7", border: "1px solid #B2B3D7" }}>
           <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span>
           {cfsAgencies.length} {cfsAgencies.length === 1 ? "entry" : "entries"}
         </span>
@@ -127,7 +127,7 @@ const CFSAgenciesManagement = () => {
         <button
           onClick={() => { setShowForm(!showForm); setNewCfsAgency(""); }}
           className="w-full py-2.5 text-sm font-medium rounded-lg transition-colors"
-          style={{ backgroundColor: "#B2B3D7", color: "#47315E" }}
+          style={{ backgroundColor: "#B2B3D7", color: "#6100D7" }}
           onMouseEnter={e => e.currentTarget.style.backgroundColor = "#9899C0"}
           onMouseLeave={e => e.currentTarget.style.backgroundColor = "#B2B3D7"}
         >
@@ -146,9 +146,9 @@ const CFSAgenciesManagement = () => {
             <button
               onClick={handleAddCfsAgency}
               className="mt-3 w-full py-2.5 text-sm font-medium rounded-lg transition-colors"
-              style={{ backgroundColor: "#47315E", color: "white" }}
+              style={{ backgroundColor: "#6100D7", color: "white" }}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#6100D7"}
             >
               Save
             </button>
@@ -174,7 +174,7 @@ const CFSAgenciesManagement = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden max-h-[600px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <table className="min-w-full text-sm text-left">
             <thead>
-              <tr className="text-white sticky top-0" style={{ backgroundColor: "#47315E" }}>
+              <tr className="text-white sticky top-0" style={{ backgroundColor: "#6100D7" }}>
                 <th className="py-3 px-4 font-semibold text-xs uppercase tracking-wider">Agency Name</th>
                 <th className="py-3 px-4 font-semibold text-xs uppercase tracking-wider text-center">Action</th>
               </tr>
@@ -234,7 +234,7 @@ const CFSAgenciesManagement = () => {
                           <button
                             onClick={() => { setEditingItem(agency.agencyName); setEditValue(agency.agencyName); }}
                             className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full transition-colors border"
-                            style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#47315E" }}
+                            style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#6100D7" }}
                             onMouseEnter={e => e.currentTarget.style.backgroundColor = "#9899C0"}
                             onMouseLeave={e => e.currentTarget.style.backgroundColor = "#B2B3D7"}
                           >

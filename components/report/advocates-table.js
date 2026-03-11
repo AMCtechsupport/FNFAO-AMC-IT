@@ -70,7 +70,7 @@ export default function AdvocatesTable({ onSelect, active, inactive, startDate, 
         style={{ maxHeight: "300px" }}
       >
         <table className="w-full border border-gray-200 rounded-xl">
-          <thead style={{ backgroundColor: "#47315E" }}>
+          <thead style={{ backgroundColor: "#6100D7" }}>
             <tr>
               <th className="text-center px-6 py-3 text-white font-semibold border-b border-purple-900">
                 Advocate Name
@@ -126,7 +126,7 @@ export default function AdvocatesTable({ onSelect, active, inactive, startDate, 
       {selectedAdvocate && (
         <div className="mt-4 text-center text-gray-700">
           Selected Advocate:{" "}
-          <span className="font-semibold" style={{ color: "#47315E" }}>
+          <span className="font-semibold" style={{ color: "#6100D7" }}>
             {selectedAdvocate.name} ({selectedAdvocate.clientCount} clients, {selectedAdvocate.newClientCount} new)
           </span>
         </div>

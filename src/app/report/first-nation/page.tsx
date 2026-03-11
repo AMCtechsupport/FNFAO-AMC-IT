@@ -168,9 +168,9 @@ export default function FirstNationsReportPage() {
           type="button"
           onClick={generateAndDownloadPDF}
           className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors mt-4"
-          style={{ backgroundColor: "#47315E" }}
+          style={{ backgroundColor: "#6100D7" }}
           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#6100D7"}
         >
           Download PDF
         </button>
@@ -182,9 +182,9 @@ export default function FirstNationsReportPage() {
         type="button"
         onClick={handleFinalDownload}
         className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors mt-4"
-        style={{ backgroundColor: "#47315E" }}
+        style={{ backgroundColor: "#6100D7" }}
         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
-        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
+        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#6100D7"}
       >
         Download {downloadFormat.toUpperCase()}
       </button>
@@ -206,7 +206,7 @@ export default function FirstNationsReportPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
 
           {/* Header */}
-          <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider rounded-t-xl" style={{ backgroundColor: "#47315E" }}>
+          <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider rounded-t-xl" style={{ backgroundColor: "#6100D7" }}>
             Report Filters
           </div>
 
@@ -294,9 +294,9 @@ export default function FirstNationsReportPage() {
                 type="button"
                 onClick={handleFind}
                 className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors"
-                style={{ backgroundColor: "#47315E" }}
+                style={{ backgroundColor: "#6100D7" }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#6100D7"}
               >
                 Find
               </button>

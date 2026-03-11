@@ -77,9 +77,9 @@ export default function AdultClientView() {
             <Link
               href={`/clients/${client_id}`}
               className="px-4 py-2 text-sm font-semibold rounded-lg transition-colors text-white no-underline"
-              style={{ backgroundColor: "#47315E" }}
+              style={{ backgroundColor: "#6100D7" }}
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#47315E")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6100D7")}
             >
               Edit
             </Link>
@@ -111,9 +111,9 @@ export default function AdultClientView() {
           <Link
             href={`/clients/${client_id}`}
             className="px-4 py-2 text-sm font-semibold rounded-lg transition-colors text-white no-underline"
-            style={{ backgroundColor: "#47315E" }}
+            style={{ backgroundColor: "#6100D7" }}
             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#47315E")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6100D7")}
           >
             Edit
           </Link>

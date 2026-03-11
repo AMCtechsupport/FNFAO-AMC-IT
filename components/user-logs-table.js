@@ -53,7 +53,7 @@ const LogTable = ({ logs, loading, onLogClick }) => {
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm text-left">
           <thead>
-            <tr className="text-white" style={{ backgroundColor: "#47315E" }}>
+            <tr className="text-white" style={{ backgroundColor: "#6100D7" }}>
               <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">Log ID</th>
               <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">Created At</th>
               <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">Client</th>
@@ -104,7 +104,7 @@ const LogTable = ({ logs, loading, onLogClick }) => {
                     <button
                       onClick={() => onLogClick(log)}
                       className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-colors border"
-                      style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#47315E" }}
+                      style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#6100D7" }}
                       onMouseEnter={e => e.currentTarget.style.backgroundColor = "#9899C0"}
                       onMouseLeave={e => e.currentTarget.style.backgroundColor = "#B2B3D7"}
                     >

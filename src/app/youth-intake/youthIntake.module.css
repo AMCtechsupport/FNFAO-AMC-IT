@@ -30,9 +30,9 @@
 }
 
 .textarea:focus {
-  border-color: #47315E;
+  border-color: #6100D7;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(71, 49, 94, 0.1);
+  box-shadow: 0 0 0 2px rgba(97, 0, 215, 0.1);
 }
 
 select:disabled {
@@ -42,7 +42,7 @@ select:disabled {
 
 /* Tabs */
 :global(.react-tabs__tab--selected) {
-  background-color: #47315E !important;
+  background-color: #6100D7 !important;
   color: white !important;
   font-weight: bold;
   border-radius: 5px;

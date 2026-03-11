@@ -83,7 +83,7 @@ const LinkAdvocate = () => {
       {/* Header */}
       <div
         className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider"
-        style={{ backgroundColor: "#47315E" }}
+        style={{ backgroundColor: "#6100D7" }}
       >
         Create New Advocate
       </div>
@@ -177,7 +177,7 @@ const LinkAdvocate = () => {
             style={{
               backgroundColor: "#B2B3D7",
               borderColor: "#9899C0",
-              color: "#47315E",
+              color: "#6100D7",
             }}
             onMouseEnter={(e) => {
               if (!loading) e.currentTarget.style.backgroundColor = "#9899C0";

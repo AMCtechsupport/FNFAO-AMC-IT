@@ -17,7 +17,7 @@ export default function ReportCategory({name, description, path}) {
     
     return (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+                    <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>
                         {name}
                     </div>
                     <div className="p-6">
@@ -28,7 +28,7 @@ export default function ReportCategory({name, description, path}) {
                                 type="button"
                                 disabled={isLoading}
                                 className="w-full py-2.5 text-sm font-medium rounded-lg transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
-                                style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#47315E" }}
+                                style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#6100D7" }}
                                 onMouseEnter={(e) => { if (!isLoading) e.currentTarget.style.backgroundColor = "#9899C0"; }}
                                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#B2B3D7"}
                             >

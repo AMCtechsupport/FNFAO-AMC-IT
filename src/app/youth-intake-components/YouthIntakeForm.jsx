@@ -204,9 +204,9 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
                   <button
                     type="submit"
                     className="px-5 py-2.5 text-sm font-semibold rounded-lg transition-colors text-white"
-                    style={{ backgroundColor: "#47315E" }}
+                    style={{ backgroundColor: "#6100D7" }}
                     onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#47315E")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6100D7")}
                   >
                     Save
                   </button>

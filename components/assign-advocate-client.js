@@ -253,7 +253,7 @@ export default function AssignAdvocate({
     <div ref={containerRef} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden min-h-[580px]">
 
       {/* Header */}
-      <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+      <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>
         Assign Client to Advocate
       </div>
 
@@ -312,7 +312,7 @@ export default function AssignAdvocate({
           {/* Selected client */}
           {selectedClient && (
             <div className="p-3 rounded-lg border text-sm" style={{ backgroundColor: "#F0EEF6", borderColor: "#B2B3D7" }}>
-              <p className="font-semibold" style={{ color: "#47315E" }}>
+              <p className="font-semibold" style={{ color: "#6100D7" }}>
                 Selected: {selectedClient.firstName} {selectedClient.lastName}
               </p>
             </div>
@@ -370,7 +370,7 @@ export default function AssignAdvocate({
           {/* Selected advocate */}
           {selectedAdvocate && (
             <div className="p-3 rounded-lg border text-sm" style={{ backgroundColor: "#F0EEF6", borderColor: "#B2B3D7" }}>
-              <p className="font-semibold" style={{ color: "#47315E" }}>
+              <p className="font-semibold" style={{ color: "#6100D7" }}>
                 Selected: {advocates.find(a => a.advocate_id === selectedAdvocate)?.firstName} {advocates.find(a => a.advocate_id === selectedAdvocate)?.lastName}
               </p>
             </div>
@@ -382,7 +382,7 @@ export default function AssignAdvocate({
               type="submit"
               disabled={isAssigned}
               className="w-full py-2.5 text-sm font-medium rounded-lg transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#47315E" }}
+              style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#6100D7" }}
               onMouseEnter={(e) => { if (!isAssigned) e.currentTarget.style.backgroundColor = "#9899C0"; }}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#B2B3D7"}
             >
@@ -404,7 +404,7 @@ export default function AssignAdvocate({
       {showPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full overflow-hidden">
-            <div className="px-6 py-4" style={{ backgroundColor: "#47315E" }}>
+            <div className="px-6 py-4" style={{ backgroundColor: "#6100D7" }}>
               <h3 className="text-base font-semibold text-white">Assignment Status</h3>
             </div>
             <div className="px-6 py-4">
@@ -413,9 +413,9 @@ export default function AssignAdvocate({
             <div className="bg-gray-50 px-6 py-4 flex justify-end border-t border-gray-200">
               <button
                 className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors"
-                style={{ backgroundColor: "#47315E" }}
+                style={{ backgroundColor: "#6100D7" }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#6100D7"}
                 onClick={() => setShowPopup(false)}
               >
                 Close

@@ -13,7 +13,7 @@ const ChildFamilyServicesPartition = ({
         <>
             {/* Card 1: CFS Agencies */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-                <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+                <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>
                     CFS Agencies
                 </div>
                 <div className="p-5">
@@ -40,7 +40,7 @@ const ChildFamilyServicesPartition = ({
                             return (
                                 <table className="w-full text-sm border-collapse">
                                     <thead>
-                                        <tr className="text-white text-xs uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+                                        <tr className="text-white text-xs uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>
                                             <th className="px-4 py-2 text-left">CFS Agency</th>
                                             <th className="px-4 py-2 text-left">Child Name</th>
                                             <th className="px-4 py-2 text-left">CFS Agent</th>
@@ -91,7 +91,7 @@ const ChildFamilyServicesPartition = ({
                         return uniqueAgents.length > 0 ? (
                             <table className="w-full text-sm border-collapse">
                                 <thead>
-                                    <tr className="text-white text-xs uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+                                    <tr className="text-white text-xs uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>
                                         <th className="px-4 py-2 text-left">Full Name</th>
                                         <th className="px-4 py-2 text-left">Phone</th>
                                         <th className="px-4 py-2 text-left">Email</th>
@@ -133,7 +133,7 @@ const ChildFamilyServicesPartition = ({
                         return uniqueSupervisors.length > 0 ? (
                             <table className="w-full text-sm border-collapse">
                                 <thead>
-                                    <tr className="text-white text-xs uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+                                    <tr className="text-white text-xs uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>
                                         <th className="px-4 py-2 text-left">Supervisor Name</th>
                                         <th className="px-4 py-2 text-left">Phone</th>
                                         <th className="px-4 py-2 text-left">Email</th>
@@ -159,7 +159,7 @@ const ChildFamilyServicesPartition = ({
 
             {/* Card 2: Child & Family Services */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-                <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+                <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>
                     Child &amp; Family Services
                 </div>
                 <div className="p-5">
@@ -240,7 +240,7 @@ const ChildFamilyServicesPartition = ({
                         </div>
                         {values.turnToKinshipCare === "yes" && (
                             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-                                <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+                                <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>
                                     Family Members
                                 </div>
                                 <div className="p-5">
@@ -302,9 +302,9 @@ const ChildFamilyServicesPartition = ({
                                                 <button
                                                     type="button"
                                                     className="px-4 py-2 text-xs font-semibold rounded-lg text-white transition-colors"
-                                                    style={{ backgroundColor: "#47315E" }}
+                                                    style={{ backgroundColor: "#6100D7" }}
                                                     onMouseEnter={e => e.currentTarget.style.backgroundColor = "#3a2649"}
-                                                    onMouseLeave={e => e.currentTarget.style.backgroundColor = "#47315E"}
+                                                    onMouseLeave={e => e.currentTarget.style.backgroundColor = "#6100D7"}
                                                     disabled={!isEditing}
                                                     onClick={() =>
                                                         push({

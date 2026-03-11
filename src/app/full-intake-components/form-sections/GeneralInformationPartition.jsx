@@ -17,7 +17,7 @@ const GeneralInformationPartition = ({
         <>
             {/* Card 1: General Information */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-                <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>General Information</div>
+                <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>General Information</div>
                 <div className="p-5">
                     {/* Row 1: FirstNation(col5), TreatyNumber(col3), OtherFirstNation(col4) */}
                     <div className="grid grid-cols-12 gap-4">
@@ -176,7 +176,7 @@ const GeneralInformationPartition = ({
 
             {/* Card 2: Reserve & Background */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-                <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>Reserve & Background</div>
+                <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>Reserve & Background</div>
                 <div className="p-5">
                     {/* Sub-panel: onReserve(col4) + transitionFromReserve(col4) + previousFNFAOClient(col4) */}
                     <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mb-4">
@@ -311,7 +311,7 @@ const GeneralInformationPartition = ({
 
             {/* Card 3: Important Family Members and Friends */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-                <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>Important Family Members and Friends</div>
+                <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>Important Family Members and Friends</div>
                 <div className="p-5">
                     {/* Home members */}
                     <h5 className="text-sm font-semibold text-gray-700 mb-3">Important Family Members and Friends</h5>
@@ -400,9 +400,9 @@ const GeneralInformationPartition = ({
                         <button
                             type="button"
                             className="px-4 py-2 text-xs font-semibold rounded-lg text-white transition-colors mt-2"
-                            style={{ backgroundColor: "#47315E" }}
+                            style={{ backgroundColor: "#6100D7" }}
                             onMouseEnter={e => e.currentTarget.style.backgroundColor = "#3a2649"}
-                            onMouseLeave={e => e.currentTarget.style.backgroundColor = "#47315E"}
+                            onMouseLeave={e => e.currentTarget.style.backgroundColor = "#6100D7"}
                             disabled={!isEditing}
                             onClick={() =>
                             push({
@@ -423,7 +423,7 @@ const GeneralInformationPartition = ({
 
             {/* Card 4: Family Experiences */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-                <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>Family Experiences</div>
+                <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>Family Experiences</div>
                 <div className="p-5">
                     {/* Checkboxes */}
                     <div>
@@ -456,7 +456,7 @@ const GeneralInformationPartition = ({
 
             {/* Card 5: Lawyer Information */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-                <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>Lawyer Information</div>
+                <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>Lawyer Information</div>
                 <div className="p-5">
                     <h5 className="text-sm font-semibold text-gray-700 mb-3">Lawyer Information</h5>
                     <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mb-4">
@@ -575,7 +575,7 @@ const GeneralInformationPartition = ({
 
             {/* Card 6: Financial & Legal */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-                <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>Financial & Legal</div>
+                <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>Financial & Legal</div>
                 <div className="p-5">
                     {/* Source of Income */}
                     <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mb-4">
@@ -653,9 +653,9 @@ const GeneralInformationPartition = ({
                                 <button
                                     type="button"
                                     className="px-4 py-2 text-xs font-semibold rounded-lg text-white transition-colors mt-2"
-                                    style={{ backgroundColor: "#47315E" }}
+                                    style={{ backgroundColor: "#6100D7" }}
                                     onMouseEnter={e => e.currentTarget.style.backgroundColor = "#3a2649"}
-                                    onMouseLeave={e => e.currentTarget.style.backgroundColor = "#47315E"}
+                                    onMouseLeave={e => e.currentTarget.style.backgroundColor = "#6100D7"}
                                     disabled={!isEditing}
                                     onClick={() =>
                                     push({

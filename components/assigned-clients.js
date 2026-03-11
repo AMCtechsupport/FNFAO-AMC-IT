@@ -70,7 +70,7 @@ export default function AssignedClientsToAdvocate({ advocateId }) {
     <div className="mt-4 border border-gray-200 rounded-lg overflow-hidden">
 
       {/* Header */}
-      <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+      <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>
         Clients Assigned to Advocate
       </div>
 
@@ -93,7 +93,7 @@ export default function AssignedClientsToAdvocate({ advocateId }) {
                   <Link
                     href={`/clients/${assignment.Clients.client_id}`}
                     className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full border no-underline transition-colors"
-                    style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#47315E" }}
+                    style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#6100D7" }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#9899C0"}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#B2B3D7"}
                   >
