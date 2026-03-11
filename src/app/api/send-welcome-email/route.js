@@ -2,7 +2,8 @@ import { Resend } from "resend";
 import { NextResponse } from "next/server";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const fromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+const fromEmail =
+  process.env.RESEND_FROM_EMAIL || "no-reply@manitobachiefs.com";
 
 export async function POST(request) {
   try {
@@ -59,7 +60,7 @@ export async function POST(request) {
               href="${appUrl}"
               style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-size: 16px; font-weight: 600;"
             >
-              Go to App &rarr;
+              Go to App;
             </a>
 
             <p style="color: #aaaaaa; font-size: 13px; margin-top: 40px;">
