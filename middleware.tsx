@@ -1,77 +1,67 @@
-// src/middleware.tsx
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher, createClerkClient } from "@clerk/nextjs/server";
 import type { NextRequest } from "next/server";
 
-/**
- * RULES
- * - admin: can access ALL protected app routes
- * - advocate: can access only advocate/shared routes
- * - no role: redirect to /setup (auto-links their advocate account)
- *
- * NOTE: Uses role from sessionClaims.metadata.role (as per your token debug)
- */
+// Clerk client — reads publicMetadata directly, no JWT template required
+const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
 
-// Admin-only routes (advocate must NOT access)
+// Routes only admins can access
 const isAdminOnlyRoute = createRouteMatcher([
   "/admin(.*)",
   "/user-logs(.*)",
   "/settings(.*)",
   "/export(.*)",
+  "/report(.*)",
+  "/profile(.*)",
 ]);
 
-// Routes that advocates are allowed to access (admin also allowed)
+// Routes advocates are allowed to access
 const isAdvocateAllowedRoute = createRouteMatcher([
   "/user-dashboard(.*)",
-
-  "/youth-clients(.*)",
-
   "/pre-intake(.*)",
-  "/full-intake(.*)",
   "/youth-intake(.*)",
+  "/youth-clients(.*)",
+  "/adult-clients(.*)",
 ]);
 
-// Shared routes both roles can access (if you have them)
+// Routes both roles can access
 const isSharedRoute = createRouteMatcher([
   "/clients(.*)",
 ]);
 
-// Apply RBAC only to routes that need it
 const isProtectedRoute = (req: NextRequest) =>
   isAdminOnlyRoute(req) || isAdvocateAllowedRoute(req) || isSharedRoute(req);
 
 export default clerkMiddleware(async (auth, req) => {
   if (!isProtectedRoute(req)) return;
 
-  // Must be signed in
+  // Require authentication
   await auth.protect();
 
-  const { sessionClaims } = await auth();
+  const { userId } = await auth();
+  if (!userId) return;
 
-  // ✅ your role is here
-  const role = (sessionClaims as any)?.metadata?.role as
-    | "admin"
-    | "advocate"
-    | undefined;
+  // Read role from publicMetadata directly — reliable without a custom JWT template
+  const user = await clerk.users.getUser(userId);
+  const role = user.publicMetadata?.role as "admin" | "advocate" | undefined;
 
-  // Signed in but no role — redirect to /setup to auto-link their advocate account
+  // No role set yet — send to setup to link their advocate account
   if (!role) {
     if (req.nextUrl.pathname === "/setup") return;
     return Response.redirect(new URL("/setup", req.url));
   }
 
-  // ✅ ADMIN = ALLOW EVERYTHING
+  // Admins can access everything
   if (role === "admin") return;
 
-  // ✅ ADVOCATE RULES
-  // Block admin-only
+  // Advocates are blocked from admin-only routes
   if (role === "advocate" && isAdminOnlyRoute(req)) {
     return Response.redirect(new URL("/unauthorized", req.url));
   }
 
-  // Advocate can only access advocate-allowed + shared
+  // Advocates can only access their allowed routes + shared routes
   if (role === "advocate") {
-    const ok = isAdvocateAllowedRoute(req) || isSharedRoute(req);
-    if (!ok) {
+    const allowed = isAdvocateAllowedRoute(req) || isSharedRoute(req);
+    if (!allowed) {
       return Response.redirect(new URL("/unauthorized", req.url));
     }
   }
