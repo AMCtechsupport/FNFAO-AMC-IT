@@ -75,7 +75,7 @@ const PreIntakeFormSubmit = () => {
                 .insert([
                     {
                         ...clientData,
-                        createdBy: user.id,
+                        createdBy: user?.id ?? null,
                     },
                 ])
                 .select();

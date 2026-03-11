@@ -15,6 +15,20 @@ import ReferredBySelect from "@/components/ReferredBySelect";
 
 const TABS = ["General", "Children", "Health & Wellness", "Child & Family Services", "Case Notes", "Legal Notes"];
 
+// Fields belonging to each tab that can produce validation errors
+const TAB_ERROR_FIELDS = [
+  // Tab 0: General
+  ["firstName", "middleName", "lastName", "dateOfBirth", "firstNationMembership", "otherFirstNation",
+   "phoneNumber", "address", "city", "postalCode", "email",
+   "emergencyContactFirstName", "emergencyContactLastName", "emergencyContactNumber",
+   "ninePersonalHealthNumber", "sixPersonalHealthNumber",
+   "criminalChargesSpecified", "activeWarrantSpecified", "activeInvestigationExplained", "activeOrdersExplained"],
+  // Tab 1: Children
+  ["relationshipToChildren", "children"],
+  // Tab 2-5: no validated required fields
+  [], [], [], [],
+];
+
 export default function PreIntakeForm() {
   const { onSubmitPreIntake, formSent } = PreIntakeFormSubmit();
   const [activeTab, setActiveTab] = useState(0);
@@ -27,7 +41,7 @@ export default function PreIntakeForm() {
       validate={PreIntakeInputValidation}
       onSubmit={onSubmitPreIntake}
     >
-      {({ values, errors, setFieldValue }) => (
+      {({ values, errors, setFieldValue, submitCount }) => (
         <Form>
           {/* Page Header */}
           <div className="flex items-center justify-between mb-6">
@@ -50,22 +64,28 @@ export default function PreIntakeForm() {
           {/* Tab bar */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
             <div className="flex border-b border-gray-200 overflow-x-auto">
-              {TABS.map((tab, i) => (
-                <button
-                  key={tab}
-                  type="button"
-                  data-view-allow="true"
-                  onClick={() => setActiveTab(i)}
-                  className="px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors"
-                  style={
-                    activeTab === i
-                      ? { backgroundColor: "#47315E", color: "#fff", borderBottom: "2px solid #47315E" }
-                      : { color: "#6b7280", borderBottom: "2px solid transparent" }
-                  }
-                >
-                  {tab}
-                </button>
-              ))}
+              {TABS.map((tab, i) => {
+                const tabHasError = submitCount > 0 && TAB_ERROR_FIELDS[i]?.some(field => errors[field]);
+                return (
+                  <button
+                    key={tab}
+                    type="button"
+                    data-view-allow="true"
+                    onClick={() => setActiveTab(i)}
+                    className="px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-1"
+                    style={
+                      activeTab === i
+                        ? { backgroundColor: "#47315E", color: "#fff", borderBottom: "2px solid #47315E" }
+                        : { color: "#6b7280", borderBottom: "2px solid transparent" }
+                    }
+                  >
+                    {tab}
+                    {tabHasError && (
+                      <span className="inline-block w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
             <div className="p-6">
@@ -124,6 +144,11 @@ export default function PreIntakeForm() {
           >
             Submit Pre-Intake
           </button>
+          {submitCount > 0 && Object.keys(errors).length > 0 && (
+            <p className="text-center text-sm text-red-600 font-medium mb-2">
+              Some required fields are incomplete. Check tabs with a red dot for errors.
+            </p>
+          )}
           {formSent && (
             <p className="text-center text-sm text-green-600 font-medium mb-4">Pre-intake sent successfully</p>
           )}

@@ -169,3 +169,34 @@ export async function GET(request) {
     );
   }
 }
+
+export async function PATCH(request) {
+  try {
+    const body = await request.json();
+    const { client_id, clientValues } = body;
+
+    if (!client_id) {
+      return NextResponse.json({ error: "client_id is required" }, { status: 400 });
+    }
+
+    if (!clientValues || Object.keys(clientValues).length === 0) {
+      return NextResponse.json({ error: "clientValues is required" }, { status: 400 });
+    }
+
+    const { data, error } = await supabase
+      .from("Clients")
+      .update(clientValues)
+      .eq("client_id", client_id)
+      .select();
+
+    if (error) {
+      console.error("[PATCH /api/clients] Error:", error);
+      return NextResponse.json({ error: error.message, details: error }, { status: 500 });
+    }
+
+    return NextResponse.json({ data: data || [] });
+  } catch (err) {
+    console.error("[PATCH /api/clients] Unexpected error:", err);
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}

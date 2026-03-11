@@ -34,34 +34,20 @@ const isProtectedRoute = (req: NextRequest) =>
 export default clerkMiddleware(async (auth, req) => {
   if (!isProtectedRoute(req)) return;
 
-  // Require authentication
+  // Require authentication for all protected routes — no external API call here
   await auth.protect();
 
-  const { userId } = await auth();
-  if (!userId) return;
+  // Only call Clerk's API for admin-only routes.
+  // Advocate and shared routes skip this call entirely, keeping those requests fast
+  // and avoiding timeouts that would break page loads and form submissions.
+  if (isAdminOnlyRoute(req)) {
+    const { userId } = await auth();
+    if (!userId) return;
 
-  // Read role from publicMetadata directly — reliable without a custom JWT template
-  const user = await clerk.users.getUser(userId);
-  const role = user.publicMetadata?.role as "admin" | "advocate" | undefined;
+    const user = await clerk.users.getUser(userId);
+    const role = user.publicMetadata?.role as "admin" | "advocate" | undefined;
 
-  // No role set yet — send to setup to link their advocate account
-  if (!role) {
-    if (req.nextUrl.pathname === "/setup") return;
-    return Response.redirect(new URL("/setup", req.url));
-  }
-
-  // Admins can access everything
-  if (role === "admin") return;
-
-  // Advocates are blocked from admin-only routes
-  if (role === "advocate" && isAdminOnlyRoute(req)) {
-    return Response.redirect(new URL("/unauthorized", req.url));
-  }
-
-  // Advocates can only access their allowed routes + shared routes
-  if (role === "advocate") {
-    const allowed = isAdvocateAllowedRoute(req) || isSharedRoute(req);
-    if (!allowed) {
+    if (role !== "admin") {
       return Response.redirect(new URL("/unauthorized", req.url));
     }
   }

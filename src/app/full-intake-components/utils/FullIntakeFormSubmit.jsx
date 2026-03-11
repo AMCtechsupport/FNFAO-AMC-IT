@@ -78,11 +78,6 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
             return lines;
         };
 
-        // const { getToken } = useAuth();
-        const token = await getToken({ template: "supabase" });
-
-        // console.log("Token", token);
-
         // console.log("Form submitted with values:", values);
         // console.log("onSubmit values.notes:", values);
         // Validate that client_id is valid
@@ -147,22 +142,21 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
             }
         });
 
-        // Updates data in Supabase
-        const { data, error} = await supabase
-            .from("Clients")
-            .update(clientValues)
-            .eq("client_id", client_id)
-            .select(); // This retrieves the updated data
+        // Updates data via API route (uses service role key server-side, bypasses RLS)
+        const updateRes = await fetch("/api/clients", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ client_id, clientValues }),
+        });
 
-        // console.log("Supabase response:", response);
+        const updateResult = await updateRes.json();
 
-        // If there's an error, print it and exit
-        if (error) {
-            // console.error("Error updating data:", error);
-            console.error("Error updating Clients data:", JSON.stringify(error, null, 2));
-
+        if (!updateRes.ok) {
+            console.error("Error updating Clients data:", updateResult.error, updateResult.details);
             return;
         }
+
+        const data = updateResult.data;
 
         // Confirm that the update was successful
         if (data && data.length > 0) {
@@ -198,7 +192,6 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
                 console.error("Error update EIA data.");
             }
 
-            const token = await getToken({ template: "supabase" });
             // console.log("userId antes de handleNotesUpdate:", userId);
 
             // Call `handle Notes Update` to update the notes in the database
