@@ -4,6 +4,8 @@ import PhoneNumberInput from "@/components/ValidPhoneNumber";
 import InputField from "@/components/InputField";
 import ProvincesSelect from "@/components/ProvincesSelect";
 
+const today = new Date().toISOString().split("T")[0]; //get the current date
+
 const GeneralInformationHeader = ({
     values,
     errors,
@@ -56,6 +58,7 @@ const GeneralInformationHeader = ({
                                 name="dateOfBirth"
                                 disabled={!isEditing}
                                 className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
+                                max={today}
                             />
                             <ErrorMessage name="dateOfBirth" component={() => <p className="text-xs text-red-500 mt-1">{errors.dateOfBirth}</p>} />
                         </div>
