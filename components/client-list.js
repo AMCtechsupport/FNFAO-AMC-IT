@@ -87,9 +87,9 @@ function ClientTable({
                           onClick={() => onView(client)}
                           disabled={isBusy}
                           className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
-                          style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#6100D7" }}
-                          onMouseEnter={e => { if (!isBusy) e.currentTarget.style.backgroundColor = "#9899C0"; }}
-                          onMouseLeave={e => { if (!isBusy) e.currentTarget.style.backgroundColor = "#B2B3D7"; }}
+                          style={{ backgroundColor: "rgba(97, 0, 215, 0.02)", borderColor: "rgba(97, 0, 215, 0.3)", color: "#6100D7", transition: "all 0.3s ease" }}
+                          onMouseEnter={e => { if (!isBusy) e.currentTarget.style.backgroundColor = "#ffffff"; }}
+                          onMouseLeave={e => { if (!isBusy) e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)"; }}
                         >
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />

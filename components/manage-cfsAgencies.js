@@ -128,8 +128,8 @@ const CFSAgenciesManagement = () => {
           onClick={() => { setShowForm(!showForm); setNewCfsAgency(""); }}
           className="w-full py-2.5 text-sm font-medium rounded-lg transition-colors"
           style={{ backgroundColor: "#B2B3D7", color: "#6100D7" }}
-          onMouseEnter={e => e.currentTarget.style.backgroundColor = "#9899C0"}
-          onMouseLeave={e => e.currentTarget.style.backgroundColor = "#B2B3D7"}
+          onMouseEnter={e => e.currentTarget.style.backgroundColor = "#ffffff"}
+          onMouseLeave={e => e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)"}
         >
           {showForm ? "Cancel" : "+ Add New CFS Agency"}
         </button>
@@ -234,9 +234,9 @@ const CFSAgenciesManagement = () => {
                           <button
                             onClick={() => { setEditingItem(agency.agencyName); setEditValue(agency.agencyName); }}
                             className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full transition-colors border"
-                            style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#6100D7" }}
-                            onMouseEnter={e => e.currentTarget.style.backgroundColor = "#9899C0"}
-                            onMouseLeave={e => e.currentTarget.style.backgroundColor = "#B2B3D7"}
+                            style={{ backgroundColor: "rgba(97, 0, 215, 0.02)", borderColor: "rgba(97, 0, 215, 0.3)", color: "#6100D7", transition: "all 0.3s ease" }}
+                            onMouseEnter={e => e.currentTarget.style.backgroundColor = "#ffffff"}
+                            onMouseLeave={e => e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)"}
                           >
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" /></svg>
                             Edit

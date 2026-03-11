@@ -93,9 +93,9 @@ export default function AssignedClientsToAdvocate({ advocateId }) {
                   <Link
                     href={`/clients/${assignment.Clients.client_id}`}
                     className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full border no-underline transition-colors"
-                    style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#6100D7" }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#9899C0"}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#B2B3D7"}
+                    style={{ backgroundColor: "rgba(97, 0, 215, 0.02)", borderColor: "rgba(97, 0, 215, 0.3)", color: "#6100D7", transition: "all 0.3s ease" }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#ffffff"}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)"; e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.3)"; }}
                   >
                     View
                   </Link>

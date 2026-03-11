@@ -31,15 +31,20 @@ export default function ReportCategory({ name, description, path }) {
             disabled={isLoading}
             className="w-full py-2.5 text-sm font-medium rounded-lg transition-colors border-2 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
-              backgroundColor: "rgba(97, 0, 215, 0.04)",
-              borderColor: "#6100D7",
+              backgroundColor: "rgba(97, 0, 215, 0.02)",
+              borderColor: "rgba(97, 0, 215, 0.3)",
               color: "#6100D7",
+              transition: "all 0.3s ease",
             }}
             onMouseEnter={(e) => {
-              if (!isLoading) e.currentTarget.style.backgroundColor = "#ffffff";
+              if (!isLoading) {
+                e.currentTarget.style.backgroundColor = "#ffffff";
+                e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.6)";
+              }
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.04)";
+              e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)";
+              e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.3)";
             }}
           >
             {isLoading ? `Loading...` : { name }.name}

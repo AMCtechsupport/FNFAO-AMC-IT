@@ -180,10 +180,10 @@ const LinkAdvocate = () => {
               color: "#6100D7",
             }}
             onMouseEnter={(e) => {
-              if (!loading) e.currentTarget.style.backgroundColor = "#9899C0";
+              if (!loading) e.currentTarget.style.backgroundColor = "#ffffff";
             }}
             onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "#B2B3D7")
+              (e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)")
             }
           >
             {loading ? "Creating..." : "Create Advocate"}

@@ -382,9 +382,9 @@ export default function AssignAdvocate({
               type="submit"
               disabled={isAssigned}
               className="w-full py-2.5 text-sm font-medium rounded-lg transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#6100D7" }}
-              onMouseEnter={(e) => { if (!isAssigned) e.currentTarget.style.backgroundColor = "#9899C0"; }}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#B2B3D7"}
+              style={{ backgroundColor: "rgba(97, 0, 215, 0.02)", borderColor: "rgba(97, 0, 215, 0.3)", color: "#6100D7", transition: "all 0.3s ease" }}
+              onMouseEnter={(e) => { if (!isAssigned) e.currentTarget.style.backgroundColor = "#ffffff"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)"; e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.3)"; }}
             >
               Assign Advocate
             </button>
