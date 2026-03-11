@@ -10,6 +10,7 @@ import FirstNationSelect from "@/components/FirstNationSelect";
 
 const fieldCls = "w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white";
 const labelCls = "block text-xs font-medium text-gray-600 mb-1";
+const today = new Date().toISOString().split("T")[0]; // get the current date
 
 const YouthIntakeGeneralInfo = ({ errors }) => {
   const { setFieldValue } = useFormikContext();
@@ -46,7 +47,7 @@ const YouthIntakeGeneralInfo = ({ errors }) => {
           <div className="grid grid-cols-12 gap-4">
             <div className="col-span-3">
               <label className={labelCls} htmlFor="dateOfBirth">Birth Date:*</label>
-              <Field type="date" id="dateOfBirth" name="dateOfBirth" className={fieldCls} />
+              <Field type="date" id="dateOfBirth" name="dateOfBirth" className={fieldCls} max={today} />
               <ErrorMessage name="dateOfBirth" component={() => <p className={styles.errorText}>{errors.dateOfBirth}</p>} />
             </div>
             <div className="col-span-3">
