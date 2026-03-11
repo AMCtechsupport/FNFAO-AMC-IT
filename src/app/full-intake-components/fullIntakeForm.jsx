@@ -470,7 +470,7 @@ export default function FullIntakeForm({
                   onClick={() => {
                     resetForm();
                     setShowNewNoteForm(false);
-                    router.push(`/clients/${client_id}/view`);
+                    router.push(`/clients/${client_id}/view`); //go back to viewing page
                   }}
                 >
                   Cancel

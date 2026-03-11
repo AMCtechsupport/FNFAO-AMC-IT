@@ -196,7 +196,7 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6b7280")}
                     onClick={() => {
                       resetForm();
-                      router.push(`/youth-clients/${editClientId}/view`); // go back to view page
+                      router.push(`/youth-clients/${editClientId}/view`); // go back to viewing page
                     }}
                   >
                     Cancel
