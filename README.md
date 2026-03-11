@@ -1,7 +1,7 @@
 # AMC-FNFAO Database
 
 <div align="center">
-  <img src="public/logo.png" alt="Logo" width="80" height="80">
+  <img src="public/logo.png" alt="Logo" width="400" height="400">
 </div>
 
 ***Abinoojiyak Bigiiwewag — Our Children are Coming Home.***
