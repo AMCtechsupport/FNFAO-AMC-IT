@@ -175,6 +175,7 @@ const ChildFamilyServicesPartition = ({
                         <Field
                             as="textarea"
                             name="childrenInCareDuration"
+                            placeholder="e.g., 6 months, 2 years..."
                             className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
                             disabled={!isEditing}
                         />
@@ -191,6 +192,7 @@ const ChildFamilyServicesPartition = ({
                         <Field
                             as="textarea"
                             name="cfsChildrenApprehesionReason"
+                            placeholder="e.g., neglect, domestic violence..."
                             className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
                             disabled={!isEditing}
                         />
@@ -219,7 +221,7 @@ const ChildFamilyServicesPartition = ({
                             {values.kinship === "yes" && (
                                 <div className="col-span-8">
                                     <label className="block text-xs font-medium text-gray-600 mb-1">If yes, explain:</label>
-                                    <Field as="textarea" name="kinshipExplained" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
+                                    <Field as="textarea" name="kinshipExplained" placeholder="e.g., aunt caring for two children..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
                                     <ErrorMessage name="kinshipExplained" component="div" className="text-xs text-red-500 mt-1" />
                                 </div>
                             )}
@@ -259,6 +261,7 @@ const ChildFamilyServicesPartition = ({
                                                                 <InputField
                                                                     name={`family.${index}.firstName`}
                                                                     label="First Name:"
+                                                                    placeholder="Enter First Name"
                                                                     disabled={!isEditing}
                                                                 />
                                                             </div>
@@ -266,6 +269,7 @@ const ChildFamilyServicesPartition = ({
                                                                 <InputField
                                                                     name={`family.${index}.lastName`}
                                                                     label="Last Name:"
+                                                                    placeholder="Enter Last Name"
                                                                     disabled={!isEditing}
                                                                 />
                                                             </div>
@@ -273,6 +277,7 @@ const ChildFamilyServicesPartition = ({
                                                                 <InputField
                                                                     name={`family.${index}.relationshipToClient`}
                                                                     label="Relationship:"
+                                                                    placeholder="e.g., aunt, uncle..."
                                                                     disabled={!isEditing}
                                                                 />
                                                             </div>
@@ -337,6 +342,7 @@ const ChildFamilyServicesPartition = ({
                         <Field
                             as="textarea"
                             name="anyConcerns"
+                            placeholder="e.g., I am concerned about the visits being too infrequent..."
                             className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
                             disabled={!isEditing}
                         />
@@ -374,6 +380,7 @@ const ChildFamilyServicesPartition = ({
                                     <Field
                                         as="textarea"
                                         name="casePlanCopyDescribe"
+                                        placeholder="e.g., attend counselling, parenting classes..."
                                         className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
                                         disabled={!isEditing}
                                     />
@@ -405,7 +412,7 @@ const ChildFamilyServicesPartition = ({
                             {values.prentativeSupport === "yes" && (
                                 <div className="col-span-8">
                                     <label className="block text-xs font-medium text-gray-600 mb-1">If yes, explain:</label>
-                                    <Field as="textarea" name="prentativeSupportExplained" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
+                                    <Field as="textarea" name="prentativeSupportExplained" placeholder="e.g., family support worker, parenting programs..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
                                     <ErrorMessage name="prentativeSupportExplained" component="div" className="text-xs text-red-500 mt-1" />
                                 </div>
                             )}
@@ -430,7 +437,7 @@ const ChildFamilyServicesPartition = ({
                             {values.privateAgreement === "yes" && (
                                 <div className="col-span-8">
                                     <label className="block text-xs font-medium text-gray-600 mb-1">If yes, explain:</label>
-                                    <Field as="textarea" name="privateAgreementExplained" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
+                                    <Field as="textarea" name="privateAgreementExplained" placeholder="e.g., safety plan with relative since Jan 2024..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
                                     <ErrorMessage name="privateAgreementExplained" component="div" className="text-xs text-red-500 mt-1" />
                                 </div>
                             )}
@@ -469,7 +476,7 @@ const ChildFamilyServicesPartition = ({
                             {values.previousInvolvement === "yes" && (
                                 <div className="col-span-8">
                                     <label className="block text-xs font-medium text-gray-600 mb-1">If yes, explain:</label>
-                                    <Field as="textarea" name="previousInvolvementExplain" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
+                                    <Field as="textarea" name="previousInvolvementExplain" placeholder="e.g., involved in 2015 for neglect concerns..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
                                     <ErrorMessage name="previousInvolvementExplain" component="div" className="text-xs text-red-500 mt-1" />
                                 </div>
                             )}
@@ -479,7 +486,7 @@ const ChildFamilyServicesPartition = ({
                     {/* Visitation schedule */}
                     <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mb-4">
                         <label className="block text-xs font-medium text-gray-600 mb-1">What is your current visitation schedule with your children?</label>
-                        <Field as="textarea" name="visitsChildFrequency" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
+                        <Field as="textarea" name="visitsChildFrequency" placeholder="e.g., twice a week, every weekend..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
                         <ErrorMessage name="visitsChildFrequency" component="div" className="text-xs text-red-500 mt-1" />
                     </div>
 
@@ -501,7 +508,7 @@ const ChildFamilyServicesPartition = ({
                             {values.parentalCapacityDone === "yes" && (
                                 <div className="col-span-8">
                                     <label className="block text-xs font-medium text-gray-600 mb-1">If yes, explain:</label>
-                                    <Field as="textarea" name="parentalCapacity" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
+                                    <Field as="textarea" name="parentalCapacity" placeholder="e.g., assessed in 2020 by Dr. Smith..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
                                     <ErrorMessage name="parentalCapacity" component="div" className="text-xs text-red-500 mt-1" />
                                 </div>
                             )}

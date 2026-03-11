@@ -43,13 +43,13 @@ const GeneralInformationHeader = ({
                     {/* Name + DOB row */}
                     <div className="grid grid-cols-12 gap-4 mb-4">
                         <div className="col-span-3">
-                            <InputField name="firstName" label="First Name" placeholder="John" error={errors.firstName} disabled={!isEditing} />
+                            <InputField name="firstName" label="First Name" placeholder="Enter First Name" error={errors.firstName} disabled={!isEditing} />
                         </div>
                         <div className="col-span-3">
-                            <InputField name="middleName" label="Middle Name" error={errors.middleName} disabled={!isEditing} />
+                            <InputField name="middleName" label="Middle Name" placeholder="Enter Middle Name" error={errors.middleName} disabled={!isEditing} />
                         </div>
                         <div className="col-span-3">
-                            <InputField name="lastName" label="Last Name" placeholder="Connor" error={errors.lastName} disabled={!isEditing} />
+                            <InputField name="lastName" label="Last Name" placeholder="Enter Last Name" error={errors.lastName} disabled={!isEditing} />
                         </div>
                         <div className="col-span-3">
                             <label className="block text-xs font-medium text-gray-600 mb-1">Birth Date</label>
@@ -67,16 +67,16 @@ const GeneralInformationHeader = ({
                     {/* Address row */}
                     <div className="grid grid-cols-12 gap-4 mb-4">
                         <div className="col-span-3">
-                            <InputField name="address" label="Address" placeholder="161 Main St, Unit 230" error={errors.address} disabled={!isEditing} />
+                            <InputField name="address" label="Address" placeholder="e.g., 123 Main Street" error={errors.address} disabled={!isEditing} />
                         </div>
                         <div className="col-span-3">
-                            <InputField name="city" label="City" placeholder="Winnipeg" error={errors.city} disabled={!isEditing} />
+                            <InputField name="city" label="City" placeholder="e.g., Winnipeg" error={errors.city} disabled={!isEditing} />
                         </div>
                         <div className="col-span-4">
                             <ProvincesSelect name="province" label="Province" error={errors.province} disabled={!isEditing} />
                         </div>
                         <div className="col-span-2">
-                            <InputField name="postalCode" label="Postal Code" placeholder="R3C 0V8" error={errors.postalCode} disabled={!isEditing} />
+                            <InputField name="postalCode" label="Postal Code" placeholder="A1A 1A1" error={errors.postalCode} disabled={!isEditing} />
                         </div>
                     </div>
 
@@ -100,6 +100,7 @@ const GeneralInformationHeader = ({
                                 type="email"
                                 id="email"
                                 name="email"
+                                placeholder="e.g., name@example.com"
                                 disabled={!isEditing}
                                 className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
                             />
