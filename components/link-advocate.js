@@ -40,6 +40,32 @@ const LinkAdvocate = () => {
 
       if (result.success) {
         setSuccess(result.message);
+
+        // Send welcome email and surface API errors to help troubleshooting
+        try {
+          const emailResponse = await fetch("/api/send-welcome-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              firstName: firstName.trim(),
+              lastName: lastName.trim(),
+              email: email.trim(),
+            }),
+          });
+
+          if (!emailResponse.ok) {
+            const emailResult = await emailResponse.json().catch(() => ({}));
+            const message =
+              emailResult?.error || "Welcome email could not be sent.";
+            setError(`Advocate created, but email was not sent: ${message}`);
+          }
+        } catch (emailErr) {
+          console.error("Welcome email failed:", emailErr);
+          setError(
+            "Advocate created, but email was not sent due to a network error.",
+          );
+        }
+
         setFirstName("");
         setLastName("");
         setEmail("");
@@ -54,14 +80,15 @@ const LinkAdvocate = () => {
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-
       {/* Header */}
-      <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+      <div
+        className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider"
+        style={{ backgroundColor: "#47315E" }}
+      >
         Create New Advocate
       </div>
 
       <div className="p-6">
-
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg mb-4">
             {error}
@@ -76,7 +103,10 @@ const LinkAdvocate = () => {
 
         <form onSubmit={handleCreateAdvocate} className="space-y-4">
           <div>
-            <label htmlFor="firstName" className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+            <label
+              htmlFor="firstName"
+              className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5"
+            >
               First Name <span className="text-red-500">*</span>
             </label>
             <input
@@ -84,14 +114,20 @@ const LinkAdvocate = () => {
               type="text"
               value={firstName}
               placeholder="Advocate's first name"
-              onChange={(e) => { setFirstName(e.target.value); if (success) setSuccess(null); }}
+              onChange={(e) => {
+                setFirstName(e.target.value);
+                if (success) setSuccess(null);
+              }}
               required
               className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none transition"
             />
           </div>
 
           <div>
-            <label htmlFor="lastName" className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+            <label
+              htmlFor="lastName"
+              className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5"
+            >
               Last Name <span className="text-red-500">*</span>
             </label>
             <input
@@ -99,14 +135,20 @@ const LinkAdvocate = () => {
               type="text"
               value={lastName}
               placeholder="Advocate's last name"
-              onChange={(e) => { setLastName(e.target.value); if (success) setSuccess(null); }}
+              onChange={(e) => {
+                setLastName(e.target.value);
+                if (success) setSuccess(null);
+              }}
               required
               className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none transition"
             />
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+            <label
+              htmlFor="email"
+              className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5"
+            >
               Email <span className="text-red-500">*</span>
             </label>
             <input
@@ -114,7 +156,10 @@ const LinkAdvocate = () => {
               type="email"
               value={email}
               placeholder="e.g., name@example.com"
-              onChange={(e) => { setEmail(e.target.value); if (success) setSuccess(null); }}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (success) setSuccess(null);
+              }}
               required
               className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none transition"
             />
@@ -129,14 +174,21 @@ const LinkAdvocate = () => {
             type="submit"
             disabled={loading}
             className="w-full py-2.5 text-sm font-medium rounded-lg transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#47315E" }}
-            onMouseEnter={(e) => { if (!loading) e.currentTarget.style.backgroundColor = "#9899C0"; }}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#B2B3D7"}
+            style={{
+              backgroundColor: "#B2B3D7",
+              borderColor: "#9899C0",
+              color: "#47315E",
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) e.currentTarget.style.backgroundColor = "#9899C0";
+            }}
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.backgroundColor = "#B2B3D7")
+            }
           >
             {loading ? "Creating..." : "Create Advocate"}
           </button>
         </form>
-
       </div>
     </div>
   );

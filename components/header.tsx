@@ -1,13 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
+import {
+  SignInButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+  useUser,
+} from "@clerk/nextjs";
 import useSyncClerkWithSupabase from "../components/useSyncClerkWithSupabase";
 
 export default function Header() {
   useSyncClerkWithSupabase();
 
-  const {user, isLoaded} = useUser();
+  const { user, isLoaded } = useUser();
 
   // Determine route based on role
   let dashboardRoute = "/user-dashboard";
@@ -19,7 +25,6 @@ export default function Header() {
     dashboardRoute = "/user-dashboard";
   }
 
-
   return (
     <>
       {/* Header for unauthenticated users */}
@@ -27,7 +32,14 @@ export default function Header() {
         <header className="bg-black text-white h-24 flex items-center">
           <div className="flex justify-between items-center w-full p-4">
             <div className="flex-1"></div> {/* Pushes content to the right */}
-            <SignInButton>Sign In</SignInButton>
+            <SignInButton mode="modal">
+              <button
+                type="button"
+                className="rounded-md bg-[#7504ff] px-5 py-2 text-sm font-semibold text-white border border-[#6a04e6] hover:bg-[#6700ea] transition-colors"
+              >
+                Sign In
+              </button>
+            </SignInButton>
           </div>
         </header>
       </SignedOut>
@@ -46,10 +58,8 @@ export default function Header() {
               {/* Authenticated user button */}
               <UserButton />
             </div>
-
           </div>
         </header>
-
       </SignedIn>
     </>
   );
