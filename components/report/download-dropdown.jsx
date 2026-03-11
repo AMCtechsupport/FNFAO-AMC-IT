@@ -8,7 +8,7 @@ in various formats such as PDF, CSV, and JSON.
 import { useState } from "react";
 
 
-export default function DownloadDropdown({ title, onDownloadSelect, defaultText }) {
+export default function DownloadDropdown({ onDownloadSelect }) {
     const [isOpen, setIsOpen] = useState(false);
 
     const downloadOptions = [
@@ -33,7 +33,7 @@ export default function DownloadDropdown({ title, onDownloadSelect, defaultText 
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
             >
-                {defaultText}
+                Download as
                 <svg
                     className={`w-4 h-4 transform transition-transform ${isOpen ? "rotate-180" : "rotate-0"}`}
                     fill="none"
