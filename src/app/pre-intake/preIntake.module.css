@@ -30,7 +30,7 @@
 }
 
 .textarea:focus {
-  border-color: #6100D7;
+  border-color: #6100d7;
   outline: none;
   box-shadow: 0 0 0 2px rgba(97, 0, 215, 0.1);
 }
@@ -49,7 +49,7 @@
 }
 
 .select:focus {
-  border-color: #6100D7;
+  border-color: #6100d7;
   outline: none;
   box-shadow: 0 0 0 2px rgba(97, 0, 215, 0.1);
 }
