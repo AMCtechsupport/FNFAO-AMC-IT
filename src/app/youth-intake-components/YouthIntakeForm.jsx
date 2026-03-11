@@ -194,7 +194,10 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
                     style={{ backgroundColor: "#6b7280" }}
                     onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#4b5563")}
                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6b7280")}
-                    onClick={() => { resetForm(); setIsEditing(false); }}
+                    onClick={() => {
+                      resetForm();
+                      router.push(`/youth-clients/${editClientId}/view`); // go back to view page
+                    }}
                   >
                     Cancel
                   </button>

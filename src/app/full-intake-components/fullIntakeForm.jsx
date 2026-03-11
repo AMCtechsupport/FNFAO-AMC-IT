@@ -469,8 +469,8 @@ export default function FullIntakeForm({
                   onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#6b7280")}
                   onClick={() => {
                     resetForm();
-                    setIsEditing(false);
                     setShowNewNoteForm(false);
+                    router.push(`/clients/${client_id}/view`);
                   }}
                 >
                   Cancel
