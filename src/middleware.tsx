@@ -8,6 +8,8 @@ type UserRole = "admin" | "advocate" | undefined;
 const isProtectedRoute = createRouteMatcher([
   "/user-home(.*)",
   "/clients(.*)",
+  "/adult-clients(.*)",
+  "/youth-clients(.*)",
   "/pre-intake(.*)",
   "/admin(.*)",
   "/user-logs(.*)",
