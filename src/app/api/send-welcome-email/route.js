@@ -30,7 +30,7 @@ export async function POST(request) {
       to: email,
       subject: "Welcome – Your Account Has Been Created",
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; background-color: #f9f9f9;">
+        <div style="font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; padding: 32px; background-color: #f9f9f9;">
           <div style="background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
             <h1 style="color: #1a1a1a; font-size: 24px; margin-bottom: 8px;">Welcome, ${firstName}!</h1>
             <p style="color: #555555; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
@@ -58,12 +58,14 @@ export async function POST(request) {
 
             <a
               href="${appUrl}"
-              style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-size: 16px; font-weight: 600;"
+              style="display: inline-block; background-color: #7504ff; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; margin-bottom: 20px; font-size: 16px; font-weight: 600;"
             >
-              Go to App;
+              Go to App
             </a>
-
-            <p style="color: #aaaaaa; font-size: 13px; margin-top: 40px;">
+            <p style="color: #555555; font-size: 12px; line-height: 1.6; margin-bottom: 20px;">
+              *Note: To protect your account, we recommend setting up a password by clicking on the profile icon in the top right corner of the app and selecting "Manage Account" > "Security" > "Set Password"
+            </p>
+            <p style="color: #aaaaaa; font-size: 13px; margin-top: 20px;">
               If you did not expect this email, you can safely ignore it.
             </p>
           </div>
