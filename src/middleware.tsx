@@ -1,29 +1,58 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher, createClerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 
 type UserRole = "admin" | "advocate" | undefined;
 
-// Define routes that are protected(authenticated via clerk)
+// Clerk client for reading publicMetadata directly (bypasses JWT claims)
+const clerk = createClerkClient({
+  secretKey: process.env.CLERK_SECRET_KEY,
+});
+
+// All routes that require authentication
 const isProtectedRoute = createRouteMatcher([
   "/user-home(.*)",
   "/clients(.*)",
+  "/adult-clients(.*)",
+  "/youth-clients(.*)",
   "/pre-intake(.*)",
-  "/full-intake(.*)",
   "/admin(.*)",
   "/user-logs(.*)",
+  "/settings(.*)",
+  "/export(.*)",
+  "/report(.*)",
+  "/profile(.*)",
 ]);
 
+// Routes that only admins can access — advocates are blocked
+const isAdminOnlyRoute = createRouteMatcher([
+  "/user-logs(.*)",
+  "/settings(.*)",
+  "/export(.*)",
+  "/report(.*)",
+  "/admin(.*)",
+  "/profile(.*)",
+]);
 
 export default clerkMiddleware(async (auth, req) => {
+  const { userId } = await auth();
+
   if (isProtectedRoute(req)) {
-    // Protect all protected routes for logged-in users
+    // Redirect unauthenticated users to sign-in
     await auth.protect();
+  }
 
-    const { sessionClaims } = await auth();
+  if (!userId) return NextResponse.next();
 
-    // const userRole = sessionClaims?.metadata?.role as UserRole;
+  // Only perform the role check for admin-only routes to keep other requests fast
+  if (isAdminOnlyRoute(req)) {
+    // Read publicMetadata directly from Clerk — reliable regardless of JWT template config
+    const user = await clerk.users.getUser(userId);
+    const userRole = user.publicMetadata?.role as UserRole;
 
+    if (userRole !== "admin") {
+      return NextResponse.redirect(new URL("/unauthorized", req.url));
+    }
   }
 });
 

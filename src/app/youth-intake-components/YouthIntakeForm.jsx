@@ -7,6 +7,7 @@ import * as Yup from "yup";
 import { useUser } from "@clerk/clerk-react";
 
 import youthIntakeInputValidation from "./utils/youthIntakeInputValidation";
+import ReferredBySelect from "@/components/ReferredBySelect";
 
 // Form Sections
 import YouthIntakeOtherInformation from "./form-sections/YouthIntakeOtherInformation";
@@ -158,7 +159,7 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
         return YouthIntakeFormSubmit(values, { resetForm }, user, router, setFormSent, isEditMode, editClientId);
       }}
     >
-      {({ values, errors, setFieldValue, resetForm }) => (
+      {({ values, errors, setFieldValue, resetForm, submitCount }) => (
         <Form>
           {/* Page Header */}
           <div className="flex items-center justify-between mb-6">
@@ -166,7 +167,11 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
               <h1 className="text-2xl font-bold text-gray-900">Youth Intake Form</h1>
               <p className="text-sm text-gray-500 mt-1">Complete all sections and submit when ready</p>
             </div>
-            {editClientId && (
+            {!isEditMode ? (
+              <div className="w-72">
+                <ReferredBySelect name="referredBy" label="How did the client learn about FNFAO?" error={errors.referredBy} />
+              </div>
+            ) : editClientId && (
               <div className="text-sm text-gray-600 bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-sm">
                 <span className="font-semibold text-gray-800">Assigned to:</span> {assignedAdvocateName}
               </div>
@@ -212,15 +217,22 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
                   </button>
                 </div>
               ) : (
-                <button
-                  type="submit"
-                  className="w-full py-3 text-sm font-semibold rounded-lg transition-colors text-white mb-2"
-                  style={{ backgroundColor: "#8060A0" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#6B4E8A")}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#8060A0")}
-                >
-                  Submit Youth Intake
-                </button>
+                <>
+                  <button
+                    type="submit"
+                    className="w-full py-3 text-sm font-semibold rounded-lg transition-colors text-white mb-2"
+                    style={{ backgroundColor: "#8060A0" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#6B4E8A")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#8060A0")}
+                  >
+                    Submit Youth Intake
+                  </button>
+                  {submitCount > 0 && Object.keys(errors).length > 0 && (
+                    <p className="text-center text-sm text-red-600 font-medium mb-2">
+                      Some required fields are incomplete. Please scroll up to check for errors.
+                    </p>
+                  )}
+                </>
               )}
 
               {formSent && (

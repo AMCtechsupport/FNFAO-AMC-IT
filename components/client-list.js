@@ -192,7 +192,7 @@ export default function ClientsList() {
       if (client.clientType === "Youth Intake") {
         router.push(`/youth-clients/${client.client_id}/view`);
       } else {
-        router.push(`/clients/${client.client_id}/view`);
+        router.push(`/adult-clients/${client.client_id}/view`);
       }
     }, 50);
   };

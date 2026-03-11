@@ -3,7 +3,6 @@ import styles from "../../youth-intake/youthIntake.module.css";
 import { Field, ErrorMessage, useFormikContext } from "formik";
 import PhoneNumberInput from "@/components/ValidPhoneNumber";
 import InputField from "@/components/InputField";
-import ReferredBySelect from "@/components/ReferredBySelect";
 import ProvincesSelect from "@/components/ProvincesSelect";
 import PronounSelect from "@/components/Pronouns";
 import FirstNationSelect from "@/components/FirstNationSelect";
@@ -17,12 +16,6 @@ const YouthIntakeGeneralInfo = ({ errors }) => {
 
   return (
     <>
-      <div className="flex justify-end mb-4">
-        <div className="w-72">
-          <ReferredBySelect name="referredBy" label="How did the client learn about FNFAO?" error={errors.referredBy} />
-        </div>
-      </div>
-
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
         <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
           General Information

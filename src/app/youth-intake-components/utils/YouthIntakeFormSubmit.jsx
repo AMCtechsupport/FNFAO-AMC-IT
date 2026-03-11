@@ -165,7 +165,7 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, setFormS
             .insert([
             {
                 ...clientData,
-                createdBy: user.id,
+                createdBy: user?.id ?? null,
             },
             ])
             .select();
