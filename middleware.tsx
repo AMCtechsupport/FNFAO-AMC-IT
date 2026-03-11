@@ -14,31 +14,25 @@ import type { NextRequest } from "next/server";
 // Admin-only routes (advocate must NOT access)
 const isAdminOnlyRoute = createRouteMatcher([
   "/admin(.*)",
-  // If you later add a dedicated /report route, add it here:
-  // "/report(.*)",
+  "/user-logs(.*)",
+  "/settings(.*)",
+  "/export(.*)",
 ]);
 
 // Routes that advocates are allowed to access (admin also allowed)
 const isAdvocateAllowedRoute = createRouteMatcher([
   "/user-dashboard(.*)",
 
-  "/clients(.*)",
   "/youth-clients(.*)",
 
   "/pre-intake(.*)",
   "/full-intake(.*)",
   "/youth-intake(.*)",
-
-  // If these exist in your repo, keep them:
-  "/data-collection(.*)",
 ]);
 
 // Shared routes both roles can access (if you have them)
 const isSharedRoute = createRouteMatcher([
-  "/profile(.*)",
-  "/user-logs(.*)",
-  "/settings(.*)",
-  "/export(.*)",
+  "/clients(.*)",
 ]);
 
 // Apply RBAC only to routes that need it
