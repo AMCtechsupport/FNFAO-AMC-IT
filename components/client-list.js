@@ -231,6 +231,16 @@ export default function ClientsList() {
         </span>
       </div>
 
+      {/* Filter Search */}
+        <div class="flex items-center justify-end pb-4">
+          <select className="border p-2 rounded">
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>  
+            <option value="az">A-Z</option>
+            <option value="za">Z-A</option>
+          </select>
+        </div>
+
       {/* Search */}
       <div className="mb-6">
         <div className="relative">
@@ -248,6 +258,8 @@ export default function ClientsList() {
           />
         </div>
       </div>
+
+       
 
       {/* Loading */}
       {loading ? (
