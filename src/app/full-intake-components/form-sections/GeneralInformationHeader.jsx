@@ -9,6 +9,7 @@ const GeneralInformationHeader = ({
     errors,
     isEditing,
     assignedAdvocateName,
+    hideMetaRow = false,
 }) => {
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
@@ -20,23 +21,25 @@ const GeneralInformationHeader = ({
             </div>
 
             <div className="p-5">
-                {/* Meta row */}
-                <div className="grid grid-cols-3 gap-4 mb-4">
-                    <div>
-                        <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Created At</span>
-                        <span className="text-sm text-gray-800">{values.createdAt || "—"}</span>
+                {/* Meta row — hidden on creation form */}
+                {!hideMetaRow && (
+                    <div className="grid grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Created At</span>
+                            <span className="text-sm text-gray-800">{values.createdAt || "—"}</span>
+                        </div>
+                        <div>
+                            <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Last Updated</span>
+                            <span className="text-sm text-gray-800">{values.dateModified || "—"}</span>
+                        </div>
+                        <div>
+                            <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Assigned To</span>
+                            <span className="text-sm text-gray-800">{assignedAdvocateName || "—"}</span>
+                        </div>
                     </div>
-                    <div>
-                        <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Last Updated</span>
-                        <span className="text-sm text-gray-800">{values.dateModified || "—"}</span>
-                    </div>
-                    <div>
-                        <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Assigned To</span>
-                        <span className="text-sm text-gray-800">{assignedAdvocateName || "—"}</span>
-                    </div>
-                </div>
+                )}
 
-                <div className="border-t border-gray-100 pt-4">
+                <div className={!hideMetaRow ? "border-t border-gray-100 pt-4" : ""}>
                     {/* Name + DOB row */}
                     <div className="grid grid-cols-12 gap-4 mb-4">
                         <div className="col-span-3">

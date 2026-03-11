@@ -9,7 +9,6 @@ const isProtectedRoute = createRouteMatcher([
   "/user-home(.*)",
   "/clients(.*)",
   "/pre-intake(.*)",
-  "/full-intake(.*)",
   "/admin(.*)",
   "/user-logs(.*)",
 ]);

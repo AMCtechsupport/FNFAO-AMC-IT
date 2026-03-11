@@ -7,7 +7,8 @@ import InputField from "@/components/InputField";
 const ChildFamilyServicesPartition = ({
     childrenData,
     isEditing,
-    values
+    values,
+    hideCfsAgencies = false,
 }) => {
     return (
         <>
@@ -17,6 +18,9 @@ const ChildFamilyServicesPartition = ({
                     CFS Agencies
                 </div>
                 <div className="p-5">
+                    {hideCfsAgencies ? (
+                        <p className="text-sm text-gray-500 italic">CFS agency details will be available after the client is created.</p>
+                    ) : (<>
 
                     {/* CFS Agencies table */}
                     <h5 className="text-sm font-semibold text-gray-700 mb-3">CFS Agencies</h5>
@@ -154,6 +158,7 @@ const ChildFamilyServicesPartition = ({
                         ) : null;
                     })()}
 
+                    </>)}
                 </div>
             </div>
 

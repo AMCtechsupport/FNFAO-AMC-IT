@@ -10,7 +10,7 @@ import FullIntakeForm from "../../full-intake-components/fullIntakeForm";
 export default function AdultClientEdit({}) {
   const params = useParams();
   const router = useRouter();
-  const client_id = params?.clientId || "61";
+  const client_id = params?.clientId;
 
   const [clientName, setClientName] = useState("");
   const [isLoading, setIsLoading] = useState(true);

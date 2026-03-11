@@ -7,7 +7,6 @@ import FullIntakeForm from "../full-intake-components/fullIntakeForm";
 
 
 export default function FullIntake({client_id}) {
-    const testClientId = client_id || "61";
     const { userId, getToken } = useAuth();
 
     return (
@@ -15,7 +14,7 @@ export default function FullIntake({client_id}) {
             <div className={styles.fullIntakeContainer}>
                 <div className={styles.container}>
                     <FullIntakeForm
-                        client_id = {testClientId}
+                        client_id = {client_id}
                         userId={userId}
                         getToken={getToken} />
                 </div>
