@@ -45,7 +45,7 @@ git clone https:
 ```sh
 npm install
 ```
-4. Create a .env file in the root of the project, and add your environment variables there
+4. Create a .env.local file in the root of the project, and add your environment variables there
 
 ## Usage
 
