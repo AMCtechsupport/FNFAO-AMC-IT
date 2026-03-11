@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import styles from "../youth-intake/youthIntake.module.css";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { useUser } from "@clerk/clerk-react";
@@ -48,7 +47,11 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
   const { user } = useUser();
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(isEditMode && !isViewOnly);
-  const [formSent, setFormSent] = useState(false);
+  const [toast, setToast] = useState(null);
+  const showToast = (type, message) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 4000);
+  };
   const [assignedAdvocateName, setAssignedAdvocateName] = useState("—");
 
   const { initialValues, isLoading } = YouthIntakeFetchClientData(
@@ -156,7 +159,7 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
       validate={youthIntakeInputValidation}
       onSubmit={(values, { resetForm }) => {
         if (isViewOnly) return;
-        return YouthIntakeFormSubmit(values, { resetForm }, user, router, setFormSent, isEditMode, editClientId);
+        return YouthIntakeFormSubmit(values, { resetForm }, user, router, showToast, isEditMode, editClientId);
       }}
     >
       {({ values, errors, setFieldValue, resetForm, submitCount }) => (
@@ -235,10 +238,19 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
                 </>
               )}
 
-              {formSent && (
-                <p className={styles.successfulText}>
-                  {isEditMode ? "Youth client updated successfully" : "Youth Intake sent successfully"}
-                </p>
+              {toast && (
+                <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white ${toast.type === "success" ? "bg-green-500" : "bg-red-500"}`}>
+                  {toast.type === "success" ? (
+                    <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  )}
+                  {toast.message}
+                </div>
               )}
             </>
           )}

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 import supabase from "../../lib/supabase";
 
@@ -27,9 +26,8 @@ const getManitobaDateTime = () => {
   return `${year}-${month}-${day}T${hour}:${minute}`;
 };
 
-const PreIntakeFormSubmit = () => {
+const PreIntakeFormSubmit = (showToast) => {
     const { user } = useUser();
-    const [formSent, setFormSent] = useState(false);
     const onSubmitPreIntake = async (values, { resetForm }) => {
         try {
             const convertedValues = {};
@@ -168,15 +166,14 @@ const PreIntakeFormSubmit = () => {
             });
 
             // Reset form and show success message
-            setFormSent(true);
+            showToast("success", "Pre-intake sent successfully");
             resetForm();
-            setTimeout(() => setFormSent(false), 5000);
         } catch (error) {
             console.error("Error submitting pre-intake:", error);
         }
 
     };
-    return { onSubmitPreIntake, formSent};
+    return { onSubmitPreIntake };
 };
 
 export default PreIntakeFormSubmit;
