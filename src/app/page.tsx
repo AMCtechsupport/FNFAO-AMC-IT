@@ -27,7 +27,7 @@ export default function Home() {
 
       </main>
       <footer className="bg-black text-white text-center p-4">
-        <p>&copy; All rights reserved. 2025 Assembly of Manitoba Chiefs </p>
+        <p>&copy; All rights reserved. 2026 Assembly of Manitoba Chiefs </p>
       </footer>
     </div>
   );
