@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { Formik, Form, useFormikContext } from "formik";
+import React, { useState } from "react";
+import { Formik, Form } from "formik";
 
 import preIntakeInitialValues from "./utils/preIntakeInitialValues";
 import PreIntakeInputValidation from "./utils/PreIntakeInputValidation";
@@ -12,6 +12,8 @@ import ChildrenPartition from "../full-intake-components/form-sections/ChildrenP
 import HealthWellnessPartition from "../full-intake-components/form-sections/HealthWellnessPartition";
 import ChildFamilyServicesPartition from "../full-intake-components/form-sections/ChildFamilyServices";
 import ReferredBySelect from "@/components/ReferredBySelect";
+import ValidationErrorToast from "../../../components/ValidationErrorToast";
+import ToastNotification from "../../../components/ToastNotification";
 
 const TABS = ["General", "Children", "Health & Wellness", "Child & Family Services", "Case Notes", "Legal Notes"];
 
@@ -28,19 +30,6 @@ const TAB_ERROR_FIELDS = [
   // Tab 2-5: no validated required fields
   [], [], [], [],
 ];
-
-function ValidationErrorToast({ showToast }) {
-  const { submitCount, errors } = useFormikContext();
-  const shownForSubmit = useRef(0);
-  const errorCount = Object.keys(errors).length;
-  useEffect(() => {
-    if (submitCount > 0 && errorCount > 0 && submitCount !== shownForSubmit.current) {
-      showToast("error", "Some required fields are incomplete. Check tabs with a red dot for errors.");
-      shownForSubmit.current = submitCount;
-    }
-  }, [submitCount, errorCount]);
-  return null;
-}
 
 export default function PreIntakeForm() {
   const [toast, setToast] = useState(null);
@@ -162,21 +151,8 @@ export default function PreIntakeForm() {
           >
             Submit Pre-Intake
           </button>
-          <ValidationErrorToast showToast={showToast} />
-          {toast && (
-            <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white ${toast.type === "success" ? "bg-green-500" : "bg-red-500"}`}>
-              {toast.type === "success" ? (
-                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                </svg>
-              ) : (
-                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              )}
-              {toast.message}
-            </div>
-          )}
+          <ValidationErrorToast showToast={showToast} message="Some required fields are incomplete. Check tabs with a red dot for errors." />
+          <ToastNotification toast={toast} />
         </Form>
       )}
     </Formik>
