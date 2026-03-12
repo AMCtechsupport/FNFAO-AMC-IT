@@ -51,7 +51,7 @@ function ClientTable({
         <table className="min-w-full text-sm text-left">
           <thead>
             <tr className="text-white" style={{ backgroundColor: "#6100D7" }}>
-              <th className="py-3 px-4 font-semibold text-xs uppercase tracking-wider">Name</th>
+              <th className="py-3 px-4 font-semibold text-xs uppercase tracking-wider text-center">Name</th>
               <th className="py-3 px-4 font-semibold text-xs uppercase tracking-wider text-center">Action</th>
             </tr>
           </thead>
@@ -82,7 +82,7 @@ function ClientTable({
                     key={client.client_id}
                     className={`transition-colors hover:bg-gray-50 ${index % 2 !== 0 ? "bg-gray-50/50" : ""}`}
                   >
-                    <td className="py-3 px-4 font-medium text-gray-800">{fullName || "—"}</td>
+                    <td className="py-3 px-4 font-medium text-gray-800 text-center">{fullName || "—"}</td>
                     <td className="py-3 px-4 whitespace-nowrap">
                       <div className="flex items-center justify-center gap-1.5">
                         <button
