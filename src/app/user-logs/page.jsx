@@ -94,7 +94,7 @@ const UserLogs = () => {
           </div>
           {!loading && (
             <span className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-full" style={{ backgroundColor: "#F0EEF6", color: "#6100D7", border: "1px solid #B2B3D7" }}>
-              <span className="w-2 h-2 rounded-full inline-block bg-blue-500"></span>
+              <span className="w-2 h-2 rounded-full inline-block bg-purple-600"></span>
               {totalLogs} {totalLogs === 1 ? "entry" : "entries"}
             </span>
           )}

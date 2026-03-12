@@ -69,7 +69,7 @@ const LogTable = ({ logs, loading, onLogClick }) => {
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm text-left">
           <thead>
-            <tr className="text-white" style={{ backgroundColor: "#47315E" }}>
+            <tr className="text-white" style={{ backgroundColor: "#6100D7" }}>
               <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">
                 Log ID
               </th>
