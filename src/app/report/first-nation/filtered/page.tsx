@@ -320,9 +320,7 @@ export default function ClientFilterPage() {
         {/* dropdown */}
         <div className="mt-8">
           <DownloadDropdown
-            title="Download All"
             onDownloadSelect={handleDownloadAll}
-            defaultText={`Download All as ${downloadFormat.toUpperCase()}`}
           />
         </div>
       </main>

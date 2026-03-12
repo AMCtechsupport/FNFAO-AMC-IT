@@ -329,9 +329,7 @@ export default function AdvocateDetailsPage() {
 
               <div className="mt-8">
                 <DownloadDropdown
-                  title="Download All"
                   onDownloadSelect={handleDownloadAll}
-                  defaultText={`Download All as ${downloadFormat.toUpperCase()}`}
                 />
               </div>
             </>
