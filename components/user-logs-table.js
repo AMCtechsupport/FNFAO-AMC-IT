@@ -151,13 +151,15 @@ const LogTable = ({ logs, loading, onLogClick }) => {
                         color: "#6100D7",
                         transition: "all 0.3s ease",
                       }}
-                      onMouseEnter={(e) =>
-                        (e.currentTarget.style.backgroundColor = "#ffffff")
-                      }
-                      onMouseLeave={(e) =>
-                        (e.currentTarget.style.backgroundColor =
-                          "rgba(97, 0, 215, 0.02)")
-                      }
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "#6100D7";
+                        e.currentTarget.style.color = "#ffffff";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor =
+                          "rgba(97, 0, 215, 0.02)";
+                        e.currentTarget.style.color = "#6100D7";
+                      }}
                     >
                       <svg
                         className="w-3.5 h-3.5"
