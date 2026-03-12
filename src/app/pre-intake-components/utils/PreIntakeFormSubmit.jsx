@@ -1,8 +1,7 @@
-import { useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 import supabase from "../../lib/supabase";
 
-// Function to get Manitoba current date/time 
+// Function to get Manitoba current date/time
 const getManitobaDateTime = () => {
   const now = new Date();
   const formatter = new Intl.DateTimeFormat("en-CA", {
@@ -27,9 +26,8 @@ const getManitobaDateTime = () => {
   return `${year}-${month}-${day}T${hour}:${minute}`;
 };
 
-const PreIntakeFormSubmit = () => {
+const PreIntakeFormSubmit = (showToast) => {
     const { user } = useUser();
-    const [formSent, setFormSent] = useState(false);
     const onSubmitPreIntake = async (values, { resetForm }) => {
         try {
             const convertedValues = {};
@@ -52,16 +50,15 @@ const PreIntakeFormSubmit = () => {
                 }
             }
 
-      // Get Manitoba current date/time
-      const currentDate = getManitobaDateTime();
+            // Get Manitoba current date/time
+            const currentDate = getManitobaDateTime();
 
-            // Extract 'children', 'emergencyContactFirstName', 'emergencyContactLastName' and 'emergencyContactNumber'
-            // from convertedValues and keep the rest as client data
+            // Extract arrays from convertedValues; keep the rest as client data
             const {
                 children,
-                emergencyContactFirstName,
-                emergencyContactLastName,
-                emergencyContactNumber,
+                family,
+                homeMembers,
+                EIA,
                 ...clientData
             } = convertedValues;
 
@@ -72,81 +69,111 @@ const PreIntakeFormSubmit = () => {
 
             // Insert client data into the 'Clients' table
             const { data: client, error: clientError } = await supabase
-            .from("Clients")
-            .insert([
-                {
-                ...clientData,
-                createdBy: user.id,
-                },
-            ])
-            .select();
+                .from("Clients")
+                .insert([
+                    {
+                        ...clientData,
+                        createdBy: user?.id ?? null,
+                    },
+                ])
+                .select();
 
             if (clientError) {
-            throw clientError;
+                throw clientError;
             }
 
             // Get the inserted client's ID
             const clientId = client[0]?.client_id;
             if (!clientId) throw new Error("Failed to retrieve client ID.");
 
-            // If there are children, insert them into the 'Childs' table
+            // If there are children, sanitize and insert them into the 'Childs' table
             if (children && children.length > 0) {
-            const childrenData = children.map((child) => ({
-                ...child,
-                client_id: clientId, // Associate each child with the client
-            }));
+                const childrenToInsert = children.map((child) => {
+                    const sanitized = { ...child };
 
-            const { error: childrenError } = await supabase
-                .from("Childs")
-                .insert(childrenData);
-
-            if (childrenError) {
-                throw childrenError;
-            }
-            }
-
-            // Insert emergency contact into  the 'Emergency Contact' table
-            if  ( emergencyContactFirstName && 
-                  emergencyContactLastName && 
-                  emergencyContactNumber ) {
-                    const emergencyContactData = {
-                        firstName: emergencyContactFirstName,
-                        lastName: emergencyContactLastName,
-                        phoneNumber: emergencyContactNumber,
-                        note: "",
-                        client_id: clientId, // Associate emergency contact with the client
-                    };
-
-                    const { error: emergencyContactError } = await supabase
-                        .from("Emergency Contacts")
-                        .insert([emergencyContactData]);
-
-                    if (emergencyContactError) {
-                        throw emergencyContactError;
+                    // Convert childMedicalNeeds from string to boolean/null
+                    if (sanitized.childMedicalNeeds === "yes") {
+                        sanitized.childMedicalNeeds = true;
+                    } else if (sanitized.childMedicalNeeds === "no") {
+                        sanitized.childMedicalNeeds = false;
+                    } else if (sanitized.childMedicalNeeds === "" || sanitized.childMedicalNeeds === null || sanitized.childMedicalNeeds === undefined) {
+                        sanitized.childMedicalNeeds = null;
                     }
-                }
 
-                // Reset form and show success message
-                await fetch("/api/user-logs", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        description: `Pre-intake created for client: ${values.firstName} ${values.lastName}`,
-                        logType: "INSERT",
-                        client_id: clientId,
-                        clerkUserId: user?.id || null,
-                    }),
+                    // Ensure phone number fields are null when empty
+                    if (sanitized.childCfsAgentNumber === "" || sanitized.childCfsAgentNumber === undefined) {
+                        sanitized.childCfsAgentNumber = null;
+                    }
+                    if (sanitized.childCfsSupervisorNumber === "" || sanitized.childCfsSupervisorNumber === undefined) {
+                        sanitized.childCfsSupervisorNumber = null;
+                    }
+
+                    return { ...sanitized, client_id: clientId };
                 });
 
-                setFormSent(true);
-                resetForm();
-                setTimeout(() => setFormSent(false), 5000);
-            } catch (error) {
-            // Optionally, handle error reporting here
+                const { error: childrenError } = await supabase
+                    .from("Childs")
+                    .insert(childrenToInsert);
+
+                if (childrenError) {
+                    throw childrenError;
+                }
+            }
+
+            // If there are family members, insert them into the 'Important Family and Friends' table
+            if (family && family.length > 0) {
+                const familyToInsert = family.map((m) => ({ ...m, client_id: clientId }));
+                const { error: familyError } = await supabase
+                    .from("Important Family and Friends")
+                    .insert(familyToInsert);
+                if (familyError) {
+                    throw familyError;
+                }
+            }
+
+            // If there are home members, insert them into the 'Home Members' table
+            if (homeMembers && homeMembers.length > 0) {
+                const homeToInsert = homeMembers.map((m) => ({ ...m, client_id: clientId }));
+                const { error: homeError } = await supabase
+                    .from("Home Members")
+                    .insert(homeToInsert);
+                if (homeError) {
+                    throw homeError;
+                }
+            }
+
+            // If there are EIA workers, insert them into the 'EIA Workers' table
+            if (EIA && EIA.length > 0) {
+                const eiaToInsert = EIA.map((m) => ({ ...m, client_id: clientId }));
+                const { error: eiaError } = await supabase
+                    .from("EIA Workers")
+                    .insert(eiaToInsert);
+                if (eiaError) {
+                    throw eiaError;
+                }
+            }
+
+            // Log the creation
+            await fetch("/api/user-logs", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    description: `Pre-intake created for client: ${values.firstName} ${values.lastName}`,
+                    logType: "INSERT",
+                    client_id: clientId,
+                    clerkUserId: user?.id || null,
+                }),
+            });
+
+            // Reset form and show success message
+            showToast("success", "Pre-intake sent successfully");
+            resetForm();
+        } catch (error) {
+            console.error("Error submitting pre-intake:", error);
         }
-        
+
     };
-    return { onSubmitPreIntake, formSent};
+    return { onSubmitPreIntake };
 };
 
 export default PreIntakeFormSubmit;

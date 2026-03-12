@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { deleteClient } from "../src/app/lib/delete-client-server";
 import Pagination from "./report/pages-pagination";
+import DeleteConfirmModal from "./DeleteConfirmModal";
+import ToastNotification from "./ToastNotification";
 
 const formTypeBadge = (type) => {
   const isYouth = type === "Youth";
@@ -136,8 +138,13 @@ export default function ClientsList() {
   const [activeClientId, setActiveClientId] = useState(null);
   const [currentYouthPage, setCurrentYouthPage] = useState(1);
   const [currentAdultPage, setCurrentAdultPage] = useState(1);
+  const [clientToDelete, setClientToDelete] = useState(null);
+  const [toast, setToast] = useState(null);
   const clientsPerPage = 10;
   const router = useRouter();
+  // Stores the selected sorting option from the dropdown
+  // default = newest clients first
+  const [sortOption, setSortOption] = useState("newest"); 
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -159,6 +166,11 @@ export default function ClientsList() {
     fetchAll();
   }, []);
 
+  const showToast = (type, message) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 4000);
+  };
+
   const filterClients = (clients) => {
     return clients.filter((client) => {
       const term = searchQuery.trim().toLowerCase();
@@ -171,8 +183,48 @@ export default function ClientsList() {
     });
   };
 
-  const filteredYouth = filterClients(allYouthClients);
-  const filteredAdult = filterClients(allAdultClients);
+    // Function that sorts clients based on the dropdown selection
+  const sortClients = (clients) => {
+
+    // Create a copy of the array so React state isn't mutated
+    let sorted = [...clients];
+
+    // NEWEST FIRST
+    if (sortOption === "newest") {
+      sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+
+    // OLDEST FIRST
+    else if (sortOption === "oldest") {
+      sorted.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    }
+
+    // ALPHABETICAL A → Z
+    else if (sortOption === "az") {
+      sorted.sort((a, b) => {
+        const nameA = `${a.firstName ?? ""} ${a.lastName ?? ""}`.toLowerCase();
+        const nameB = `${b.firstName ?? ""} ${b.lastName ?? ""}`.toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+    }
+
+    // ALPHABETICAL Z → A
+    else if (sortOption === "za") {
+      sorted.sort((a, b) => {
+        const nameA = `${a.firstName ?? ""} ${a.lastName ?? ""}`.toLowerCase();
+        const nameB = `${b.firstName ?? ""} ${b.lastName ?? ""}`.toLowerCase();
+        return nameB.localeCompare(nameA);
+      });
+    }
+
+    return sorted;
+  };
+  
+
+  // First filter clients by search
+  // Then apply sorting
+  const filteredYouth = sortClients(filterClients(allYouthClients));
+  const filteredAdult = sortClients(filterClients(allAdultClients));
 
   const totalYouthPages = Math.max(1, Math.ceil(filteredYouth.length / clientsPerPage));
   const totalAdultPages = Math.max(1, Math.ceil(filteredAdult.length / clientsPerPage));
@@ -192,29 +244,34 @@ export default function ClientsList() {
       if (client.clientType === "Youth Intake") {
         router.push(`/youth-clients/${client.client_id}/view`);
       } else {
-        router.push(`/clients/${client.client_id}/view`);
+        router.push(`/adult-clients/${client.client_id}/view`);
       }
     }, 50);
   };
 
-  const handleDelete = async (client) => {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to permanently delete ${client.firstName} ${client.lastName}? This action cannot be undone.`,
-    );
-    if (!confirmDelete) return;
+  const handleDeleteClick = (client) => {
+    setClientToDelete(client);
+  };
 
+  const handleConfirmDelete = async () => {
+    const client = clientToDelete;
+    setClientToDelete(null);
     setDeletingClientId(client.client_id);
     try {
       const result = await deleteClient(client.client_id);
       setAllYouthClients((prev) => prev.filter((c) => c.client_id !== client.client_id));
       setAllAdultClients((prev) => prev.filter((c) => c.client_id !== client.client_id));
-      alert(result.message);
+      showToast("success", result.message);
     } catch (error) {
       console.error("Error deleting client:", error);
-      alert(`Failed to delete client: ${error.message}`);
+      showToast("error", `Failed to delete client: ${error.message}`);
     } finally {
       setDeletingClientId(null);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setClientToDelete(null);
   };
 
   return (
@@ -231,7 +288,66 @@ export default function ClientsList() {
         </span>
       </div>
 
-      {/* Search */}
+      {/* Filter Search */}
+       <div className="flex justify-end pb-4">
+        <div className="relative inline-block">
+
+          {/* Dropdown */}
+          <select
+            className="
+              appearance-none
+              bg-[#47315E]  /* Dark purple background */
+              text-white    /* White text */
+              text-sm
+              font-medium
+              rounded-lg
+              pl-10    /* padding left for icon */
+              pr-6     /* padding right for arrow */
+              py-2
+              cursor-pointer
+              shadow-md
+              transition
+              hover:bg-[#5A3D8A]   /* lighter hover background */
+            "
+            value={sortOption}
+            onChange={(e) => {
+              setSortOption(e.target.value);
+              setCurrentYouthPage(1);
+              setCurrentAdultPage(1);
+            }}
+          >
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="az">A-Z</option>
+            <option value="za">Z-A</option>
+          </select>
+
+           {/* Hamburger icon inside the select */}
+          <svg
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white pointer-events-none"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+
+          {/* Dropdown arrow */}
+          <svg
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-white pointer-events-none"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+
+        </div>
+      </div>
+
+       {/* Search */}
       <div className="mb-6">
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
@@ -269,7 +385,7 @@ export default function ClientsList() {
             totalPages={totalYouthPages}
             onPageChange={setCurrentYouthPage}
             onView={handleView}
-            onDelete={handleDelete}
+            onDelete={handleDeleteClick}
             activeClientId={activeClientId}
             deletingClientId={deletingClientId}
             emptyMessage="No youth clients found"
@@ -284,13 +400,20 @@ export default function ClientsList() {
             totalPages={totalAdultPages}
             onPageChange={setCurrentAdultPage}
             onView={handleView}
-            onDelete={handleDelete}
+            onDelete={handleDeleteClick}
             activeClientId={activeClientId}
             deletingClientId={deletingClientId}
             emptyMessage="No adult clients found"
           />
         </div>
       )}
+
+      <DeleteConfirmModal
+        client={clientToDelete}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
+      <ToastNotification toast={toast} />
     </div>
   );
 }

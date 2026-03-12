@@ -1,12 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import styles from "../youth-intake/youthIntake.module.css";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { useUser } from "@clerk/clerk-react";
+import ValidationErrorToast from "../../../components/ValidationErrorToast";
+import ToastNotification from "../../../components/ToastNotification";
 
 import youthIntakeInputValidation from "./utils/youthIntakeInputValidation";
+import ReferredBySelect from "@/components/ReferredBySelect";
 
 // Form Sections
 import YouthIntakeOtherInformation from "./form-sections/YouthIntakeOtherInformation";
@@ -47,7 +49,11 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
   const { user } = useUser();
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(isEditMode && !isViewOnly);
-  const [formSent, setFormSent] = useState(false);
+  const [toast, setToast] = useState(null);
+  const showToast = (type, message) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 4000);
+  };
   const [assignedAdvocateName, setAssignedAdvocateName] = useState("—");
 
   const { initialValues, isLoading } = YouthIntakeFetchClientData(
@@ -89,6 +95,7 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
 
         if (tag === "textarea") {
           el.readOnly = true;
+          if (!el.value) el.placeholder = "";
           return;
         }
 
@@ -96,14 +103,17 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
           const type = (el.getAttribute("type") || "text").toLowerCase();
           if (["radio", "file", "date", "time"].includes(type)) {
             el.style.setProperty("pointer-events", "none", "important");
+            if ((type === "date" || type === "time") && !el.value) el.type = "text";
           } else {
             el.readOnly = true;
+            if (!el.value) el.placeholder = "";
           }
           return;
         }
 
         if (tag === "select") {
           el.style.setProperty("pointer-events", "none", "important");
+          if (!el.value && el.options[el.selectedIndex]) el.options[el.selectedIndex].text = "";
           return;
         }
 
@@ -155,25 +165,25 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
       validate={youthIntakeInputValidation}
       onSubmit={(values, { resetForm }) => {
         if (isViewOnly) return;
-        return YouthIntakeFormSubmit(values, { resetForm }, user, router, setFormSent, isEditMode, editClientId);
+        return YouthIntakeFormSubmit(values, { resetForm }, user, router, showToast, isEditMode, editClientId);
       }}
     >
-      {({ values, errors, setFieldValue, resetForm }) => (
+      {({ values, errors, setFieldValue, resetForm, submitCount }) => (
         <Form>
-          {/* Page Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Youth Intake Form</h1>
-              <p className="text-sm text-gray-500 mt-1">Complete all sections and submit when ready</p>
-            </div>
-            {editClientId && (
-              <div className="text-sm text-gray-600 bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-sm">
-                <span className="font-semibold text-gray-800">Assigned to:</span> {assignedAdvocateName}
+          {/* Page Header - creation form only */}
+          {!isEditMode && (
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Youth Intake Form</h1>
+                <p className="text-sm text-gray-500 mt-1">Complete all sections and submit when ready</p>
               </div>
-            )}
-          </div>
+              <div className="w-72">
+                <ReferredBySelect name="referredBy" label="How did the client learn about FNFAO?" error={errors.referredBy} />
+              </div>
+            </div>
+          )}
 
-          <YouthIntakeGeneralInfo errors={errors} />
+          <YouthIntakeGeneralInfo errors={errors} isEditMode={isEditMode} assignedAdvocateName={assignedAdvocateName} />
           <YouthIntakeEmergencyContact errors={errors} />
           <YouthIntakeAgencyInfo values={values} errors={errors} />
           <YouthIntakeBiologicalParentInfo errors={errors} />
@@ -212,22 +222,21 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
                   </button>
                 </div>
               ) : (
-                <button
-                  type="submit"
-                  className="w-full py-3 text-sm font-semibold rounded-lg transition-colors text-white mb-2"
-                  style={{ backgroundColor: "#8060A0" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#6B4E8A")}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#8060A0")}
-                >
-                  Submit Youth Intake
-                </button>
+                <>
+                  <button
+                    type="submit"
+                    className="w-full py-3 text-sm font-semibold rounded-lg transition-colors text-white mb-2"
+                    style={{ backgroundColor: "#8060A0" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#6B4E8A")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#8060A0")}
+                  >
+                    Submit Youth Intake
+                  </button>
+                  <ValidationErrorToast showToast={showToast} message="Some required fields are incomplete. Please scroll up to check for errors." />
+                </>
               )}
 
-              {formSent && (
-                <p className={styles.successfulText}>
-                  {isEditMode ? "Youth client updated successfully" : "Youth Intake sent successfully"}
-                </p>
-              )}
+              <ToastNotification toast={toast} />
             </>
           )}
         </Form>

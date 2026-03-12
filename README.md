@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AMC-FNFAO Database
+
+<div align="center">
+  <img src="public/logo.png" alt="Logo" width="400" height="400">
+</div>
+
+***Abinoojiyak Bigiiwewag — Our Children are Coming Home.***
+
+## About The Application
+
+The AMC-FNFAO Database is a system to track information about clients who are served at the First Nations Family Advocate Office.
+
+Features of the application include...
+* Creation and management of clients.
+* Assign client to advocates, who can edit and update their records.
+* Ability to export data and generate reports.
+
+...and more.
+
+### Built With
+
+* [Next.js](https://nextjs.org/)
+* [Tailwind CSS](https://tailwindcss.com/)
+* [Supabase](https://supabase.com/)
 
 ## Getting Started
 
-First, run the development server:
+To get a local copy of the application up and running, follow these simple steps.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### Prerequisites
+
+* npm
+```sh
+npm install npm@latest -g
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Request environment variables from the project admin/owner or from passed down documentation
+2. Clone the repo
+```sh
+git clone https:
+```
+3. Install NPM packages
+```sh
+npm install
+```
+4. Create a .env.local file in the root of the project, and add your environment variables there
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Usage
 
-## Learn More
+To run the application in development mode, run in the root of the project:
+```sh
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+To build the application to be production-ready, run in the root of the project:
+```sh
+npm run build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+To run the production build after it's creation, run in the root of the project:
+```sh
+npm start
+```

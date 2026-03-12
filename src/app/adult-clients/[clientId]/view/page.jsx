@@ -5,9 +5,9 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import supabase from "../../../lib/supabase";
 
-import YouthIntakeForm from "../../../youth-intake-components/YouthIntakeForm";
+import FullIntakeForm from "../../../full-intake-components/fullIntakeForm";
 
-export default function YouthClientView() {
+export default function AdultClientView() {
   const params = useParams();
   const router = useRouter();
   const client_id = params?.clientId;
@@ -15,7 +15,7 @@ export default function YouthClientView() {
   const [clientName, setClientName] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-    const handleClose = () => {
+  const handleClose = () => {
     if (history.state && history.state.idx > 0) {
       router.back();
     } else {
@@ -54,7 +54,7 @@ export default function YouthClientView() {
 
   return (
     <UserHome>
-      <main className="min-h-screen bg-gray-100 p-4">
+      <main className="min-h-screen bg-gray-100 p-6">
 
         {/* Page header */}
         <div className="flex items-center justify-between mb-5">
@@ -62,7 +62,7 @@ export default function YouthClientView() {
             <h1 className="text-2xl font-bold text-gray-900">
               {isLoading ? "Loading..." : clientName}
             </h1>
-            <p className="text-sm text-gray-500 mt-1">Youth client — read-only view</p>
+            <p className="text-sm text-gray-500 mt-1">Adult client — read-only view</p>
           </div>
           <div className="flex items-center gap-3">
             <button
@@ -75,11 +75,11 @@ export default function YouthClientView() {
               Close
             </button>
             <Link
-              href={`/youth-clients/${client_id}/edit`}
+              href={`/adult-clients/${client_id}/edit`}
               className="px-4 py-2 text-sm font-semibold rounded-lg transition-colors text-white no-underline"
-              style={{ backgroundColor: "#6100D7" }}
+              style={{ backgroundColor: "#47315E" }}
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6100D7")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#47315E")}
             >
               Edit
             </Link>
@@ -88,10 +88,14 @@ export default function YouthClientView() {
 
         {/* View-only notice */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 mb-6 text-sm text-blue-800">
-          <strong>Read-Only:</strong> You are viewing a youth client record. Switch to Edit to make changes.
+          <strong>Read-Only:</strong> You are viewing an adult client record. Switch to Edit to make changes.
         </div>
 
-        <YouthIntakeForm editClientId={client_id} isEditMode={true} isViewOnly={true} />
+        <FullIntakeForm
+          client_id={client_id}
+          isEditMode={false}
+          isViewOnly={true}
+        />
 
         {/* Bottom action bar */}
         <div className="flex items-center justify-between mt-4">
@@ -105,11 +109,11 @@ export default function YouthClientView() {
             Close
           </button>
           <Link
-            href={`/youth-clients/${client_id}/edit`}
+            href={`/adult-clients/${client_id}/edit`}
             className="px-4 py-2 text-sm font-semibold rounded-lg transition-colors text-white no-underline"
-            style={{ backgroundColor: "#6100D7" }}
+            style={{ backgroundColor: "#47315E" }}
             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6100D7")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#47315E")}
           >
             Edit
           </Link>

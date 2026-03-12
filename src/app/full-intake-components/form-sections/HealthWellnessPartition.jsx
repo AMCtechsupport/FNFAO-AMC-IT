@@ -45,6 +45,7 @@ const HealthWellnessPartition = ({ values, isEditing, setFieldValue }) => {
                         <Field
                             as="textarea"
                             name="otherMentalConditionExplained"
+                            placeholder="e.g., anxiety, bipolar disorder..."
                             className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
                             disabled={!isEditing}
                         />
@@ -60,6 +61,7 @@ const HealthWellnessPartition = ({ values, isEditing, setFieldValue }) => {
                     <Field
                         as="textarea"
                         name="diagnosedFollowingExplain"
+                        placeholder="e.g., therapy, medication, counselling..."
                         className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
                         disabled={!isEditing}
                     />
@@ -89,6 +91,7 @@ const HealthWellnessPartition = ({ values, isEditing, setFieldValue }) => {
                                 <Field
                                     as="textarea"
                                     name="negativeCopingSkillsExplain"
+                                    placeholder="e.g., substance use, isolation..."
                                     className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
                                     disabled={!isEditing}
                                 />
@@ -104,6 +107,7 @@ const HealthWellnessPartition = ({ values, isEditing, setFieldValue }) => {
                     <Field
                         as="textarea"
                         name="drugsImpact"
+                        placeholder="Describe how substances have impacted your life..."
                         className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
                         disabled={!isEditing}
                     />
@@ -116,6 +120,7 @@ const HealthWellnessPartition = ({ values, isEditing, setFieldValue }) => {
                     <Field
                         as="textarea"
                         name="lastTimeUsed"
+                        placeholder="e.g., 6 months ago, never..."
                         className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
                         disabled={!isEditing}
                     />
@@ -145,6 +150,7 @@ const HealthWellnessPartition = ({ values, isEditing, setFieldValue }) => {
                                 <Field
                                     as="textarea"
                                     name="educationalGoalsExplained"
+                                    placeholder="e.g., complete GED, attend college..."
                                     className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
                                     disabled={!isEditing}
                                 />
@@ -177,6 +183,7 @@ const HealthWellnessPartition = ({ values, isEditing, setFieldValue }) => {
                                 <Field
                                     as="textarea"
                                     name="accessElderExplained"
+                                    placeholder="e.g., elder at local community centre..."
                                     className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
                                     disabled={!isEditing}
                                 />

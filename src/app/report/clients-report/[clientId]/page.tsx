@@ -137,9 +137,7 @@ export default function ClientReportPage() {
                 {/* Download Section */}
                 <div className="mt-6">
                     <DownloadDropdown
-                        title="Download All"
                         onDownloadSelect={handleDownloadAll}
-                        defaultText={`Download All as ${downloadFormat.toUpperCase()}`}
                     />
 
                     {showPreview && (

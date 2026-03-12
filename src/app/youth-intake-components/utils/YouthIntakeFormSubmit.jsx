@@ -44,7 +44,7 @@ function sanitizeValues(values) {
   return sanitizedValues;
 }
 
-const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, setFormSent, isEditMode, editClientId) => {
+const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, showToast, isEditMode, editClientId) => {
     try {
                 const normalizeValue = (value) => {
                     if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value)) {
@@ -165,7 +165,7 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, setFormS
             .insert([
             {
                 ...clientData,
-                createdBy: user.id,
+                createdBy: user?.id ?? null,
             },
             ])
             .select();
@@ -319,20 +319,17 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, setFormS
         });
 
         // Reset form and show success message
-        setFormSent(true);
-        
+        showToast("success", isEditMode ? "Youth client updated successfully" : "Youth Intake sent successfully");
+
         // Reset initialValues back to empty state
         resetForm(youthIntakeDefaultValues);
-        
+
         // Handle post-submission behavior
         if (isEditMode) {
         // For edit mode, redirect to client list after successful update
         setTimeout(() => {
             router.push('/clients');
         }, 1500);
-        } else {
-        // For new submissions, show success message temporarily
-        setTimeout(() => setFormSent(false), 3000);
         }
     } catch (error) {
         console.error("General error:", error);

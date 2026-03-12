@@ -1,27 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
-import UserHome from "../../../user-home/page";
-import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
-import supabase from "../../../lib/supabase";
+import { useParams } from "next/navigation";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-import FullIntakeForm from "../../../full-intake-components/fullIntakeForm";
-
-export default function AdultClientView() {
+export default function AdultClientViewRedirect() {
   const params = useParams();
   const router = useRouter();
-  const client_id = params?.clientId;
-
-  const [clientName, setClientName] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-
-  const handleClose = () => {
-    if (history.state && history.state.idx > 0) {
-      router.back();
-    } else {
-      router.push("/clients");
-    }
-  };
 
   useEffect(() => {
     const fetchClientName = async () => {

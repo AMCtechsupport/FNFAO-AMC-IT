@@ -49,7 +49,7 @@ const ChildrenPartition = ({
                                 {values.otherAdultsInvolved === "yes" && (
                                     <div className="col-span-12">
                                         <label className="block text-xs font-medium text-gray-600 mb-1">Please specify:</label>
-                                        <Field as="textarea" name="otherAdultsInvolvedExplained" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
+                                        <Field as="textarea" name="otherAdultsInvolvedExplained" placeholder="e.g., grandparent, step-parent..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
                                         <ErrorMessage name="otherAdultsInvolvedExplained" component="div" className="text-xs text-red-500 mt-1" />
                                     </div>
                                 )}
@@ -76,13 +76,13 @@ const ChildrenPartition = ({
                                         {/* Name fields */}
                                         <div className="grid grid-cols-12 gap-4 mb-3">
                                             <div className="col-span-3">
-                                                <InputField name={`children.${originalIndex}.firstName`} label="First Name:" disabled={!isEditing} />
+                                                <InputField name={`children.${originalIndex}.firstName`} label="First Name:" placeholder="Enter First Name" disabled={!isEditing} />
                                             </div>
                                             <div className="col-span-3">
-                                                <InputField name={`children.${originalIndex}.middleName`} label="Middle Name:" disabled={!isEditing} />
+                                                <InputField name={`children.${originalIndex}.middleName`} label="Middle Name:" placeholder="Enter Middle Name" disabled={!isEditing} />
                                             </div>
                                             <div className="col-span-6">
-                                                <InputField name={`children.${originalIndex}.lastName`} label="Last Name:" disabled={!isEditing} />
+                                                <InputField name={`children.${originalIndex}.lastName`} label="Last Name:" placeholder="Enter Last Name" disabled={!isEditing} />
                                             </div>
                                         </div>
 
@@ -120,7 +120,7 @@ const ChildrenPartition = ({
                                         {/* Place of Stay */}
                                         <div className="grid grid-cols-12 gap-4 mb-3">
                                             <div className="col-span-6">
-                                                <InputField name={`children.${originalIndex}.childPlaced`} label="Place of Stay:" disabled={!isEditing} />
+                                                <InputField name={`children.${originalIndex}.childPlaced`} label="Place of Stay:" placeholder="e.g., Foster Home" disabled={!isEditing} />
                                             </div>
                                         </div>
 
@@ -153,7 +153,7 @@ const ChildrenPartition = ({
                                             </div>
                                             <div className="grid grid-cols-12 gap-4 mb-3">
                                                 <div className="col-span-4">
-                                                    <InputField name={`children.${originalIndex}.childCfsAgentFullName`} label="Worker's Full Name:" disabled={!isEditing} />
+                                                    <InputField name={`children.${originalIndex}.childCfsAgentFullName`} label="Worker's Full Name:" placeholder="Enter Full Name" disabled={!isEditing} />
                                                 </div>
                                                 <div className="col-span-4">
                                                     <label className="block text-xs font-medium text-gray-600 mb-1" htmlFor={`children.${originalIndex}.childCfsAgentNumber`}>Worker's Phone Number:</label>
@@ -168,6 +168,7 @@ const ChildrenPartition = ({
                                                         type="email"
                                                         id={`children.${originalIndex}.childCfsAgentEmail`}
                                                         name={`children.${originalIndex}.childCfsAgentEmail`}
+                                                        placeholder="e.g., name@example.com"
                                                         disabled={!isEditing}
                                                         className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
                                                     />
@@ -180,7 +181,7 @@ const ChildrenPartition = ({
                                             {/* CFS Supervisor information */}
                                             <div className="grid grid-cols-12 gap-4">
                                                 <div className="col-span-4">
-                                                    <InputField name={`children.${originalIndex}.childCfsSupervisorFullName`} label="Supervisor Full Name:" disabled={!isEditing} />
+                                                    <InputField name={`children.${originalIndex}.childCfsSupervisorFullName`} label="Supervisor Full Name:" placeholder="Enter Full Name" disabled={!isEditing} />
                                                 </div>
                                                 <div className="col-span-4">
                                                     <label className="block text-xs font-medium text-gray-600 mb-1" htmlFor={`children.${originalIndex}.childCfsSupervisorNumber`}>Supervisor Phone Number:</label>
@@ -195,6 +196,7 @@ const ChildrenPartition = ({
                                                         type="email"
                                                         id={`children.${originalIndex}.childCfsSupervisorEmail`}
                                                         name={`children.${originalIndex}.childCfsSupervisorEmail`}
+                                                        placeholder="e.g., name@example.com"
                                                         disabled={!isEditing}
                                                         className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
                                                     />
@@ -225,7 +227,7 @@ const ChildrenPartition = ({
                                                 {child.childMedicalNeeds === "yes" && (
                                                     <div className="col-span-12">
                                                         <label className="block text-xs font-medium text-gray-600 mb-1">Please specify:</label>
-                                                        <Field as="textarea" name={`children.${originalIndex}.childMedicalNeedsExplained`} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
+                                                        <Field as="textarea" name={`children.${originalIndex}.childMedicalNeedsExplained`} placeholder="e.g., diabetes, asthma..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
                                                         <ErrorMessage name={`children.${originalIndex}.childMedicalNeedsExplained`} component="div" className="text-xs text-red-500 mt-1" />
                                                     </div>
                                                 )}
@@ -238,10 +240,10 @@ const ChildrenPartition = ({
                                             <h5 className="text-sm font-semibold text-gray-700 mb-3">Other Biological Parent Information</h5>
                                             <div className="grid grid-cols-12 gap-4">
                                                 <div className="col-span-3">
-                                                    <InputField name={`children.${originalIndex}.biologicalParentFirstName`} label="First Name:" disabled={!isEditing} />
+                                                    <InputField name={`children.${originalIndex}.biologicalParentFirstName`} label="First Name:" placeholder="Enter First Name" disabled={!isEditing} />
                                                 </div>
                                                 <div className="col-span-3">
-                                                    <InputField name={`children.${originalIndex}.biologicalParentLastName`} label="Last Name:" disabled={!isEditing} />
+                                                    <InputField name={`children.${originalIndex}.biologicalParentLastName`} label="Last Name:" placeholder="Enter Last Name" disabled={!isEditing} />
                                                 </div>
                                                 <div className="col-span-6">
                                                     <Field

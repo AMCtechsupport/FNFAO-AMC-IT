@@ -246,7 +246,7 @@ const GeneralInformationPartition = ({
                             {values.prenatalSupport === "yes" && (
                                 <div className="col-span-8">
                                     <label className="block text-xs font-medium text-gray-600 mb-1">If yes, specify (e.g. help avoiding birth apprehension, access to prenatal care, breastfeeding information, preparing for baby, etc.):</label>
-                                    <Field as="textarea" name="prenatalSupportSpecified" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
+                                    <Field as="textarea" name="prenatalSupportSpecified" placeholder="e.g., preventing apprehension, breastfeeding, preparing for baby..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
                                     <ErrorMessage name="prenatalSupportSpecified" component="div" className="text-xs text-red-500 mt-1" />
                                 </div>
                             )}
@@ -273,7 +273,7 @@ const GeneralInformationPartition = ({
                             {values.housingSupport === "yes" && (
                                 <div className="col-span-8">
                                     <label className="block text-xs font-medium text-gray-600 mb-1">If yes, specify (e.g. urgent housing, preventing eviction, dealing with the Residential Tenancies Branch, etc):</label>
-                                    <Field as="textarea" name="housingSupportSpecified" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
+                                    <Field as="textarea" name="housingSupportSpecified" placeholder="e.g., preventing eviction, urgent housing..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
                                     <ErrorMessage name="housingSupportSpecified" component="div" className="text-xs text-red-500 mt-1" />
                                 </div>
                             )}
@@ -300,7 +300,7 @@ const GeneralInformationPartition = ({
                             {values.addictionsSupport === "yes" && (
                                 <div className="col-span-8">
                                     <label className="block text-xs font-medium text-gray-600 mb-1">If yes, specify (e.g. access to detox, treatment, relapse prevention programming, etc.):</label>
-                                    <Field as="textarea" name="addictionsSupportSpecified" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
+                                    <Field as="textarea" name="addictionsSupportSpecified" placeholder="e.g., detox, treatment, relapse prevention..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
                                     <ErrorMessage name="addictionsSupportSpecified" component="div" className="text-xs text-red-500 mt-1" />
                                 </div>
                             )}
@@ -326,6 +326,7 @@ const GeneralInformationPartition = ({
                                 <InputField
                                     name={`homeMembers.${index}.firstName`}
                                     label="First Name:"
+                                    placeholder="Enter First Name"
                                     disabled={!isEditing}
                                 />
                                 </div>
@@ -334,6 +335,7 @@ const GeneralInformationPartition = ({
                                 <InputField
                                     name={`homeMembers.${index}.lastName`}
                                     label="Last Name:"
+                                    placeholder="Enter Last Name"
                                     disabled={!isEditing}
                                 />
                                 </div>
@@ -342,6 +344,7 @@ const GeneralInformationPartition = ({
                                 <InputField
                                     name={`homeMembers.${index}.relationship`}
                                     label="Relationship:"
+                                    placeholder="e.g., sibling, parent..."
                                     disabled={!isEditing}
                                 />
                                 </div>
@@ -368,7 +371,7 @@ const GeneralInformationPartition = ({
                                 <div className="col-span-4">
                                     <div>
                                         <label className="block text-xs font-medium text-gray-600 mb-1" htmlFor={`homeMembers.${index}.email`}>Email:</label>
-                                        <Field type="email" id={`homeMembers.${index}.email`} name={`homeMembers.${index}.email`} disabled={!isEditing} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white" />
+                                        <Field type="email" id={`homeMembers.${index}.email`} name={`homeMembers.${index}.email`} placeholder="e.g., name@example.com" disabled={!isEditing} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white" />
                                         <ErrorMessage
                                             name={`homeMembers.${index}.email`}
                                             component={() => <p className="text-xs text-red-500 mt-1">{errors.homeMembers?.[index]?.email}</p>} />
@@ -498,7 +501,7 @@ const GeneralInformationPartition = ({
                         <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mb-4">
                             <div className="grid grid-cols-12 gap-4">
                                 <div className="col-span-4">
-                                    <InputField name="lawyerFullName" label="Lawyer's Full Name:" placeholder="John" error={errors.lawyerFullName} disabled={!isEditing} />
+                                    <InputField name="lawyerFullName" label="Lawyer's Full Name:" placeholder="e.g., John Smith" error={errors.lawyerFullName} disabled={!isEditing} />
                                 </div>
                                 <div className="col-span-4">
                                     <div>
@@ -510,7 +513,7 @@ const GeneralInformationPartition = ({
                                 <div className="col-span-4">
                                     <div>
                                         <label className="block text-xs font-medium text-gray-600 mb-1" htmlFor="lawyerEmail">Lawyer's Email:</label>
-                                        <Field type="email" id="lawyerEmail" name="lawyerEmail" disabled={!isEditing} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white" />
+                                        <Field type="email" id="lawyerEmail" name="lawyerEmail" placeholder="e.g., name@example.com" disabled={!isEditing} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white" />
                                         <ErrorMessage name="lawyerEmail" component={() => <p className="text-xs text-red-500 mt-1">{errors.lawyerEmail}</p>} />
                                     </div>
                                 </div>
@@ -557,6 +560,7 @@ const GeneralInformationPartition = ({
                                         <Field
                                             as="textarea"
                                             name="legalAssistanceSpecified"
+                                            placeholder="e.g., help with court appearance..."
                                             className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
                                             disabled={!isEditing}
                                         />
@@ -581,7 +585,7 @@ const GeneralInformationPartition = ({
                     <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mb-4">
                         <div>
                             <label className="block text-xs font-medium text-gray-600 mb-1">Source of Income: </label>
-                            <Field as="textarea" name="sourceIncome" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
+                            <Field as="textarea" name="sourceIncome" placeholder="e.g., employment, EIA, child support..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
                             <ErrorMessage name="sourceIncome" component="div" className="text-xs text-red-500 mt-1" />
                         </div>
                     </div>
@@ -600,6 +604,7 @@ const GeneralInformationPartition = ({
                                             <InputField
                                                 name={`EIA.${index}.firstName`}
                                                 label="First Name:"
+                                                placeholder="Enter First Name"
                                                 disabled={!isEditing}
                                             />
                                         </div>
@@ -608,6 +613,7 @@ const GeneralInformationPartition = ({
                                             <InputField
                                                 name={`EIA.${index}.lastName`}
                                                 label="Last Name:"
+                                                placeholder="Enter Last Name"
                                                 disabled={!isEditing}
                                             />
                                         </div>
@@ -633,6 +639,7 @@ const GeneralInformationPartition = ({
                                             <InputField
                                                 name={`EIA.${index}.EIACaseNumber`}
                                                 label="Case Number:"
+                                                placeholder="e.g., 123456"
                                                 disabled={!isEditing}
                                             />
                                         </div>
@@ -716,6 +723,7 @@ const GeneralInformationPartition = ({
                                 <Field
                                     as="textarea"
                                     name="youthSupportSpecified"
+                                    placeholder="e.g., after-school programs, counselling..."
                                     className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
                                     disabled={!isEditing}
                                 />
@@ -772,6 +780,7 @@ const GeneralInformationPartition = ({
                                 <Field
                                     as="textarea"
                                     name="custodySupportSpecified"
+                                    placeholder="e.g., ex-spouse not honouring custody, child support..."
                                     className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
                                     disabled={!isEditing}
                                 />
@@ -826,6 +835,7 @@ const GeneralInformationPartition = ({
                                 <Field
                                     as="textarea"
                                     name="criminalChargesSpecified"
+                                    placeholder="e.g., possession, assault (2019)..."
                                     className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
                                     disabled={!isEditing}
                                 />
@@ -880,6 +890,7 @@ const GeneralInformationPartition = ({
                                 <Field
                                     as="textarea"
                                     name="activeWarrantSpecified"
+                                    placeholder="e.g., failure to appear, breach of conditions..."
                                     className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
                                     disabled={!isEditing}
                                 />
@@ -996,6 +1007,7 @@ const GeneralInformationPartition = ({
                                 <Field
                                     as="textarea"
                                     name="activeOrdersExplained"
+                                    placeholder="e.g., no contact order against ex-partner..."
                                     className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
                                     disabled={!isEditing}
                                 />

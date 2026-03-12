@@ -3,7 +3,6 @@ import styles from "../../youth-intake/youthIntake.module.css";
 import { Field, ErrorMessage, useFormikContext } from "formik";
 import PhoneNumberInput from "@/components/ValidPhoneNumber";
 import InputField from "@/components/InputField";
-import ReferredBySelect from "@/components/ReferredBySelect";
 import ProvincesSelect from "@/components/ProvincesSelect";
 import PronounSelect from "@/components/Pronouns";
 import FirstNationSelect from "@/components/FirstNationSelect";
@@ -12,23 +11,37 @@ const fieldCls = "w-full px-3 py-2 text-sm border border-gray-200 rounded-lg foc
 const labelCls = "block text-xs font-medium text-gray-600 mb-1";
 const today = new Date().toISOString().split("T")[0]; // get the current date
 
-const YouthIntakeGeneralInfo = ({ errors }) => {
-  const { setFieldValue } = useFormikContext();
+const YouthIntakeGeneralInfo = ({ errors, isEditMode, assignedAdvocateName }) => {
+  const { setFieldValue, values } = useFormikContext();
 
   return (
     <>
-      <div className="flex justify-end mb-4">
-        <div className="w-72">
-          <ReferredBySelect name="referredBy" label="How did the client learn about FNFAO?" error={errors.referredBy} />
-        </div>
-      </div>
-
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
         <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>
           General Information
         </div>
         <div className="p-5 space-y-4">
 
+          {/* Meta row - edit/view mode only */}
+          {isEditMode && (
+            <>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Created At</span>
+                  <span className="text-sm text-gray-800">{values.createdAt ? values.createdAt.split("T")[0] : "—"}</span>
+                </div>
+                <div>
+                  <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Last Updated</span>
+                  <span className="text-sm text-gray-800">{values.dateModified ? values.dateModified.split("T")[0] : "—"}</span>
+                </div>
+                <div>
+                  <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Assigned To</span>
+                  <span className="text-sm text-gray-800">{assignedAdvocateName || "—"}</span>
+                </div>
+              </div>
+              <div className="border-t border-gray-100" />
+            </>
+          )}
           <div className="grid grid-cols-12 gap-4">
             <div className="col-span-3">
               <InputField name="firstName" label="First Name:*" placeholder="Enter First Name" error={errors.firstName} />

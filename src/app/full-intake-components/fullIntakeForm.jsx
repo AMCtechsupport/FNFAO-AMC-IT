@@ -40,7 +40,11 @@ export default function FullIntakeForm({
 
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(isEditMode && !isViewOnly);
-  const [formSent, setFormSent] = useState(false);
+  const [toast, setToast] = useState(null);
+  const showToast = (type, message) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 4000);
+  };
   const [activeTab, setActiveTab] = useState(0);
 
   const [selectedNote, setSelectedNote] = useState(null);
@@ -114,6 +118,7 @@ export default function FullIntakeForm({
         if (tag === "textarea") {
           el.removeAttribute("disabled");
           el.readOnly = true;
+          if (!el.value) el.placeholder = "";
           return;
         }
 
@@ -124,9 +129,11 @@ export default function FullIntakeForm({
           if (["radio", "file", "date", "time"].includes(type)) {
             el.removeAttribute("disabled");
             el.style.setProperty("pointer-events", "none", "important");
+            if ((type === "date" || type === "time") && !el.value) el.type = "text";
           } else {
             el.removeAttribute("disabled");
             el.readOnly = true;
+            if (!el.value) el.placeholder = "";
           }
           return;
         }
@@ -135,6 +142,7 @@ export default function FullIntakeForm({
         if (tag === "select") {
           el.removeAttribute("disabled");
           el.style.setProperty("pointer-events", "none", "important");
+          if (!el.value && el.options[el.selectedIndex]) el.options[el.selectedIndex].text = "";
           return;
         }
 
@@ -335,7 +343,7 @@ export default function FullIntakeForm({
             userId,
             getToken,
             router,
-            setFormSent,
+            showToast,
             client_id,
             originalData,
             childrenData,
@@ -470,7 +478,7 @@ export default function FullIntakeForm({
                   onClick={() => {
                     resetForm();
                     setShowNewNoteForm(false);
-                    router.push(`/clients/${client_id}/view`); //go back to viewing page
+                    router.push(`/adult-clients/${client_id}/view`); //go back to viewing page
                   }}
                 >
                   Cancel
@@ -488,9 +496,18 @@ export default function FullIntakeForm({
               </div>
             )}
 
-            {formSent && (
-              <div className="text-center text-sm text-green-600 font-medium mb-4">
-                Form saved successfully!
+            {toast && (
+              <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white ${toast.type === "success" ? "bg-green-500" : "bg-red-500"}`}>
+                {toast.type === "success" ? (
+                  <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                )}
+                {toast.message}
               </div>
             )}
           </Form>
