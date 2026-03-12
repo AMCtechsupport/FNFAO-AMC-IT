@@ -88,7 +88,7 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
         className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider"
         style={{ backgroundColor: "#6100D7" }}
       >
-        Create New Advocate
+        Create New User
       </div>
 
       <div className="p-6">
@@ -116,7 +116,7 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
               id="firstName"
               type="text"
               value={firstName}
-              placeholder="Advocate's first name"
+              placeholder="User's first name"
               onChange={(e) => {
                 setFirstName(e.target.value);
                 if (success) setSuccess(null);
@@ -137,7 +137,7 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
               id="lastName"
               type="text"
               value={lastName}
-              placeholder="Advocate's last name"
+              placeholder="User's last name"
               onChange={(e) => {
                 setLastName(e.target.value);
                 if (success) setSuccess(null);
@@ -169,7 +169,7 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
           </div>
 
           <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg space-y-1.5 text-sm text-gray-600">
-            <p>• Creates a user account so the advocate can log in</p>
+            <p>• Creates a user account so the user can log in</p>
             <p>• Sends an invitation email to set up their password</p>
           </div>
 
@@ -189,7 +189,7 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
               (e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)")
             }
           >
-            {loading ? "Creating..." : "Create Advocate"}
+            {loading ? "Creating..." : "Create User"}
           </button>
         </form>
       </div>
