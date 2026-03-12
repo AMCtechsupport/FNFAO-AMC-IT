@@ -23,14 +23,14 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
             : "text-white hover:bg-purple-700"
         }`}
         style={{
-          backgroundColor: currentPage === 1 ? undefined : "#6100D7"
+          backgroundColor: currentPage === 1 ? undefined : "#6100D7",
         }}
       >
         Previous
       </button>
 
       {/* It shows the ellipsis for the middle pages */}
-      
+
       <div className="flex gap-1">
         {[...Array(totalPages)].map((_, idx) => {
           const pageNum = idx + 1;
@@ -49,21 +49,29 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
                 style={{
-                  backgroundColor: currentPage === pageNum ? "#6100D7" : undefined
+                  backgroundColor:
+                    currentPage === pageNum ? "#6100D7" : undefined,
                 }}
               >
                 {pageNum}
               </button>
             );
-          } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
-            return <span key={pageNum} className="px-2">...</span>;
+          } else if (
+            pageNum === currentPage - 2 ||
+            pageNum === currentPage + 2
+          ) {
+            return (
+              <span key={pageNum} className="px-2">
+                ...
+              </span>
+            );
           }
           return null;
         })}
       </div>
 
       {/* It shows the Next button layout*/}
-      
+
       <button
         onClick={next}
         disabled={currentPage === totalPages}
@@ -73,7 +81,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
             : "text-white hover:bg-purple-700"
         }`}
         style={{
-          backgroundColor: currentPage === totalPages ? undefined : "#6100D7"
+          backgroundColor: currentPage === totalPages ? undefined : "#6100D7",
         }}
       >
         Next
