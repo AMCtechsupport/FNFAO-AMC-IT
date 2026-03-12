@@ -95,6 +95,7 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
 
         if (tag === "textarea") {
           el.readOnly = true;
+          if (!el.value) el.placeholder = "";
           return;
         }
 
@@ -102,14 +103,17 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
           const type = (el.getAttribute("type") || "text").toLowerCase();
           if (["radio", "file", "date", "time"].includes(type)) {
             el.style.setProperty("pointer-events", "none", "important");
+            if ((type === "date" || type === "time") && !el.value) el.type = "text";
           } else {
             el.readOnly = true;
+            if (!el.value) el.placeholder = "";
           }
           return;
         }
 
         if (tag === "select") {
           el.style.setProperty("pointer-events", "none", "important");
+          if (!el.value && el.options[el.selectedIndex]) el.options[el.selectedIndex].text = "";
           return;
         }
 
@@ -166,24 +170,20 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
     >
       {({ values, errors, setFieldValue, resetForm, submitCount }) => (
         <Form>
-          {/* Page Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Youth Intake Form</h1>
-              <p className="text-sm text-gray-500 mt-1">Complete all sections and submit when ready</p>
-            </div>
-            {!isEditMode ? (
+          {/* Page Header - creation form only */}
+          {!isEditMode && (
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Youth Intake Form</h1>
+                <p className="text-sm text-gray-500 mt-1">Complete all sections and submit when ready</p>
+              </div>
               <div className="w-72">
                 <ReferredBySelect name="referredBy" label="How did the client learn about FNFAO?" error={errors.referredBy} />
               </div>
-            ) : editClientId && (
-              <div className="text-sm text-gray-600 bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-sm">
-                <span className="font-semibold text-gray-800">Assigned to:</span> {assignedAdvocateName}
-              </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          <YouthIntakeGeneralInfo errors={errors} />
+          <YouthIntakeGeneralInfo errors={errors} isEditMode={isEditMode} assignedAdvocateName={assignedAdvocateName} />
           <YouthIntakeEmergencyContact errors={errors} />
           <YouthIntakeAgencyInfo values={values} errors={errors} />
           <YouthIntakeBiologicalParentInfo errors={errors} />
