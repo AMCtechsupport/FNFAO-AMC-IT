@@ -54,7 +54,7 @@ export default function YouthClientView() {
 
   return (
     <UserHome>
-      <main className="min-h-screen bg-gray-100 p-6">
+      <main className="min-h-screen bg-gray-100 p-4">
 
         {/* Page header */}
         <div className="flex items-center justify-between mb-5">
