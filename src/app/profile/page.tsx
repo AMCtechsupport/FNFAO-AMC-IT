@@ -1,6 +1,7 @@
 // src/app/profile/page.js
 import LinkAdvocate from "../../../components/link-advocate";
 import DeleteAdvocate from "../../../components/delete-advocate";
+import PendingAdvocates from "../../../components/pending-advocates";
 import ManageUserRoles from "../../../components/manage-user-roles";
 import UserHome from "../user-home/page";
 
@@ -18,6 +19,11 @@ const ProfilePage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <LinkAdvocate />
           <DeleteAdvocate />
+        </div>
+
+        {/* Pending Requests */}
+        <div className="mb-6">
+          <PendingAdvocates />
         </div>
 
         {/* Manage Roles */}
