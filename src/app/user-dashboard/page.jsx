@@ -2,6 +2,8 @@ import { getAdvocateProfile } from "../lib/get-advocate-server";
 import UserHome from "../user-home/page";
 import AssignedClientsList from "../../../components/user-assigned-clients";
 
+export const dynamic = "force-dynamic";
+
 export default async function AssignedClientsToAdvocate() {
   let advocate = null;
   let advocateError = null;
