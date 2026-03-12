@@ -210,21 +210,21 @@ const PendingAdvocates = ({ refreshTrigger }) => {
         Pending User Request
       </div>
 
-      <div className="p-6 space-y-4">
+      <div className="p-4 space-y-3">
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg">
+          <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 rounded-lg">
             {error}
           </div>
         )}
 
         {success && (
-          <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-lg">
+          <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2 rounded-lg">
             {success}
           </div>
         )}
 
         {/* Search and Sort Bar */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <div className="flex items-center gap-2 flex-1">
             <div className="relative flex-1">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
@@ -237,7 +237,7 @@ const PendingAdvocates = ({ refreshTrigger }) => {
                 value={searchTerm}
                 onChange={handleSearchChange}
                 placeholder="Search by name or email"
-                className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 text-gray-700 focus:outline-none transition"
+                className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 text-gray-700 focus:outline-none transition"
               />
             </div>
 
@@ -245,7 +245,7 @@ const PendingAdvocates = ({ refreshTrigger }) => {
               <button
                 type="button"
                 onClick={() => setOpenFilterFor((prev) => (prev === "sort" ? null : "sort"))}
-                className="border border-gray-300 rounded-xl px-3 py-2.5 bg-white text-gray-700 font-semibold flex items-center gap-2 hover:bg-gray-50 whitespace-nowrap"
+                className="border border-gray-300 rounded-xl px-3 py-2 bg-white text-gray-700 font-semibold flex items-center gap-2 hover:bg-gray-50 whitespace-nowrap text-sm"
                 title="Sort order"
               >
                 <svg
@@ -261,7 +261,7 @@ const PendingAdvocates = ({ refreshTrigger }) => {
                     strokeLinecap="round"
                   />
                 </svg>
-                <span className="text-sm">
+                <span className="text-xs">
                   {SORT_OPTIONS.find((o) => o.value === sortValue)?.label}
                 </span>
               </button>
@@ -276,7 +276,7 @@ const PendingAdvocates = ({ refreshTrigger }) => {
                         setSortValue(option.value);
                         setOpenFilterFor(null);
                       }}
-                      className={`w-full text-left px-4 py-2.5 text-sm font-semibold ${
+                      className={`w-full text-left px-4 py-2 text-sm font-semibold ${
                         sortValue === option.value
                           ? "bg-gray-100 text-gray-800"
                           : "text-gray-700 hover:bg-gray-50"
@@ -293,23 +293,23 @@ const PendingAdvocates = ({ refreshTrigger }) => {
 
         {/* List of pending advocates */}
         {filteredAdvocates.length > 0 ? (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {filteredAdvocates.map((advocate) => (
               <div
                 key={advocate.advocate_id}
-                className="border border-gray-300 rounded-3xl px-6 py-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
+                className="border border-gray-300 rounded-2xl px-4 py-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3"
               >
-                <div className="min-w-0 flex-1 flex flex-col md:flex-row md:items-center gap-1 md:gap-4">
-                  <p className="md:basis-1/2 md:shrink-0 md:min-w-0 text-lg font-semibold text-gray-800 truncate">
+                <div className="min-w-0 flex-1 flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
+                  <p className="md:basis-1/2 md:shrink-0 md:min-w-0 text-base font-semibold text-gray-800 truncate">
                     {advocate.firstName} {advocate.lastName}
                   </p>
-                  <p className="min-w-0 text-base font-semibold text-gray-600 truncate">
+                  <p className="min-w-0 text-sm font-semibold text-gray-600 truncate">
                     {advocate.email}
                   </p>
                 </div>
 
-                <div className="flex items-center gap-3 shrink-0">
-                  <span className="min-w-[7rem] text-center text-xs font-medium px-2.5 py-1.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="min-w-[7rem] text-center text-xs font-medium px-2 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
                     Awaiting Signup
                   </span>
 
@@ -317,7 +317,7 @@ const PendingAdvocates = ({ refreshTrigger }) => {
                     type="button"
                     onClick={() => handleResendEmail(advocate)}
                     disabled={resendingFor === advocate.advocate_id || deletingFor === advocate.advocate_id}
-                    className="px-4 py-2.5 text-sm font-medium rounded-lg border transition-colors border-gray-300 text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                    className="px-3 py-2 text-xs font-medium rounded-lg border transition-colors border-gray-300 text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                   >
                     {resendingFor === advocate.advocate_id ? "Sending..." : "Resend Email"}
                   </button>
@@ -326,7 +326,7 @@ const PendingAdvocates = ({ refreshTrigger }) => {
                     type="button"
                     onClick={() => handleDelete(advocate)}
                     disabled={deletingFor === advocate.advocate_id || resendingFor === advocate.advocate_id}
-                    className="px-4 py-2.5 text-sm font-medium rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                    className="px-3 py-2 text-xs font-medium rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                     style={{
                       color: "#C00707",
                       backgroundColor: "#FDE8E8",
@@ -342,12 +342,12 @@ const PendingAdvocates = ({ refreshTrigger }) => {
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center py-8 text-gray-400">
-            <svg className="w-12 h-12 mb-3 text-gray-300" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+          <div className="flex flex-col items-center py-6 text-gray-400">
+            <svg className="w-10 h-10 mb-2 text-gray-300" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
             </svg>
-            <p className="text-sm font-medium">No pending requests yet.</p>
-            <p className="text-xs mt-1">Newly created advocates will appear here.</p>
+            <p className="text-xs font-medium">No pending requests yet.</p>
+            <p className="text-xs mt-1">Newly created users will appear here.</p>
           </div>
         )}
       </div>
