@@ -95,6 +95,7 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
 
         if (tag === "textarea") {
           el.readOnly = true;
+          if (!el.value) el.placeholder = "";
           return;
         }
 
@@ -102,14 +103,17 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
           const type = (el.getAttribute("type") || "text").toLowerCase();
           if (["radio", "file", "date", "time"].includes(type)) {
             el.style.setProperty("pointer-events", "none", "important");
+            if ((type === "date" || type === "time") && !el.value) el.type = "text";
           } else {
             el.readOnly = true;
+            if (!el.value) el.placeholder = "";
           }
           return;
         }
 
         if (tag === "select") {
           el.style.setProperty("pointer-events", "none", "important");
+          if (!el.value && el.options[el.selectedIndex]) el.options[el.selectedIndex].text = "";
           return;
         }
 

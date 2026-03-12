@@ -118,6 +118,7 @@ export default function FullIntakeForm({
         if (tag === "textarea") {
           el.removeAttribute("disabled");
           el.readOnly = true;
+          if (!el.value) el.placeholder = "";
           return;
         }
 
@@ -128,9 +129,11 @@ export default function FullIntakeForm({
           if (["radio", "file", "date", "time"].includes(type)) {
             el.removeAttribute("disabled");
             el.style.setProperty("pointer-events", "none", "important");
+            if ((type === "date" || type === "time") && !el.value) el.type = "text";
           } else {
             el.removeAttribute("disabled");
             el.readOnly = true;
+            if (!el.value) el.placeholder = "";
           }
           return;
         }
@@ -139,6 +142,7 @@ export default function FullIntakeForm({
         if (tag === "select") {
           el.removeAttribute("disabled");
           el.style.setProperty("pointer-events", "none", "important");
+          if (!el.value && el.options[el.selectedIndex]) el.options[el.selectedIndex].text = "";
           return;
         }
 
