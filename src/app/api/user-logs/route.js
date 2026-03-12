@@ -18,12 +18,14 @@ export async function GET(request) {
         .select("client_id")
         .or(`firstName.ilike.%${search}%,lastName.ilike.%${search}%`);
 
-      const clientIds = (clientData || []).map((c) => c.client_id);
+      const matchingClientIds = (clientData || []).map((c) => c.client_id);
 
-      if (clientIds.length > 0) {
-        query = query.in("client_id", clientIds);
+      if (matchingClientIds.length > 0) {
+        // Match existing clients by client_id OR deleted clients by embedded name in description
+        query = query.or(`client_id.in.(${matchingClientIds.join(",")}),description.ilike.%${search}%`);
       } else {
-        return NextResponse.json({ logs: [], count: 0 });
+        // No matching clients in DB — search description only (covers deleted clients)
+        query = query.ilike("description", `%${search}%`);
       }
     }
 
@@ -43,32 +45,47 @@ export async function GET(request) {
 
     const logsData = data || [];
 
-    // Fetch client names for all unique client_ids in the result
+    // Fetch client names and types for all unique client_ids in the result
     const clientIds = [...new Set(logsData.map((l) => l.client_id).filter(Boolean))];
     let clientMap = {};
     if (clientIds.length > 0) {
       const { data: clientsData } = await supabase
         .from("Clients")
-        .select("client_id, firstName, lastName")
+        .select("client_id, firstName, lastName, clientType")
         .in("client_id", clientIds);
       (clientsData || []).forEach((c) => {
-        clientMap[c.client_id] = `${c.firstName} ${c.lastName}`;
+        clientMap[c.client_id] = {
+          name: `${c.firstName} ${c.lastName}`,
+          clientType: c.clientType || null,
+        };
       });
     }
 
     const enrichedLogs = logsData.map((log) => {
-      let clientName = clientMap[log.client_id] || null;
+      let clientName = clientMap[log.client_id]?.name || null;
 
       // If client no longer exists in DB, fall back to extracting name from description.
       if (!clientName && log.description) {
         // Matches: "...for client: John Doe" or "...for client: John Doe. Changed fields:..." (INSERT / UPDATE)
-        const forClientMatch = log.description.match(/for client: ([^.\n]+)/);
+        const forClientMatch = log.description.match(/for client: ([^.|\n]+)/);
         if (forClientMatch) {
           clientName = forClientMatch[1];
         } else if (log.description.startsWith("Client deleted: ")) {
           // Matches: "Client deleted: John Doe" (DELETE)
-          clientName = log.description.replace("Client deleted: ", "").split("||by:")[0];
+          clientName = log.description.replace("Client deleted: ", "").split("||")[0];
         }
+      }
+
+      // Derive formType from description (INSERT/UPDATE always embed the intake type).
+      // Fall back to DB lookup for DELETE logs where description has no intake prefix.
+      let formType = null;
+      if (log.description) {
+        const rawDesc = log.description.split("||by:")[0];
+        if (/youth[\s-]intake/i.test(rawDesc)) formType = "Youth Intake";
+        else if (/full[\s-]intake/i.test(rawDesc) || /pre[\s-]intake/i.test(rawDesc)) formType = "Pre-Intake";
+      }
+      if (!formType) {
+        formType = clientMap[log.client_id]?.clientType || null;
       }
 
       // Strip embedded advocate name suffix from description before displaying
@@ -86,11 +103,18 @@ export async function GET(request) {
         }
       }
 
+      // Strip embedded ||formType: tag (used in DELETE logs to survive client deletion)
+      const formTypeTagIndex = displayDescription.indexOf("||formType:");
+      if (formTypeTagIndex !== -1) {
+        displayDescription = displayDescription.substring(0, formTypeTagIndex);
+      }
+
       return {
         ...log,
         description: displayDescription,
         advocateName,
         clientName,
+        formType,
       };
     });
 

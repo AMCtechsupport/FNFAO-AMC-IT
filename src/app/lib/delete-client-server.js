@@ -56,7 +56,7 @@ export const deleteClient = async (clientId) => {
     // Finally, delete the client
     const { data: clientData, error: selectError } = await supabase
       .from("Clients")
-      .select("firstName, lastName")
+      .select("firstName, lastName, clientType")
       .eq("client_id", clientId)
       .single();
 
@@ -79,8 +79,8 @@ export const deleteClient = async (clientId) => {
       : null;
 
     // Insert DELETE log before removing the client record
-    // Embed advocate name so it survives advocate deletion
-    const deleteDescription = `Client deleted: ${clientData.firstName} ${clientData.lastName}${advocateName ? `||by:${advocateName}` : ""}`;
+    // Embed clientType and advocate name so they survive deletion
+    const deleteDescription = `Client deleted: ${clientData.firstName} ${clientData.lastName}${clientData.clientType ? `||formType:${clientData.clientType}` : ""}${advocateName ? `||by:${advocateName}` : ""}`;
     await supabase.from("User Logs").insert([{
       description: deleteDescription,
       logType: "DELETE",

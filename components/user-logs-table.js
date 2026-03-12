@@ -19,6 +19,20 @@ const logTypeBadge = (type) => {
   );
 };
 
+const formTypeBadge = (formType) => {
+  if (!formType) return <span className="text-gray-400">—</span>;
+  const isYouth = formType === "Youth Intake";
+  const label = isYouth ? "Youth" : "Adult";
+  const style = isYouth
+    ? "bg-blue-100 text-blue-700 border border-blue-200"
+    : "bg-purple-100 text-purple-700 border border-purple-200";
+  return (
+    <span className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full ${style}`}>
+      {label}
+    </span>
+  );
+};
+
 const LogTable = ({ logs, loading, onLogClick }) => {
   if (loading) {
     return (
@@ -54,9 +68,9 @@ const LogTable = ({ logs, loading, onLogClick }) => {
         <table className="min-w-full text-sm text-left">
           <thead>
             <tr className="text-white" style={{ backgroundColor: "#47315E" }}>
-              <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">Log ID</th>
               <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">Created At</th>
               <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">Client</th>
+              <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">Form Type</th>
               <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">Description</th>
               <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">Log Type</th>
               <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">Updated By</th>
@@ -83,7 +97,6 @@ const LogTable = ({ logs, loading, onLogClick }) => {
                     index % 2 !== 0 ? "bg-gray-50/50" : ""
                   }`}
                 >
-                  <td className="py-3.5 px-5 text-gray-400 font-mono text-xs">#{log.log_id}</td>
                   <td className="py-3.5 px-5 text-gray-600 whitespace-nowrap">
                     {new Date(log.createdAt).toLocaleDateString("en-CA", {
                       year: "numeric",
@@ -100,6 +113,7 @@ const LogTable = ({ logs, loading, onLogClick }) => {
                   <td className="py-3.5 px-5 font-medium text-gray-800">
                     {log.clientName || <span className="text-gray-400">—</span>}
                   </td>
+                  <td className="py-3.5 px-5">{formTypeBadge(log.formType)}</td>
                   <td className="py-3.5 px-5">
                     <button
                       onClick={() => onLogClick(log)}
