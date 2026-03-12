@@ -5,7 +5,7 @@ import { createAdvocate } from "../src/app/lib/create-advocate-server";
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
 
-const LinkAdvocate = () => {
+const LinkAdvocate = ({ onAdvocateCreated }) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -58,6 +58,9 @@ const LinkAdvocate = () => {
             const message =
               emailResult?.error || "Welcome email could not be sent.";
             setError(`Advocate created, but email was not sent: ${message}`);
+          } else {
+            // Email sent successfully - trigger refresh of pending advocates
+            if (onAdvocateCreated) onAdvocateCreated();
           }
         } catch (emailErr) {
           console.error("Welcome email failed:", emailErr);

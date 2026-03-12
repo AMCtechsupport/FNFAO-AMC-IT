@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "@clerk/nextjs";
 
 const SORT_OPTIONS = [
   { value: "az", label: "Name (A–Z)" },
@@ -27,7 +28,8 @@ const applySort = (list, sort) => {
   }
 };
 
-const PendingAdvocates = () => {
+const PendingAdvocates = ({ refreshTrigger }) => {
+  const { isLoaded, isSignedIn } = useAuth();
   const [allAdvocates, setAllAdvocates] = useState([]);
   const [advocates, setAdvocates] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -65,9 +67,24 @@ const PendingAdvocates = () => {
     }
   };
 
+  // Fetch on mount
   useEffect(() => {
     fetchPendingAdvocates();
   }, []);
+
+  // Refetch when auth state changes (e.g., when user signs in)
+  useEffect(() => {
+    if (isLoaded) {
+      fetchPendingAdvocates();
+    }
+  }, [isLoaded, isSignedIn]);
+
+  // Refetch when a new advocate is created
+  useEffect(() => {
+    if (refreshTrigger > 0) {
+      fetchPendingAdvocates();
+    }
+  }, [refreshTrigger]);
 
   // Handle search
   const filteredAdvocates = useMemo(() => {
@@ -149,7 +166,7 @@ const PendingAdvocates = () => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#a954f7" }}>
+      <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>
         Pending Requests
       </div>
 
