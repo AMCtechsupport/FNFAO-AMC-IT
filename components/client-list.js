@@ -138,6 +138,9 @@ export default function ClientsList() {
   const [currentAdultPage, setCurrentAdultPage] = useState(1);
   const clientsPerPage = 10;
   const router = useRouter();
+  // Stores the selected sorting option from the dropdown
+  // default = newest clients first
+  const [sortOption, setSortOption] = useState("newest"); 
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -171,8 +174,49 @@ export default function ClientsList() {
     });
   };
 
-  const filteredYouth = filterClients(allYouthClients);
-  const filteredAdult = filterClients(allAdultClients);
+    // Function that sorts clients based on the dropdown selection
+  const sortClients = (clients) => {
+
+    // Create a copy of the array so React state isn't mutated
+    let sorted = [...clients];
+
+    // NEWEST FIRST
+    if (sortOption === "newest") {
+      sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+
+    // OLDEST FIRST
+    else if (sortOption === "oldest") {
+      sorted.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    }
+
+    // ALPHABETICAL A → Z
+    else if (sortOption === "az") {
+      sorted.sort((a, b) => {
+        const nameA = `${a.firstName ?? ""} ${a.lastName ?? ""}`.toLowerCase();
+        const nameB = `${b.firstName ?? ""} ${b.lastName ?? ""}`.toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+    }
+
+    // ALPHABETICAL Z → A
+    else if (sortOption === "za") {
+      sorted.sort((a, b) => {
+        const nameA = `${a.firstName ?? ""} ${a.lastName ?? ""}`.toLowerCase();
+        const nameB = `${b.firstName ?? ""} ${b.lastName ?? ""}`.toLowerCase();
+        return nameB.localeCompare(nameA);
+      });
+    }
+
+    console.log(clients[0]);
+    return sorted;
+  };
+  
+
+  // First filter clients by search
+  // Then apply sorting
+  const filteredYouth = sortClients(filterClients(allYouthClients));
+  const filteredAdult = sortClients(filterClients(allAdultClients));
 
   const totalYouthPages = Math.max(1, Math.ceil(filteredYouth.length / clientsPerPage));
   const totalAdultPages = Math.max(1, Math.ceil(filteredAdult.length / clientsPerPage));
@@ -232,8 +276,23 @@ export default function ClientsList() {
       </div>
 
       {/* Filter Search */}
-        <div class="flex items-center justify-end pb-4">
-          <select className="border p-2 rounded">
+        <div className="flex items-center justify-end pb-4">
+          <select 
+            className="border p-2 rounded"
+            value={sortOption}
+
+            //When user selects a new filter option
+            onChange={(e) => {
+
+              // update the sorting state
+              setSortOption(e.target.value);
+
+              // Reset pagination to page 1
+              // prevents empty pages after sorting
+              setCurrentYouthPage(1);
+              setCurrentAdultPage(1);
+            }}
+          >
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>  
             <option value="az">A-Z</option>
