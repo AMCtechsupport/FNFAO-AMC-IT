@@ -62,7 +62,7 @@ export async function GET(request) {
       // If client no longer exists in DB, fall back to extracting name from description.
       if (!clientName && log.description) {
         // Matches: "...for client: John Doe" or "...for client: John Doe. Changed fields:..." (INSERT / UPDATE)
-        const forClientMatch = log.description.match(/for client: ([^.\n]+)/);
+        const forClientMatch = log.description.match(/for client: ([^.|\n]+)/);
         if (forClientMatch) {
           clientName = forClientMatch[1];
         } else if (log.description.startsWith("Client deleted: ")) {
