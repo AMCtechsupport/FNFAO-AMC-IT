@@ -18,7 +18,7 @@ const isProtectedRoute = createRouteMatcher([
   "/pre-intake(.*)",
   "/admin(.*)",
   "/user-logs(.*)",
-  "/settings(.*)",
+  "/manage-dropdowns(.*)",
   "/export(.*)",
   "/report(.*)",
   "/profile(.*)",
@@ -27,7 +27,7 @@ const isProtectedRoute = createRouteMatcher([
 // Routes that only admins can access — advocates are blocked
 const isAdminOnlyRoute = createRouteMatcher([
   "/user-logs(.*)",
-  "/settings(.*)",
+  "/manage-dropdowns(.*)",
   "/export(.*)",
   "/report(.*)",
   "/admin(.*)",
