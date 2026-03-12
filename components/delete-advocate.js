@@ -133,7 +133,7 @@ const DeleteAdvocate = () => {
         className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider"
         style={{ backgroundColor: "#C00707" }}
       >
-        Delete Advocate
+        Delete User
       </div>
 
       <div className="p-6 space-y-4">
@@ -153,7 +153,7 @@ const DeleteAdvocate = () => {
         )}
 
         <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
-          <strong>⚠️ Warning:</strong> This permanently deletes the advocate
+          <strong>⚠️ Warning:</strong> This permanently deletes the user
           from the database and their user account. This action cannot be
           undone.
         </div>
@@ -164,7 +164,7 @@ const DeleteAdvocate = () => {
             htmlFor="searchAdvocate"
             className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5"
           >
-            Search for Advocate
+            Search for User
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
@@ -239,7 +239,7 @@ const DeleteAdvocate = () => {
                 d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
               />
             </svg>
-            <p className="text-sm font-medium">No advocates found.</p>
+            <p className="text-sm font-medium">No users found.</p>
             <p className="text-xs mt-1">Try adjusting your search</p>
           </div>
         )}
@@ -285,7 +285,7 @@ const DeleteAdvocate = () => {
               (e.currentTarget.style.backgroundColor = "#FDE8E8")
             }
           >
-            {loading ? "Deleting..." : "Delete Advocate"}
+            {loading ? "Deleting..." : "Delete User"}
           </button>
           <button
             type="button"
@@ -308,7 +308,7 @@ const DeleteAdvocate = () => {
             </div>
             <div className="px-6 py-4">
               <p className="text-sm text-gray-700">
-                Are you sure you want to delete advocate{" "}
+                Are you sure you want to delete user{" "}
                 <strong>
                   {selectedAdvocate?.firstName} {selectedAdvocate?.lastName}
                 </strong>

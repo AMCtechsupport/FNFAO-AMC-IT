@@ -38,7 +38,7 @@ const ProfilePage = () => {
         {/* Manage Roles */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>
-            Manage Roles
+            Manage User Roles
           </div>
           <div className="p-6">
             <ManageUserRoles />

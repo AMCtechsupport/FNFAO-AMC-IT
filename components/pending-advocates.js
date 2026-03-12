@@ -167,7 +167,7 @@ const PendingAdvocates = ({ refreshTrigger }) => {
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       {/* Header */}
       <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>
-        Pending Requests
+        Pending User Request
       </div>
 
       <div className="p-6 space-y-4">
