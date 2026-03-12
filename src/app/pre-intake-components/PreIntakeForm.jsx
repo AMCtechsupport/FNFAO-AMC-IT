@@ -12,6 +12,8 @@ import ChildrenPartition from "../full-intake-components/form-sections/ChildrenP
 import HealthWellnessPartition from "../full-intake-components/form-sections/HealthWellnessPartition";
 import ChildFamilyServicesPartition from "../full-intake-components/form-sections/ChildFamilyServices";
 import ReferredBySelect from "@/components/ReferredBySelect";
+import ValidationErrorToast from "../../../components/ValidationErrorToast";
+import ToastNotification from "../../../components/ToastNotification";
 
 const TABS = ["General", "Children", "Health & Wellness", "Child & Family Services", "Case Notes", "Legal Notes"];
 
@@ -30,7 +32,12 @@ const TAB_ERROR_FIELDS = [
 ];
 
 export default function PreIntakeForm() {
-  const { onSubmitPreIntake, formSent } = PreIntakeFormSubmit();
+  const [toast, setToast] = useState(null);
+  const showToast = (type, message) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 4000);
+  };
+  const { onSubmitPreIntake } = PreIntakeFormSubmit(showToast);
   const [activeTab, setActiveTab] = useState(0);
 
   const validateRadio = () => undefined;
@@ -144,14 +151,8 @@ export default function PreIntakeForm() {
           >
             Submit Pre-Intake
           </button>
-          {submitCount > 0 && Object.keys(errors).length > 0 && (
-            <p className="text-center text-sm text-red-600 font-medium mb-2">
-              Some required fields are incomplete. Check tabs with a red dot for errors.
-            </p>
-          )}
-          {formSent && (
-            <p className="text-center text-sm text-green-600 font-medium mb-4">Pre-intake sent successfully</p>
-          )}
+          <ValidationErrorToast showToast={showToast} message="Some required fields are incomplete. Check tabs with a red dot for errors." />
+          <ToastNotification toast={toast} />
         </Form>
       )}
     </Formik>

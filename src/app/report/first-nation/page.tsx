@@ -302,9 +302,7 @@ export default function FirstNationsReportPage() {
               </button>
 
               <DownloadDropdown
-                title="Download All"
                 onDownloadSelect={handleDownloadAll}
-                defaultText={`Download All as ${downloadFormat.toUpperCase()}`}
               />
             </div>
 

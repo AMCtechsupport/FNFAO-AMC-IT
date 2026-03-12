@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { deleteClient } from "../src/app/lib/delete-client-server";
 import Pagination from "./report/pages-pagination";
+import DeleteConfirmModal from "./DeleteConfirmModal";
+import ToastNotification from "./ToastNotification";
 
 const formTypeBadge = (type) => {
   const isYouth = type === "Youth";
@@ -136,6 +138,8 @@ export default function ClientsList() {
   const [activeClientId, setActiveClientId] = useState(null);
   const [currentYouthPage, setCurrentYouthPage] = useState(1);
   const [currentAdultPage, setCurrentAdultPage] = useState(1);
+  const [clientToDelete, setClientToDelete] = useState(null);
+  const [toast, setToast] = useState(null);
   const clientsPerPage = 10;
   const router = useRouter();
 
@@ -158,6 +162,11 @@ export default function ClientsList() {
     };
     fetchAll();
   }, []);
+
+  const showToast = (type, message) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 4000);
+  };
 
   const filterClients = (clients) => {
     return clients.filter((client) => {
@@ -197,24 +206,29 @@ export default function ClientsList() {
     }, 50);
   };
 
-  const handleDelete = async (client) => {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to permanently delete ${client.firstName} ${client.lastName}? This action cannot be undone.`,
-    );
-    if (!confirmDelete) return;
+  const handleDeleteClick = (client) => {
+    setClientToDelete(client);
+  };
 
+  const handleConfirmDelete = async () => {
+    const client = clientToDelete;
+    setClientToDelete(null);
     setDeletingClientId(client.client_id);
     try {
       const result = await deleteClient(client.client_id);
       setAllYouthClients((prev) => prev.filter((c) => c.client_id !== client.client_id));
       setAllAdultClients((prev) => prev.filter((c) => c.client_id !== client.client_id));
-      alert(result.message);
+      showToast("success", result.message);
     } catch (error) {
       console.error("Error deleting client:", error);
-      alert(`Failed to delete client: ${error.message}`);
+      showToast("error", `Failed to delete client: ${error.message}`);
     } finally {
       setDeletingClientId(null);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setClientToDelete(null);
   };
 
   return (
@@ -269,7 +283,7 @@ export default function ClientsList() {
             totalPages={totalYouthPages}
             onPageChange={setCurrentYouthPage}
             onView={handleView}
-            onDelete={handleDelete}
+            onDelete={handleDeleteClick}
             activeClientId={activeClientId}
             deletingClientId={deletingClientId}
             emptyMessage="No youth clients found"
@@ -284,13 +298,20 @@ export default function ClientsList() {
             totalPages={totalAdultPages}
             onPageChange={setCurrentAdultPage}
             onView={handleView}
-            onDelete={handleDelete}
+            onDelete={handleDeleteClick}
             activeClientId={activeClientId}
             deletingClientId={deletingClientId}
             emptyMessage="No adult clients found"
           />
         </div>
       )}
+
+      <DeleteConfirmModal
+        client={clientToDelete}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
+      <ToastNotification toast={toast} />
     </div>
   );
 }

@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import styles from "../youth-intake/youthIntake.module.css";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { useUser } from "@clerk/clerk-react";
+import ValidationErrorToast from "../../../components/ValidationErrorToast";
+import ToastNotification from "../../../components/ToastNotification";
 
 import youthIntakeInputValidation from "./utils/youthIntakeInputValidation";
 import ReferredBySelect from "@/components/ReferredBySelect";
@@ -48,7 +49,11 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
   const { user } = useUser();
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(isEditMode && !isViewOnly);
-  const [formSent, setFormSent] = useState(false);
+  const [toast, setToast] = useState(null);
+  const showToast = (type, message) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 4000);
+  };
   const [assignedAdvocateName, setAssignedAdvocateName] = useState("—");
 
   const { initialValues, isLoading } = YouthIntakeFetchClientData(
@@ -156,7 +161,7 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
       validate={youthIntakeInputValidation}
       onSubmit={(values, { resetForm }) => {
         if (isViewOnly) return;
-        return YouthIntakeFormSubmit(values, { resetForm }, user, router, setFormSent, isEditMode, editClientId);
+        return YouthIntakeFormSubmit(values, { resetForm }, user, router, showToast, isEditMode, editClientId);
       }}
     >
       {({ values, errors, setFieldValue, resetForm, submitCount }) => (
@@ -227,19 +232,11 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
                   >
                     Submit Youth Intake
                   </button>
-                  {submitCount > 0 && Object.keys(errors).length > 0 && (
-                    <p className="text-center text-sm text-red-600 font-medium mb-2">
-                      Some required fields are incomplete. Please scroll up to check for errors.
-                    </p>
-                  )}
+                  <ValidationErrorToast showToast={showToast} message="Some required fields are incomplete. Please scroll up to check for errors." />
                 </>
               )}
 
-              {formSent && (
-                <p className={styles.successfulText}>
-                  {isEditMode ? "Youth client updated successfully" : "Youth Intake sent successfully"}
-                </p>
-              )}
+              <ToastNotification toast={toast} />
             </>
           )}
         </Form>
