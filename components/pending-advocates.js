@@ -37,6 +37,7 @@ const PendingAdvocates = ({ refreshTrigger }) => {
   const [openFilterFor, setOpenFilterFor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [resendingFor, setResendingFor] = useState(null);
+  const [deletingFor, setDeletingFor] = useState(null);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
@@ -147,6 +148,45 @@ const PendingAdvocates = ({ refreshTrigger }) => {
       setError("Error resending email. Please try again.");
     } finally {
       setResendingFor(null);
+    }
+  };
+
+  const handleDelete = async (advocate) => {
+    setDeletingFor(advocate.advocate_id);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const res = await fetch("/api/delete-advocate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ advocate_id: advocate.advocate_id }),
+      });
+
+      let json = {};
+      try {
+        const text = await res.text();
+        if (text) {
+          json = JSON.parse(text);
+        }
+      } catch (parseErr) {
+        console.error("Failed to parse JSON response:", parseErr);
+      }
+
+      if (!res.ok) {
+        const errorMsg = json?.error || `Status ${res.status}`;
+        setError(`Failed to delete: ${errorMsg}`);
+        return;
+      }
+
+      setSuccess(`${advocate.firstName} ${advocate.lastName} deleted successfully`);
+      // Refresh the list
+      await fetchPendingAdvocates();
+    } catch (err) {
+      console.error("Error deleting advocate:", err);
+      setError("Error deleting user. Please try again.");
+    } finally {
+      setDeletingFor(null);
     }
   };
 
@@ -276,10 +316,26 @@ const PendingAdvocates = ({ refreshTrigger }) => {
                   <button
                     type="button"
                     onClick={() => handleResendEmail(advocate)}
-                    disabled={resendingFor === advocate.advocate_id}
+                    disabled={resendingFor === advocate.advocate_id || deletingFor === advocate.advocate_id}
                     className="px-4 py-2.5 text-sm font-medium rounded-lg border transition-colors border-gray-300 text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                   >
                     {resendingFor === advocate.advocate_id ? "Sending..." : "Resend Email"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(advocate)}
+                    disabled={deletingFor === advocate.advocate_id || resendingFor === advocate.advocate_id}
+                    className="px-4 py-2.5 text-sm font-medium rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                    style={{
+                      color: "#C00707",
+                      backgroundColor: "#FDE8E8",
+                      borderColor: "#C00707",
+                    }}
+                    onMouseEnter={(e) => !(deletingFor === advocate.advocate_id || resendingFor === advocate.advocate_id) && (e.currentTarget.style.backgroundColor = "#FCC8C8")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#FDE8E8")}
+                  >
+                    {deletingFor === advocate.advocate_id ? "Deleting..." : "Delete"}
                   </button>
                 </div>
               </div>
