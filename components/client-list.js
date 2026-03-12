@@ -276,7 +276,7 @@ export default function ClientsList() {
 
       {/* Filter Search */}
        <div className="flex justify-end pb-4">
-        <div className="relative">
+        <div className="relative inline-block">
 
           {/* Dropdown */}
           <select
