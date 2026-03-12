@@ -317,7 +317,7 @@ const PendingAdvocates = ({ refreshTrigger }) => {
                     type="button"
                     onClick={() => handleResendEmail(advocate)}
                     disabled={resendingFor === advocate.advocate_id || deletingFor === advocate.advocate_id}
-                    className="px-3 py-2 text-xs font-medium rounded-lg border transition-colors border-gray-300 text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                    className="px-4 py-2.5 text-xs font-medium rounded-lg border transition-colors border-gray-300 text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                   >
                     {resendingFor === advocate.advocate_id ? "Sending..." : "Resend Email"}
                   </button>
@@ -326,7 +326,7 @@ const PendingAdvocates = ({ refreshTrigger }) => {
                     type="button"
                     onClick={() => handleDelete(advocate)}
                     disabled={deletingFor === advocate.advocate_id || resendingFor === advocate.advocate_id}
-                    className="px-3 py-2 text-xs font-medium rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                    className="px-4 py-2.5 text-xs font-medium rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                     style={{
                       color: "#C00707",
                       backgroundColor: "#FDE8E8",
