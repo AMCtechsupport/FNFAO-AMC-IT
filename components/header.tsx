@@ -2,11 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import {
-  SignInButton,
-  UserButton,
-  useUser,
-} from "@clerk/nextjs";
+import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import useSyncClerkWithSupabase from "../components/useSyncClerkWithSupabase";
 
 export default function Header() {
