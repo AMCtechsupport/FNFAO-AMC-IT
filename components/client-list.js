@@ -208,7 +208,6 @@ export default function ClientsList() {
       });
     }
 
-    console.log(clients[0]);
     return sorted;
   };
   
@@ -276,49 +275,66 @@ export default function ClientsList() {
       </div>
 
       {/* Filter Search */}
-        <div className="flex items-center justify-end pb-4">
-          <select 
-            className="border p-2 rounded"
+       <div className="flex justify-end pb-4">
+        <div className="relative">
+
+          {/* Dropdown */}
+          <select
+            className="
+              appearance-none
+              bg-[#47315E]  /* Dark purple background */
+              text-white    /* White text */
+              text-sm
+              font-medium
+              rounded-lg
+              pl-10    /* padding left for icon */
+              pr-6     /* padding right for arrow */
+              py-2
+              cursor-pointer
+              focus:outline-none
+              focus:ring-2
+              focus:ring-[#6C4F9C] /* lighter purple ring */
+              shadow-md
+              transition
+              hover:bg-[#5A3D8A]   /* lighter hover background */
+            "
             value={sortOption}
-
-            //When user selects a new filter option
             onChange={(e) => {
-
-              // update the sorting state
               setSortOption(e.target.value);
-
-              // Reset pagination to page 1
-              // prevents empty pages after sorting
               setCurrentYouthPage(1);
               setCurrentAdultPage(1);
             }}
           >
             <option value="newest">Newest</option>
-            <option value="oldest">Oldest</option>  
+            <option value="oldest">Oldest</option>
             <option value="az">A-Z</option>
             <option value="za">Z-A</option>
           </select>
-        </div>
 
-      {/* Search */}
-      <div className="mb-6">
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
-            </svg>
-          </div>
-          <input
-            type="text"
-            placeholder="Search by name..."
-            value={searchQuery}
-            onChange={(e) => { setSearchQuery(e.target.value); setCurrentYouthPage(1); setCurrentAdultPage(1); }}
-            className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 text-gray-700 focus:outline-none transition"
-          />
+           {/* Hamburger icon inside the select */}
+          <svg
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white pointer-events-none"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+
+          {/* Dropdown arrow */}
+          <svg
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-white pointer-events-none"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+
         </div>
       </div>
-
-       
 
       {/* Loading */}
       {loading ? (
