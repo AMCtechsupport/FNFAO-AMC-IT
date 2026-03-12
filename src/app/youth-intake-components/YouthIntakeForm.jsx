@@ -1,7 +1,7 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Formik, Form } from "formik";
+import { Formik, Form, useFormikContext } from "formik";
 import * as Yup from "yup";
 import { useUser } from "@clerk/clerk-react";
 
@@ -42,6 +42,19 @@ const validationSchema = Yup.object({
   otherFirstNation: Yup.string()
     .nullable(), // added other first nation validation only if needed
 });
+
+function ValidationErrorToast({ showToast }) {
+  const { submitCount, errors } = useFormikContext();
+  const shownForSubmit = useRef(0);
+  const errorCount = Object.keys(errors).length;
+  useEffect(() => {
+    if (submitCount > 0 && errorCount > 0 && submitCount !== shownForSubmit.current) {
+      showToast("error", "Some required fields are incomplete. Please scroll up to check for errors.");
+      shownForSubmit.current = submitCount;
+    }
+  }, [submitCount, errorCount]);
+  return null;
+}
 
 function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
   const { user } = useUser();
@@ -230,11 +243,7 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
                   >
                     Submit Youth Intake
                   </button>
-                  {submitCount > 0 && Object.keys(errors).length > 0 && (
-                    <p className="text-center text-sm text-red-600 font-medium mb-2">
-                      Some required fields are incomplete. Please scroll up to check for errors.
-                    </p>
-                  )}
+                  <ValidationErrorToast showToast={showToast} />
                 </>
               )}
 

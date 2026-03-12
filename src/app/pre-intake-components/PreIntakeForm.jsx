@@ -1,6 +1,6 @@
 "use client";
-import React, { useState } from "react";
-import { Formik, Form } from "formik";
+import React, { useState, useEffect, useRef } from "react";
+import { Formik, Form, useFormikContext } from "formik";
 
 import preIntakeInitialValues from "./utils/preIntakeInitialValues";
 import PreIntakeInputValidation from "./utils/PreIntakeInputValidation";
@@ -28,6 +28,19 @@ const TAB_ERROR_FIELDS = [
   // Tab 2-5: no validated required fields
   [], [], [], [],
 ];
+
+function ValidationErrorToast({ showToast }) {
+  const { submitCount, errors } = useFormikContext();
+  const shownForSubmit = useRef(0);
+  const errorCount = Object.keys(errors).length;
+  useEffect(() => {
+    if (submitCount > 0 && errorCount > 0 && submitCount !== shownForSubmit.current) {
+      showToast("error", "Some required fields are incomplete. Check tabs with a red dot for errors.");
+      shownForSubmit.current = submitCount;
+    }
+  }, [submitCount, errorCount]);
+  return null;
+}
 
 export default function PreIntakeForm() {
   const [toast, setToast] = useState(null);
@@ -149,11 +162,7 @@ export default function PreIntakeForm() {
           >
             Submit Pre-Intake
           </button>
-          {submitCount > 0 && Object.keys(errors).length > 0 && (
-            <p className="text-center text-sm text-red-600 font-medium mb-2">
-              Some required fields are incomplete. Check tabs with a red dot for errors.
-            </p>
-          )}
+          <ValidationErrorToast showToast={showToast} />
           {toast && (
             <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white ${toast.type === "success" ? "bg-green-500" : "bg-red-500"}`}>
               {toast.type === "success" ? (
