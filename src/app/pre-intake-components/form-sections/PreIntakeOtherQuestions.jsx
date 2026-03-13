@@ -2,7 +2,6 @@
 import styles from "../../pre-intake/preIntake.module.css";
 import { Field, ErrorMessage } from "formik";
 
-const fieldCls = "w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white";
 const labelCls = "block text-xs font-medium text-gray-600 mb-1";
 
 const RadioPair = ({ name, validate }) => (
@@ -96,7 +95,7 @@ const PreIntakeOtherQuestions = ({ values, validateRadio, errors }) => {
             {values.activeInvestigation === "yes" && (
               <div className="col-span-4">
                 <label className={labelCls}>If yes, start date:</label>
-                <Field type="date" id="activeInvestigationExplained" name="activeInvestigationExplained" max={new Date().toISOString().split("T")[0]} className={fieldCls} />
+                <Field type="date" id="activeInvestigationExplained" name="activeInvestigationExplained" max={new Date().toISOString().split("T")[0]} className={styles.input} />
                 <ErrorMessage name="activeInvestigationExplained" component={() => <p className={styles.errorText}>{errors.activeInvestigationExplained}</p>} />
               </div>
             )}

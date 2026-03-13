@@ -8,7 +8,6 @@ import StatusCFSFileSelect from "@/components/StatusCFSFileSelect";
 import ManageCfsAgencies from "@/components/ManageCfsAgencies";
 
 const labelCls = "block text-xs font-medium text-gray-600 mb-1";
-const fieldCls = "w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white";
 
 const PreIntakeAgencyInfo = ({ index, errors }) => {
   return (
@@ -29,7 +28,7 @@ const PreIntakeAgencyInfo = ({ index, errors }) => {
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-4">
           <label className={labelCls} htmlFor={`children.${index}.childCfsAgentEmail`}>Email:</label>
-          <Field type="email" id={`children.${index}.childCfsAgentEmail`} name={`children.${index}.childCfsAgentEmail`} placeholder="e.g., name@example.com" className={fieldCls} />
+          <Field type="email" id={`children.${index}.childCfsAgentEmail`} name={`children.${index}.childCfsAgentEmail`} placeholder="e.g., name@example.com" className={styles.input} />
           <ErrorMessage name={`children.${index}.childCfsAgentEmail`} component={() => <p className={styles.errorText}>{errors.children?.[index]?.childCfsAgentEmail}</p>} />
         </div>
         <div className="col-span-4">

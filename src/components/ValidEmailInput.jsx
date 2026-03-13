@@ -1,5 +1,6 @@
 import React from "react";
 import { ErrorMessage } from "formik";
+import styles from "@/app/pre-intake/preIntake.module.css";
 
 // Function to sanitize email (trim and lowercase)
 const sanitizeEmail = (value) => {
@@ -38,7 +39,7 @@ const EmailInput = ({ field, form, label, ...props }) => {
         id={name}
         name={name}
         type="email"
-        className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none bg-white ${errors[name] && touched[name] ? "border-red-400 focus:border-red-400" : "border-gray-200 focus:border-purple-400"}`}
+        className={`${styles.input} ${errors[name] && touched[name] ? "border-red-400 focus:border-red-400" : ""}`}
         onChange={handleChange}
       />
       {/* Error message */}
