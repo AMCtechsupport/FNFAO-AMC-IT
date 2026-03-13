@@ -4,6 +4,31 @@ import validator from "validator";
 import supabase from "../../lib/supabase";
 import youthIntakeDefaultValues from "./youthIntakeDefaultValues";
 
+// Function to get Manitoba current date/time 
+const getManitobaDateTime = () => {
+  const now = new Date();
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Winnipeg",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(now);
+  const get = (type) => parts.find((p) => p.type === type)?.value;
+
+  const year = get("year");
+  const month = get("month");
+  const day = get("day");
+  const hour = get("hour");
+  const minute = get("minute");
+
+  return `${year}-${month}-${day}T${hour}:${minute}`;
+};
+
 function sanitizeInput(input) {
   if (typeof input === "string") {
     return validator.escape(input.trim());
@@ -19,8 +44,35 @@ function sanitizeValues(values) {
   return sanitizedValues;
 }
 
-const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, setFormSent, isEditMode, editClientId) => {
+const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, showToast, isEditMode, editClientId) => {
     try {
+                const normalizeValue = (value) => {
+                    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value)) {
+                        return value.split("T")[0];
+                    }
+                    return value;
+                };
+
+                const formatLogValue = (value) => {
+                    if (value === null || value === undefined || value === "") return "N/A";
+                    if (typeof value === "boolean") return value ? "true" : "false";
+                    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value)) return value.split("T")[0];
+                    if (typeof value === "object") return JSON.stringify(value);
+                    return String(value);
+                };
+
+                const buildChangedFieldsDescription = (previous = {}, current = {}) => {
+                    const excludedFields = new Set(["dateModified", "createdAt"]);
+                    return Object.keys(current)
+                        .filter((field) => !excludedFields.has(field))
+                        .filter((field) => {
+                            const prevVal = normalizeValue(previous?.[field] ?? null);
+                            const currVal = normalizeValue(current?.[field] ?? null);
+                            return JSON.stringify(prevVal) !== JSON.stringify(currVal);
+                        })
+                        .map((field) => `${field}: ${formatLogValue(previous?.[field])} → ${formatLogValue(current?.[field])}`);
+                };
+
         const sanitizedValues = sanitizeValues(values);
 
         const convertedValues = {};
@@ -52,7 +104,7 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, setFormS
         console.log("🔍 DEBUG - Converted values for database:", convertedValues);
 
         // Get the current date in ISO 8601 format
-        const currentDate = new Date().toISOString();
+        const currentDate = getManitobaDateTime();
 
         // Extract children, emergencyContact, homeMembers, educationalPersons
         const {
@@ -65,10 +117,19 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, setFormS
         } = convertedValues;
 
         let clientId;
+        let changedFields = [];
 
         if (isEditMode && editClientId) {
+        const { data: existingClientData } = await supabase
+            .from("Clients")
+            .select("*")
+            .eq("client_id", editClientId)
+            .single();
+
         // UPDATE existing client
         clientData.dateModified = currentDate;
+
+        changedFields = buildChangedFieldsDescription(existingClientData || {}, clientData);
 
         const { error: clientError } = await supabase
             .from("Clients")
@@ -104,7 +165,7 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, setFormS
             .insert([
             {
                 ...clientData,
-                createdBy: user.id,
+                createdBy: user?.id ?? null,
             },
             ])
             .select();
@@ -236,26 +297,39 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, setFormS
         }
 
         // console.log(
-        //   "✅ Emergency contact inserted successfully:",
+        //   "Emergency contact inserted successfully:",
         //   emergencyContactData
         // );
         }
 
+        // Insert a User Log entry for this submission via API (bypasses RLS)
+        await fetch("/api/user-logs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            description: isEditMode
+              ? changedFields.length
+                ? `Youth intake updated for client: ${values.firstName} ${values.lastName}. Changed fields:\n${changedFields.join("\n")}`
+                : `Youth intake updated for client: ${values.firstName} ${values.lastName}`
+              : `Youth intake created for client: ${values.firstName} ${values.lastName}`,
+            logType: isEditMode ? "UPDATE" : "INSERT",
+            client_id: clientId,
+            clerkUserId: user?.id || null,
+          }),
+        });
+
         // Reset form and show success message
-        setFormSent(true);
-        
+        showToast("success", isEditMode ? "Youth client updated successfully" : "Youth Intake sent successfully");
+
         // Reset initialValues back to empty state
         resetForm(youthIntakeDefaultValues);
-        
+
         // Handle post-submission behavior
         if (isEditMode) {
         // For edit mode, redirect to client list after successful update
         setTimeout(() => {
             router.push('/clients');
         }, 1500);
-        } else {
-        // For new submissions, show success message temporarily
-        setTimeout(() => setFormSent(false), 3000);
         }
     } catch (error) {
         console.error("General error:", error);

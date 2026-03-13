@@ -30,7 +30,7 @@ export const deleteAdvocate = async (advocateId) => {
       .single();
 
     if (selectError) {
-      if (selectError.code === 'PGRST116') {
+      if (selectError.code === "PGRST116") {
         throw new Error("Advocate not found");
       }
       throw new Error("Error finding advocate: " + selectError.message);
@@ -48,7 +48,7 @@ export const deleteAdvocate = async (advocateId) => {
 
     if (assignedClients && assignedClients.length > 0) {
       throw new Error(
-        `Cannot delete advocate. They have ${assignedClients.length} assigned client(s). Please unassign all clients first.`
+        `Cannot delete advocate. They have ${assignedClients.length} assigned client(s). Please unassign all clients first.`,
       );
     }
 
@@ -66,6 +66,18 @@ export const deleteAdvocate = async (advocateId) => {
       }
     }
 
+    // Delete advocate's notes first to satisfy foreign key constraint
+    const { error: notesDeleteError } = await supabase
+      .from("Notes")
+      .delete()
+      .eq("advocate_id", advocateId);
+
+    if (notesDeleteError) {
+      throw new Error(
+        "Error deleting advocate's notes: " + notesDeleteError.message,
+      );
+    }
+
     // Delete from Supabase database
     const { error: deleteError } = await supabase
       .from("Advocates")
@@ -73,17 +85,20 @@ export const deleteAdvocate = async (advocateId) => {
       .eq("advocate_id", advocateId);
 
     if (deleteError) {
-      throw new Error("Error deleting advocate from database: " + deleteError.message);
+      throw new Error(
+        "Error deleting advocate from database: " + deleteError.message,
+      );
     }
 
     // Build success message
     let successMessage = `Advocate ${advocate.firstName} ${advocate.lastName} has been successfully deleted from the database`;
-    
+
     if (advocate.clerk_user_id) {
       if (deletedFromClerk) {
         successMessage += " and their user account has been removed";
       } else {
-        successMessage += " (Note: Could not remove user account - may need manual cleanup)";
+        successMessage +=
+          " (Note: Could not remove user account - may need manual cleanup)";
       }
     }
 
@@ -91,11 +106,10 @@ export const deleteAdvocate = async (advocateId) => {
       success: true,
       message: successMessage,
       deletedFromClerk: deletedFromClerk,
-      hadClerkAccount: !!advocate.clerk_user_id
+      hadClerkAccount: !!advocate.clerk_user_id,
     };
-
   } catch (err) {
     console.error("Error deleting advocate:", err);
     throw err;
   }
-}; 
+};

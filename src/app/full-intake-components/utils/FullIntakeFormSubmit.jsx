@@ -1,5 +1,6 @@
 "use client";
 import supabase from "../../lib/supabase";
+import { normalizeDates } from "./fetchClientData";
 // Handles form updates
 import { handleNotesUpdate } from "../../utils/notesUpdates";
 import { handleFamilyUpdate }  from "../../utils/familyUpdates";
@@ -7,12 +8,75 @@ import { handleHomeMembersUpdate } from "../../utils/homeMebersUpdate";
 import { handleEIAUpdate } from "../../utils/EIAUpdates";
 import handleChildrenUpdate from "../childrenUpdate";
 
-const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, router, setFormSent, client_id, originalData, childrenData, familyData, homeMembersData, EIAData, notesData, setChildrenData, setFamilyData, setHomeMembersData, setEIAData, setNotesData, setOriginalData, setShowNewNoteForm, setIsEditing) => {
+const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, router, showToast, client_id, originalData, childrenData, familyData, homeMembersData, EIAData, notesData, setChildrenData, setFamilyData, setHomeMembersData, setEIAData, setNotesData, setOriginalData, setShowNewNoteForm, setIsEditing) => {
     try {
-        // const { getToken } = useAuth();
-        const token = await getToken({ template: "supabase" });
+        const normalizeValue = (value) => {
+            if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value)) {
+                return value.slice(0, 10);
+            }
+            return value;
+        };
 
-        // console.log("Token", token);
+        const formatLogValue = (value) => {
+            if (value === null || value === undefined || value === "") return "N/A";
+            if (typeof value === "boolean") return value ? "true" : "false";
+            if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value)) {
+                return value.slice(0, 10);
+            }
+            if (typeof value === "object") return JSON.stringify(value);
+            return String(value);
+        };
+
+        const buildChangedFieldsDescription = (previous = {}, current = {}) => {
+            const excludedFields = new Set(["dateModified", "createdAt"]);
+            return Object.keys(current)
+                .filter((field) => !excludedFields.has(field))
+                .filter((field) => {
+                    const prevVal = normalizeValue(previous?.[field] ?? null);
+                    const currVal = normalizeValue(current?.[field] ?? null);
+                    return JSON.stringify(prevVal) !== JSON.stringify(currVal);
+                })
+                .map((field) => `${field}: ${formatLogValue(previous?.[field])} → ${formatLogValue(current?.[field])}`);
+        };
+
+        const buildNoteChangesDescription = (originalNotes = [], updatedNotes = []) => {
+            const lines = [];
+            const originalMap = new Map((originalNotes || []).map((n) => [n.note_id, n]));
+            const updatedMap = new Map((updatedNotes || []).filter((n) => n.note_id).map((n) => [n.note_id, n]));
+
+            // Added notes (no note_id yet)
+            const added = (updatedNotes || []).filter((n) => !n.note_id);
+            for (const n of added) {
+                lines.push(`${n.noteType || "Case"} note added (type: ${n.type || "N/A"}, subType: ${n.subType || "N/A"})`);
+            }
+
+            // Updated notes
+            for (const [id, orig] of originalMap.entries()) {
+                const updated = updatedMap.get(id);
+                if (!updated) continue;
+                const noteChanges = [];
+                for (const field of ["type", "subType", "description", "actionPlan"]) {
+                    const prevVal = formatLogValue(orig[field]);
+                    const currVal = formatLogValue(updated[field]);
+                    if (prevVal !== currVal) {
+                        noteChanges.push(`${field}: ${prevVal} → ${currVal}`);
+                    }
+                }
+                if (noteChanges.length > 0) {
+                    lines.push(`${orig.noteType || "Note"} note updated (id: ${id}):\n  ${noteChanges.join("\n  ")}`);
+                }
+            }
+
+            // Deleted notes
+            const updatedIds = new Set((updatedNotes || []).filter((n) => n.note_id).map((n) => n.note_id));
+            for (const [id, orig] of originalMap.entries()) {
+                if (!updatedIds.has(id)) {
+                    lines.push(`${orig.noteType || "Note"} note deleted (type: ${orig.type || "N/A"})`);
+                }
+            }
+
+            return lines;
+        };
 
         // console.log("Form submitted with values:", values);
         // console.log("onSubmit values.notes:", values);
@@ -78,22 +142,21 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
             }
         });
 
-        // Updates data in Supabase
-        const { data, error} = await supabase
-            .from("Clients")
-            .update(clientValues)
-            .eq("client_id", client_id)
-            .select(); // This retrieves the updated data
+        // Updates data via API route (uses service role key server-side, bypasses RLS)
+        const updateRes = await fetch("/api/clients", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ client_id, clientValues }),
+        });
 
-        // console.log("Supabase response:", response);
+        const updateResult = await updateRes.json();
 
-        // If there's an error, print it and exit
-        if (error) {
-            // console.error("Error updating data:", error);
-            console.error("Error updating Clients data:", JSON.stringify(error, null, 2));
-
+        if (!updateRes.ok) {
+            console.error("Error updating Clients data:", updateResult.error, updateResult.details);
             return;
         }
+
+        const data = updateResult.data;
 
         // Confirm that the update was successful
         if (data && data.length > 0) {
@@ -129,7 +192,6 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
                 console.error("Error update EIA data.");
             }
 
-            const token = await getToken({ template: "supabase" });
             // console.log("userId antes de handleNotesUpdate:", userId);
 
             // Call `handle Notes Update` to update the notes in the database
@@ -140,16 +202,35 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
             }
 
             // UPDATE originalData with the new values
-            setOriginalData(data[0]);  // Use the data returned by Supabase
+            setOriginalData(normalizeDates(data[0]));  // Use the data returned by Supabase
+
+            // Insert a User Log entry for this update via API (bypasses RLS)
+            const changedFields = buildChangedFieldsDescription(originalData, clientValues);
+            const noteChanges = buildNoteChangesDescription(notesData, values.notes);
+            const allChanges = [...changedFields, ...noteChanges];
+            const description = allChanges.length
+                ? `Full intake updated for client: ${values.firstName} ${values.lastName}. Changed fields:\n${allChanges.join("\n")}`
+                : `Full intake updated for client: ${values.firstName} ${values.lastName}`;
+
+            await fetch("/api/user-logs", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    description,
+                    logType: "UPDATE",
+                    client_id,
+                    clerkUserId: userId || null,
+                }),
+            });
 
             setShowNewNoteForm(false);
             setIsEditing(false);
-            setFormSent(true);
+            showToast("success", "Adult client updated successfully!");
             resetForm({ values });
             
             // Redirect to client list after successful update (like youth-intake form)
             setTimeout(() => {
-                router.push('/clients');
+                router.push(`/adult-clients/${client_id}/view`);
             }, 1500);
         } else {
             console.warn("Warning: The update did not modify any data.");

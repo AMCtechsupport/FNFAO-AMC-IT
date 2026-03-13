@@ -6,7 +6,7 @@ const  ProvincesSelect = ({name, label, error, disabled }) => {
 
     return (
         <>
-            <label htmlFor="province">{label}</label>
+            <label htmlFor="province" className="block text-xs font-medium text-gray-600 mb-1">{label}</label>
             <Field as="select" name={name} className={styles.select} disabled={disabled}>
                 <option value="">Select a province</option>
                 <option value="alberta">Alberta</option>

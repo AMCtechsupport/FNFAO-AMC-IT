@@ -1,6 +1,9 @@
+import type { ComponentType } from "react";
 import supabase from "../lib/supabase";
 import UserHome from "../user-home/page";
-import ClientsList from "../../../components/client-list";
+import ClientsListJS from "../../../components/client-list";
+
+const ClientsList = ClientsListJS as ComponentType<{ initialClients: any[]; totalCount: number | null }>;
 
 export default async function ClientsPage() {
   // Fetch the initial data
@@ -8,19 +11,9 @@ export default async function ClientsPage() {
 
   return (
     <UserHome>
-      <div className="min-h-screen bg-gray-100 flex flex-col justify-between">
-        <main className="flex-grow flex items-center justify-center text-center p-8">
-          <div className="bg-white-200 p-6 rounded-lg shadow-lg max-w-7xl w-full">
-            {/* Pass initial data and count to the client-side component */}
-            <ClientsList initialClients={data} totalCount={count} />
-          </div>
-        </main>
-
-        {/* Footer Component */}
-        <footer className="bg-gray-800 text-white text-center p-4">
-          <p>&copy; 2025 My Next.js App</p>
-        </footer>
-      </div>
+      <main className="min-h-screen bg-gray-100 p-6">
+        <ClientsList initialClients={data} totalCount={count} />
+      </main>
     </UserHome>
   );
 }

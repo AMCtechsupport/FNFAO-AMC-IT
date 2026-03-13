@@ -38,19 +38,28 @@ const PreIntakeInputValidation=
     } else {
         const birthDate = new Date(values.dateOfBirth);
         const today = new Date();
-        const minYear = today.getFullYear() - 150;
-        const maxYear = today.getFullYear() - 5;
 
         if (isNaN(birthDate.getTime())) {
         errors.dateOfBirth = "Invalid date format";
         } else if (birthDate > today) {
         errors.dateOfBirth = "Date of birth cannot be in the future";
-        } else if (
-        birthDate.getFullYear() < minYear ||
-        birthDate.getFullYear() > maxYear
-        ) {
-        errors.dateOfBirth = `Date of birth must be between ${minYear} and ${maxYear}`;
-        }
+        } 
+    }
+
+    if (!values.relationshipToChildren) {
+    errors.relationshipToChildren =
+        "Please select your relationship to the child(ren)";
+    }
+
+    if (!values.firstNationMembership) { //added First Nation Validation
+    errors.firstNationMembership = "Please select a First Nation";
+    }
+
+    if ( // added other validation only if needed
+    values.firstNationMembership === "other" &&
+    !values.otherFirstNation
+    ) {
+        errors.otherFirstNation = "Please select the other First Nation";
     }
 
     const phoneNumberError = validatePhoneNumber(values.phoneNumber);
@@ -141,14 +150,6 @@ const PreIntakeInputValidation=
     ) {
         errors.ninePersonalHealthNumber = "Must be exactly 9 digits";
     }
-
-    if (
-        values.treatyNumber &&
-        !/^\d{9}$/.test(values.treatyNumber)
-    ) {
-        errors.treatyNumber = "Treaty number must be exactly 9 digits";
-    }
-
 
     // Validation for 6 digits (only if the user enters something)
     if (

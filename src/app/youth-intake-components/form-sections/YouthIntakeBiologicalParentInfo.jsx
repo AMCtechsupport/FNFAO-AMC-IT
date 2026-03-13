@@ -1,109 +1,65 @@
 "use client";
-import styles from "../../youth-intake/youthIntake.module.css";
 import { Field } from "formik";
-import { Row, Col } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
 import ValidNameInput from "@/components/ValidNameInput";
 import FirstNationSelect from "@/components/FirstNationSelect";
 
-const YouthIntakeBiologicalParentInfo = ( {errors} ) => {
-    return(
-        <>
-            <div className={styles.group}>
-            <h3 className="text-dark">Biological Parent's Information: </h3>
-            <Row>
-              <Col md={4}>
-                <div>
-                  <label htmlFor="motherFirstName">Mother's First Name:</label>
-                  <Field
-                    id="motherFirstName"
-                    name="motherFirstName"
-                    component={ValidNameInput}
-                    placeholder="Mary"
-                  />
-                </div>
-              </Col>
+const labelCls = "block text-xs font-medium text-gray-600 mb-1";
 
-              <Col md={4}>
-                <div>
-                  <label htmlFor="motherMiddleName">
-                    Mother's Middle Name:
-                  </label>
-                  <Field
-                    id="motherMiddleName"
-                    name="motherMiddleName"
-                    component={ValidNameInput}
-                  />
-                </div>
-              </Col>
+const YouthIntakeBiologicalParentInfo = ({ errors }) => {
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+      <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
+        Biological Parent's Information
+      </div>
+      <div className="p-5 space-y-4">
 
-              <Col md={4}>
-                <div>
-                  <label htmlFor="motherLastName">Mother's Last Name:</label>
-                  <Field
-                    id="motherLastName"
-                    name="motherLastName"
-                    component={ValidNameInput}
-                  />
-                </div>
-              </Col>
-              <Col md={4}>
-                <Field
-                  name="motherNation"
-                  component={FirstNationSelect}
-                  label="Mother's First Nation Membership"
-                  error={errors.motherNation}
-                />
-              </Col>
-            </Row>
-            <Row>
-              <Col md={4}>
-                <div>
-                  <label htmlFor="fatherFirstName">Father's First Name:</label>
-                  <Field
-                    id="fatherFirstName"
-                    name="fatherFirstName"
-                    component={ValidNameInput}
-                    placeholder="Jones"
-                  />
-                </div>
-              </Col>
-
-              <Col md={4}>
-                <div>
-                  <label htmlFor="fatherMiddleName">
-                    Father's Middle Name:
-                  </label>
-                  <Field
-                    id="fatherMiddleName"
-                    name="fatherMiddleName"
-                    component={ValidNameInput}
-                  />
-                </div>
-              </Col>
-
-              <Col md={4}>
-                <div>
-                  <label htmlFor="fatherLastName">Father's Last Name:</label>
-                  <Field
-                    id="fatherLastName"
-                    name="fatherLastName"
-                    component={ValidNameInput}
-                  />
-                </div>
-              </Col>
-              <Col md={4}>
-                <Field
-                  name="fatherNation"
-                  component={FirstNationSelect}
-                  label="Father's First Nation Membership"
-                  error={errors.fatherNation}
-                />
-              </Col>
-            </Row>
+        {/* Mother */}
+        <div className="bg-gray-50 rounded-lg border border-gray-100 p-4">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Mother</p>
+          <div className="grid grid-cols-12 gap-4">
+            <div className="col-span-3">
+              <label className={labelCls} htmlFor="motherFirstName">First Name:</label>
+              <Field id="motherFirstName" name="motherFirstName" component={ValidNameInput} placeholder="Mother's First Name" />
+            </div>
+            <div className="col-span-3">
+              <label className={labelCls} htmlFor="motherMiddleName">Middle Name:</label>
+              <Field id="motherMiddleName" name="motherMiddleName" placeholder="Mother's Middle Name" component={ValidNameInput} />
+            </div>
+            <div className="col-span-3">
+              <label className={labelCls} htmlFor="motherLastName">Last Name:</label>
+              <Field id="motherLastName" name="motherLastName" placeholder="Mother's Last Name" component={ValidNameInput} />
+            </div>
+            <div className="col-span-3">
+              <Field name="motherNation" component={FirstNationSelect} label="First Nation Membership" error={errors.motherNation} />
+            </div>
           </div>
-        </>
-    );
+        </div>
+
+        {/* Father */}
+        <div className="bg-gray-50 rounded-lg border border-gray-100 p-4">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Father</p>
+          <div className="grid grid-cols-12 gap-4">
+            <div className="col-span-3">
+              <label className={labelCls} htmlFor="fatherFirstName">First Name:</label>
+              <Field id="fatherFirstName" name="fatherFirstName" component={ValidNameInput} placeholder="Father's First Name" />
+            </div>
+            <div className="col-span-3">
+              <label className={labelCls} htmlFor="fatherMiddleName">Middle Name:</label>
+              <Field id="fatherMiddleName" name="fatherMiddleName" placeholder="Father's Middle Name" component={ValidNameInput} />
+            </div>
+            <div className="col-span-3">
+              <label className={labelCls} htmlFor="fatherLastName">Last Name:</label>
+              <Field id="fatherLastName" name="fatherLastName" placeholder="Father's Last Name" component={ValidNameInput} />
+            </div>
+            <div className="col-span-3">
+              <Field name="fatherNation" component={FirstNationSelect} label="First Nation Membership" error={errors.fatherNation} />
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
 };
 
 export default YouthIntakeBiologicalParentInfo;

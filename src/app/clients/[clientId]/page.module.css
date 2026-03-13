@@ -1,0 +1,221 @@
+/* fullIntake.modules.css */
+
+.fullIntakeContainer {
+  background: #cccccc;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.centeredTitle {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.form {
+  width: 100%; /* Width relative to the container */
+  max-width: 1000px; /* Maximum width for larger screens */
+  margin: 20px auto; /* Centers the element horizontally (auto for left/right margins) */
+  background: white; /* aqui color del form*/
+  border-radius: 5px;
+  padding: 20px;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}
+
+.form > div {
+  margin-bottom: 10px;
+}
+
+.form label {
+  display: block;
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 1px;
+}
+
+.form input,
+.form textarea {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  width: 100%;
+  border-radius: 5px;
+  border: 2px solid #e2e2e2;
+  font-size: 18px;
+  padding: 10px;
+  margin-bottom: 1px;
+  color: #1f1f1f;
+}
+
+/* .form input :disabled{
+  background: #f5f5f5;
+} */
+
+/* styles to display validation errors */
+.errorText {
+  color: red;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.successfulText {
+  color: rgb(9, 158, 4);
+  font-size: 16px;
+  margin-top: 5px;
+  font-weight: bold;
+}
+
+/* Button */
+.submitButton, .customAddButton, .customDeleteButton, .cancelButton {
+  background-color: black;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%; /* Button width */
+}
+
+.submitButton:hover, .customAddButton:hover, .customDeleteButton:hover {
+  background-color: #333;
+}
+
+.form select {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  width: 100%;
+  border-radius: 5px;
+  border: 2px solid #e2e2e2;
+  font-size: 18px;
+  padding: 10px;
+  margin-bottom: 5px;
+  color: #1f1f1f;
+  background-color: white;
+  appearance: none; /* Removes the system default style */
+  cursor: pointer;
+}
+
+.form select:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: rgba(0, 123, 255, 0.25) 0px 0px 5px;
+}
+
+
+/* Background color for InputFields and textares disabled */
+.form input:disabled:not([type="radio"]):not([type="checkbox"]),
+.form textarea:disabled,
+.form select:disabled {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+}
+
+
+/* Radio buttons */
+.radio-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-right: 15px; /* Space between radio buttons */
+}
+
+.group {
+  background-color: #f5f5f5;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+}
+
+.custom-title {
+  font-size: 24px;
+  color: #ff5733;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* Background color for children pre-intake */
+.bglightgrey {
+  background-color: #f9f9f9;
+  padding: 10px 20px;
+  border-radius: 5px;
+}
+
+.bg-custom-gray {
+  background-color: #212121;
+}
+
+.tabsContainer {
+  background-color: #f9f9f9;
+  padding: 40px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 8px;
+}
+
+
+/* Select component */
+select:disabled {
+  background-color: #f0f0f0 ; /* Background color to indicate disabled */
+  cursor: not-allowed; /* Changes the cursor to indicate disabled */
+}
+
+
+/* Tabs */
+:global(.react-tabs__tab--selected) {
+  background-color: #212529  !important; /* Ensures the color is applied */
+  color: white !important;
+  font-weight: bold;
+  border-radius: 5px;
+}
+
+/* TabPanel */
+:global(.react-tabs__tab-panel--selected) {
+  background-color: #f0f0f0;
+  padding: 20px;
+  border-radius: 5px;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center; /* Align vertically*/
+  gap: 8px; /* Space between checkbox and label */
+}
+
+
+.titleContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Centers content horizontally*/
+  gap: 10px; /* Space between the logo and the title */
+}
+
+.logo {
+  width: 60px;
+  height: auto;
+}
+
+/* Checkboxes */
+.checkboxRow {
+  margin-bottom: 8px; /* Adjust the space between rows */
+}
+
+.checkboxWrapper {
+  display: flex;
+  align-items: center; /* Vertically aligns checkbox and text */
+  gap: 8px; /* Space between the checkbox and the question */
+}
+
+.checkboxWrapper label {
+  margin: 0; /* Remove any margins that might misalign the text */
+}
+.emergencyContact {
+  background-color: transparent;
+}
+
+

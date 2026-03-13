@@ -1,5 +1,6 @@
 import React from "react";
 import { Field, ErrorMessage } from "formik";
+import styles from "@/app/pre-intake/preIntake.module.css";
 
 const formatPhoneNumber = (value) => {
   if (!value) return value;
@@ -24,16 +25,16 @@ const PhoneNumberInput = ({ field, form, ...props }) => {
   };
 
   return (
-    <div className="form-group">
-      <label htmlFor={field.name}>{props.label}</label>
+    <div>
       <input
         {...field}
         {...props}
+        value={field.value ?? ""}
         type="text"
-        className="form-control"
+        className={styles.input}
         onChange={handleChange}
       />
-      <ErrorMessage name={field.name} component="div" className="text-danger" />
+      <ErrorMessage name={field.name} component="div" className="text-red-500 text-xs mt-1" />
     </div>
   );
 };

@@ -1,30 +1,56 @@
-import Link from "next/link"
-import {useState} from "react"
+/*
+This component displays a report category card,
+with a name, description, and a button
+that navigates to a detailed report page.
+*/
 
+import Link from "next/link";
+import { useState } from "react";
 
-export default function ReportCategory({name, description, path}) {
-    const [isLoading, setIsLoading] = useState(false)
+export default function ReportCategory({ name, description, path }) {
+  const [isLoading, setIsLoading] = useState(false);
 
-    function OnClickHandler() {
-        setIsLoading(!isLoading)
-    }
-    
-    return (
-                    <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                        <h2 className="text-xl font-semibold mb-4 text-gray-700">{name}</h2>
-                        <p className="text-gray-600 mb-4">
-                            {description}
-                        </p>
-                        <Link href={`/${path}`}>
-                            <button
-                                onClick={OnClickHandler}
-                                type="button"
-                                disabled={isLoading}
-                                className="w-full bg-indigo-500 hover:bg-indigo-600 disabled:bg-gray-400 text-white font-medium py-3 px-4 rounded-md transition-colors"
-                            >
-                                {isLoading ? `Loading...` : {name}.name}
-                            </button>
-                        </Link>
-                    </div>
-    )
+  function OnClickHandler() {
+    setIsLoading(!isLoading);
+  }
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div
+        className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider"
+        style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+      >
+        {name}
+      </div>
+      <div className="p-6">
+        <p className="text-sm text-gray-500 mb-4">{description}</p>
+        <Link href={`/${path}`}>
+          <button
+            onClick={OnClickHandler}
+            type="button"
+            disabled={isLoading}
+            className="w-full py-2.5 text-sm font-medium rounded-lg transition-colors border-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: "rgba(97, 0, 215, 0.02)",
+              borderColor: "rgba(97, 0, 215, 0.3)",
+              color: "rgba(97, 0, 215, 0.8)",
+              transition: "all 0.3s ease",
+            }}
+            onMouseEnter={(e) => {
+              if (!isLoading) {
+                e.currentTarget.style.backgroundColor = "#ffffff";
+                e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.6)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)";
+              e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.3)";
+            }}
+          >
+            {isLoading ? `Loading...` : { name }.name}
+          </button>
+        </Link>
+      </div>
+    </div>
+  );
 }

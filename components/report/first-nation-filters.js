@@ -1,0 +1,28 @@
+/*
+This component renders a dropdown filter
+for selecting First Nation memberships.
+*/
+
+"use client";
+
+export default function FirstNationFilters({ type, array, value, onChange, required }) {
+
+  return (
+    <div className="flex-1">
+      <label className="block font-semibold mb-1 text-gray-700">{type}</label>
+      <select
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        required={required}
+        className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      >
+        <option value="">Select {type}</option>
+        {array.map((item, index) => (
+          <option key={index} value={item}>
+            {item}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}

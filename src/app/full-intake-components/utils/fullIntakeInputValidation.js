@@ -24,13 +24,12 @@ const fullIntakeInputValidation= (values) => {
 
     // Optional field validations - only validate format if provided
     if (values.dateOfBirth) {
+        const today = new Date();
         const birthDate = new Date(values.dateOfBirth);
-        const currentYear = new Date().getFullYear();
-        const birthYear = birthDate.getFullYear();
 
-        // Year validation
-        if (birthYear > currentYear) {
-        errors.dateOfBirth = "Birth year cannot be in the future";
+        //Date Validation
+        if (birthDate > today){
+            errors.dateOfBirth = "Birth date cannot be in the future";
         }
 
         // Month validation
@@ -82,15 +81,7 @@ const fullIntakeInputValidation= (values) => {
     ) {
         errors.ninePersonalHealthNumber = "Must be exactly 9 digits";
     }
-
-    if (
-        values.treatyNumber &&
-        !/^\d{9}$/.test(values.treatyNumber)
-    ) {
-        errors.treatyNumber = "Treaty number must be exactly 9 digits";
-    }
-
-
+    
     // Validation for 6 digits (only if the user enters something)
     if (
         values.sixPersonalHealthNumber &&

@@ -1,268 +1,200 @@
 "use client";
-import styles from "../../full-intake/fullIntake.module.css"
 import { Field, ErrorMessage } from "formik";
-import { Row, Col } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "react-tabs/style/react-tabs.css";
 
-const HealthWellnessPartition = ({
-    values,
-    isEditing,
-    setFieldValue
-}) => {
+const HealthWellnessPartition = ({ values, isEditing, setFieldValue }) => {
     return (
-        <>
-            <Row>
-                <label>Have you ever been diagnosed with any of the following? (Please check all that apply)</label>
-            </Row>
-            <div className={styles.group}>
-                {[
-                    { name: "FASD", label: "FASD" },
-                    { name: "ADHD", label: "ADHD" },
-                    { name: "PTSD", label: "PTSD" },
-                    { name: "depression", label: "Depression" },
-                    { name: "cancerAutoimmuneCondition", label: "Cancer Autoimmune Condition" },
-                    { name: "otherMentalCondition", label: "Other Mental Health Condition" }
-                ].map(({ name, label }) => (
-                    <Row key={name} className={styles.checkboxRow}>
-                        <Col md={1}></Col>
-                        <Col className={styles.checkboxWrapper} md={4}>
-                            <label htmlFor={name}>
-                                <span style={{ marginRight: "7px", fontSize: "1.2em" }}>•</span>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+            <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
+                Health &amp; Wellness
+            </div>
+            <div className="p-5">
+
+                {/* Diagnoses checkboxes */}
+                <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mb-4">
+                    <label className="block text-xs font-medium text-gray-600 mb-3">
+                        Have you ever been diagnosed with any of the following? (Please check all that apply)
+                    </label>
+                    <div className="flex flex-wrap gap-4">
+                        {[
+                            { name: "FASD", label: "FASD" },
+                            { name: "ADHD", label: "ADHD" },
+                            { name: "PTSD", label: "PTSD" },
+                            { name: "depression", label: "Depression" },
+                            { name: "cancerAutoimmuneCondition", label: "Cancer Autoimmune Condition" },
+                            { name: "otherMentalCondition", label: "Other Mental Health Condition" }
+                        ].map(({ name, label }) => (
+                            <label key={name} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                <Field
+                                    type="checkbox"
+                                    name={name}
+                                    checked={Boolean(values[name])}
+                                    onChange={(e) => setFieldValue(name, Boolean(e.target.checked))}
+                                    disabled={!isEditing}
+                                    className="accent-purple-600/80"
+                                />
                                 {label}
                             </label>
-                        </Col>
-                        <Col md={1}>
-                            <Field
-                                type="checkbox"
-                                name={name}
-                                checked={Boolean(values[name])}
-                                onChange={(e) => setFieldValue(name, Boolean(e.target.checked))}
-                                disabled={!isEditing}
-                            />
-                        </Col>
-                    </Row>
-                ))}
+                        ))}
+                    </div>
+                </div>
+
+                {/* Other Mental Health Condition explanation */}
+                {values.otherMentalCondition && (
+                    <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mb-4">
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Explain Other Mental Health Condition:</label>
+                        <Field
+                            as="textarea"
+                            name="otherMentalConditionExplained"
+                            placeholder="e.g., anxiety, bipolar disorder..."
+                            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white resize-none"
+                            disabled={!isEditing}
+                        />
+                        <ErrorMessage name="otherMentalConditionExplained" component="div" className="text-xs text-red-500 mt-1" />
+                    </div>
+                )}
+
+                {/* Supports received */}
+                <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mb-4">
+                    <label htmlFor="diagnosedFollowingExplain" className="block text-xs font-medium text-gray-600 mb-1">
+                        If you have checked any of the above, please describe the supports you have received to address their effects.
+                    </label>
+                    <Field
+                        as="textarea"
+                        name="diagnosedFollowingExplain"
+                        placeholder="e.g., therapy, medication, counselling..."
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white resize-none"
+                        disabled={!isEditing}
+                    />
+                    <ErrorMessage name="diagnosedFollowingExplain" component="div" className="text-xs text-red-500 mt-1" />
+                </div>
+
+                {/* Negative coping skills */}
+                <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mb-4">
+                    <div className="grid grid-cols-12 gap-4">
+                        <div className="col-span-4">
+                            <label className="block text-xs font-medium text-gray-600 mb-1">
+                                Do you feel that you may struggle with using negative coping skills from to time?
+                            </label>
+                            <div className="flex gap-4 mt-1">
+                                <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                    <Field type="radio" name="negativeCopingSkills" value="yes" disabled={!isEditing} className="accent-purple-600/80" /> Yes
+                                </label>
+                                <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                    <Field type="radio" name="negativeCopingSkills" value="no" disabled={!isEditing} className="accent-purple-600/80" /> No
+                                </label>
+                            </div>
+                            <ErrorMessage name="negativeCopingSkills" component="div" className="text-xs text-red-500 mt-1" />
+                        </div>
+                        {values.negativeCopingSkills === "yes" && (
+                            <div className="col-span-8">
+                                <label className="block text-xs font-medium text-gray-600 mb-1">If yes, please explain:</label>
+                                <Field
+                                    as="textarea"
+                                    name="negativeCopingSkillsExplain"
+                                    placeholder="e.g., substance use, isolation..."
+                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white resize-none"
+                                    disabled={!isEditing}
+                                />
+                                <ErrorMessage name="negativeCopingSkillsExplain" component="div" className="text-xs text-red-500 mt-1" />
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Drugs/Alcohol impact */}
+                <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mb-4">
+                    <label className="block text-xs font-medium text-gray-600 mb-1">How has Drugs and/or Alcohol impacted your life?</label>
+                    <Field
+                        as="textarea"
+                        name="drugsImpact"
+                        placeholder="Describe how substances have impacted your life..."
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white resize-none"
+                        disabled={!isEditing}
+                    />
+                    <ErrorMessage name="drugsImpact" component="div" className="text-xs text-red-500 mt-1" />
+                </div>
+
+                {/* Last time used */}
+                <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mb-4">
+                    <label className="block text-xs font-medium text-gray-600 mb-1">When was the last time you used Drugs and/or Alcohol?</label>
+                    <Field
+                        as="textarea"
+                        name="lastTimeUsed"
+                        placeholder="e.g., 6 months ago, never..."
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white resize-none"
+                        disabled={!isEditing}
+                    />
+                    <ErrorMessage name="lastTimeUsed" component="div" className="text-xs text-red-500 mt-1" />
+                </div>
+
+                {/* Educational goals */}
+                <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mb-4">
+                    <div className="grid grid-cols-12 gap-4">
+                        <div className="col-span-4">
+                            <label className="block text-xs font-medium text-gray-600 mb-1">
+                                Do you have any educational goals we can support you to achieve?
+                            </label>
+                            <div className="flex gap-4 mt-1">
+                                <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                    <Field type="radio" name="educationalGoals" value="yes" disabled={!isEditing} className="accent-purple-600/80" /> Yes
+                                </label>
+                                <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                    <Field type="radio" name="educationalGoals" value="no" disabled={!isEditing} className="accent-purple-600/80" /> No
+                                </label>
+                            </div>
+                            <ErrorMessage name="educationalGoals" component="div" className="text-xs text-red-500 mt-1" />
+                        </div>
+                        {values.educationalGoals === "yes" && (
+                            <div className="col-span-8">
+                                <label className="block text-xs font-medium text-gray-600 mb-1">If yes, please explain:</label>
+                                <Field
+                                    as="textarea"
+                                    name="educationalGoalsExplained"
+                                    placeholder="e.g., complete GED, attend college..."
+                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white resize-none"
+                                    disabled={!isEditing}
+                                />
+                                <ErrorMessage name="educationalGoalsExplained" component="div" className="text-xs text-red-500 mt-1" />
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Access Elder */}
+                <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mb-4">
+                    <div className="grid grid-cols-12 gap-4">
+                        <div className="col-span-4">
+                            <label className="block text-xs font-medium text-gray-600 mb-1">
+                                Do you have access to an Elder or counsellor?
+                            </label>
+                            <div className="flex gap-4 mt-1">
+                                <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                    <Field type="radio" name="accessElder" value="yes" disabled={!isEditing} className="accent-purple-600/80" /> Yes
+                                </label>
+                                <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                    <Field type="radio" name="accessElder" value="no" disabled={!isEditing} className="accent-purple-600/80" /> No
+                                </label>
+                            </div>
+                            <ErrorMessage name="accessElder" component="div" className="text-xs text-red-500 mt-1" />
+                        </div>
+                        {values.accessElder === "yes" && (
+                            <div className="col-span-8">
+                                <label className="block text-xs font-medium text-gray-600 mb-1">If yes, please describe:</label>
+                                <Field
+                                    as="textarea"
+                                    name="accessElderExplained"
+                                    placeholder="e.g., elder at local community centre..."
+                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white resize-none"
+                                    disabled={!isEditing}
+                                />
+                                <ErrorMessage name="accessElderExplained" component="div" className="text-xs text-red-500 mt-1" />
+                            </div>
+                        )}
+                    </div>
+                </div>
+
             </div>
-
-
-            {values.otherMentalCondition && (
-            <Row className={styles.group}>
-                <Col>
-                    <label> Explain Other Mental Health Condition:</label>
-                    <Field
-                        as="textarea"
-                        name="otherMentalConditionExplained"
-                        className={styles.textarea}
-                        disabled={!isEditing}
-                    />
-                    <ErrorMessage
-                        name="otherMentalConditionExplained"
-                        component="div"
-                        className={styles.errorText}
-                    />
-                </Col>
-            </Row>
-            )}
-
-            <Row className={styles.group}>
-                <Col>
-                <label htmlFor="diagnosedFollowingExplain">If you have checked any of the above, please describe the supports you have received to address their effects. </label>
-                <Field
-                    as="textarea"
-                    name="diagnosedFollowingExplain"
-                    className={styles.textarea}
-                    disabled={!isEditing}
-                />
-                <ErrorMessage
-                    name="diagnosedFollowingExplain"
-                    component="div"
-                    className={styles.errorText}
-                />
-                </Col>
-            </Row>
-
-            <Row className={styles.group}>
-                <Col md={4}>
-                <div>
-                    <label>Do you feel that you may struggle with using negative coping skills from to time?</label>
-                    <div className="form-check form-check-inline">
-                        <Field
-                            className="form-check-input"
-                            type="radio"
-                            name="negativeCopingSkills"
-                            value="yes"
-                            disabled={!isEditing}
-                        />
-                        <label className="form-check-label">Yes</label>
-                    </div>
-                    <div className="form-check form-check-inline">
-                        <Field
-                            className="form-check-input"
-                            type="radio"
-                            name="negativeCopingSkills"
-                            value="no"
-                            disabled={!isEditing}
-                        />
-                        <label className="form-check-label">No</label>
-                    </div>
-                    <ErrorMessage
-                        name="negativeCopingSkills"
-                        component="div"
-                        className={styles.errorText}
-                    />
-                </div>
-                </Col>
-                {values.negativeCopingSkills === "yes" && (
-                <Col md={8}>
-                    <label> If yes, please explain:</label>
-                    <Field
-                        as="textarea"
-                        name="negativeCopingSkillsExplain"
-                        className={styles.textarea}
-                        disabled={!isEditing}
-                    />
-                    <ErrorMessage
-                        name="negativeCopingSkillsExplain"
-                        component="div"
-                        className={styles.errorText}
-                    />
-                </Col>
-                )}
-            </Row>
-
-            <Row className={styles.group}>
-                <Col>
-                <label>How has Drugs and/or Alcohol impacted your life? </label>
-                <Field
-                    as="textarea"
-                    name="drugsImpact"
-                    className={styles.textarea}
-                    disabled={!isEditing}
-                />
-                <ErrorMessage
-                    name="drugsImpact"
-                    component="div"
-                    className={styles.errorText}
-                />
-                </Col>
-            </Row>
-
-            <Row className={styles.group}>
-                <Col>
-                <label>When was the last time you used Drugs and/or Alcohol? </label>
-                <Field
-                    as="textarea"
-                    name="lastTimeUsed"
-                    className={styles.textarea}
-                    disabled={!isEditing}
-                />
-                <ErrorMessage
-                    name="lastTimeUsed"
-                    component="div"
-                    className={styles.errorText}
-                />
-                </Col>
-            </Row>
-
-            <Row className={styles.group}>
-                <Col md={4}>
-                <div>
-                    <label>Do you have any educational goals we can support you to achieve?</label>
-                    <div className="form-check form-check-inline">
-                        <Field
-                            className="form-check-input"
-                            type="radio"
-                            name="educationalGoals"
-                            value="yes"
-                            disabled={!isEditing}
-                        />
-                        <label className="form-check-label">Yes</label>
-                    </div>
-                    <div className="form-check form-check-inline">
-                        <Field
-                            className="form-check-input"
-                            type="radio"
-                            name="educationalGoals"
-                            value="no"
-                            disabled={!isEditing}
-                        />
-                        <label className="form-check-label">No</label>
-                    </div>
-                    <ErrorMessage
-                    name="educationalGoals"
-                    component="div"
-                    className={styles.errorText}
-                    />
-                </div>
-                </Col>
-                {values.educationalGoals === "yes" && (
-                <Col md={8}>
-                    <label> If yes, please explain:</label>
-                    <Field
-                        as="textarea"
-                        name="educationalGoalsExplained"
-                        className={styles.textarea}
-                        disabled={!isEditing}
-                    />
-                    <ErrorMessage
-                    name="educationalGoalsExplained"
-                    component="div"
-                    className={styles.errorText}
-                    />
-                </Col>
-                )}
-            </Row>
-            <Row className={styles.group}>
-                <Col md={4}>
-                    <div>
-                        <label>Do you have access to an Elder or counsellor?</label>
-                        <div className="form-check form-check-inline">
-                            <Field
-                                className="form-check-input"
-                                type="radio"
-                                name="accessElder"
-                                value="yes"
-                                disabled={!isEditing}
-                            />
-                            <label className="form-check-label">Yes</label>
-                        </div>
-                        <div className="form-check form-check-inline">
-                            <Field
-                                className="form-check-input"
-                                type="radio"
-                                name="accessElder"
-                                value="no"
-                                disabled={!isEditing}
-                            />
-                            <label className="form-check-label">No</label>
-                        </div>
-                        <ErrorMessage
-                        name="accessElder"
-                        component="div"
-                        className={styles.errorText}
-                        />
-                    </div>
-                </Col>
-                {values.accessElder === "yes" && (
-                <Col md={8}>
-                    <label> If yes, please describe:</label>
-                    <Field
-                        as="textarea"
-                        name="accessElderExplained"
-                        className={styles.textarea}
-                        disabled={!isEditing}
-                    />
-                    <ErrorMessage
-                    name="accessElderExplained"
-                    component="div"
-                    className={styles.errorText}
-                    />
-                </Col>
-                )}
-            </Row>
-
-        </>
+        </div>
     );
 };
 

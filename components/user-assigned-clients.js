@@ -1,226 +1,325 @@
+"use client";
+
 import { useState, useEffect } from "react";
-import supabase from "@/app/lib/supabase";
 import Link from "next/link";
+import { getAssignedClients } from "@/app/lib/get-assigned-clients-server";
+
+const formTypeBadge = (clientType) => {
+  const isYouth = clientType === "Youth Intake";
+  const label = isYouth ? "Youth" : "Adult";
+  const style = isYouth
+    ? "bg-blue-100 text-blue-700 border border-blue-200"
+    : "bg-green-100 text-green-700 border border-green-200";
+  return (
+    <span
+      className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full ${style}`}
+    >
+      {label}
+    </span>
+  );
+};
 
 export default function AssignedClientsList({ advocateId }) {
-  const [assignedClients, setAssignedClients] = useState([]);
+  const [allClients, setAllClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalClients, setTotalClients] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
-  const clientsPerPage = 5;
+  const clientsPerPage = 10;
 
   useEffect(() => {
-    const fetchAssignedClients = async () => {
+    const fetchClients = async () => {
       setLoading(true);
       setError(null);
 
+      if (
+        advocateId === undefined ||
+        advocateId === null ||
+        advocateId === ""
+      ) {
+        setAllClients([]);
+        setError("No advocate is linked to this login yet.");
+        setLoading(false);
+        return;
+      }
+
       try {
-        // Base query to fetch assigned clients
-        let query = supabase
-          .from("Assigned Advocates")
-          .select("assigned_advocate_id, dateAssigned, Clients(*)", {
-            count: "exact",
-          })
-          .eq("advocate_id", advocateId)
-          .order("dateAssigned", { ascending: false });
+        const result = await getAssignedClients(advocateId);
 
-        // Handle search query
-        if (searchQuery) {
-          if (!isNaN(searchQuery)) {
-            // If searchQuery is numeric, search by client_id
-            query = query.eq("Clients.client_id", parseInt(searchQuery, 10));
-          } else {
-            setError("Please enter a valid numeric value for the client ID.");
-            setAssignedClients([]);
-            setLoading(false);
-            return;
-          }
+        if (result.error) {
+          setError(result.error);
+          setAllClients([]);
+        } else {
+          setAllClients(result.data || []);
         }
-        // if (searchQuery) {
-        //   const isNumeric = !isNaN(searchQuery);
-
-        //   if (isNumeric) {
-        //     // If searchQuery is numeric, search by client_id
-        //     query = query.eq("Clients.client_id", parseInt(searchQuery, 10));
-        //   } else {
-        //     // Apply 'ilike' conditions for each client field separately
-        //     query = query
-        //       .ilike("Clients.firstName", `%${searchQuery}%`)
-        //       .or(`Clients.middleName.ilike.%${searchQuery}%`)
-        //       .or(`Clients.lastName.ilike.%${searchQuery}%`);
-        //   }
-        // }
-
-        // Get the total number of clients
-        const { count, error: countError } = await query.select(
-          "*, Clients(*)",
-          { count: "exact" }
-        );
-
-        if (countError) throw new Error(countError.message);
-
-        setTotalClients(count);
-
-        // Get clients for the current page
-        const { data, error } = await query.range(
-          (currentPage - 1) * clientsPerPage,
-          currentPage * clientsPerPage - 1
-        );
-
-        if (error) throw new Error(error.message);
-
-        // Filter out rows where Clients is null
-        const filteredData = data.filter(
-          (assignment) => assignment.Clients !== null
-        );
-
-        setAssignedClients(filteredData);
       } catch (err) {
+        console.error("Error fetching assigned clients:", err);
         setError("Failed to fetch assigned clients: " + err.message);
+        setAllClients([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchAssignedClients();
-  }, [advocateId, currentPage, searchQuery, dateOfBirth]);
+    fetchClients();
+  }, [advocateId]);
 
-  const totalPages = Math.ceil(totalClients / clientsPerPage);
+  // Client-side filtering by name (contains)
+  const filteredClients = allClients.filter((assignment) => {
+    if (!searchQuery.trim()) return true;
+    const client = assignment.Clients;
+    const term = searchQuery.trim().toLowerCase();
+    const fullName = [client.firstName, client.lastName]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    return fullName.includes(term);
+  });
 
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
+  const totalClients = filteredClients.length;
+  const totalPages = Math.max(1, Math.ceil(totalClients / clientsPerPage));
 
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
-  const handleSearchChange = (event) => {
-    setSearchQuery(event.target.value);
-    setCurrentPage(1);
-  };
+  const paginatedClients = filteredClients.slice(
+    (currentPage - 1) * clientsPerPage,
+    currentPage * clientsPerPage,
+  );
 
   return (
-    <div className="fullIntakeContainer bg-e5e5e5  min-h-screen flex flex-col items-center justify-start">
-      {/* Title Section */}
-
-      <div className="container max-w-5xl w-full px-4 py-6">
-        {loading && <p>Loading...</p>}
-        {error && <p className="text-red-500">{error}</p>}
-
-        {/* Search Bar */}
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder="Search by Client ID"
-            value={searchQuery}
-            onChange={handleSearchChange}
-            className="p-2 border rounded-md w-full"
-          />
+    <div className="w-full">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Assigned Clients</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            Clients currently assigned to you
+          </p>
         </div>
+        <span
+          className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full"
+          style={{
+            backgroundColor: "rgba(240, 238, 246, 0.8)",
+            color: "rgba(97, 0, 215, 0.8)",
+            border: "1px solid rgba(178, 179, 215, 0.8)",
+          }}
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span>
+          {allClients.length} {allClients.length === 1 ? "client" : "clients"}
+        </span>
+      </div>
 
-        {/* Display filtered clients */}
-        {assignedClients.length > 0 ? (
-          <ul className="divide-y divide-gray-600">
-            {assignedClients.map((assignment) => (
-              <li
-                key={assignment.Clients.client_id}
-                className=" border-gray-600"
-              >
-                <div className="text-left p-2 border-2 border-gray-700 rounded-lg mb-4 shadow-sm bg-white">
-                  <ul className="text-lg font-bold text-gray-900">
-                    <Link href={`/clients/${assignment.Clients.client_id}`}>
-                      {assignment.Clients.firstName}{" "}
-                      {assignment.Clients.middleName}{" "}
-                      {assignment.Clients.lastName}
-                    </Link>
-                  </ul>
+      {/* Search */}
+      <div className="relative mb-6">
+        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+          <svg
+            className="w-4 h-4 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+            />
+          </svg>
+        </div>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setCurrentPage(1);
+          }}
+          placeholder="Search by client name..."
+          className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 text-gray-700 focus:outline-none transition"
+        />
+      </div>
 
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Client ID: </span>
-                    {assignment.Clients.client_id}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Phone: </span>
-                    {assignment.Clients.phoneNumber}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Email: </span>
-                    {assignment.Clients.email}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">
-                      First Nation Membership:{" "}
-                    </span>
-                    {assignment.Clients.firstNationMembership || "N/A"}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Address: </span>
-                    {assignment.Clients.address || "N/A"}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Location: </span>
-                    {assignment.Clients.city}, {assignment.Clients.province}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Date of Birth: </span>
-                    {assignment.Clients.dateOfBirth
-                      ? new Date(
-                          assignment.Clients.dateOfBirth
-                        ).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })
-                      : "N/A"}
-                  </p>
-                  <p className="text-m text-black mt-2 bg-gray-200 p-2 rounded-md">
-                    <span className="font-semibold">Date Assigned: </span>
-                    {new Date(assignment.dateAssigned).toLocaleDateString(
-                      "en-US",
-                      {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      }
-                    )}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
+      {error && <p className="text-red-500 mb-4">{error}</p>}
+
+      {/* Table */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+            <svg
+              className="animate-spin h-8 w-8 mb-3 text-gray-400"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8z"
+              />
+            </svg>
+            <span className="text-sm">Loading clients...</span>
+          </div>
         ) : (
-          <p>No clients found that match your search.</p>
-        )}
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm text-left">
+              <thead>
+                <tr
+                  className="text-white"
+                  style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+                >
+                  <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">
+                    Client Name
+                  </th>
+                  <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">
+                    Form Type
+                  </th>
+                  <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">
+                    Date Assigned
+                  </th>
+                  <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">
+                    Action
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {paginatedClients.length === 0 ? (
+                  <tr>
+                    <td colSpan="4" className="text-center py-16 px-6">
+                      <div className="flex flex-col items-center text-gray-400">
+                        <svg
+                          className="w-10 h-10 mb-3 text-gray-300"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+                          />
+                        </svg>
+                        <p className="text-sm font-medium">No clients found</p>
+                        <p className="text-xs mt-1">
+                          Try adjusting your search
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  paginatedClients.map((assignment, index) => {
+                    const client = assignment.Clients;
+                    const fullName = [client.firstName, client.lastName]
+                      .filter(Boolean)
+                      .join(" ");
+                    const isYouth = client.clientType === "Youth Intake";
+                    const viewHref = isYouth
+                      ? `/youth-clients/${client.client_id}/view`
+                      : `/clients/${client.client_id}/view`;
 
-        {/* Pagination Controls */}
-        <div className="flex justify-between items-center mt-4">
+                    return (
+                      <tr
+                        key={client.client_id}
+                        className={`transition-colors hover:bg-gray-50 ${index % 2 !== 0 ? "bg-gray-50/50" : ""}`}
+                      >
+                        <td className="py-3.5 px-5 font-medium text-gray-800">
+                          {fullName || (
+                            <span className="text-gray-400">(No name)</span>
+                          )}
+                        </td>
+                        <td className="py-3.5 px-5">
+                          {formTypeBadge(client.clientType)}
+                        </td>
+                        <td className="py-3.5 px-5 text-gray-600 whitespace-nowrap">
+                          {assignment.dateAssigned ? (
+                            new Date(
+                              assignment.dateAssigned,
+                            ).toLocaleDateString("en-CA", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            })
+                          ) : (
+                            <span className="text-gray-400">—</span>
+                          )}
+                        </td>
+                        <td className="py-3.5 px-5">
+                          <Link
+                            href={viewHref}
+                            className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-colors no-underline border"
+                            style={{
+                              backgroundColor: "rgba(97, 0, 215, 0.08)",
+                              borderColor: "rgba(97, 0, 215, 0.24)",
+                              color: "rgba(97, 0, 215, 0.8)",
+                              transition: "all 0.3s ease",
+                            }}
+                            onMouseEnter={(e) =>
+                              (e.currentTarget.style.backgroundColor =
+                                "#ffffff")
+                            }
+                            onMouseLeave={(e) =>
+                              (e.currentTarget.style.backgroundColor =
+                                "rgba(97, 0, 215, 0.08)")
+                            }
+                          >
+                            <svg
+                              className="w-3.5 h-3.5"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                              />
+                            </svg>
+                            View
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Pagination */}
+      {!loading && totalPages > 1 && (
+        <div className="flex justify-between items-center">
           <button
-            onClick={handlePrevPage}
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
-            className="px-4 py-2 text-black rounded-md disabled:bg-gray-500"
+            className="px-4 py-2 text-sm rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
             Previous
           </button>
-          <span className="text-gray-700">
+          <span className="text-sm text-gray-600">
             Page {currentPage} of {totalPages}
           </span>
           <button
-            onClick={handleNextPage}
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
-            className="px-4 py-2 text-black rounded-md disabled:bg-gray-500"
+            className="px-4 py-2 text-sm rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
             Next
           </button>
         </div>
-      </div>
+      )}
     </div>
   );
 }

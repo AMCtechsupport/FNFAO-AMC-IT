@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import supabase from "@/app/lib/supabase";
+import styles from "@/app/pre-intake/preIntake.module.css";
 
 const StatusCFSFileSelect = ({ field, form, label, error, disabled }) => {
   const [statuses, setStatuses] = useState([]);
@@ -22,11 +23,12 @@ const StatusCFSFileSelect = ({ field, form, label, error, disabled }) => {
 
   return (
     <>
-      <label>{label}:</label>
-      
+      <label className="block text-xs font-medium text-gray-600 mb-1">{label}:</label>
+
       <select
-        {...field} // Bind Formik's field props
+        {...field}
         disabled={disabled}
+        className={styles.select}
       >
         <option value="">Select a status</option>
         {statuses.map((status) => (

@@ -1,135 +1,178 @@
-import supabase from "../lib/supabase";
-import { v4 as uuidv4 } from 'uuid';
-import { isValidUUID } from '../utils/isValidUUID';
+import { v4 as uuidv4 } from "uuid";
 
-export async function handleNotesUpdate (notes, client_id, setNotesData, supabase, userId){
-    //const validUserId = isValidUUID(userId) ? userId : uuidv4();
-    const cleanedUserId = userId.trim();  // Eliminar espacios
+export async function handleNotesUpdate(notes, client_id, setNotesData, supabase, userId) {
+  const cleanedUserId = (userId || "").trim();
 
-    console.log("userId dentro de handlenotesUpdate", cleanedUserId);
-    console.log("📌 userId a guardar:", userId, typeof cleanedUserId);
+  try {
+    // 1) Get existing note IDs for this client (used only for deletion tracking)
+    const { data: existingNotes, error: fetchError } = await supabase
+      .from("Notes")
+      .select("note_id")
+      .eq("client_id", client_id);
 
-    try {
-
-        // supabase.auth.setAuth(token); //REQUIRED to use RLS with Clerk
-        // const { data: user, error } = await supabase.auth.signIn({ token });
-
-        // Gets the current notes in the database
-        const { data: existingNotes, error: fetchError } = await supabase
-            .from("Notes")
-            .select("*")
-            .eq("client_id", client_id);
-
-        if (fetchError) {
-            console.error("Error fetching existing notes: ", fetchError);
-            return false;
-        }
-
-        console.log("Existing Notes in DB:", existingNotes); // quitar
-
-        const existingNotesIds = existingNotes.map(note => note.note_id); // Extracts note_id from existingNotes
-        const newNotes = [];
-        const updatedNotes = [];
-        const receivedNotesIds = [];
-
-        for (const note of notes) {
-            if (note.note_id) {
-                updatedNotes.push(note);
-                receivedNotesIds.push(note.note_id);
-            } else {
-                newNotes.push({ ...note, client_id });
-
-                // If there is a file, we load it and record it in the Files table.
-                if (note.file) {
-                    const file = note.file;
-                    const uniqueFilename = `${uuidv4()}-${file.name}`;
-                    const filePath = `client_${client_id}/${uniqueFilename}`;
-
-                    console.log("📎 Archivo seleccionado:", file);
-                    console.log("🆔 Nombre de archivo único generado:", uniqueFilename);
-                    console.log("📁 Ruta donde se subirá el archivo en Supabase Storage:", filePath);
-
-                    const { data: uploadData, error: uploadError } = await supabase
-                        .storage
-                        .from("attachments")
-                        .upload(filePath, file, { upsert: false });
-
-                    if (uploadError) {
-                        console.error("❌ Error subiendo archivo a Supabase Storage:", uploadError.message);
-                        return false;
-                    }
-
-                    const publicUrl = supabase
-                        .storage
-                        .from("attachments")
-                        .getPublicUrl(filePath).data.publicUrl;
-
-                    note.file_url = publicUrl;
-                    note.file_name = file.name;
-
-
-                }
-            }
-        }//);
-
-        // Detect deleted notes
-        const deletedNotesIds = existingNotesIds.filter(id => !receivedNotesIds.includes(id));
-
-        // Insert new note
-        if (newNotes.length > 0) {
-            const { error: insertError } = await supabase.from("Notes").insert(newNotes);
-            if (insertError) {
-                console.error("Error inserting new note:", insertError);
-                return false;
-            }
-            console.log("New note inserted:", newNotes);
-        }
-
-        // Update existing notes
-        for (const note of updatedNotes) {
-            const { error: updateError } = await supabase
-                .from("Notes")
-                .update(note)
-                .eq("note_id", note.note_id);
-
-            if (updateError) {
-                console.error(`Error updating note ${note.note_id}:`, updateError);
-                return false;
-            }
-        }
-        console.log("Existing note updated:", updatedNotes);
-
-        // Delete removed note
-        if (deletedNotesIds.length > 0) {
-            const { error: deleteError } = await supabase
-                .from("Notes")
-                .delete()
-                .in("note_id", deletedNotesIds);
-
-            if (deleteError) {
-                console.error("Error deleting note:", deleteError);
-                return false;
-            }
-            console.log("Note deleted:", deletedNotesIds);
-        }
-
-        // Gets updated note again after modifications
-        const { data: updatedNotesList, error: fetchUpdatedNotesError } = await supabase
-        .from("Notes")
-        .select("*")
-        .eq("client_id", client_id);
-
-        if (fetchUpdatedNotesError) {
-            console.error("Error fetching updated note:", fetchUpdatedNotesError);
-        return false;
-        }
-
-        // NotesData status updated
-        setNotesData(updatedNotesList);
-
-        return true;
-    } catch (error) {
-        console.error("Unexpected error in handleNotesUpdate:", error);
-        return false;
+    if (fetchError) {
+      console.error("Error fetching existing notes:", fetchError.message, fetchError);
+      return false;
     }
-};
+
+    const existingIds = (existingNotes || []).map((n) => n.note_id);
+
+    const newNotes = [];
+    const receivedIds = [];
+
+    const isRealFile = (val) => typeof File !== "undefined" && val instanceof File;
+
+    const sanitize = (obj) => {
+      if (!obj || typeof obj !== "object") return obj;
+      // remove UI-only field
+      // eslint-disable-next-line no-unused-vars
+      const { file, ...rest } = obj;
+      return rest;
+    };
+
+    // Upload file to storage + create Files row => returns file_id
+    const uploadAndCreateFileRow = async (file) => {
+      const uniqueFilename = `${uuidv4()}-${file.name}`;
+      const storagePath = `client_${client_id}/${uniqueFilename}`;
+
+      // Upload to Storage
+      const { error: uploadError } = await supabase.storage
+        .from("attachments")
+        .upload(storagePath, file, { upsert: false });
+
+      if (uploadError) {
+        console.error("Storage upload failed:", uploadError.message, uploadError);
+        throw uploadError;
+      }
+
+      // Create row in Files table
+      const fileRowPayload = {
+        fileName: file.name,
+        filePath: storagePath,
+        uploadedAt: new Date().toISOString(),
+        client_id: client_id,
+        owner_id: cleanedUserId || null,
+      };
+
+      const { data: fileRow, error: fileInsertError } = await supabase
+        .from("Files")
+        .insert(fileRowPayload)
+        .select("file_id")
+        .single();
+
+      if (fileInsertError) {
+        console.error("Files INSERT failed:", fileInsertError.message, fileInsertError);
+        throw fileInsertError;
+      }
+
+      return fileRow?.file_id ?? null;
+    };
+
+    // Normalize noteType exactly how your UI tabs filter
+    const normalizeNoteType = (val) => {
+      const v = (val || "").toString().trim().toLowerCase();
+      if (v === "case") return "Case";
+      if (v === "legal") return "Legal";
+      return val ? val.toString().trim() : null;
+    };
+
+    // Build payload strictly matching your Notes columns
+    const buildPayload = (note, overrides = {}) => {
+      const payload = {
+        client_id: client_id,
+        advocate_id: note?.advocate_id ?? note?.advocateId ?? null,
+
+        // Important: your column names are createdAt + modifiedAt
+        createdAt: note?.createdAt ?? new Date().toISOString(),
+        modifiedAt: new Date().toISOString(),
+
+        // IMPORTANT: type is NOT NULL in DB
+        // UI uses "Type" dropdown -> store into `type`
+        type: note?.type ?? note?.noteSubtype ?? null,
+
+        // UI "Subtype" dropdown -> store into `subType`
+        subType: note?.subType ?? note?.subtype ?? note?.noteSubType ?? null,
+
+        // UI Description / Action Plan
+        description: note?.description ?? null,
+        actionPlan: note?.actionPlan ?? null,
+
+        // Note category used for tabs (Case vs Legal)
+        noteType: normalizeNoteType(note?.noteType),
+
+        // Attachment foreign key
+        file_id: note?.file_id ?? null,
+
+        ...overrides,
+      };
+
+      return sanitize(payload);
+    };
+
+    // 2) Split incoming notes: track existing IDs (for deletion), queue new notes for insert
+    for (const note of Array.isArray(notes) ? notes : []) {
+      if (note?.note_id) {
+        // Existing note — track so it is not deleted; never update via form save
+        receivedIds.push(note.note_id);
+      } else {
+        // New note — queue for insert
+        let file_id = note?.file_id ?? null;
+
+        if (isRealFile(note?.file)) {
+          file_id = await uploadAndCreateFileRow(note.file);
+        }
+
+        const insertPayload = buildPayload(note, { file_id });
+
+        if (!insertPayload.type) {
+          insertPayload.type = "initialMeeting";
+        }
+
+        if (!insertPayload.noteType) {
+          insertPayload.noteType = "Case";
+        }
+
+        newNotes.push(insertPayload);
+      }
+    }
+
+    // 3) Deleted notes
+    const deletedIds = existingIds.filter((id) => !receivedIds.includes(id));
+
+    // 4) INSERT new
+    if (newNotes.length > 0) {
+      const { error: insertError } = await supabase.from("Notes").insert(newNotes);
+      if (insertError) {
+        console.error("Notes INSERT failed:", insertError.message, insertError);
+        return false;
+      }
+    }
+
+    // 5) DELETE removed
+    if (deletedIds.length > 0) {
+      const { error: deleteError } = await supabase.from("Notes").delete().in("note_id", deletedIds);
+      if (deleteError) {
+        console.error("Notes DELETE failed:", deleteError.message, deleteError);
+        return false;
+      }
+    }
+
+    // 6) REFRESH NOTES so UI shows newly created rows immediately
+    const { data: refreshed, error: refreshError } = await supabase
+      .from("Notes")
+      .select("*")
+      .eq("client_id", client_id)
+      .order("createdAt", { ascending: false });
+
+    if (refreshError) {
+      console.error("Notes refresh failed:", refreshError.message, refreshError);
+      return false;
+    }
+
+    setNotesData(Array.isArray(refreshed) ? refreshed : []);
+    return true;
+  } catch (err) {
+    console.error("Unexpected error in handleNotesUpdate:", err?.message || err, err);
+    return false;
+  }
+}

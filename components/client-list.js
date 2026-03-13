@@ -2,779 +2,377 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import supabase from "../src/app/lib/supabase";
+import { deleteClient } from "../src/app/lib/delete-client-server";
+import Pagination from "./report/pages-pagination";
+import DeleteConfirmModal from "./DeleteConfirmModal";
+import ToastNotification from "./ToastNotification";
+import SortDropdown from "./sort-dropdown";
 
-export default function ClientsList({ initialClients, totalCount }) {
-  const [clients, setClients] = useState(initialClients);
-  const [search, setSearch] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
+const formTypeBadge = (type) => {
+  const isYouth = type === "Youth";
+  return (
+    <span
+      className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full ${
+        isYouth
+          ? "bg-blue-100 text-blue-700 border border-blue-200"
+          : "bg-green-100 text-green-700 border border-green-200"
+      }`}
+    >
+      {type}
+    </span>
+  );
+};
+
+function ClientTable({
+  title,
+  clients,
+  paginated,
+  currentPage,
+  totalPages,
+  onPageChange,
+  onView,
+  onDelete,
+  activeClientId,
+  deletingClientId,
+  emptyMessage,
+}) {
+  return (
+    <div className="flex flex-col gap-4 h-full">
+      {/* Section header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-bold text-gray-900">{title}</h2>
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: "rgba(240, 238, 246, 0.8)", color: "rgba(97, 0, 215, 0.8)", border: "1px solid rgba(178, 179, 215, 0.8)" }}>
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span>
+          {clients.length} {clients.length === 1 ? "client" : "clients"}
+        </span>
+      </div>
+
+      {/* Table */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex-1">
+        <table className="min-w-full text-sm text-left">
+          <thead>
+            <tr className="text-white" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
+              <th className="py-3 px-4 font-semibold text-xs uppercase tracking-wider text-center">Name</th>
+              <th className="py-3 px-4 font-semibold text-xs uppercase tracking-wider text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {paginated.length === 0 ? (
+              <tr>
+                <td colSpan="2" className="text-center py-12 px-4">
+                  <div className="flex flex-col items-center text-gray-400">
+                    <svg className="w-10 h-10 mb-3 text-gray-300" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                    </svg>
+                    <p className="text-sm font-medium">{emptyMessage}</p>
+                    <p className="text-xs mt-1">Try adjusting your search</p>
+                  </div>
+                </td>
+              </tr>
+            ) : (
+              paginated.map((client, index) => {
+                const fullName = [client.firstName, client.lastName]
+                  .filter(Boolean)
+                  .join(" ");
+                const isDeleting = deletingClientId === client.client_id;
+                const isOpening = activeClientId === client.client_id;
+                const isBusy = activeClientId !== null || deletingClientId !== null;
+
+                return (
+                  <tr
+                    key={client.client_id}
+                    className={`transition-colors hover:bg-gray-50 ${index % 2 !== 0 ? "bg-gray-50/50" : ""}`}
+                  >
+                    <td className="py-3 px-4 font-medium text-gray-800 text-center">{fullName || "—"}</td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <button
+                          onClick={() => onView(client)}
+                          disabled={isBusy}
+                          className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
+                          style={{ backgroundColor: "rgba(97, 0, 215, 0.08)", borderColor: "rgba(97, 0, 215, 0.24)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
+                          onMouseEnter={e => { if (!isBusy) { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"; e.currentTarget.style.color = "#ffffff"; } }}
+                          onMouseLeave={e => { if (!isBusy) { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.08)"; e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)"; } }}
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          {isOpening ? "Opening..." : "View"}
+                        </button>
+                        <button
+                          onClick={() => onDelete(client)}
+                          disabled={isBusy}
+                          className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
+                          style={{ backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.3)", color: "#ef4444", transition: "all 0.3s ease" }}
+                          onMouseEnter={e => { if (!isBusy) { e.currentTarget.style.backgroundColor = "#ef4444"; e.currentTarget.style.color = "#ffffff"; } }}
+                          onMouseLeave={e => { if (!isBusy) { e.currentTarget.style.backgroundColor = "rgba(239, 68, 68, 0.1)"; e.currentTarget.style.color = "#ef4444"; } }}
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                          </svg>
+                          {isDeleting ? "Deleting..." : "Delete"}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+      />
+    </div>
+  );
+}
+
+export default function ClientsList() {
+  const [allYouthClients, setAllYouthClients] = useState([]);
+  const [allAdultClients, setAllAdultClients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const [deletingClientId, setDeletingClientId] = useState(null);
-  
-    // New state for total counts from database
-  const [totalYouthClients, setTotalYouthClients] = useState(0);
-  const [totalAdultClients, setTotalAdultClients] = useState(0);
-
+  const [activeClientId, setActiveClientId] = useState(null);
   const [currentYouthPage, setCurrentYouthPage] = useState(1);
   const [currentAdultPage, setCurrentAdultPage] = useState(1);
-  const [totalYouthPages, setTotalYouthPages] = useState(1);
-  const [totalAdultPages, setTotalAdultPages] = useState(1);
-  const [youthClients, setYouthClients] = useState([]);
-  const [adultClients, setAdultClients] = useState([]);
+  const [clientToDelete, setClientToDelete] = useState(null);
+  const [toast, setToast] = useState(null);
   const clientsPerPage = 10;
-
   const router = useRouter();
+  // Stores the selected sorting option from the dropdown
+  // default = newest clients first
+  const [sortOption, setSortOption] = useState("newest"); 
 
-  // Determine if client is Youth or Adult based on clientType
-  const getClientTypeLabel = (client) => {
-    if (client.clientType === "Youth Intake") {
-      return "Youth";
-    } else if (client.clientType === "Pre-Intake") {
-      return "Adult";
-    } else {
-      // Fallback: determine by age if clientType is not set
-      const today = new Date();
-      const birthDate = new Date(client.dateOfBirth);
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
+  useEffect(() => {
+    const fetchAll = async () => {
+      setLoading(true);
+      try {
+        const [yRes, aRes] = await Promise.all([
+          fetch(`/api/clients?clientType=Youth+Intake&page=1&pageSize=9999`),
+          fetch(`/api/clients?clientType=Pre-Intake&page=1&pageSize=9999`),
+        ]);
+        const [yJson, aJson] = await Promise.all([yRes.json(), aRes.json()]);
+        setAllYouthClients(yJson.data || []);
+        setAllAdultClients(aJson.data || []);
+      } catch (err) {
+        console.error("Error fetching all clients:", err);
+      } finally {
+        setLoading(false);
       }
-      return age <= 20 ? "Youth" : "Adult";
-    }
+    };
+    fetchAll();
+  }, []);
+
+  const showToast = (type, message) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 4000);
   };
 
-  // Fetch total counts from database
-  const fetchTotalCounts = async () => {
-    try {
-      // Get total Youth clients (clientType = "Youth Intake")
-      const { count: youthCount, error: youthError } = await supabase
-        .from("Clients")
-        .select("*", { count: "exact", head: true })
-        .eq("clientType", "Youth Intake");
+  const filterClients = (clients) => {
+    return clients.filter((client) => {
+      const term = searchQuery.trim().toLowerCase();
+      if (!term) return true;
+      const fullName = [client.firstName, client.lastName]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return fullName.includes(term);
+    });
+  };
 
-      if (youthError) {
-        console.error("Error fetching youth count:", youthError);
+    // Function that sorts clients based on the dropdown selection
+  const sortClients = (clients) => {
+
+    // Create a copy of the array so React state isn't mutated
+    let sorted = [...clients];
+
+    // NEWEST FIRST
+    if (sortOption === "newest") {
+      sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+
+    // OLDEST FIRST
+    else if (sortOption === "oldest") {
+      sorted.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    }
+
+    // ALPHABETICAL A → Z
+    else if (sortOption === "az") {
+      sorted.sort((a, b) => {
+        const nameA = `${a.firstName ?? ""} ${a.lastName ?? ""}`.toLowerCase();
+        const nameB = `${b.firstName ?? ""} ${b.lastName ?? ""}`.toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+    }
+
+    // ALPHABETICAL Z → A
+    else if (sortOption === "za") {
+      sorted.sort((a, b) => {
+        const nameA = `${a.firstName ?? ""} ${a.lastName ?? ""}`.toLowerCase();
+        const nameB = `${b.firstName ?? ""} ${b.lastName ?? ""}`.toLowerCase();
+        return nameB.localeCompare(nameA);
+      });
+    }
+
+    return sorted;
+  };
+  
+
+  // First filter clients by search
+  // Then apply sorting
+  const filteredYouth = sortClients(filterClients(allYouthClients));
+  const filteredAdult = sortClients(filterClients(allAdultClients));
+
+  const totalYouthPages = Math.max(1, Math.ceil(filteredYouth.length / clientsPerPage));
+  const totalAdultPages = Math.max(1, Math.ceil(filteredAdult.length / clientsPerPage));
+
+  const paginatedYouth = filteredYouth.slice(
+    (currentYouthPage - 1) * clientsPerPage,
+    currentYouthPage * clientsPerPage,
+  );
+  const paginatedAdult = filteredAdult.slice(
+    (currentAdultPage - 1) * clientsPerPage,
+    currentAdultPage * clientsPerPage,
+  );
+
+  const handleView = (client) => {
+    setActiveClientId(client.client_id);
+    setTimeout(() => {
+      if (client.clientType === "Youth Intake") {
+        router.push(`/youth-clients/${client.client_id}/view`);
       } else {
-        setTotalYouthClients(youthCount || 0);
+        router.push(`/adult-clients/${client.client_id}/view`);
       }
-
-      // Get total Adult clients (clientType = "Pre-Intake")
-      const { count: adultCount, error: adultError } = await supabase
-        .from("Clients")
-        .select("*", { count: "exact", head: true })
-        .eq("clientType", "Pre-Intake");
-
-      if (adultError) {
-        console.error("Error fetching adult count:", adultError);
-      } else {
-        setTotalAdultClients(adultCount || 0);
-      }
-    } catch (err) {
-      console.error("Unexpected error fetching total counts:", err);
-    }
+    }, 50);
   };
 
-  // Handle edit button click
-  const handleEdit = (client) => {
-    const clientType = getClientTypeLabel(client);
-    
-    if (clientType === "Youth") {
-      // Redirect Youth clients to youth-clients form for editing
-      router.push(`/youth-clients/${client.client_id}`);
-    } else {
-      // Redirect Adult clients to full-intake form for editing
-      router.push(`/clients/${client.client_id}`);
-    }
+  const handleDeleteClick = (client) => {
+    setClientToDelete(client);
   };
 
-  // Handle delete button click
-  const handleDelete = async (client) => {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to permanently delete ${client.firstName} ${client.lastName}? This action cannot be undone.`
-    );
-
-    if (!confirmDelete) return;
-
+  const handleConfirmDelete = async () => {
+    const client = clientToDelete;
+    setClientToDelete(null);
     setDeletingClientId(client.client_id);
-
     try {
-      // Delete related data first (foreign key constraints)
-      
-      // Delete Emergency Contacts
-      await supabase
-        .from("Emergency Contacts")
-        .delete()
-        .eq("client_id", client.client_id);
-
-      // Delete Home Members
-      await supabase
-        .from("Home Members")
-        .delete()
-        .eq("client_id", client.client_id);
-
-      // Delete Educational Support Persons (if exists for youth clients)
-      await supabase
-        .from("Educational Support Persons")
-        .delete()
-        .eq("client_id", client.client_id);
-
-      // Delete Children (if exists for adult clients)
-      await supabase
-        .from("Childs")
-        .delete()
-        .eq("client_id", client.client_id);
-
-      // Delete Notes
-      await supabase
-        .from("Notes")
-        .delete()
-        .eq("client_id", client.client_id);
-
-      // Delete Important Family and Friends
-      await supabase
-        .from("Important Family and Friends")
-        .delete()
-        .eq("client_id", client.client_id);
-
-      // Delete EIA Workers
-      await supabase
-        .from("EIA Workers")
-        .delete()
-        .eq("client_id", client.client_id);
-
-      // Delete Assigned Advocates
-      await supabase
-        .from("Assigned Advocates")
-        .delete()
-        .eq("client_id", client.client_id);
-
-      // Finally, delete the client
-      const { error: clientError } = await supabase
-        .from("Clients")
-        .delete()
-        .eq("client_id", client.client_id);
-
-      if (clientError) {
-        throw clientError;
-      }
-
-      // Remove client from local state
-      setClients(prevClients => 
-        prevClients.filter(c => c.client_id !== client.client_id)
-      );
-
-      // Refresh total counts after deletion
-      fetchTotalCounts();
-
-      alert(`${client.firstName} ${client.lastName} has been successfully deleted.`);
-
+      const result = await deleteClient(client.client_id);
+      setAllYouthClients((prev) => prev.filter((c) => c.client_id !== client.client_id));
+      setAllAdultClients((prev) => prev.filter((c) => c.client_id !== client.client_id));
+      showToast("success", result.message);
     } catch (error) {
       console.error("Error deleting client:", error);
-      alert(`Failed to delete client: ${error.message}`);
+      showToast("error", `Failed to delete client: ${error.message}`);
     } finally {
       setDeletingClientId(null);
     }
   };
 
-  // Fetch youth clients for the current page and search term
-  const fetchYouthClients = async (
-    page = 1,
-    searchQuery = "",
-    dateOfBirthQuery = ""
-  ) => {
-    try {
-      let query = supabase
-        .from("Clients")
-        .select("*", { count: "exact" })
-        .eq("clientType", "Youth Intake")
-        .range((page - 1) * clientsPerPage, page * clientsPerPage - 1)
-        .order("dateModified", { ascending: false });
-
-      if (searchQuery) {
-        const isNumeric = !isNaN(searchQuery);
-
-        if (isNumeric) {
-          query = query.eq("client_id", parseInt(searchQuery, 10));
-        } else {
-          query = query.or(
-            `firstName.ilike.%${searchQuery}%,middleName.ilike.%${searchQuery}%,lastName.ilike.%${searchQuery}%`
-          );
-        }
-      }
-
-      // Handle Date of Birth search query (only if provided)
-      if (dateOfBirthQuery) {
-        query = query.eq("dateOfBirth", dateOfBirthQuery);
-      }
-
-      const { data, error, count } = await query;
-
-      if (error) {
-        console.error("Error fetching youth data:", error.message);
-      } else {
-        setYouthClients(data || []);
-        setTotalYouthPages(Math.ceil(count / clientsPerPage));
-      }
-    } catch (err) {
-      console.error("Unexpected error fetching youth clients:", err);
-    }
-  };
-
-  // Fetch adult clients for the current page and search term
-  const fetchAdultClients = async (
-    page = 1,
-    searchQuery = "",
-    dateOfBirthQuery = ""
-  ) => {
-    try {
-      let query = supabase
-        .from("Clients")
-        .select("*", { count: "exact" })
-        .eq("clientType", "Pre-Intake")
-        .range((page - 1) * clientsPerPage, page * clientsPerPage - 1)
-        .order("dateModified", { ascending: false });
-
-      if (searchQuery) {
-        const isNumeric = !isNaN(searchQuery);
-
-        if (isNumeric) {
-          query = query.eq("client_id", parseInt(searchQuery, 10));
-        } else {
-          query = query.or(
-            `firstName.ilike.%${searchQuery}%,middleName.ilike.%${searchQuery}%,lastName.ilike.%${searchQuery}%`
-          );
-        }
-      }
-
-      // Handle Date of Birth search query (only if provided)
-      if (dateOfBirthQuery) {
-        query = query.eq("dateOfBirth", dateOfBirthQuery);
-      }
-
-      const { data, error, count } = await query;
-
-      if (error) {
-        console.error("Error fetching adult data:", error.message);
-      } else {
-        setAdultClients(data || []);
-        setTotalAdultPages(Math.ceil(count / clientsPerPage));
-      }
-    } catch (err) {
-      console.error("Unexpected error fetching adult clients:", err);
-    }
-  };
-
-  useEffect(() => {
-    fetchYouthClients(currentYouthPage, search, dateOfBirth);
-    fetchAdultClients(currentAdultPage, search, dateOfBirth);
-  }, [currentYouthPage, currentAdultPage, search, dateOfBirth]);
-
-  // Fetch total counts on component mount
-  useEffect(() => {
-    fetchTotalCounts();
-  }, []);
-
-  const handleSearchChange = (event) => {
-    setSearch(event.target.value);
-    setCurrentYouthPage(1);
-    setCurrentAdultPage(1);
-  };
-
-  const handleDateOfBirthChange = (event) => {
-    setDateOfBirth(event.target.value);
-    setCurrentYouthPage(1);
-    setCurrentAdultPage(1);
-  };
-
-  const handleYouthPageChange = (page) => {
-    if (page >= 1 && page <= totalYouthPages) {
-      setCurrentYouthPage(page);
-    }
-  };
-
-  const handleAdultPageChange = (page) => {
-    if (page >= 1 && page <= totalAdultPages) {
-      setCurrentAdultPage(page);
-    }
+  const handleCancelDelete = () => {
+    setClientToDelete(null);
   };
 
   return (
-    <div style={{ 
-      padding: '24px',
-      maxWidth: '1280px',
-      margin: '0 auto'
-    }}>
-      <h1 style={{ 
-        fontSize: '30px',
-        fontWeight: 'bold',
-        marginBottom: '32px',
-        color: '#1f2937'
-      }}>
-        List of Clients
-      </h1>
-      
-      {/* Search and Filter Section */}
-      <div style={{ 
-        marginBottom: '32px',
-        backgroundColor: 'white',
-        padding: '24px',
-        borderRadius: '8px',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-        border: '1px solid #e5e7eb'
-      }}>
-        <h2 style={{ 
-          fontSize: '20px',
-          fontWeight: '600',
-          marginBottom: '16px',
-          color: '#374151'
-        }}>
-          Search & Filter Options
-        </h2>
-        <div style={{ 
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '16px',
-          justifyContent: 'center'
-        }}>
+    <div className="py-4">
+      {/* Page header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">List of Clients</h1>
+          <p className="text-sm text-gray-500 mt-1">All youth and adult clients in the system</p>
+        </div>
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: "rgba(240, 238, 246, 0.8)", color: "rgba(97, 0, 215, 0.8)", border: "1px solid rgba(178, 179, 215, 0.8)" }}>
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span>
+          {allYouthClients.length + allAdultClients.length} total
+        </span>
+      </div>
+
+      {/* Filter Search */}
+       <div className="flex justify-end pb-4">
+        <div className="relative inline-block">
+          <SortDropdown
+            value={sortOption}
+            onChange={(value) => {
+              setSortOption(value);
+              setCurrentYouthPage(1);
+              setCurrentAdultPage(1);
+            }}
+          />
+        </div>
+      </div>
+
+       {/* Search */}
+      <div className="mb-6">
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+            </svg>
+          </div>
           <input
             type="text"
-            placeholder="Search by name or ID..."
-            value={search}
-            onChange={handleSearchChange}
-            style={{
-              padding: '8px 16px',
-              border: '1px solid #d1d5db',
-              borderRadius: '6px',
-              fontSize: '14px',
-              minWidth: '200px',
-              outline: 'none'
-            }}
+            placeholder="Search by name..."
+            value={searchQuery}
+            onChange={(e) => { setSearchQuery(e.target.value); setCurrentYouthPage(1); setCurrentAdultPage(1); }}
+            className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 text-gray-700 focus:outline-none transition"
           />
-          <input
-            type="date"
-            placeholder="Search by Date of Birth"
-            value={dateOfBirth}
-            onChange={handleDateOfBirthChange}
-            style={{
-              padding: '8px 16px',
-              border: '1px solid #d1d5db',
-              borderRadius: '6px',
-              fontSize: '14px',
-              outline: 'none'
-            }}
-          />
-
         </div>
       </div>
 
-      {/* Two Column Layout */}
-      <div style={{ 
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))',
-        gap: '32px'
-      }}>
-        {/* Youth Clients Column */}
-        <div style={{ 
-          backgroundColor: 'white',
-          padding: '24px',
-          borderRadius: '8px',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-          border: '1px solid #e5e7eb'
-        }}>
-          <h2 style={{ 
-            fontSize: '20px',
-            fontWeight: '600',
-            marginBottom: '24px',
-            color: '#1d4ed8',
-            textAlign: 'center'
-          }}>
-            Total Youth Clients ({totalYouthClients})
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {youthClients.map((client) => (
-                <div key={client.client_id} style={{ 
-                  backgroundColor: '#f9fafb',
-                  padding: '16px',
-                  borderRadius: '6px',
-                  border: '1px solid #e5e7eb',
-                  transition: 'all 0.2s ease-in-out'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = '#f3f4f6';
-                  const buttons = e.target.querySelector('[data-buttons="true"]');
-                  if (buttons) {
-                    buttons.style.opacity = '1';
-                    buttons.style.visibility = 'visible';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = '#f9fafb';
-                  const buttons = e.target.querySelector('[data-buttons="true"]');
-                  if (buttons) {
-                    buttons.style.opacity = '0';
-                    buttons.style.visibility = 'hidden';
-                  }
-                }}>
-                  <div style={{ 
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start'
-                  }}>
-                    <div style={{ flex: '1' }}>
-                      <div style={{ 
-                        fontWeight: '600',
-                        color: '#111827',
-                        marginBottom: '8px',
-                        fontSize: '16px'
-                      }}>
-                        {client.firstName} {client.lastName}
-                      </div>
-                      <div style={{ 
-                        fontSize: '14px',
-                        color: '#6b7280',
-                        marginBottom: '4px'
-                      }}>
-                        <span style={{ fontWeight: '500' }}>First Nation:</span>{" "}
-                        {client.firstNationMembership || 'N/A'}
-                      </div>
-                      <div style={{ 
-                        fontSize: '14px',
-                        color: '#6b7280'
-                      }}>
-                        <span style={{ fontWeight: '500' }}>DOB:</span>{" "}
-                        {new Date(client.dateOfBirth).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </div>
-                    </div>
-                    <div data-buttons="true" style={{ 
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '8px',
-                      marginLeft: '16px',
-                      opacity: '0',
-                      visibility: 'hidden',
-                      transition: 'opacity 0.2s ease-in-out, visibility 0.2s ease-in-out'
-                    }}>
-                      <button
-                        onClick={() => handleEdit(client)}
-                        style={{
-                          padding: '6px 12px',
-                          backgroundColor: '#3b82f6',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          fontSize: '12px',
-                          fontWeight: '500'
-                        }}
-                        onMouseOver={(e) => {
-                          e.target.style.backgroundColor = '#2563eb';
-                        }}
-                        onMouseOut={(e) => {
-                          e.target.style.backgroundColor = '#3b82f6';
-                        }}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(client)}
-                        disabled={deletingClientId === client.client_id}
-                        style={{
-                          padding: '6px 12px',
-                          backgroundColor: deletingClientId === client.client_id ? '#9ca3af' : '#dc2626',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: deletingClientId === client.client_id ? 'not-allowed' : 'pointer',
-                          fontSize: '12px',
-                          fontWeight: '500',
-                          opacity: deletingClientId === client.client_id ? 0.6 : 1
-                        }}
-                        onMouseOver={(e) => {
-                          if (deletingClientId !== client.client_id) {
-                            e.target.style.backgroundColor = '#b91c1c';
-                          }
-                        }}
-                        onMouseOut={(e) => {
-                          if (deletingClientId !== client.client_id) {
-                            e.target.style.backgroundColor = '#dc2626';
-                          }
-                        }}
-                      >
-                        {deletingClientId === client.client_id ? 'Deleting...' : 'Delete'}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            {youthClients.length === 0 && (
-              <div style={{ 
-                textAlign: 'center',
-                color: '#6b7280',
-                fontStyle: 'italic',
-                padding: '32px'
-              }}>
-                No youth clients found
-              </div>
-            )}
-
-            {/* Youth Pagination */}
-            {youthClients.length > 0 && (
-              <div style={{ 
-                marginTop: '16px',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: '12px'
-              }}>
-                <button
-                  onClick={() => handleYouthPageChange(currentYouthPage - 1)}
-                  disabled={currentYouthPage === 1}
-                  style={{
-                    padding: '6px 12px',
-                    backgroundColor: currentYouthPage === 1 ? '#f3f4f6' : '#1d4ed8',
-                    color: currentYouthPage === 1 ? '#9ca3af' : 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: currentYouthPage === 1 ? 'not-allowed' : 'pointer',
-                    fontSize: '12px',
-                    fontWeight: '500'
-                  }}
-                >
-                  Previous
-                </button>
-                <span style={{ 
-                  fontSize: '12px',
-                  color: '#6b7280',
-                  padding: '0 8px'
-                }}>
-                  Page {currentYouthPage} of {totalYouthPages}
-                </span>
-                <button
-                  onClick={() => handleYouthPageChange(currentYouthPage + 1)}
-                  disabled={currentYouthPage === totalYouthPages}
-                  style={{
-                    padding: '6px 12px',
-                    backgroundColor: currentYouthPage === totalYouthPages ? '#f3f4f6' : '#1d4ed8',
-                    color: currentYouthPage === totalYouthPages ? '#9ca3af' : 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: currentYouthPage === totalYouthPages ? 'not-allowed' : 'pointer',
-                    fontSize: '12px',
-                    fontWeight: '500'
-                  }}
-                >
-                  Next
-                </button>
-              </div>
-            )}
-          </div>
+      {/* Loading */}
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+          <svg className="animate-spin h-8 w-8 mb-3 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+          </svg>
+          <span className="text-sm">Loading clients...</span>
         </div>
+      ) : (
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          {/* Youth Clients */}
+          <ClientTable
+            title="Youth Clients"
+            clients={filteredYouth}
+            paginated={paginatedYouth}
+            currentPage={currentYouthPage}
+            totalPages={totalYouthPages}
+            onPageChange={setCurrentYouthPage}
+            onView={handleView}
+            onDelete={handleDeleteClick}
+            activeClientId={activeClientId}
+            deletingClientId={deletingClientId}
+            emptyMessage="No youth clients found"
+          />
 
-        {/* Adult Clients Column */}
-        <div style={{ 
-          backgroundColor: 'white',
-          padding: '24px',
-          borderRadius: '8px',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-          border: '1px solid #e5e7eb'
-        }}>
-          <h2 style={{ 
-            fontSize: '20px',
-            fontWeight: '600',
-            marginBottom: '24px',
-            color: '#059669',
-            textAlign: 'center'
-          }}>
-            Total Adult Clients ({totalAdultClients})
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {adultClients.map((client) => (
-                <div key={client.client_id} style={{ 
-                  backgroundColor: '#f9fafb',
-                  padding: '16px',
-                  borderRadius: '6px',
-                  border: '1px solid #e5e7eb',
-                  transition: 'all 0.2s ease-in-out'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = '#f3f4f6';
-                  const buttons = e.target.querySelector('[data-buttons="true"]');
-                  if (buttons) {
-                    buttons.style.opacity = '1';
-                    buttons.style.visibility = 'visible';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = '#f9fafb';
-                  const buttons = e.target.querySelector('[data-buttons="true"]');
-                  if (buttons) {
-                    buttons.style.opacity = '0';
-                    buttons.style.visibility = 'hidden';
-                  }
-                }}>
-                  <div style={{ 
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start'
-                  }}>
-                    <div style={{ flex: '1' }}>
-                      <div style={{ 
-                        fontWeight: '600',
-                        color: '#111827',
-                        marginBottom: '8px',
-                        fontSize: '16px'
-                      }}>
-                        {client.firstName} {client.lastName}
-                      </div>
-                      <div style={{ 
-                        fontSize: '14px',
-                        color: '#6b7280',
-                        marginBottom: '4px'
-                      }}>
-                        <span style={{ fontWeight: '500' }}>First Nation:</span>{" "}
-                        {client.firstNationMembership || 'N/A'}
-                      </div>
-                      <div style={{ 
-                        fontSize: '14px',
-                        color: '#6b7280'
-                      }}>
-                        <span style={{ fontWeight: '500' }}>DOB:</span>{" "}
-                        {new Date(client.dateOfBirth).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </div>
-                    </div>
-                    <div data-buttons="true" style={{ 
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '8px',
-                      marginLeft: '16px',
-                      opacity: '0',
-                      visibility: 'hidden',
-                      transition: 'opacity 0.2s ease-in-out, visibility 0.2s ease-in-out'
-                    }}>
-                      <button
-                        onClick={() => handleEdit(client)}
-                        style={{
-                          padding: '6px 12px',
-                          backgroundColor: '#16a34a',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          fontSize: '12px',
-                          fontWeight: '500'
-                        }}
-                        onMouseOver={(e) => {
-                          e.target.style.backgroundColor = '#15803d';
-                        }}
-                        onMouseOut={(e) => {
-                          e.target.style.backgroundColor = '#16a34a';
-                        }}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(client)}
-                        disabled={deletingClientId === client.client_id}
-                        style={{
-                          padding: '6px 12px',
-                          backgroundColor: deletingClientId === client.client_id ? '#9ca3af' : '#dc2626',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: deletingClientId === client.client_id ? 'not-allowed' : 'pointer',
-                          fontSize: '12px',
-                          fontWeight: '500',
-                          opacity: deletingClientId === client.client_id ? 0.6 : 1
-                        }}
-                        onMouseOver={(e) => {
-                          if (deletingClientId !== client.client_id) {
-                            e.target.style.backgroundColor = '#b91c1c';
-                          }
-                        }}
-                        onMouseOut={(e) => {
-                          if (deletingClientId !== client.client_id) {
-                            e.target.style.backgroundColor = '#dc2626';
-                          }
-                        }}
-                      >
-                        {deletingClientId === client.client_id ? 'Deleting...' : 'Delete'}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            {adultClients.length === 0 && (
-              <div style={{ 
-                textAlign: 'center',
-                color: '#6b7280',
-                fontStyle: 'italic',
-                padding: '32px'
-              }}>
-                No adult clients found
-              </div>
-            )}
-
-            {/* Adult Pagination */}
-            {adultClients.length > 0 && (
-              <div style={{ 
-                marginTop: '16px',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: '12px'
-              }}>
-                <button
-                  onClick={() => handleAdultPageChange(currentAdultPage - 1)}
-                  disabled={currentAdultPage === 1}
-                  style={{
-                    padding: '6px 12px',
-                    backgroundColor: currentAdultPage === 1 ? '#f3f4f6' : '#059669',
-                    color: currentAdultPage === 1 ? '#9ca3af' : 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: currentAdultPage === 1 ? 'not-allowed' : 'pointer',
-                    fontSize: '12px',
-                    fontWeight: '500'
-                  }}
-                >
-                  Previous
-                </button>
-                <span style={{ 
-                  fontSize: '12px',
-                  color: '#6b7280',
-                  padding: '0 8px'
-                }}>
-                  Page {currentAdultPage} of {totalAdultPages}
-                </span>
-                <button
-                  onClick={() => handleAdultPageChange(currentAdultPage + 1)}
-                  disabled={currentAdultPage === totalAdultPages}
-                  style={{
-                    padding: '6px 12px',
-                    backgroundColor: currentAdultPage === totalAdultPages ? '#f3f4f6' : '#059669',
-                    color: currentAdultPage === totalAdultPages ? '#9ca3af' : 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: currentAdultPage === totalAdultPages ? 'not-allowed' : 'pointer',
-                    fontSize: '12px',
-                    fontWeight: '500'
-                  }}
-                >
-                  Next
-                </button>
-              </div>
-            )}
-                    </div>
+          {/* Adult Clients */}
+          <ClientTable
+            title="Adult Clients"
+            clients={filteredAdult}
+            paginated={paginatedAdult}
+            currentPage={currentAdultPage}
+            totalPages={totalAdultPages}
+            onPageChange={setCurrentAdultPage}
+            onView={handleView}
+            onDelete={handleDeleteClick}
+            activeClientId={activeClientId}
+            deletingClientId={deletingClientId}
+            emptyMessage="No adult clients found"
+          />
         </div>
-      </div>
+      )}
+
+      <DeleteConfirmModal
+        client={clientToDelete}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
+      <ToastNotification toast={toast} />
     </div>
   );
 }

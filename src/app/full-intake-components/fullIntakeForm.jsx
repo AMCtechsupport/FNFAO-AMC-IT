@@ -1,15 +1,10 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import styles from "../full-intake/fullIntake.module.css";
 import { Formik, Form } from "formik";
-import { Button, Row, Col } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
-import { Tabs, TabList, Tab, TabPanel } from "react-tabs";
-import "react-tabs/style/react-tabs.css";
 
 // Form sections
-import HealthWellnessPartition from "./form-sections/HealthWellnessPartition"
+import HealthWellnessPartition from "./form-sections/HealthWellnessPartition";
 import CaseNotesPartition from "./form-sections/CaseNotesPartition";
 import LegalNotesPartition from "./form-sections/LegalNotesPartition";
 import ChildrenPartition from "./form-sections/ChildrenPartition";
@@ -23,220 +18,493 @@ import fullIntakeInputValidation from "./utils/fullIntakeInputValidation";
 import { fetchClientData } from "./utils/fetchClientData";
 import FullIntakeFormSubmit from "./utils/FullIntakeFormSubmit";
 
-export default function FullIntakeForm({client_id, userId, getToken, isEditMode = false} ){
-    const router = useRouter();
-    const [originalData, setOriginalData] = useState(null);
-    const [childrenData, setChildrenData] = useState([]); // State for children
-    const [familyData, setFamilyData] = useState([]);
-    const [homeMembersData, setHomeMembersData] = useState([]);
-    const [EIAData, setEIAData] = useState([]);
+const TABS = ["General", "Children", "Health & Wellness", "Child & Family Services", "Case Notes", "Legal Notes"];
 
-    // const [emergencyContactData, setEmergencyContactData] = useState([]);
+export default function FullIntakeForm({
+  client_id,
+  userId,
+  getToken,
+  isEditMode = false,
+  isViewOnly = false,
+}) {
+  const router = useRouter();
+  const [originalData, setOriginalData] = useState(null);
+  const [childrenData, setChildrenData] = useState([]);
+  const [familyData, setFamilyData] = useState([]);
+  const [homeMembersData, setHomeMembersData] = useState([]);
+  const [EIAData, setEIAData] = useState([]);
 
-    const [notesData, setNotesData] = useState([]); // State for case notes
-    const [caseNotes, setCaseNotes] = useState([]);
-    const [legalNotes, setLegalNotes] = useState([]);
+  const [notesData, setNotesData] = useState([]);
+  const [caseNotes, setCaseNotes] = useState([]);
+  const [legalNotes, setLegalNotes] = useState([]);
 
-    const [loading, setLoading] = useState(true);
-    const [isEditing, setIsEditing] = useState(isEditMode); // state to enable/disable fields - start in edit mode if isEditMode is true
-    const [formSent, setFormSent] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(isEditMode && !isViewOnly);
+  const [toast, setToast] = useState(null);
+  const showToast = (type, message) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 4000);
+  };
+  const [activeTab, setActiveTab] = useState(0);
 
-    const [selectedNote, setSelectedNote] = useState(null);
-    const [showNewNoteForm, setShowNewNoteForm] = useState(false);
+  const [selectedNote, setSelectedNote] = useState(null);
+  const [showNewNoteForm, setShowNewNoteForm] = useState(false);
+  const [editingNote, setEditingNote] = useState(null);
+  const [isAssignedAdvocate, setIsAssignedAdvocate] = useState(false);
+  const [assignedAdvocateName, setAssignedAdvocateName] = useState("—");
+  const [currentAdvocateId, setCurrentAdvocateId] = useState(null);
 
-    // const { userId, getToken } = useAuth();
+  useEffect(() => {
+    if (!client_id) return;
+    const checkAssignment = async () => {
+      const params = new URLSearchParams({ client_id });
+      if (userId) params.set("userId", userId);
+      const res = await fetch(`/api/assigned-advocate?${params.toString()}`);
+      if (!res.ok) return;
+      const json = await res.json();
+      if (json.advocateName) {
+        setAssignedAdvocateName(json.advocateName);
+        setIsAssignedAdvocate(json.isAssignedAdvocate ?? false);
+      }
+      if (json.currentAdvocateId) {
+        setCurrentAdvocateId(json.currentAdvocateId);
+      }
+    };
+    checkAssignment();
+  }, [userId, client_id]);
 
-    // const { getToken } = useAuth();
+  useEffect(() => {
+    if (isViewOnly) setIsEditing(false);
+  }, [isViewOnly]);
 
-    const handleShowNoteDetails = (note) => {
-        setSelectedNote(note); // Save the selected note
+  // View-only patch - block fields without styling changes
+  useEffect(() => {
+    if (!isViewOnly) return;
+
+    // Inject CSS to restore text cursor on readonly text inputs
+    const styleId = "view-only-style";
+    if (!document.getElementById(styleId)) {
+      const styleEl = document.createElement("style");
+      styleEl.id = styleId;
+      styleEl.textContent = `
+        form input:not([type="checkbox"]):not([type="radio"]):not([type="date"]):not([type="time"]):not([type="file"]) {
+          cursor: text !important;
+        }
+        form input[type="radio"] {
+          accent-color: #3b82f6 !important;
+        }
+      `;
+      document.head.appendChild(styleEl);
+    }
+
+    const runPatch = () => {
+      const form = document.querySelector("form");
+      if (!form) return;
+
+      const applyToElement = (el) => {
+        const tag = el.tagName.toLowerCase();
+
+        // Skip buttons that are explicitly allowed in view-only mode (tabs)
+        if (tag === "button" && el.getAttribute("data-view-allow") !== null) return;
+
+        // Handle checkboxes
+        if (tag === "input" && (el.getAttribute("type") || "text").toLowerCase() === "checkbox") {
+          el.removeAttribute("disabled");
+          el.style.setProperty("pointer-events", "none", "important");
+          return;
+        }
+
+        // Handle textareas
+        if (tag === "textarea") {
+          el.removeAttribute("disabled");
+          el.readOnly = true;
+          if (!el.value) el.placeholder = "";
+          return;
+        }
+
+        // Handle text inputs
+        if (tag === "input") {
+          const type = (el.getAttribute("type") || "text").toLowerCase();
+
+          if (["radio", "file", "date", "time"].includes(type)) {
+            el.removeAttribute("disabled");
+            el.style.setProperty("pointer-events", "none", "important");
+            if ((type === "date" || type === "time") && !el.value) el.type = "text";
+          } else {
+            el.removeAttribute("disabled");
+            el.readOnly = true;
+            if (!el.value) el.placeholder = "";
+          }
+          return;
+        }
+
+        // Handle selects
+        if (tag === "select") {
+          el.removeAttribute("disabled");
+          el.style.setProperty("pointer-events", "none", "important");
+          if (!el.value && el.options[el.selectedIndex]) el.options[el.selectedIndex].text = "";
+          return;
+        }
+
+        // Hide buttons
+        if (tag === "button") {
+          el.style.setProperty("display", "none", "important");
+        }
+      };
+
+      const elements = form.querySelectorAll("input, textarea, select, button");
+      elements.forEach(applyToElement);
+
+      // Block label clicks (prevents triggering radio/checkbox via their labels)
+      form.querySelectorAll("label").forEach((label) => {
+        label.style.setProperty("pointer-events", "none", "important");
+      });
     };
 
-    const handleCloseNoteDetails = () => {
-        setSelectedNote(null); // Close the note details
+    runPatch();
+
+    const observer = new MutationObserver(() => runPatch());
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+      document.getElementById("view-only-style")?.remove();
+    };
+  }, [isViewOnly]);
+
+  const handleShowNoteDetails = (note) => setSelectedNote(note);
+  const handleCloseNoteDetails = () => setSelectedNote(null);
+
+  const handleAddNoteClick = (values, push, noteType) => {
+    const newNote = {
+      client_id: client_id,
+      type: values.type || "General",
+      subType: values.subType || "Uncategorized",
+      description: values.description?.trim() || "No description provided",
+      actionPlan: values.actionPlan?.trim() || "No action plan provided",
+      advocate_id: currentAdvocateId,
+      createdAt: new Date().toISOString(),
+      modifiedAt: new Date().toISOString(),
+      noteType: noteType,
     };
 
-    const handleAddNoteClick = (values, push, noteType) => {
-        const newNote = {
-            client_id: client_id,
-            type: values.type || "General",  // Default value
-            subType: values.subType || "Uncategorized",
-            description: values.description?.trim() || "No description provided",
-            actionPlan: values.actionPlan?.trim() || "No action plan provided", // Avoid empty values
-            advocate_id: "19",
-            createdAt: new Date().toISOString(),
-            modifiedAt: new Date().toISOString(),
-            noteType: noteType,
-        };
+    push(newNote);
+    setShowNewNoteForm(true);
+  };
 
-        // setFieldValue("notes", [...values.notes, newNote]); // Add the new note to the Formik array
-        push(newNote);
-        setShowNewNoteForm(true);
-        console.log("New note added:", newNote);
-    };
+  const handleSaveNoteEdit = async (note_id, updatedFields, file = null) => {
+    const originalNote = notesData.find((n) => n.note_id === note_id);
 
-    const validateRadio = (value) => {
-        // Radio buttons are now optional - no validation required
-        // Users can submit the form without selecting radio options
-        return undefined;
-    };
+    const formData = new FormData();
+    formData.append("note_id", note_id);
+    formData.append("type", updatedFields.type || "");
+    formData.append("subType", updatedFields.subType || "");
+    formData.append("description", updatedFields.description || "");
+    formData.append("actionPlan", updatedFields.actionPlan || "");
+    formData.append("client_id", client_id || "");
+    if (currentAdvocateId) formData.append("owner_id", String(currentAdvocateId));
+    if (file) formData.append("file", file);
 
-    // Load client and children data when opening the form
-    useEffect(() => {
-        fetchClientData({
+    const res = await fetch("/api/notes", { method: "PATCH", body: formData });
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      if (res.status === 403) {
+        alert(errData.error || "This note can no longer be edited (24-hour window has passed).");
+        setEditingNote(null);
+      } else {
+        console.error("[handleSaveNoteEdit] PATCH failed:", errData);
+      }
+      return;
+    }
+
+    // Log the note edit
+    const formatVal = (v) => (v === null || v === undefined || v === "") ? "N/A" : String(v);
+    const noteChanges = [];
+    for (const field of ["type", "subType", "description", "actionPlan"]) {
+      const prevVal = formatVal(originalNote?.[field]);
+      const currVal = formatVal(updatedFields[field]);
+      if (prevVal !== currVal) {
+        noteChanges.push(`${field}: ${prevVal} → ${currVal}`);
+      }
+    }
+    const noteType = originalNote?.noteType || "Note";
+    const logDescription = noteChanges.length
+      ? `${noteType} note updated. Changed fields:\n${noteChanges.join("\n")}`
+      : `${noteType} note updated (note_id: ${note_id})`;
+    await fetch("/api/user-logs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        description: logDescription,
+        logType: "UPDATE",
+        client_id,
+        clerkUserId: userId || null,
+      }),
+    });
+
+    // Refresh notes from server to reflect updated data (including new file info)
+    const notesRes = await fetch(`/api/notes?client_id=${client_id}`);
+    if (notesRes.ok) {
+      const notesJson = await notesRes.json();
+      const safeNotes = notesJson.notes || [];
+      setNotesData(safeNotes);
+    }
+
+    setEditingNote(null);
+  };
+
+  const handleSaveNewNote = async (noteData, setFieldValue, currentNotes) => {
+    const formData = new FormData();
+    formData.append("type", noteData.type || "");
+    formData.append("subType", noteData.subType || "");
+    formData.append("description", noteData.description || "");
+    formData.append("actionPlan", noteData.actionPlan || "");
+    formData.append("noteType", noteData.noteType || "Case");
+    formData.append("client_id", client_id || "");
+    if (currentAdvocateId) formData.append("advocate_id", String(currentAdvocateId));
+    if (currentAdvocateId) formData.append("owner_id", String(currentAdvocateId));
+    if (noteData.file instanceof File) formData.append("file", noteData.file);
+
+    const res = await fetch("/api/notes", { method: "POST", body: formData });
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      console.error("[handleSaveNewNote] POST failed:", errData);
+      return;
+    }
+
+    await fetch("/api/user-logs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        description: `${noteData.noteType || "Case"} note added (type: ${noteData.type || "N/A"})`,
+        logType: "CREATE",
+        client_id,
+        clerkUserId: userId || null,
+      }),
+    });
+
+    setFieldValue("notes", currentNotes.slice(0, -1));
+    setShowNewNoteForm(false);
+
+    const notesRes = await fetch(`/api/notes?client_id=${client_id}`);
+    if (notesRes.ok) {
+      const notesJson = await notesRes.json();
+      setNotesData(notesJson.notes || []);
+    }
+  };
+
+  const validateRadio = () => undefined;
+
+  useEffect(() => {
+    fetchClientData({
+      client_id,
+      setLoading,
+      setOriginalData,
+      setChildrenData,
+      setFamilyData,
+      setHomeMembersData,
+      setEIAData,
+      setNotesData,
+      setCaseNotes,
+      setLegalNotes,
+    });
+  }, [client_id]);
+
+  if (loading) return <div>Loading...</div>;
+
+  return (
+    <div>
+      <Formik
+        initialValues={fetchFullIntakeValues({
+          originalData,
+          childrenData,
+          notesData,
+          caseNotes,
+          legalNotes,
+          familyData,
+          EIAData,
+          homeMembersData,
+        })}
+        enableReinitialize
+        validate={fullIntakeInputValidation}
+        onSubmit={(values, { resetForm }) => {
+          if (isViewOnly) return;
+          return FullIntakeFormSubmit(
+            values,
+            { resetForm },
+            userId,
+            getToken,
+            router,
+            showToast,
             client_id,
-            setLoading,
-            setOriginalData,
+            originalData,
+            childrenData,
+            familyData,
+            homeMembersData,
+            EIAData,
+            notesData,
             setChildrenData,
             setFamilyData,
             setHomeMembersData,
             setEIAData,
             setNotesData,
-            setCaseNotes,
-            setLegalNotes,
-        });
-    }, [client_id]);
+            setOriginalData,
+            setShowNewNoteForm,
+            setIsEditing
+          );
+        }}
+      >
+        {({ values, errors, resetForm, setFieldValue }) => (
+          <Form>
+            <GeneralInformationHeader values={values} isEditing={isEditing} errors={errors} assignedAdvocateName={assignedAdvocateName} />
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
+            {/* Tab bar */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+              <div className="flex border-b border-gray-200 overflow-x-auto">
+                {TABS.map((tab, i) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    data-view-allow="true"
+                    onClick={() => setActiveTab(i)}
+                    className="px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors"
+                    style={
+                      activeTab === i
+                        ? { backgroundColor: "rgba(97, 0, 215, 0.8)", color: "#fff", borderBottom: "2px solid rgba(97, 0, 215, 0.8)" }
+                        : { color: "#6b7280", borderBottom: "2px solid transparent" }
+                    }
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
 
-    return(
-        <div className="form-container">
-            <Formik
-                initialValues={fetchFullIntakeValues({
-                    originalData,
-                    childrenData,
-                    notesData,
-                    caseNotes,
-                    legalNotes,
-                    familyData,
-                    EIAData,
-                    homeMembersData,
-                })}
-                enableReinitialize
-                validate={fullIntakeInputValidation}
-                onSubmit={(values, {resetForm}) => 
-                    FullIntakeFormSubmit(
-                        values, { resetForm }, userId, 
-                        getToken, router, setFormSent, 
-                        client_id, originalData, childrenData, 
-                        familyData, homeMembersData, EIAData, 
-                        notesData, setChildrenData, setFamilyData, 
-                        setHomeMembersData, setEIAData, setNotesData, 
-                        setOriginalData, setShowNewNoteForm, setIsEditing
-                )} 
-            >
-                {({ values, errors, resetForm, setFieldValue }) => (
-                    <>
-                        <Form className={styles.form}>
-                            <div className={styles.titleContainer}>
-                                {/* <img src="/full-intake logo.png" alt="Logo" className={styles.logo} /> */}
-                                <h2 className={styles.centeredTitle}>FULL-INTAKE FORM</h2>
-                            </div>
-                                <hr className="separator-line" />
-                                    {/* General Info Section */}
-                                    <GeneralInformationHeader
-                                        values={values}
-                                        errors={errors}
-                                        isEditing={isEditing}
-                                    />
-                                <Row>
-                                    {/* Tab Sections */}
-                                    <div className="{styles.tabsContainer}">
-                                        <Tabs >
-                                            <TabList >
-                                                <Tab href="/generalInfo" onClick={() => console.log("Tab 1 clicked!")}>General Information</Tab>
-                                                <Tab href="/cfs" onClick={() => console.log("Tab 2 clicked!")}>CFS</Tab>
-                                                <Tab href="/childrenInfo" onClick={() => console.log("Tab 3 clicked!")}>Children Information</Tab>
-                                                <Tab href="/community" onClick={() => console.log("Tab 4 clicked!")}>Health and Wellness</Tab>
-                                                <Tab href="/caseNotes" onClick={() => console.log("Tab 6 clicked!")}>Case Notes</Tab>
-                                                <Tab href="/legalNotes" onClick={() => console.log("Tab 7 clicked!")}>Legal Notes</Tab>
-                                            </TabList>
-                                            <TabPanel>
-                                                {/* General Information Tab */}
-                                                <GeneralInformationPartition
-                                                    errors={errors}
-                                                    isEditing={isEditMode}
-                                                    values={values}
-                                                    setFieldValue={setFieldValue}
-                                                    validateRadio={validateRadio}
-                                                />
-                                            </TabPanel>
-                                            <TabPanel>
-                                                {/* CFS Tab */}
-                                                <ChildFamilyServicesPartition
-                                                    childrenData={childrenData}
-                                                    isEditing={isEditing}
-                                                    values={values}
-                                                />                              
-                                            </TabPanel>
-                                            <TabPanel>
-                                                {/* Children Information Tab */}
-                                                <ChildrenPartition
-                                                    childrenData={childrenData}
-                                                    values={values}
-                                                    isEditing={isEditing}
-                                                    errors={errors}
-                                                />
-                                            </TabPanel>
-                                            <TabPanel>
-                                                {/* Health and Wellness Tab */}
-                                                <HealthWellnessPartition
-                                                    values={values}
-                                                    isEditing={isEditing}
-                                                    setFieldValue={setFieldValue}
-                                                />   
-                                            </TabPanel>
-                                            <TabPanel>
-                                                {/* Case Notes Tab */}
-                                                <CaseNotesPartition
-                                                    notesData={notesData}
-                                                    selectedNote={selectedNote}
-                                                    handleShowNoteDetails={handleShowNoteDetails}
-                                                    handleCloseNoteDetails={handleCloseNoteDetails}
-                                                    showNewNoteForm={showNewNoteForm}
-                                                    handleAddNoteClick={handleAddNoteClick}
-                                                    values={values}
-                                                    setFieldValue={setFieldValue}
-                                                    isEditing={isEditing}
-                                                    errors={errors}
-                                                />
-                                            </TabPanel>
-                                            <TabPanel>
-                                                {/* Legal Notes Tab */}
-                                                <LegalNotesPartition
-                                                    notesData={notesData}
-                                                    selectedNote={selectedNote}
-                                                    handleShowNoteDetails={handleShowNoteDetails}
-                                                    handleCloseNoteDetails={handleCloseNoteDetails}
-                                                    showNewNoteForm={showNewNoteForm}
-                                                    handleAddNoteClick={handleAddNoteClick}
-                                                    values={values}
-                                                    setFieldValue={setFieldValue}
-                                                    isEditing={isEditing}
-                                                    errors={errors}
-                                                />
-                                            </TabPanel>
-                                        </Tabs>
-                                    </div>
-                                </Row>
-                                {/* Action buttons */}
-                                <Row className="mt-3">
-                                    {!isEditing ? (
-                                        <Col md={4}> <Button className={styles.cancelButton} onClick={() => setIsEditing(true)}>Edit</Button> </Col>
-                                    ) : (
-                                        <>
-                                            <Col md={4}><Button className={styles.cancelButton} onClick={() => { resetForm(); setIsEditing(false); setShowNewNoteForm(false) }}>Cancel</Button> </Col>
-                                            <Col md={4}><Button className={styles.submitButton} type="submit">Save</Button> </Col>
-                                        </>
-                                    )}
-                                </Row>
-                                {formSent && <div className={styles.successfulText}>Form saved successfully!</div>}
-                        </Form>
-                    </>
+              <div className="p-6">
+                {activeTab === 0 && (
+                  <GeneralInformationPartition
+                    values={values}
+                    isEditing={isEditing}
+                    errors={errors}
+                    validateRadio={validateRadio}
+                    setFieldValue={setFieldValue}
+                  />
                 )}
-            </Formik>
-        </div>
-    );
+                {activeTab === 1 && (
+                  <ChildrenPartition
+                    childrenData={childrenData}
+                    values={values}
+                    isEditing={isEditing}
+                    errors={errors}
+                    setFieldValue={setFieldValue}
+                  />
+                )}
+                {activeTab === 2 && (
+                  <HealthWellnessPartition
+                    values={values}
+                    isEditing={isEditing}
+                    errors={errors}
+                    validateRadio={validateRadio}
+                    setFieldValue={setFieldValue}
+                  />
+                )}
+                {activeTab === 3 && (
+                  <ChildFamilyServicesPartition
+                    childrenData={childrenData}
+                    values={values}
+                    isEditing={isEditing}
+                    errors={errors}
+                    validateRadio={validateRadio}
+                  />
+                )}
+                {activeTab === 4 && (
+                  <CaseNotesPartition
+                    notesData={notesData}
+                    selectedNote={selectedNote}
+                    handleShowNoteDetails={handleShowNoteDetails}
+                    handleCloseNoteDetails={handleCloseNoteDetails}
+                    showNewNoteForm={showNewNoteForm}
+                    setShowNewNoteForm={setShowNewNoteForm}
+                    handleAddNoteClick={handleAddNoteClick}
+                    handleSaveNewNote={handleSaveNewNote}
+                    editingNote={editingNote}
+                    setEditingNote={setEditingNote}
+                    handleSaveNoteEdit={handleSaveNoteEdit}
+                    values={values}
+                    setFieldValue={setFieldValue}
+                    isEditing={isEditing}
+                    isAssignedAdvocate={isAssignedAdvocate}
+                    errors={errors}
+                  />
+                )}
+                {activeTab === 5 && (
+                  <LegalNotesPartition
+                    notesData={notesData}
+                    selectedNote={selectedNote}
+                    handleShowNoteDetails={handleShowNoteDetails}
+                    handleCloseNoteDetails={handleCloseNoteDetails}
+                    showNewNoteForm={showNewNoteForm}
+                    setShowNewNoteForm={setShowNewNoteForm}
+                    handleAddNoteClick={handleAddNoteClick}
+                    handleSaveNewNote={handleSaveNewNote}
+                    editingNote={editingNote}
+                    setEditingNote={setEditingNote}
+                    handleSaveNoteEdit={handleSaveNoteEdit}
+                    values={values}
+                    setFieldValue={setFieldValue}
+                    isEditing={isEditing}
+                    isAssignedAdvocate={isAssignedAdvocate}
+                    errors={errors}
+                  />
+                )}
+              </div>
+            </div>
+
+            {!isViewOnly && (
+              <div className="flex justify-between items-center mb-6">
+                <button
+                  type="button"
+                  className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors"
+                  style={{ backgroundColor: "#6b7280" }}
+                  onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#4b5563")}
+                  onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#6b7280")}
+                  onClick={() => {
+                    resetForm();
+                    setShowNewNoteForm(false);
+                    router.push(`/adult-clients/${client_id}/view`); //go back to viewing page
+                  }}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors"
+                  style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+                  onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "rgba(74, 0, 153, 0.8)")}
+                  onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)")}
+                >
+                  Save
+                </button>
+              </div>
+            )}
+
+            {toast && (
+              <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white ${toast.type === "success" ? "bg-green-500" : "bg-red-500"}`}>
+                {toast.type === "success" ? (
+                  <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                )}
+                {toast.message}
+              </div>
+            )}
+          </Form>
+        )}
+      </Formik>
+    </div>
+  );
 }

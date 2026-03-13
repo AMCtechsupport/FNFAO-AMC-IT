@@ -5,7 +5,7 @@ import supabase from "../lib/supabase";
 import LogTable from "../../../components/user-logs-table";
 import SearchBar from "../../../components/user-logs-search";
 import LogModal from "../../../components/user-logs-modal";
-import LogsPagination from "../../../components/user-logs-pagination";
+import Pagination from "../../../components/report/pages-pagination";
 
 import UserHome from "../user-home/page";
 
@@ -18,136 +18,58 @@ const UserLogs = () => {
   const [itemsPerPage] = useState(10);
   const [totalLogs, setTotalLogs] = useState(0);
 
-  // Handle real-time changes in the Clients table
-  const handleRealTimeChange = async (payload) => {
-    console.log("Received payload:", payload);
-
-    // Extract event, new, and old data from payload
-    const { eventType, new: newClient, old: oldClient } = payload;
-
-    // Fallback if eventType is undefined
-    const event = eventType || "UNHANDLED";
-
-    let description = "";
-
-    // Utility function to create a detailed client log description
-    const generateClientDescription = (client) => {
-      const prioritizedFields = [
-        "client_id",
-        "firstName",
-        "lastName",
-        "phoneNumber",
-        "dateOfBirth",
-      ];
-
-      const description = [
-        ...prioritizedFields.map((field) => {
-          return client[field] ? `${field}: ${client[field]}` : `${field}: N/A`;
-        }),
-        ...Object.keys(client)
-          .filter((key) => !prioritizedFields.includes(key))
-          .map((key) => {
-            return `${key}: ${client[key] || "N/A"}`;
-          }),
-      ];
-
-      return description.filter(Boolean).join("\n");
-    };
-
-    // Construct the description based on event type
-    switch (event) {
-      case "INSERT":
-        description = `Client inserted:\n${generateClientDescription(
-          newClient
-        )}\nEvent Type: ${event}`;
-        break;
-      case "UPDATE":
-        description = `Client updated:\n${generateClientDescription(
-          newClient
-        )}\nEvent Type: ${event}`;
-        break;
-      case "DELETE":
-        description = `Client deleted:\n${generateClientDescription(
-          oldClient
-        )}\nEvent Type: ${event}`;
-        break;
-      default:
-        description = `Unhandled event:\nEvent type is ${event}. Payload: ${JSON.stringify(
-          payload
-        )}`;
-        console.log("Unhandled event:", payload);
-        break;
-    }
-
-    // Fetch the client_id from the new or old client, depending on the event
-    const client_id = newClient?.client_id || oldClient?.client_id;
-
-    // Log the event in the User Logs table
-    await logUserEvent(description, event, client_id);
-  };
-
-  // Function to insert a log into the User Logs table
-  const logUserEvent = async (description, eventType, client_id) => {
-    const { data, error } = await supabase.from("User Logs").insert([
-      {
-        description,
-        logType: eventType,
-        clerk_user_id: "admin",
-        client_id,
-      },
-    ]);
-
-    if (error) {
-      console.error("Error logging event:", error);
-    } else {
-      console.log("Event logged in User Logs table:", data);
-    }
-  };
+  // Compute total pages for the pagination component
+  const totalPages = totalLogs > 0 ? Math.ceil(totalLogs / itemsPerPage) : 0;
 
   useEffect(() => {
     const fetchLogs = async () => {
       setLoading(true);
-      let query = supabase.from("User Logs").select("*");
 
-      if (searchQuery) {
-        query = query.ilike("client_id", `%${searchQuery}%`);
+      const params = new URLSearchParams({
+        page: String(currentPage),
+        pageSize: String(itemsPerPage),
+      });
+      if (searchQuery) params.set("search", searchQuery);
+
+      const res = await fetch(`/api/user-logs?${params.toString()}`);
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        console.error("Error fetching user logs", json.error || res.status);
+        setLoading(false);
+        return;
       }
 
-      query = query.order("createdAt", { ascending: false });
+      const json = await res.json();
+      const total = json.count ?? 0;
 
-      // Paginate the query
-      query = query.range(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage - 1
-      );
+      setLogs(json.logs || []);
+      setTotalLogs(total);
 
-      const { data, error, count } = await query;
-      if (error) {
-        console.error("Error fetching user logs", error);
-      } else {
-        setLogs(data);
-        setTotalLogs(count);
+      // Clamp current page if it's now out of range
+      const totalPages = Math.max(1, Math.ceil(total / itemsPerPage));
+      if (currentPage > totalPages) {
+        setCurrentPage(totalPages);
       }
       setLoading(false);
     };
 
     fetchLogs();
 
-    // Real-time subscription to changes in the "Clients" table
-    const clientChannel = supabase
-      .channel("custom-client-channel")
+    // Real-time subscription: re-fetch via API when User Logs table changes
+    const logsChannel = supabase
+      .channel("user-logs-channel")
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "Clients" },
+        { event: "*", schema: "public", table: "User Logs" },
         (payload) => {
-          console.log("Change received in Clients table!", payload);
-          handleRealTimeChange(payload);
+          console.log("Change received in User Logs table:", payload);
+          fetchLogs();
         }
       )
       .subscribe();
 
     return () => {
-      clientChannel.unsubscribe();
+      logsChannel.unsubscribe();
     };
   }, [searchQuery, currentPage]);
 
@@ -163,8 +85,12 @@ const UserLogs = () => {
 
   return (
     <UserHome>
-      <div className="max-w-4xl mx-auto p-6">
-        <h1 className="text-3xl font-semibold text-gray-800 mb-6">User Logs</h1>
+      <main className="min-h-screen bg-gray-100 p-6">
+        {/* Page Header */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Activity Logs</h1>
+          <p className="text-sm text-gray-500 mt-1">Track all system activity and client updates</p>
+        </div>
 
         {/* Search Bar */}
         <SearchBar value={searchQuery} onSearchChange={handleSearchChange} />
@@ -173,10 +99,9 @@ const UserLogs = () => {
         <LogTable logs={logs} loading={loading} onLogClick={setSelectedLog} />
 
         {/* Pagination */}
-        <LogsPagination
+        <Pagination
           currentPage={currentPage}
-          totalItems={totalLogs}
-          itemsPerPage={itemsPerPage}
+          totalPages={totalPages}
           onPageChange={handlePageChange}
         />
 
@@ -184,7 +109,7 @@ const UserLogs = () => {
         {selectedLog && (
           <LogModal log={selectedLog} onClose={() => setSelectedLog(null)} />
         )}
-      </div>
+      </main>
     </UserHome>
   );
 };

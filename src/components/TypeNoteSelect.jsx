@@ -8,6 +8,7 @@ const TypeNoteSelect = ({name, label, error, disabled }) => {
             <label htmlFor="typeNote">{label}:</label>
             <Field as="select" name={name} className={styles.select} disabled={disabled}>
                 <option value="">Select an option</option>
+                <option value="general">General</option>
                 <option value="initialMeeting">Initial Meeting</option>
                 <option value="agencyMeeting">Agency Meeting</option>
                 <option value="networkMeeting">Network Meeting</option>

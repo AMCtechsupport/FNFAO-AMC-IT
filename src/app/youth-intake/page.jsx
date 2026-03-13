@@ -1,8 +1,6 @@
 "use client";
 import { useSearchParams } from "next/navigation";
 import UserHome from "../user-home/page";
-import styles from "./youthIntake.module.css";
-import "bootstrap/dist/css/bootstrap.min.css";
 import YouthIntakeForm from "../youth-intake-components/YouthIntakeForm";
 
 export default function YouthIntake() {
@@ -12,23 +10,14 @@ export default function YouthIntake() {
 
   return (
     <UserHome>
-      <div className={styles.fullIntakeContainer}>
-        <div className={styles.container}>
-          {isEditMode && (
-            <div style={{
-              backgroundColor: '#dbeafe',
-              border: '1px solid #93c5fd',
-              borderRadius: '6px',
-              padding: '12px',
-              marginBottom: '20px',
-              textAlign: 'center'
-            }}>
-              <strong>Edit Mode:</strong> You are editing an existing youth client record.
-            </div>
-          )}
-          <YouthIntakeForm editClientId={editClientId} isEditMode={isEditMode} />
-        </div>
-      </div>
+      <main className="min-h-screen bg-gray-100 p-6">
+        {isEditMode && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 mb-5 text-sm text-center text-blue-800">
+            <strong>Edit Mode:</strong> You are editing an existing youth client record.
+          </div>
+        )}
+        <YouthIntakeForm editClientId={editClientId} isEditMode={isEditMode} />
+      </main>
     </UserHome>
   );
 }

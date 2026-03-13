@@ -1,52 +1,30 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { useUser } from "@clerk/clerk-react";
+import { getAdvocateProfile } from "../lib/get-advocate-server";
 import UserHome from "../user-home/page";
 import AssignedClientsList from "../../../components/user-assigned-clients";
-import supabase from "../lib/supabase";
 
-export default function AssignedClientsToAdvocate() {
-  const { user } = useUser();
-  const [advocate, setAdvocate] = useState(null);
+export const dynamic = "force-dynamic";
 
-  useEffect(() => {
-    const fetchAdvocate = async () => {
-      if (!user) return;
+export default async function AssignedClientsToAdvocate() {
+  let advocate = null;
+  let advocateError = null;
 
-      const { data, error } = await supabase
-        .from("Advocates")
-        .select("advocate_id, firstName, lastName")
-        .eq("clerk_user_id", user.id)
-        .single();
-
-      if (error) {
-        console.error("Error fetching advocate:", error.message);
-      } else {
-        setAdvocate(data);
-      }
-    };
-
-    fetchAdvocate();
-  }, [user]);
+  try {
+    advocate = await getAdvocateProfile();
+  } catch (err) {
+    console.error("Error fetching advocate:", err.message);
+    advocateError = err.message || "Could not load advocate profile";
+  }
 
   return (
     <UserHome>
-      <div className="assigned-clients-container">
-        <h2 className="text-xl font-bold mb-4 p-2">
-          {advocate
-            ? `Clients assigned to ${advocate.firstName} ${
-                advocate.lastName || ""
-              }`
-            : "Loading..."}
-        </h2>
-
+      <main className="min-h-screen bg-gray-100 p-6">
+        {advocateError && (
+          <p className="text-red-500 mb-4">{advocateError}</p>
+        )}
         {advocate ? (
           <AssignedClientsList advocateId={advocate.advocate_id} />
-        ) : (
-          <p>Loading...</p>
-        )}
-      </div>
+        ) : null}
+      </main>
     </UserHome>
   );
 }

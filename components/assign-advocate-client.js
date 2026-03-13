@@ -1,11 +1,15 @@
 "use client";
 
 import { updateClientStatus } from "./client-active";
-import { useState, useEffect } from "react";
-import supabase from "../src/app/lib/supabase";
+import { useState, useEffect, useRef } from "react";
 
-export default function AssignAdvocate() {
-  const [clients, setClients] = useState([]);
+export default function AssignAdvocate({
+  clients: initialClients = [],
+  advocates: initialAdvocates = [],
+}) {
+  const [allClients, setAllClients] = useState([]);
+  const [filteredClients, setFilteredClients] = useState([]);
+  const [allAdvocates, setAllAdvocates] = useState([]);
   const [advocates, setAdvocates] = useState([]);
   const [searchClient, setSearchClient] = useState("");
   const [searchAdvocate, setSearchAdvocate] = useState("");
@@ -15,63 +19,166 @@ export default function AssignAdvocate() {
   const [showPopup, setShowPopup] = useState(false);
   const [isAssigned, setIsAssigned] = useState(false);
 
-  const fetchClients = async (searchQuery = "") => {
-    try {
-      let query = supabase
-        .from("Clients")
-        .select("*")
-        .limit(5)
-        .order("dateModified", { ascending: false });
+  const containerRef = useRef(null);
 
-      if (searchQuery) {
-        const isNumeric = !isNaN(searchQuery);
-        if (isNumeric) {
-          query = query.eq("client_id", parseInt(searchQuery, 10));
-        } else {
-          query = query.or(
-            `firstName.ilike.%${searchQuery}%,middleName.ilike.%${searchQuery}%,lastName.ilike.%${searchQuery}%`
-          );
-        }
+  // Deselect client and advocate when clicking outside this block
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setSelectedClient(null);
+        setSelectedAdvocate("");
       }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-      const { data, error } = await query;
+  useEffect(() => {
+    const initialClientsList = [...(initialClients || [])].sort(
+      (a, b) => new Date(b.dateModified || 0) - new Date(a.dateModified || 0),
+    );
+    setAllClients(initialClientsList);
+    setFilteredClients(initialClientsList);
 
-      if (error) {
-        console.error("Error fetching clients:", error.message);
-      } else {
-        setClients(data);
-      }
-    } catch (err) {
-      console.error("Unexpected error:", err);
+    const initialAdvocatesList = [...(initialAdvocates || [])];
+    setAllAdvocates(initialAdvocatesList);
+    setAdvocates(initialAdvocatesList);
+  }, [initialClients, initialAdvocates]);
+
+  // Client-side filter for immediate feedback (debounced)
+  const filterClients = (query) => {
+    if (!query.trim()) {
+      setFilteredClients(allClients);
+      return;
     }
+
+    const term = query.toLowerCase().trim();
+    const numericId = !isNaN(term) && term !== "" ? parseInt(term, 10) : null;
+
+    const filtered = allClients.filter((client) => {
+      if (numericId !== null) {
+        return client.client_id === numericId;
+      }
+      const fullName =
+        `${client.firstName || ""} ${client.middleName || ""} ${client.lastName || ""}`.toLowerCase();
+      return fullName.includes(term);
+    });
+
+    setFilteredClients(filtered.slice(0, 50)); // Limit to 50 results
   };
 
-  const fetchAdvocates = async (searchQuery = "") => {
-    try {
-      let query = supabase.from("Advocates").select("*").limit(5);
+  const filterAdvocates = (query) => {
+    if (!query.trim()) {
+      setAdvocates(allAdvocates);
+      return;
+    }
 
-      if (searchQuery) {
-        query = query.or(
-          `firstName.ilike.%${searchQuery}%,lastName.ilike.%${searchQuery}%`
+    const term = query.toLowerCase().trim();
+    const numericId = /^\d+$/.test(term) ? parseInt(term, 10) : null;
+
+    const filtered = allAdvocates.filter((advocate) => {
+      const firstName = (advocate.firstName || "").toLowerCase();
+      const lastName = (advocate.lastName || "").toLowerCase();
+      const email = (advocate.email || "").toLowerCase();
+
+      if (numericId !== null) {
+        return (
+          advocate.advocate_id === numericId ||
+          firstName.includes(term) ||
+          lastName.includes(term) ||
+          email.includes(term)
         );
       }
 
-      const { data, error } = await query;
+      return (
+        firstName.includes(term) ||
+        lastName.includes(term) ||
+        email.includes(term)
+      );
+    });
 
-      if (error) {
-        console.error("Error fetching advocates:", error.message);
-      } else {
-        setAdvocates(data);
+    setAdvocates(filtered);
+  };
+
+  const fetchClients = async () => {
+    try {
+      const res = await fetch(
+        `/api/clients?clientType=Youth%20Intake&pageSize=1000`,
+      );
+      if (!res.ok) {
+        console.error("Error fetching clients");
+        setAllClients([]);
+        setFilteredClients([]);
+        return;
       }
+
+      const json = await res.json();
+      const youthClients = json.data || [];
+
+      const res2 = await fetch(
+        `/api/clients?clientType=Pre-Intake&pageSize=1000`,
+      );
+      if (!res2.ok) {
+        console.error("Error fetching adult clients");
+        setAllClients(youthClients);
+        setFilteredClients(youthClients);
+        return;
+      }
+
+      const json2 = await res2.json();
+      const adultClients = json2.data || [];
+      const allClientsList = [...youthClients, ...adultClients].sort(
+        (a, b) => new Date(b.dateModified || 0) - new Date(a.dateModified || 0),
+      );
+
+      setAllClients(allClientsList);
+      setFilteredClients(allClientsList);
+    } catch (err) {
+      console.error("Error fetching clients:", err);
+      setAllClients([]);
+      setFilteredClients([]);
+    }
+  };
+
+  const fetchAdvocates = async () => {
+    try {
+      const res = await fetch(`/api/advocates`);
+
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        console.error(
+          "Error fetching advocates:",
+          json?.error || `Status ${res.status}`,
+        );
+        setAdvocates([]);
+        return;
+      }
+
+      const json = await res.json();
+      const advocatesList = json.advocates || [];
+      setAllAdvocates(advocatesList);
+      setAdvocates(advocatesList);
     } catch (err) {
       console.error("Unexpected error:", err);
+      setAllAdvocates([]);
+      setAdvocates([]);
     }
   };
 
   useEffect(() => {
-    fetchClients(searchClient);
-    fetchAdvocates(searchAdvocate);
-  }, [searchClient, searchAdvocate]);
+    fetchClients();
+    fetchAdvocates();
+  }, []);
+
+  // Instant client search
+  useEffect(() => {
+    filterClients(searchClient);
+  }, [searchClient, allClients]);
+
+  // Instant advocate search
+  useEffect(() => {
+    filterAdvocates(searchAdvocate);
+  }, [searchAdvocate, allAdvocates]);
 
   const handleSearchClientChange = (event) => {
     setSearchClient(event.target.value);
@@ -91,51 +198,41 @@ export default function AssignAdvocate() {
     }
 
     try {
-      // Check if the client has already been assigned to the advocate
-      const { data, error } = await supabase
-        .from("Assigned Advocates")
-        .select("*")
-        .eq("client_id", selectedClient.client_id)
-        .eq("advocate_id", selectedAdvocate);
+      const res = await fetch("/api/assigned-advocate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          client_id: selectedClient.client_id,
+          advocate_id: selectedAdvocate,
+        }),
+      });
 
-      if (error) {
-        console.error("Error checking for existing assignment:", error.message);
+      const json = await res.json();
+
+      if (!res.ok) {
+        setMessage("Failed to assign advocate: " + (json.error || res.status));
+        setShowPopup(true);
+        return;
       }
 
-      // If data is not empty, that means the client is already assigned to this advocate
-      if (data.length > 0) {
+      if (json.alreadyAssigned) {
         setMessage("This client is already assigned to the selected advocate.");
         setShowPopup(true);
         setIsAssigned(true);
         return;
       }
 
-      // Proceed with assigning if not already assigned
-      const { insertData, insertError } = await supabase
-        .from("Assigned Advocates")
-        .insert([
-          {
-            client_id: selectedClient.client_id,
-            advocate_id: selectedAdvocate,
-          },
-        ]);
+      setMessage("Client successfully assigned to the selected Advocate.");
+      setShowPopup(true);
 
-      if (insertError) {
-        setMessage("Failed to assign advocate: " + insertError.message);
-        setShowPopup(true);
-      } else {
-        setMessage("Client successfully assigned to the selected Advocate.");
-        setShowPopup(true);
+      // Update client status to 'Active' after successful assignment
+      await updateClientStatus(selectedClient.client_id);
 
-        // Update client status to 'Active' after successful assignment
-        await updateClientStatus(selectedClient.client_id);
-
-        // Reset selection and fetch fresh data
-        setSelectedClient(null);
-        setSelectedAdvocate("");
-        fetchClients();
-        fetchAdvocates();
-      }
+      // Reset selection and fetch fresh data
+      setSelectedClient(null);
+      setSelectedAdvocate("");
+      fetchClients();
+      fetchAdvocates();
     } catch (err) {
       setMessage("Failed to assign advocate: " + err.message);
       setShowPopup(true);
@@ -153,166 +250,298 @@ export default function AssignAdvocate() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg border ">
-      <h2 className="text-2xl font-bold mb-4 text-gray-800">
+    <div
+      ref={containerRef}
+      className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden min-h-[580px]"
+    >
+      {/* Header */}
+      <div
+        className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider"
+        style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+      >
         Assign Client to Advocate
-      </h2>
+      </div>
 
-      <form onSubmit={handleAssignAdvocate} className="space-y-6">
-        {/* Client Search */}
-        <div className="flex flex-col border-black pb-4">
-          <label className="mb-2 text-lg font-semibold text-gray-700">
-            Search for Client
-          </label>
-          <input
-            type="text"
-            placeholder="Search by Name"
-            value={searchClient}
-            onChange={handleSearchClientChange}
-            className="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+      <div className="p-6">
+        <form onSubmit={handleAssignAdvocate} className="space-y-5">
+          {/* Client Search */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+              Search for Client
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg
+                  className="w-4 h-4 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+                  />
+                </svg>
+              </div>
+              <input
+                type="text"
+                placeholder="Search by name..."
+                value={searchClient}
+                onChange={handleSearchClientChange}
+                className="w-full pl-9 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none transition"
+              />
+            </div>
+          </div>
 
-        {/* Display search results for clients */}
-        {clients.length > 0 && (
-          <div className="mt-4 border-2  rounded-lg p-4 max-h-96 bg-gray-200 overflow-y-auto">
-            <ul>
-              {clients.map((client) => (
-                <li
+          {/* Client results */}
+          {filteredClients.length > 0 && (
+            <div className="border border-gray-200 rounded-lg max-h-72 overflow-y-auto divide-y divide-gray-100">
+              {filteredClients.map((client) => (
+                <div
                   key={client.client_id}
-                  onClick={() => setSelectedClient(client)}
-                  className={`p-2 cursor-pointer hover:bg-gray-100 ${
-                    selectedClient?.client_id === client.client_id
-                      ? "bg-gray-100"
-                      : ""
-                  }`}
+                  onClick={() =>
+                    setSelectedClient(
+                      selectedClient?.client_id === client.client_id
+                        ? null
+                        : client,
+                    )
+                  }
+                  className="px-3 py-2.5 cursor-pointer transition-colors text-sm"
+                  style={{
+                    backgroundColor:
+                      selectedClient?.client_id === client.client_id
+                        ? "rgba(240, 238, 246, 0.8)"
+                        : "",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (selectedClient?.client_id !== client.client_id)
+                      e.currentTarget.style.backgroundColor = "rgba(248, 247, 252, 0.8)";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedClient?.client_id !== client.client_id)
+                      e.currentTarget.style.backgroundColor = "";
+                  }}
                 >
-                  <span className="font-semibold">
+                  <p className="font-medium text-gray-800">
                     {client.firstName} {client.middleName} {client.lastName}
-                  </span>
-                  <br />
-                  <span className="text-sm text-gray-600">
-                    {client.phoneNumber} {" "}
-                    {client.firstNationMembership} |{" "}
-                    {new Date(client.dateOfBirth).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </span>
-
-                  <span className="text-sm text-gray-600 block">
-                    Client Status: {client.clientStatus}
-                  </span>
-                </li>
+                  </p>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Status: {client.clientStatus}
+                  </p>
+                </div>
               ))}
-            </ul>
-          </div>
-        )}
+            </div>
+          )}
+          {searchClient.trim() && filteredClients.length === 0 && (
+            <div className="flex flex-col items-center py-6 text-gray-400">
+              <svg
+                className="w-10 h-10 mb-3 text-gray-300"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+                />
+              </svg>
+              <p className="text-sm font-medium">No clients found.</p>
+              <p className="text-xs mt-1">Try adjusting your search</p>
+            </div>
+          )}
 
-        {/* If a client is selected, show their info */}
-        {selectedClient && (
-          <div className="mt-4 p-4 border border-black rounded-lg bg-gray-200">
-            <p className="font-semibold text-blue-700">
-              Selected Client: {selectedClient.firstName}{" "}
-              {selectedClient.lastName}
-            </p>
-            <p className="text-sm text-gray-600">
-              Client ID: {selectedClient.client_id}
-            </p>
-          </div>
-        )}
-
-        {/* Advocate Search */}
-        <div className="flex flex-col border-black pt-4 pb-4 p-4">
-          <label className="mb-2 text-lg font-semibold text-gray-700">
-            Search for Advocate
-          </label>
-          <input
-            type="text"
-            placeholder="Search by Advocate Name"
-            value={searchAdvocate}
-            onChange={handleSearchAdvocateChange}
-            className="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        {/* Display search results for advocates */}
-        {advocates.length > 0 && (
-          <div className="mt-4 border-2 rounded-lg p-4 max-h-96 overflow-y-auto bg-gray-200">
-            <ul>
-              {advocates.map((advocate) => (
-                <li
-                  key={advocate.advocate_id}
-                  onClick={() => setSelectedAdvocate(advocate.advocate_id)}
-                  className={`p-3 cursor-pointer hover:bg-gray-100 p-2 ${
-                    selectedAdvocate === advocate.advocate_id
-                      ? "bg-gray-100"
-                      : ""
-                  }`}
-                >
-                  <span className="font-semibold">
-                    {advocate.firstName} {advocate.lastName}
-                  </span>
-                  <br />
-                  <span className="text-sm text-gray-600">
-                    Email: {advocate.email}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* If an advocate is selected, show their info */}
-        {selectedAdvocate && (
-          <div className="mt-4 p-4 border border-black rounded-lg bg-blue-50 bg-gray-200">
-            <p className="font-semibold text-blue-700">
-              Selected Advocate:{" "}
-              {
-                advocates.find(
-                  (advocate) => advocate.advocate_id === selectedAdvocate
-                )?.firstName
-              }{" "}
-              {
-                advocates.find(
-                  (advocate) => advocate.advocate_id === selectedAdvocate
-                )?.lastName
-              }
-            </p>
-          </div>
-        )}
-
-        {/* Submit Button */}
-        <button
-          type="submit"
-          className="w-full py-3 bg-blue-600 text-black rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 p-2"
-          disabled={isAssigned}
-        >
-          Assign Advocate
-        </button>
-
-        {/* Clear Button */}
-        <button
-          type="button"
-          onClick={handleClearForm}
-          className="w-full mt-4 py-3 bg-gray-400 text-black rounded-md hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 p-2"
-        >
-          Clear Form
-        </button>
-      </form>
-
-      {/* Modal Popup */}
-      {showPopup && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-            <p>{message}</p>
-            <button
-              className="mt-4 bg-blue-500 text-white p-2 rounded-md"
-              onClick={() => setShowPopup(false)}
+          {/* Selected client */}
+          {selectedClient && (
+            <div
+              className="p-3 rounded-lg border text-sm"
+              style={{ backgroundColor: "rgba(240, 238, 246, 0.8)", borderColor: "rgba(178, 179, 215, 0.8)" }}
             >
-              Close
+              <p className="font-semibold" style={{ color: "rgba(97, 0, 215, 0.8)" }}>
+                Selected: {selectedClient.firstName} {selectedClient.lastName}
+              </p>
+            </div>
+          )}
+
+          {/* Advocate Search */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+              Search for Advocate
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg
+                  className="w-4 h-4 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+                  />
+                </svg>
+              </div>
+              <input
+                type="text"
+                placeholder="Search by advocate name..."
+                value={searchAdvocate}
+                onChange={handleSearchAdvocateChange}
+                className="w-full pl-9 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none transition"
+              />
+            </div>
+          </div>
+
+          {/* Advocate results */}
+          {advocates.length > 0 && (
+            <div className="border border-gray-200 rounded-lg max-h-72 overflow-y-auto divide-y divide-gray-100">
+              {advocates.map((advocate) => (
+                <div
+                  key={advocate.advocate_id}
+                  onClick={() =>
+                    setSelectedAdvocate(
+                      selectedAdvocate === advocate.advocate_id
+                        ? ""
+                        : advocate.advocate_id,
+                    )
+                  }
+                  className="px-3 py-2.5 cursor-pointer transition-colors text-sm"
+                  style={{
+                    backgroundColor:
+                      selectedAdvocate === advocate.advocate_id
+                        ? "rgba(240, 238, 246, 0.8)"
+                        : "",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (selectedAdvocate !== advocate.advocate_id)
+                      e.currentTarget.style.backgroundColor = "rgba(248, 247, 252, 0.8)";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedAdvocate !== advocate.advocate_id)
+                      e.currentTarget.style.backgroundColor = "";
+                  }}
+                >
+                  <p className="font-medium text-gray-800">
+                    {advocate.firstName} {advocate.lastName}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    {advocate.email}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+          {searchAdvocate.trim() && advocates.length === 0 && (
+            <div className="flex flex-col items-center py-6 text-gray-400">
+              <svg
+                className="w-10 h-10 mb-3 text-gray-300"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+                />
+              </svg>
+              <p className="text-sm font-medium">No advocates found.</p>
+              <p className="text-xs mt-1">Try adjusting your search</p>
+            </div>
+          )}
+
+          {/* Selected advocate */}
+          {selectedAdvocate && (
+            <div
+              className="p-3 rounded-lg border text-sm"
+              style={{ backgroundColor: "rgba(240, 238, 246, 0.8)", borderColor: "rgba(178, 179, 215, 0.8)" }}
+            >
+              <p className="font-semibold" style={{ color: "rgba(97, 0, 215, 0.8)" }}>
+                Selected:{" "}
+                {
+                  advocates.find((a) => a.advocate_id === selectedAdvocate)
+                    ?.firstName
+                }{" "}
+                {
+                  advocates.find((a) => a.advocate_id === selectedAdvocate)
+                    ?.lastName
+                }
+              </p>
+            </div>
+          )}
+
+          {/* Buttons */}
+          <div className="space-y-2 pt-1">
+            <button
+              type="submit"
+              disabled={isAssigned}
+              className="w-full py-2.5 text-sm font-medium rounded-lg transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                backgroundColor: "rgba(97, 0, 215, 0.08)",
+                borderColor: "rgba(97, 0, 215, 0.24)",
+                color: "rgba(97, 0, 215, 0.8)",
+                transition: "all 0.3s ease",
+              }}
+              onMouseEnter={(e) => {
+                if (!isAssigned) {
+                  e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)";
+                  e.currentTarget.style.color = "#ffffff";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isAssigned) {
+                  e.currentTarget.style.backgroundColor =
+                    "rgba(97, 0, 215, 0.08)";
+                  e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)";
+                }
+              }}
+            >
+              Assign Advocate
             </button>
+            <button
+              type="button"
+              onClick={handleClearForm}
+              className="w-full py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-lg transition-colors"
+            >
+              Clear Search
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Modal */}
+      {showPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full overflow-hidden">
+            <div className="px-6 py-4" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
+              <h3 className="text-base font-semibold text-white">
+                Assignment Status
+              </h3>
+            </div>
+            <div className="px-6 py-4">
+              <p className="text-sm text-gray-700">{message}</p>
+            </div>
+            <div className="bg-gray-50 px-6 py-4 flex justify-end border-t border-gray-200">
+              <button
+                className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors"
+                style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = "rgba(58, 38, 73, 0.8)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)")
+                }
+                onClick={() => setShowPopup(false)}
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { createAdvocate } from "../src/app/lib/create-advocate-server";
 
-const LinkAdvocate = () => {
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+
+const LinkAdvocate = ({ onAdvocateCreated }) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -20,6 +22,11 @@ const LinkAdvocate = () => {
       return;
     }
 
+    if (!EMAIL_REGEX.test(email.trim())) {
+      setError("Please enter a valid email address (e.g. name@example.com).");
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setSuccess(null);
@@ -28,145 +35,171 @@ const LinkAdvocate = () => {
       const result = await createAdvocate({
         firstName: firstName.trim(),
         lastName: lastName.trim(),
-        email: email.trim()
+        email: email.trim(),
       });
 
       if (result.success) {
-        let successMsg = `Advocate ${firstName} ${lastName} has been successfully created! An invitation has been sent to ${email}.`;
-        
-        // In development, show the invitation URL since emails might not be sent
-        if (result.invitationUrl && process.env.NODE_ENV === 'development') {
-          successMsg += ` Since you're in development mode, use this link to accept the invitation: ${result.invitationUrl}`;
+        setSuccess(result.message);
+
+        // Send welcome email and surface API errors to help troubleshooting
+        try {
+          const emailResponse = await fetch("/api/send-welcome-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              firstName: firstName.trim(),
+              lastName: lastName.trim(),
+              email: email.trim(),
+            }),
+          });
+
+          if (!emailResponse.ok) {
+            const emailResult = await emailResponse.json().catch(() => ({}));
+            const message =
+              emailResult?.error || "Welcome email could not be sent.";
+            setError(`Advocate created, but email was not sent: ${message}`);
+          } else {
+            // Email sent successfully - trigger refresh of pending advocates
+            if (onAdvocateCreated) onAdvocateCreated();
+          }
+        } catch (emailErr) {
+          console.error("Welcome email failed:", emailErr);
+          setError(
+            "Advocate created, but email was not sent due to a network error.",
+          );
         }
-        
-        setSuccess(successMsg);
-        // Clear form
-        clearForm();
+
+        setFirstName("");
+        setLastName("");
+        setEmail("");
       }
     } catch (error) {
-      setError("Error creating advocate: " + error.message);
       console.error("Error creating advocate:", error);
+      setError(error?.message || "Error creating advocate. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const clearForm = () => {
-    setFirstName("");
-    setLastName("");
-    setEmail("");
-    setError(null);
-    // Don't clear success message - let user see it
-  };
-
   return (
-    <div>
-      {/* Title moved to header - removed duplicate */}
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      {/* Header */}
+      <div
+        className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider"
+        style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+      >
+        Create New User
+      </div>
 
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-
-      {success && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-          {success}
-        </div>
-      )}
-
-      <form onSubmit={handleCreateAdvocate} className="space-y-6">
-        <div>
-          <label
-            htmlFor="firstName"
-            className="block text-lg font-medium text-gray-700 mb-2"
-          >
-            First Name: <span className="text-red-500">*</span>
-          </label>
-          <input
-            id="firstName"
-            type="text"
-            value={firstName}
-            onChange={(e) => {
-              setFirstName(e.target.value);
-              if (success) setSuccess(null); // Clear success message when user starts typing
-            }}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="lastName"
-            className="block text-lg font-medium text-gray-700 mb-2"
-          >
-            Last Name: <span className="text-red-500">*</span>
-          </label>
-          <input
-            id="lastName"
-            type="text"
-            value={lastName}
-            onChange={(e) => {
-              setLastName(e.target.value);
-              if (success) setSuccess(null); // Clear success message when user starts typing
-            }}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-lg font-medium text-gray-700 mb-2"
-          >
-            Email: <span className="text-red-500">*</span>
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              if (success) setSuccess(null); // Clear success message when user starts typing
-            }}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        {/* Clerk Account Options */}
-        <div className="space-y-3 p-4 bg-gray-50 border border-gray-200 rounded-md">
-        
-          
-          <div className="flex items-center">
-            <label htmlFor="createClerkAccount" className="ml-2 text-sm text-gray-700">
-              Create user account (allows advocate to login)
-            </label>
+      <div className="p-6">
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg mb-4">
+            {error}
           </div>
-          
-          <div className="flex items-center">
-            <label htmlFor="sendInvitation" className="ml-2 text-sm text-gray-700">
-              Send invitation email to set up their password
-            </label>
-          </div>
-        </div>
+        )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg border border-blue-600 font-semibold hover:bg-blue-700 hover:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? "Creating..." : "Create Advocate"}
-        </button>
-      </form>
-      
-              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-        <p className="text-sm text-blue-700">
-          <strong>Note:</strong> This creates a new advocate record that can be assigned to clients. 
-          An invitation will be sent to their email address to set up their account.
-        </p>
+        {success && (
+          <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-lg mb-4">
+            {success}
+          </div>
+        )}
+
+        <form onSubmit={handleCreateAdvocate} className="space-y-4">
+          <div>
+            <label
+              htmlFor="firstName"
+              className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5"
+            >
+              First Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="firstName"
+              type="text"
+              value={firstName}
+              placeholder="User's first name"
+              onChange={(e) => {
+                setFirstName(e.target.value);
+                if (success) setSuccess(null);
+              }}
+              required
+              className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none transition"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="lastName"
+              className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5"
+            >
+              Last Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="lastName"
+              type="text"
+              value={lastName}
+              placeholder="User's last name"
+              onChange={(e) => {
+                setLastName(e.target.value);
+                if (success) setSuccess(null);
+              }}
+              required
+              className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none transition"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5"
+            >
+              Email <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              placeholder="e.g., name@example.com"
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (success) setSuccess(null);
+              }}
+              required
+              className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none transition"
+            />
+          </div>
+
+          <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg space-y-1.5 text-sm text-gray-600">
+            <p>• Creates a user account so the user can log in</p>
+            <p>• Sends an invitation email to set up their password</p>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-2.5 text-sm font-medium rounded-lg transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: "rgba(97, 0, 215, 0.02)",
+              borderColor: "rgba(97, 0, 215, 0.3)",
+              color: "rgba(97, 0, 215, 0.8)",
+              transition: "all 0.3s ease",
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) {
+                e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)";
+                e.currentTarget.style.color = "#ffffff";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!loading) {
+                e.currentTarget.style.backgroundColor =
+                  "rgba(97, 0, 215, 0.02)";
+                e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)";
+              }
+            }}
+          >
+            {loading ? "Creating..." : "Create User"}
+          </button>
+        </form>
       </div>
     </div>
   );
