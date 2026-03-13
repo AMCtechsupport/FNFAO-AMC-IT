@@ -82,8 +82,8 @@ export default function PreIntakeForm() {
                     className="px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-1"
                     style={
                       activeTab === i
-                        ? { backgroundColor: "#47315E", color: "#fff", borderBottom: "2px solid #47315E" }
-                        : { color: "#6b7280", borderBottom: "2px solid transparent" }
+                        ? { backgroundColor: "rgba(97, 0, 215, 0.02)", color: "#6100D7", border: "1.5px solid rgba(97, 0, 215, 0.3)" }
+                        : { color: "#6b7280", border: "1px solid transparent" }
                     }
                   >
                     {tab}
