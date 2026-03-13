@@ -21,10 +21,10 @@ const TABS = ["General", "Children", "Health & Wellness", "Child & Family Servic
 const TAB_ERROR_FIELDS = [
   // Tab 0: General
   ["firstName", "middleName", "lastName", "dateOfBirth", "firstNationMembership", "otherFirstNation",
-   "phoneNumber", "address", "city", "postalCode", "email",
-   "emergencyContactFirstName", "emergencyContactLastName", "emergencyContactNumber",
-   "ninePersonalHealthNumber", "sixPersonalHealthNumber",
-   "criminalChargesSpecified", "activeWarrantSpecified", "activeInvestigationExplained", "activeOrdersExplained"],
+    "phoneNumber", "address", "city", "postalCode", "email",
+    "emergencyContactFirstName", "emergencyContactLastName", "emergencyContactNumber",
+    "ninePersonalHealthNumber", "sixPersonalHealthNumber",
+    "criminalChargesSpecified", "activeWarrantSpecified", "activeInvestigationExplained", "activeOrdersExplained"],
   // Tab 1: Children
   ["relationshipToChildren", "children"],
   // Tab 2-5: no validated required fields
@@ -144,10 +144,10 @@ export default function PreIntakeForm() {
 
           <button
             type="submit"
-            className="w-full py-3 text-sm font-semibold rounded-lg transition-colors text-white mb-2"
-            style={{ backgroundColor: "#8060A0" }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#6B4E8A")}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#8060A0")}
+            className="w-full text-sm font-medium py-2.5 px-4 rounded-lg transition-colors border-2 mb-2"
+            style={{ backgroundColor: "rgba(97, 0, 215, 0.02)", borderColor: "rgba(97, 0, 215, 0.3)", color: "#6100D7", transition: "all 0.3s ease" }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#6100D7"; e.currentTarget.style.color = "#ffffff"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)"; e.currentTarget.style.color = "#6100D7"; }}
           >
             Submit Pre-Intake
           </button>

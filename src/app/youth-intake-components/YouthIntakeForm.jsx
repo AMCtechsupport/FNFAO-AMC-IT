@@ -39,7 +39,7 @@ const validationSchema = Yup.object({
   ),
 
   firstNationMembership: Yup.string() // added firt nation membership validation
-    .required("First Nation Membership is required"), 
+    .required("First Nation Membership is required"),
 
   otherFirstNation: Yup.string()
     .nullable(), // added other first nation validation only if needed
@@ -225,10 +225,10 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
                 <>
                   <button
                     type="submit"
-                    className="w-full py-3 text-sm font-semibold rounded-lg transition-colors text-white mb-2"
-                    style={{ backgroundColor: "#8060A0" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#6B4E8A")}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#8060A0")}
+                    className="w-full text-sm font-medium py-2.5 px-4 rounded-lg transition-colors border-2 mb-2"
+                    style={{ backgroundColor: "rgba(97, 0, 215, 0.02)", borderColor: "rgba(97, 0, 215, 0.3)", color: "#6100D7", transition: "all 0.3s ease" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#6100D7"; e.currentTarget.style.color = "#ffffff"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)"; e.currentTarget.style.color = "#6100D7"; }}
                   >
                     Submit Youth Intake
                   </button>

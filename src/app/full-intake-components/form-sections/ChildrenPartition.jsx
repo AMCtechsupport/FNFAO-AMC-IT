@@ -262,9 +262,12 @@ const ChildrenPartition = ({
                                         <div className="flex justify-end mt-4">
                                             <button
                                                 type="button"
-                                                className="px-3 py-1.5 text-xs font-semibold rounded-lg text-white bg-red-500 hover:bg-red-600 transition-colors"
+                                                className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors border"
+                                                style={{ backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.3)", color: "#ef4444", transition: "all 0.3s ease" }}
                                                 onClick={() => remove(originalIndex)}
                                                 disabled={!isEditing}
+                                                onMouseEnter={(e) => { if (isEditing) { e.currentTarget.style.backgroundColor = "#ef4444"; e.currentTarget.style.color = "#ffffff"; } }}
+                                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239, 68, 68, 0.1)"; e.currentTarget.style.color = "#ef4444"; }}
                                             >
                                                 Delete
                                             </button>
@@ -274,10 +277,10 @@ const ChildrenPartition = ({
                                 ))}
                             <button
                                 type="button"
-                                className="px-4 py-2 text-xs font-semibold rounded-lg text-white transition-colors"
-                                style={{ backgroundColor: "#6100D7" }}
-                                onMouseEnter={e => e.currentTarget.style.backgroundColor = "#3a2649"}
-                                onMouseLeave={e => e.currentTarget.style.backgroundColor = "#6100D7"}
+                                className="px-4 py-2 text-xs font-medium rounded-lg transition-colors border"
+                                style={{ backgroundColor: "rgba(97, 0, 215, 0.02)", borderColor: "rgba(97, 0, 215, 0.3)", color: "#6100D7", transition: "all 0.3s ease" }}
+                                onMouseEnter={(e) => { if (isEditing) { e.currentTarget.style.backgroundColor = "#6100D7"; e.currentTarget.style.color = "#ffffff"; } }}
+                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)"; e.currentTarget.style.color = "#6100D7"; }}
                                 onClick={() =>
                                     push({
                                         firstName: "",

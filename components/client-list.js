@@ -6,6 +6,7 @@ import { deleteClient } from "../src/app/lib/delete-client-server";
 import Pagination from "./report/pages-pagination";
 import DeleteConfirmModal from "./DeleteConfirmModal";
 import ToastNotification from "./ToastNotification";
+import SortDropdown from "./sort-dropdown";
 
 const formTypeBadge = (type) => {
   const isYouth = type === "Youth";
@@ -294,59 +295,14 @@ export default function ClientsList() {
       {/* Filter Search */}
        <div className="flex justify-end pb-4">
         <div className="relative inline-block">
-
-          {/* Dropdown */}
-          <select
-            className="
-              appearance-none
-              bg-[#47315E]  /* Dark purple background */
-              text-white    /* White text */
-              text-sm
-              font-medium
-              rounded-lg
-              pl-10    /* padding left for icon */
-              pr-6     /* padding right for arrow */
-              py-2
-              cursor-pointer
-              shadow-md
-              transition
-              hover:bg-[#5A3D8A]   /* lighter hover background */
-            "
+          <SortDropdown
             value={sortOption}
-            onChange={(e) => {
-              setSortOption(e.target.value);
+            onChange={(value) => {
+              setSortOption(value);
               setCurrentYouthPage(1);
               setCurrentAdultPage(1);
             }}
-          >
-            <option value="newest">Newest</option>
-            <option value="oldest">Oldest</option>
-            <option value="az">A-Z</option>
-            <option value="za">Z-A</option>
-          </select>
-
-           {/* Hamburger icon inside the select */}
-          <svg
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white pointer-events-none"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-
-          {/* Dropdown arrow */}
-          <svg
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-white pointer-events-none"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-          </svg>
-
+          />
         </div>
       </div>
 
