@@ -131,7 +131,7 @@ const DeleteAdvocate = () => {
       {/* Header */}
       <div
         className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider"
-        style={{ backgroundColor: "#C00707" }}
+        style={{ backgroundColor: "rgba(192, 7, 7, 0.8)" }}
       >
         Delete User
       </div>
