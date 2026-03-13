@@ -84,7 +84,7 @@ const SortDropdown = ({ value, onChange, options = [] }) => {
               onClick={() => handleSelect(option.value)}
               className={`w-full text-left px-4 py-2.5 text-sm font-medium transition-colors ${
                 value === option.value
-                  ? "bg-purple-50/80 text-purple-700/80"
+                  ? "bg-purple-50/80/80 text-purple-700/80/80"
                   : "text-gray-700 hover:bg-gray-50"
               }`}
               style={

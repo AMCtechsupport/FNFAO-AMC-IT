@@ -83,13 +83,13 @@ export default function AdvocatesTable({
         <table className="w-full border border-gray-200 rounded-xl">
           <thead style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
             <tr>
-              <th className="text-center px-6 py-3 text-white font-semibold border-b border-purple-900/80">
+              <th className="text-center px-6 py-3 text-white font-semibold border-b border-purple-900/80/80">
                 Advocate Name
               </th>
-              <th className="text-center px-6 py-3 text-white font-semibold border-b border-purple-900/80">
+              <th className="text-center px-6 py-3 text-white font-semibold border-b border-purple-900/80/80">
                 Number of Clients in Service
               </th>
-              <th className="text-center px-6 py-3 text-white font-semibold border-b border-purple-900/80">
+              <th className="text-center px-6 py-3 text-white font-semibold border-b border-purple-900/80/80">
                 Number of New Clients
               </th>
             </tr>

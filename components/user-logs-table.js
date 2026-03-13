@@ -25,7 +25,7 @@ const formTypeBadge = (formType) => {
   const label = isYouth ? "Youth" : "Adult";
   const style = isYouth
     ? "bg-blue-100 text-blue-700 border border-blue-200"
-    : "bg-purple-100/80 text-purple-700/80 border border-purple-200/80";
+    : "bg-purple-100/80/80 text-purple-700/80/80 border border-purple-200/80/80";
   return (
     <span
       className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full ${style}`}

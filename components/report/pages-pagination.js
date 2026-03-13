@@ -20,7 +20,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
         className={`px-2 py-1 rounded-md ${
           currentPage === 1
             ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-            : "text-white hover:bg-purple-700/80"
+            : "text-white hover:bg-purple-700/80/80"
         }`}
         style={{
           backgroundColor:
@@ -81,7 +81,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
         className={`px-2 py-1 rounded-md ${
           currentPage === totalPages
             ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-            : "text-white hover:bg-purple-700/80"
+            : "text-white hover:bg-purple-700/80/80"
         }`}
         style={{
           backgroundColor:
