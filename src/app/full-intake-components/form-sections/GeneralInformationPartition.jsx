@@ -402,7 +402,7 @@ const GeneralInformationPartition = ({
                                 ))}
                                 <button
                                     type="button"
-                                    className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-colors border"
+                                    className="inline-flex items-center gap-1.5 text-xs font-medium px-4 py-2 rounded-full transition-colors border"
                                     style={{ backgroundColor: "rgba(97, 0, 215, 0.02)", borderColor: "rgba(97, 0, 215, 0.3)", color: "#6100D7", transition: "all 0.3s ease" }}
                                     onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#6100D7"; e.currentTarget.style.color = "#ffffff"; }}
                                     onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)"; e.currentTarget.style.color = "#6100D7"; }}
@@ -659,7 +659,7 @@ const GeneralInformationPartition = ({
                                     ))}
                                     <button
                                         type="button"
-                                        className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-colors border"
+                                        className="inline-flex items-center gap-1.5 text-xs font-medium px-4 py-2 rounded-full transition-colors border mt-4"
                                         style={{ backgroundColor: "rgba(97, 0, 215, 0.02)", borderColor: "rgba(97, 0, 215, 0.3)", color: "#6100D7", transition: "all 0.3s ease" }}
                                         onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#6100D7"; e.currentTarget.style.color = "#ffffff"; }}
                                         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)"; e.currentTarget.style.color = "#6100D7"; }}
