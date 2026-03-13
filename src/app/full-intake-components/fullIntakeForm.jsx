@@ -162,20 +162,12 @@ export default function FullIntakeForm({
     };
 
     runPatch();
-    const timers = [
-      setTimeout(runPatch, 50),
-      setTimeout(runPatch, 150),
-      setTimeout(runPatch, 300),
-      setTimeout(runPatch, 600),
-      setTimeout(runPatch, 1000),
-    ];
 
-    const onClick = () => runPatch();
-    document.addEventListener("click", onClick);
+    const observer = new MutationObserver(() => runPatch());
+    observer.observe(document.body, { childList: true, subtree: true });
 
     return () => {
-      timers.forEach(clearTimeout);
-      document.removeEventListener("click", onClick);
+      observer.disconnect();
       document.getElementById("view-only-style")?.remove();
     };
   }, [isViewOnly]);

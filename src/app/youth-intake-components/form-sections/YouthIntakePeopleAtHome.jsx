@@ -6,7 +6,7 @@ import EmailInput from "@/components/ValidEmailInput";
 
 const labelCls = "block text-xs font-medium text-gray-600 mb-1";
 
-const YouthIntakePeopleAtHome = ({ values, errors }) => {
+const YouthIntakePeopleAtHome = ({ values, errors, isEditing }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
       <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
@@ -20,9 +20,11 @@ const YouthIntakePeopleAtHome = ({ values, errors }) => {
                 <div key={index} className="bg-gray-50 rounded-lg border border-gray-200 p-4">
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Person {index + 1}</p>
+                    {isEditing && (
                     <button type="button" onClick={() => remove(index)} className="text-xs px-3 py-1 rounded-full font-medium transition-colors border" style={{ backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.3)", color: "#ef4444", transition: "all 0.3s ease" }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#ef4444"; e.currentTarget.style.color = "#ffffff"; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239, 68, 68, 0.1)"; e.currentTarget.style.color = "#ef4444"; }}>
                       Delete
                     </button>
+                    )}
                   </div>
                   <div className="grid grid-cols-12 gap-4 mb-3">
                     <div className="col-span-3">
@@ -53,6 +55,7 @@ const YouthIntakePeopleAtHome = ({ values, errors }) => {
                   </div>
                 </div>
               ))}
+              {isEditing && (
               <button
                 type="button"
                 onClick={() => push({ firstName: "", middleName: "", lastName: "", relationship: "", phoneNumber: "", email: "" })}
@@ -63,6 +66,7 @@ const YouthIntakePeopleAtHome = ({ values, errors }) => {
               >
                 + Add Home Member
               </button>
+              )}
             </div>
           )}
         </FieldArray>

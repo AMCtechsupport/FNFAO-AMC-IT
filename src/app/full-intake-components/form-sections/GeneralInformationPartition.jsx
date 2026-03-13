@@ -388,25 +388,26 @@ const GeneralInformationPartition = ({
 
                                         </div>
 
+                                        {isEditing && (
                                         <div className="flex justify-end mt-2">
                                             <button
                                                 type="button"
                                                 className="px-3 py-1.5 text-xs font-semibold rounded-lg text-white bg-red-500 hover:bg-red-600 transition-colors"
-                                                disabled={!isEditing}
                                                 onClick={() => remove(index)}
                                             >
                                                 Delete
                                             </button>
                                         </div>
+                                        )}
                                     </div>
                                 ))}
+                                {isEditing && (
                                 <button
                                     type="button"
                                     className="inline-flex items-center gap-1.5 text-xs font-medium px-4 py-2 rounded-full transition-colors border"
                                     style={{ backgroundColor: "rgba(97, 0, 215, 0.08)", borderColor: "rgba(97, 0, 215, 0.24)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
                                     onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"; e.currentTarget.style.color = "#ffffff"; }}
                                     onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.08)"; e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)"; }}
-                                    disabled={!isEditing}
                                     onClick={() =>
                                         push({
                                             firstName: "",
@@ -418,6 +419,7 @@ const GeneralInformationPartition = ({
                                         })}>
                                     + Add Member
                                 </button>
+                                )}
                             </div>
                         )}
                     </FieldArray>
@@ -645,25 +647,26 @@ const GeneralInformationPartition = ({
                                                 </div>
                                             </div>
 
+                                            {isEditing && (
                                             <div className="flex justify-end mt-2">
                                                 <button
                                                     type="button"
                                                     className="px-3 py-1.5 text-xs font-semibold rounded-lg text-white bg-red-500 hover:bg-red-600 transition-colors"
-                                                    disabled={!isEditing}
                                                     onClick={() => remove(index)}
                                                 >
                                                     Delete
                                                 </button>
                                             </div>
+                                            )}
                                         </div>
                                     ))}
+                                    {isEditing && (
                                     <button
                                         type="button"
                                         className="inline-flex items-center gap-1.5 text-xs font-medium px-4 py-2 rounded-full transition-colors border mt-4"
                                         style={{ backgroundColor: "rgba(97, 0, 215, 0.08)", borderColor: "rgba(97, 0, 215, 0.24)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
                                         onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"; e.currentTarget.style.color = "#ffffff"; }}
                                         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.08)"; e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)"; }}
-                                        disabled={!isEditing}
                                         onClick={() =>
                                             push({
                                                 firstName: "",
@@ -675,6 +678,7 @@ const GeneralInformationPartition = ({
                                     >
                                         + Add EIA Worker
                                     </button>
+                                    )}
                                 </div>
                             )}
                         </FieldArray>

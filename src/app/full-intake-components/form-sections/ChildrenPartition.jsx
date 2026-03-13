@@ -259,27 +259,29 @@ const ChildrenPartition = ({
                                         {/* END Another Biological Parent*/}
 
                                         {/* Delete button */}
+                                        {isEditing && (
                                         <div className="flex justify-end mt-4">
                                             <button
                                                 type="button"
                                                 className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors border"
                                                 style={{ backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.3)", color: "#ef4444", transition: "all 0.3s ease" }}
                                                 onClick={() => remove(originalIndex)}
-                                                disabled={!isEditing}
-                                                onMouseEnter={(e) => { if (isEditing) { e.currentTarget.style.backgroundColor = "#ef4444"; e.currentTarget.style.color = "#ffffff"; } }}
+                                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#ef4444"; e.currentTarget.style.color = "#ffffff"; }}
                                                 onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239, 68, 68, 0.1)"; e.currentTarget.style.color = "#ef4444"; }}
                                             >
                                                 Delete
                                             </button>
                                         </div>
+                                        )}
 
                                     </div>
                                 ))}
+                            {isEditing && (
                             <button
                                 type="button"
                                 className="px-4 py-2 text-xs font-medium rounded-lg transition-colors border"
                                 style={{ backgroundColor: "rgba(97, 0, 215, 0.016)", borderColor: "rgba(97, 0, 215, 0.24)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
-                                onMouseEnter={(e) => { if (isEditing) { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"; e.currentTarget.style.color = "#ffffff"; } }}
+                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"; e.currentTarget.style.color = "#ffffff"; }}
                                 onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.016)"; e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)"; }}
                                 onClick={() =>
                                     push({
@@ -304,10 +306,10 @@ const ChildrenPartition = ({
                                         biologicalParentLastName: "",
                                         biologicalParentFirstNation: "",
                                     })}
-                                disabled={!isEditing}
                             >
                                 + Add Child
                             </button>
+                            )}
                         </div>
                     )}
                 </FieldArray>

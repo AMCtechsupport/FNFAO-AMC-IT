@@ -25,7 +25,7 @@ const ChildFamilyServicesPartition = ({
                         {/* CFS Agencies table */}
                         <h5 className="text-sm font-semibold text-gray-700 mb-3">CFS Agencies</h5>
                         {childrenData.length === 0 ? (
-                            <p>No children found for this client.</p>
+                            <p>No CFS agencies found for this client.</p>
                         ) : (
                             (() => {
                                 // Group children by agency

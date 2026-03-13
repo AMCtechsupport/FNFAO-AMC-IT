@@ -132,20 +132,12 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
     };
 
     runPatch();
-    const timers = [
-      setTimeout(runPatch, 50),
-      setTimeout(runPatch, 150),
-      setTimeout(runPatch, 300),
-      setTimeout(runPatch, 600),
-      setTimeout(runPatch, 1000),
-    ];
 
-    const onClick = () => runPatch();
-    document.addEventListener("click", onClick);
+    const observer = new MutationObserver(() => runPatch());
+    observer.observe(document.body, { childList: true, subtree: true });
 
     return () => {
-      timers.forEach(clearTimeout);
-      document.removeEventListener("click", onClick);
+      observer.disconnect();
     };
   }, [isViewOnly]);
 
@@ -188,8 +180,8 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
           <YouthIntakeAgencyInfo values={values} errors={errors} />
           <YouthIntakeBiologicalParentInfo errors={errors} />
           <YouthIntakeHousingSituation />
-          <YouthIntakePeopleAtHome values={values} errors={errors} />
-          <YouthIntakeEducation values={values} setFieldValue={setFieldValue} errors={errors} />
+          <YouthIntakePeopleAtHome values={values} errors={errors} isEditing={isEditing} />
+          <YouthIntakeEducation values={values} setFieldValue={setFieldValue} errors={errors} isEditing={isEditing} />
           <YouthIntakeFinancialInfo errors={errors} />
           <YouthIntakeOtherInformation values={values} />
 
