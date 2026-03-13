@@ -86,7 +86,7 @@ export default function AssignedClientsList({ advocateId }) {
           <h2 className="text-2xl font-bold text-gray-900">Assigned Clients</h2>
           <p className="text-sm text-gray-500 mt-1">Clients currently assigned to you</p>
         </div>
-        <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: "#F0EEF6", color: "#6100D7", border: "1px solid #B2B3D7" }}>
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: "rgba(240, 238, 246, 0.8)", color: "rgba(97, 0, 215, 0.8)", border: "1px solid rgba(178, 179, 215, 0.8)" }}>
           <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span>
           {allClients.length} {allClients.length === 1 ? "client" : "clients"}
         </span>
@@ -124,7 +124,7 @@ export default function AssignedClientsList({ advocateId }) {
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm text-left">
               <thead>
-                <tr className="text-white" style={{ backgroundColor: "#6100D7" }}>
+                <tr className="text-white" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
                   <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">Client Name</th>
                   <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">Form Type</th>
                   <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">Date Assigned</th>
@@ -179,9 +179,9 @@ export default function AssignedClientsList({ advocateId }) {
                           <Link
                             href={viewHref}
                             className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-colors no-underline border"
-                            style={{ backgroundColor: "rgba(97, 0, 215, 0.02)", borderColor: "rgba(97, 0, 215, 0.3)", color: "#6100D7", transition: "all 0.3s ease" }}
+                            style={{ backgroundColor: "rgba(97, 0, 215, 0.08)", borderColor: "rgba(97, 0, 215, 0.24)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
                             onMouseEnter={e => e.currentTarget.style.backgroundColor = "#ffffff"}
-                            onMouseLeave={e => e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)"}
+                            onMouseLeave={e => e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.08)"}
                           >
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />

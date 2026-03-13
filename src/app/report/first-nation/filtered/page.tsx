@@ -224,9 +224,9 @@ export default function ClientFilterPage() {
           type="button"
           onClick={generateAndDownloadPDF}
           className="w-full text-white font-medium py-3 px-4 rounded-md transition-colors mt-4"
-          style={{ backgroundColor: "#6100D7" }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6100D7")}
+          style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(58, 38, 73, 0.8)")}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)")}
         >
           Download PDF
         </button>
@@ -238,9 +238,9 @@ export default function ClientFilterPage() {
         type="button"
         onClick={handleFinalDownload}
         className="w-full text-white font-medium py-3 px-4 rounded-md transition-colors mt-4"
-        style={{ backgroundColor: "#6100D7" }}
-        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
-        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6100D7")}
+        style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(58, 38, 73, 0.8)")}
+        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)")}
       >
         Download {downloadFormat.toUpperCase()}
       </button>
@@ -260,22 +260,22 @@ export default function ClientFilterPage() {
         {/* Tags */}
         <div className="flex flex-wrap gap-2 mb-6">
           {community && (
-            <span className="inline-flex items-center text-xs px-2.5 py-1 rounded-full text-white" style={{ backgroundColor: "#6100D7" }}>
+            <span className="inline-flex items-center text-xs px-2.5 py-1 rounded-full text-white" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
               Community: {decodeHtml(community)}
             </span>
           )}
           {agency && (
-            <span className="inline-flex items-center text-xs px-2.5 py-1 rounded-full text-white" style={{ backgroundColor: "#6100D7" }}>
+            <span className="inline-flex items-center text-xs px-2.5 py-1 rounded-full text-white" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
               Agency: {agency}
             </span>
           )}
           {ageGroup && (
-            <span className="inline-flex items-center text-xs px-2.5 py-1 rounded-full text-white" style={{ backgroundColor: "#6100D7" }}>
+            <span className="inline-flex items-center text-xs px-2.5 py-1 rounded-full text-white" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
               Age Group: {ageGroup}
             </span>
           )}
           {quarter && (
-            <span className="inline-flex items-center text-xs px-2.5 py-1 rounded-full text-white" style={{ backgroundColor: "#6100D7" }}>
+            <span className="inline-flex items-center text-xs px-2.5 py-1 rounded-full text-white" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
               Filtered by: {quarter}
             </span>
           )}
@@ -287,7 +287,7 @@ export default function ClientFilterPage() {
         {/* Table */}
         {clients.length > 0 && (
           <table className="w-full border bg-white border-gray-200 rounded-xl">
-            <thead className="text-white text-left" style={{ backgroundColor: "#6100D7" }}>
+            <thead className="text-white text-left" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
               <tr>
                 <th className="px-6 py-3 font-medium text-center">Name</th>
                 <th className="px-6 py-3 font-medium text-center">Age</th>
@@ -335,17 +335,17 @@ export default function ClientFilterPage() {
             <h2>Download All - Filtered Clients</h2>
             <div className="flex flex-wrap gap-2 justify-center mb-6">
               {community && (
-                <span className="px-3 py-1 text-white text-xs rounded-full" style={{ backgroundColor: "#6100D7" }}>
+                <span className="px-3 py-1 text-white text-xs rounded-full" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
                   Community: {community}
                 </span>
               )}
               {agency && (
-                <span className="px-3 py-1 text-white text-xs rounded-full" style={{ backgroundColor: "#6100D7" }}>
+                <span className="px-3 py-1 text-white text-xs rounded-full" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
                   Agency: {agency}
                 </span>
               )}
               {ageGroup && (
-                <span className="px-3 py-1 text-white text-xs rounded-full" style={{ backgroundColor: "#6100D7" }}>
+                <span className="px-3 py-1 text-white text-xs rounded-full" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
                   Age Group: {ageGroup}
                 </span>
               )}
@@ -365,7 +365,7 @@ export default function ClientFilterPage() {
 
           {clients.length > 0 && (
             <table className="w-full border border-gray-200 rounded-xl mt-4">
-              <thead className="text-white" style={{ backgroundColor: "#6100D7" }}>
+              <thead className="text-white" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
                 <tr>
                   <th className="px-6 py-3 font-medium text-center">Name</th>
                   <th className="px-6 py-3 font-medium text-center">Age</th>

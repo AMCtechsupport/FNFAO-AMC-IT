@@ -82,7 +82,7 @@ export default function PreIntakeForm() {
                     className="px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-1"
                     style={
                       activeTab === i
-                        ? { backgroundColor: "rgba(97, 0, 215, 0.02)", color: "#6100D7", border: "1.5px solid rgba(97, 0, 215, 0.3)" }
+                        ? { backgroundColor: "rgba(97, 0, 215, 0.08)", color: "rgba(97, 0, 215, 0.8)", border: "1.5px solid rgba(97, 0, 215, 0.24)" }
                         : { color: "#6b7280", border: "1px solid transparent" }
                     }
                   >
@@ -145,9 +145,9 @@ export default function PreIntakeForm() {
           <button
             type="submit"
             className="w-full text-sm font-medium py-2.5 px-4 rounded-lg transition-colors border-2 mb-2"
-            style={{ backgroundColor: "rgba(97, 0, 215, 0.02)", borderColor: "rgba(97, 0, 215, 0.3)", color: "#6100D7", transition: "all 0.3s ease" }}
-            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#6100D7"; e.currentTarget.style.color = "#ffffff"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)"; e.currentTarget.style.color = "#6100D7"; }}
+            style={{ backgroundColor: "rgba(97, 0, 215, 0.08)", borderColor: "rgba(97, 0, 215, 0.24)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"; e.currentTarget.style.color = "#ffffff"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.08)"; e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)"; }}
           >
             Submit Pre-Intake
           </button>

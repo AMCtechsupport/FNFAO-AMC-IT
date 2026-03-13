@@ -214,9 +214,9 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
                   <button
                     type="submit"
                     className="px-5 py-2.5 text-sm font-semibold rounded-lg transition-colors text-white"
-                    style={{ backgroundColor: "#6100D7" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6100D7")}
+                    style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(74, 0, 153, 0.8)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)")}
                   >
                     Save
                   </button>
@@ -226,9 +226,9 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
                   <button
                     type="submit"
                     className="w-full text-sm font-medium py-2.5 px-4 rounded-lg transition-colors border-2 mb-2"
-                    style={{ backgroundColor: "rgba(97, 0, 215, 0.02)", borderColor: "rgba(97, 0, 215, 0.3)", color: "#6100D7", transition: "all 0.3s ease" }}
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#6100D7"; e.currentTarget.style.color = "#ffffff"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)"; e.currentTarget.style.color = "#6100D7"; }}
+                    style={{ backgroundColor: "rgba(97, 0, 215, 0.08)", borderColor: "rgba(97, 0, 215, 0.24)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"; e.currentTarget.style.color = "#ffffff"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.08)"; e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)"; }}
                   >
                     Submit Youth Intake
                   </button>

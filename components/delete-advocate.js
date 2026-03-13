@@ -307,7 +307,10 @@ const DeleteAdvocate = () => {
       {showConfirmModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden">
-            <div className="px-6 py-4" style={{ backgroundColor: "#6100D7" }}>
+            <div
+              className="px-6 py-4"
+              style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+            >
               <h3 className="text-base font-semibold text-white">
                 Confirm Deletion
               </h3>

@@ -18,7 +18,7 @@ export default function ReportCategory({ name, description, path }) {
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       <div
         className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider"
-        style={{ backgroundColor: "#6100D7" }}
+        style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
       >
         {name}
       </div>
@@ -33,7 +33,7 @@ export default function ReportCategory({ name, description, path }) {
             style={{
               backgroundColor: "rgba(97, 0, 215, 0.02)",
               borderColor: "rgba(97, 0, 215, 0.3)",
-              color: "#6100D7",
+              color: "rgba(97, 0, 215, 0.8)",
               transition: "all 0.3s ease",
             }}
             onMouseEnter={(e) => {

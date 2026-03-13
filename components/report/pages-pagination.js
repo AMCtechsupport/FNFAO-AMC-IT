@@ -20,10 +20,11 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
         className={`px-2 py-1 rounded-md ${
           currentPage === 1
             ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-            : "text-white hover:bg-purple-700"
+            : "text-white hover:bg-purple-700/80"
         }`}
         style={{
-          backgroundColor: currentPage === 1 ? undefined : "#6100D7",
+          backgroundColor:
+            currentPage === 1 ? undefined : "rgba(97, 0, 215, 0.8)",
         }}
       >
         Previous
@@ -50,7 +51,9 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
                 }`}
                 style={{
                   backgroundColor:
-                    currentPage === pageNum ? "#6100D7" : undefined,
+                    currentPage === pageNum
+                      ? "rgba(97, 0, 215, 0.8)"
+                      : undefined,
                 }}
               >
                 {pageNum}
@@ -78,10 +81,11 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
         className={`px-2 py-1 rounded-md ${
           currentPage === totalPages
             ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-            : "text-white hover:bg-purple-700"
+            : "text-white hover:bg-purple-700/80"
         }`}
         style={{
-          backgroundColor: currentPage === totalPages ? undefined : "#6100D7",
+          backgroundColor:
+            currentPage === totalPages ? undefined : "rgba(97, 0, 215, 0.8)",
         }}
       >
         Next

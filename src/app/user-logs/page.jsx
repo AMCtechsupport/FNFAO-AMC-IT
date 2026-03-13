@@ -93,8 +93,8 @@ const UserLogs = () => {
             <p className="text-sm text-gray-500 mt-1">Track all system activity and client updates</p>
           </div>
           {!loading && (
-            <span className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-full" style={{ backgroundColor: "#F0EEF6", color: "#6100D7", border: "1px solid #B2B3D7" }}>
-              <span className="w-2 h-2 rounded-full inline-block bg-purple-600"></span>
+            <span className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-full" style={{ backgroundColor: "rgba(240, 238, 246, 0.8)", color: "rgba(97, 0, 215, 0.8)", border: "1px solid rgba(178, 179, 215, 0.8)" }}>
+              <span className="w-2 h-2 rounded-full inline-block bg-purple-600/80"></span>
               {totalLogs} {totalLogs === 1 ? "entry" : "entries"}
             </span>
           )}

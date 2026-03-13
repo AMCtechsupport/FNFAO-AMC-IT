@@ -17,7 +17,7 @@ const GeneralInformationHeader = ({
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
             <div
                 className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider"
-                style={{ backgroundColor: "#6100D7" }}
+                style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
             >
                 Client Information
             </div>
@@ -60,7 +60,7 @@ const GeneralInformationHeader = ({
                                 id="dateOfBirth"
                                 name="dateOfBirth"
                                 disabled={!isEditing}
-                                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
+                                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white"
                                 max={today}
                             />
                             <ErrorMessage name="dateOfBirth" component={() => <p className="text-xs text-red-500 mt-1">{errors.dateOfBirth}</p>} />
@@ -105,7 +105,7 @@ const GeneralInformationHeader = ({
                                 name="email"
                                 placeholder="e.g., name@example.com"
                                 disabled={!isEditing}
-                                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
+                                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white"
                             />
                             <ErrorMessage name="email" component={() => <p className="text-xs text-red-500 mt-1">{errors.email}</p>} />
                         </div>

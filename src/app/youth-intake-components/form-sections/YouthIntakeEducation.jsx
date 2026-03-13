@@ -21,7 +21,7 @@ const RadioPair = ({ name, labelYes = "Yes", labelNo = "No" }) => (
 const YouthIntakeEducation = ({ values, setFieldValue, errors }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-      <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>
+      <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
         Education
       </div>
       <div className="p-5 space-y-4">
@@ -83,7 +83,7 @@ const YouthIntakeEducation = ({ values, setFieldValue, errors }) => {
                   name={name}
                   id={name}
                   onChange={({ target: { checked } }) => setFieldValue(name, checked)}
-                  className="w-4 h-4 accent-purple-600"
+                  className="w-4 h-4 accent-purple-600/80"
                 />
                 <label htmlFor={name} className="text-sm font-normal text-gray-700 cursor-pointer">{label}</label>
               </div>
@@ -154,9 +154,9 @@ const YouthIntakeEducation = ({ values, setFieldValue, errors }) => {
                   type="button"
                   onClick={() => push({ firstName: "", middleName: "", lastName: "", relationship: "", phoneNumber: "", email: "" })}
                   className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-colors border"
-                  style={{ backgroundColor: "rgba(97, 0, 215, 0.02)", borderColor: "rgba(97, 0, 215, 0.3)", color: "#6100D7", transition: "all 0.3s ease" }}
-                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#6100D7"; e.currentTarget.style.color = "#ffffff"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)"; e.currentTarget.style.color = "#6100D7"; }}
+                  style={{ backgroundColor: "rgba(97, 0, 215, 0.08)", borderColor: "rgba(97, 0, 215, 0.24)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"; e.currentTarget.style.color = "#ffffff"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.08)"; e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)"; }}
                 >
                   + Add Educational Support Person
                 </button>

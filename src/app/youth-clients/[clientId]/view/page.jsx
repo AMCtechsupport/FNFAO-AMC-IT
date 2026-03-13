@@ -77,9 +77,9 @@ export default function YouthClientView() {
             <Link
               href={`/youth-clients/${client_id}/edit`}
               className="px-4 py-2 text-sm font-semibold rounded-lg transition-colors text-white no-underline"
-              style={{ backgroundColor: "#6100D7" }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6100D7")}
+              style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(58, 38, 73, 0.8)")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)")}
             >
               Edit
             </Link>
@@ -107,9 +107,9 @@ export default function YouthClientView() {
           <Link
             href={`/youth-clients/${client_id}/edit`}
             className="px-4 py-2 text-sm font-semibold rounded-lg transition-colors text-white no-underline"
-            style={{ backgroundColor: "#6100D7" }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6100D7")}
+            style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(58, 38, 73, 0.8)")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)")}
           >
             Edit
           </Link>

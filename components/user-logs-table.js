@@ -25,7 +25,7 @@ const formTypeBadge = (formType) => {
   const label = isYouth ? "Youth" : "Adult";
   const style = isYouth
     ? "bg-blue-100 text-blue-700 border border-blue-200"
-    : "bg-purple-100 text-purple-700 border border-purple-200";
+    : "bg-purple-100/80 text-purple-700/80 border border-purple-200/80";
   return (
     <span
       className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full ${style}`}
@@ -69,7 +69,10 @@ const LogTable = ({ logs, loading, onLogClick }) => {
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm text-left">
           <thead>
-            <tr className="text-white" style={{ backgroundColor: "#6100D7" }}>
+            <tr
+              className="text-white"
+              style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+            >
               <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">
                 Log ID
               </th>
@@ -146,19 +149,20 @@ const LogTable = ({ logs, loading, onLogClick }) => {
                       onClick={() => onLogClick(log)}
                       className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-colors border"
                       style={{
-                        backgroundColor: "rgba(97, 0, 215, 0.02)",
-                        borderColor: "rgba(97, 0, 215, 0.3)",
-                        color: "#6100D7",
+                        backgroundColor: "rgba(97, 0, 215, 0.016)",
+                        borderColor: "rgba(97, 0, 215, 0.24)",
+                        color: "rgba(97, 0, 215, 0.8)",
                         transition: "all 0.3s ease",
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = "#6100D7";
+                        e.currentTarget.style.backgroundColor =
+                          "rgba(97, 0, 215, 0.8)";
                         e.currentTarget.style.color = "#ffffff";
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.backgroundColor =
-                          "rgba(97, 0, 215, 0.02)";
-                        e.currentTarget.style.color = "#6100D7";
+                          "rgba(97, 0, 215, 0.016)";
+                        e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)";
                       }}
                     >
                       <svg

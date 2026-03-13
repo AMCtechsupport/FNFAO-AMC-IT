@@ -26,14 +26,14 @@
 }
 
 .input:hover {
-  border-color: #d4a5ff;
-  box-shadow: 0 0 0 2px rgba(97, 0, 215, 0.05);
+  border-color: rgba(212, 165, 255, 0.8);
+  box-shadow: 0 0 0 2px rgba(97, 0, 215, 0.8);
 }
 
 .input:focus {
-  border-color: #6100d7;
+  border-color: rgba(97, 0, 215, 0.8);
   outline: none;
-  box-shadow: 0 0 0 2px rgba(97, 0, 215, 0.1);
+  box-shadow: 0 0 0 2px rgba(97, 0, 215, 0.8);
 }
 
 .textarea {
@@ -53,14 +53,14 @@
 }
 
 .textarea:hover {
-  border-color: #d4a5ff;
-  box-shadow: 0 0 0 2px rgba(97, 0, 215, 0.05);
+  border-color: rgba(212, 165, 255, 0.8);
+  box-shadow: 0 0 0 2px rgba(97, 0, 215, 0.8);
 }
 
 .textarea:focus {
-  border-color: #6100d7;
+  border-color: rgba(97, 0, 215, 0.8);
   outline: none;
-  box-shadow: 0 0 0 2px rgba(97, 0, 215, 0.1);
+  box-shadow: 0 0 0 2px rgba(97, 0, 215, 0.8);
 }
 
 .select {
@@ -78,14 +78,14 @@
 }
 
 .select:hover {
-  border-color: #d4a5ff;
-  box-shadow: 0 0 0 2px rgba(97, 0, 215, 0.05);
+  border-color: rgba(212, 165, 255, 0.8);
+  box-shadow: 0 0 0 2px rgba(97, 0, 215, 0.8);
 }
 
 .select:focus {
-  border-color: #6100d7;
+  border-color: rgba(97, 0, 215, 0.8);
   outline: none;
-  box-shadow: 0 0 0 2px rgba(97, 0, 215, 0.1);
+  box-shadow: 0 0 0 2px rgba(97, 0, 215, 0.8);
 }
 
 select:disabled {

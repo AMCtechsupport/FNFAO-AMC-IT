@@ -40,14 +40,16 @@ const SortDropdown = ({ value, onChange, options = [] }) => {
         onClick={() => setIsOpen(!isOpen)}
         className="inline-flex items-center justify-between gap-2 text-white text-sm font-medium px-4 py-1.5 cursor-pointer transition rounded-lg"
         style={{
-          backgroundColor: "#6100D7",
+          backgroundColor: "rgba(97, 0, 215, 0.8)",
           width: "140px",
         }}
         onMouseEnter={(e) => {
-          if (!isOpen) e.currentTarget.style.backgroundColor = "#4a0099";
+          if (!isOpen)
+            e.currentTarget.style.backgroundColor = "rgba(74, 0, 153, 0.8)";
         }}
         onMouseLeave={(e) => {
-          if (!isOpen) e.currentTarget.style.backgroundColor = "#6100D7";
+          if (!isOpen)
+            e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)";
         }}
       >
         {selectedLabel}
@@ -82,14 +84,14 @@ const SortDropdown = ({ value, onChange, options = [] }) => {
               onClick={() => handleSelect(option.value)}
               className={`w-full text-left px-4 py-2.5 text-sm font-medium transition-colors ${
                 value === option.value
-                  ? "bg-purple-50 text-purple-700"
+                  ? "bg-purple-50/80 text-purple-700/80"
                   : "text-gray-700 hover:bg-gray-50"
               }`}
               style={
                 value === option.value
                   ? {
-                      backgroundColor: "rgba(97, 0, 215, 0.1)",
-                      color: "#6100D7",
+                      backgroundColor: "rgba(97, 0, 215, 0.08)",
+                      color: "rgba(97, 0, 215, 0.8)",
                     }
                   : {}
               }

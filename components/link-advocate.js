@@ -86,7 +86,7 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
       {/* Header */}
       <div
         className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider"
-        style={{ backgroundColor: "#6100D7" }}
+        style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
       >
         Create New User
       </div>
@@ -180,12 +180,12 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
             style={{
               backgroundColor: "rgba(97, 0, 215, 0.02)",
               borderColor: "rgba(97, 0, 215, 0.3)",
-              color: "#6100D7",
+              color: "rgba(97, 0, 215, 0.8)",
               transition: "all 0.3s ease",
             }}
             onMouseEnter={(e) => {
               if (!loading) {
-                e.currentTarget.style.backgroundColor = "#6100D7";
+                e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)";
                 e.currentTarget.style.color = "#ffffff";
               }
             }}
@@ -193,7 +193,7 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
               if (!loading) {
                 e.currentTarget.style.backgroundColor =
                   "rgba(97, 0, 215, 0.02)";
-                e.currentTarget.style.color = "#6100D7";
+                e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)";
               }
             }}
           >

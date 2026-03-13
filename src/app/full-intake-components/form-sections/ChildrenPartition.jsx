@@ -18,7 +18,7 @@ const ChildrenPartition = ({
 }) => {
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-            <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>
+            <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
                 Children
             </div>
             <div className="p-5">
@@ -38,10 +38,10 @@ const ChildrenPartition = ({
                                     <label className="block text-xs font-medium text-gray-600 mb-1">Are there any other adults involved in your matter?</label>
                                     <div className="flex gap-4 mt-1">
                                         <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                            <Field type="radio" name="otherAdultsInvolved" value="yes" checked={values.otherAdultsInvolved === "yes"} disabled={!isEditing} className="accent-purple-600" /> Yes
+                                            <Field type="radio" name="otherAdultsInvolved" value="yes" checked={values.otherAdultsInvolved === "yes"} disabled={!isEditing} className="accent-purple-600/80" /> Yes
                                         </label>
                                         <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                            <Field type="radio" name="otherAdultsInvolved" value="no" checked={values.otherAdultsInvolved === "no"} disabled={!isEditing} className="accent-purple-600" /> No
+                                            <Field type="radio" name="otherAdultsInvolved" value="no" checked={values.otherAdultsInvolved === "no"} disabled={!isEditing} className="accent-purple-600/80" /> No
                                         </label>
                                     </div>
                                     <ErrorMessage name="otherAdultsInvolved" component="div" className="text-xs text-red-500 mt-1" />
@@ -49,7 +49,7 @@ const ChildrenPartition = ({
                                 {values.otherAdultsInvolved === "yes" && (
                                     <div className="col-span-12">
                                         <label className="block text-xs font-medium text-gray-600 mb-1">Please specify:</label>
-                                        <Field as="textarea" name="otherAdultsInvolvedExplained" placeholder="e.g., grandparent, step-parent..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
+                                        <Field as="textarea" name="otherAdultsInvolvedExplained" placeholder="e.g., grandparent, step-parent..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white resize-none" disabled={!isEditing} />
                                         <ErrorMessage name="otherAdultsInvolvedExplained" component="div" className="text-xs text-red-500 mt-1" />
                                     </div>
                                 )}
@@ -95,7 +95,7 @@ const ChildrenPartition = ({
                                                     id={`children.${originalIndex}.birthDate`}
                                                     name={`children.${originalIndex}.birthDate`}
                                                     disabled={!isEditing}
-                                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
+                                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white"
                                                     max={today}
                                                 />
                                                 <ErrorMessage
@@ -170,7 +170,7 @@ const ChildrenPartition = ({
                                                         name={`children.${originalIndex}.childCfsAgentEmail`}
                                                         placeholder="e.g., name@example.com"
                                                         disabled={!isEditing}
-                                                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
+                                                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white"
                                                     />
                                                     <ErrorMessage
                                                         name={`children.${originalIndex}.childCfsAgentEmail`}
@@ -198,7 +198,7 @@ const ChildrenPartition = ({
                                                         name={`children.${originalIndex}.childCfsSupervisorEmail`}
                                                         placeholder="e.g., name@example.com"
                                                         disabled={!isEditing}
-                                                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
+                                                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white"
                                                     />
                                                     <ErrorMessage
                                                         name={`children.${originalIndex}.childCfsSupervisorEmail`}
@@ -216,10 +216,10 @@ const ChildrenPartition = ({
                                                     <label className="block text-xs font-medium text-gray-600 mb-1">Does your child have any medical needs?</label>
                                                     <div className="flex gap-4 mt-1">
                                                         <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                                            <Field type="radio" name={`children.${originalIndex}.childMedicalNeeds`} value="yes" checked={child.childMedicalNeeds === "yes"} disabled={!isEditing} className="accent-purple-600" /> Yes
+                                                            <Field type="radio" name={`children.${originalIndex}.childMedicalNeeds`} value="yes" checked={child.childMedicalNeeds === "yes"} disabled={!isEditing} className="accent-purple-600/80" /> Yes
                                                         </label>
                                                         <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                                            <Field type="radio" name={`children.${originalIndex}.childMedicalNeeds`} value="no" checked={child.childMedicalNeeds === "no"} disabled={!isEditing} className="accent-purple-600" /> No
+                                                            <Field type="radio" name={`children.${originalIndex}.childMedicalNeeds`} value="no" checked={child.childMedicalNeeds === "no"} disabled={!isEditing} className="accent-purple-600/80" /> No
                                                         </label>
                                                     </div>
                                                     <ErrorMessage name={`children.${originalIndex}.childMedicalNeeds`} component="div" className="text-xs text-red-500 mt-1" />
@@ -227,7 +227,7 @@ const ChildrenPartition = ({
                                                 {child.childMedicalNeeds === "yes" && (
                                                     <div className="col-span-12">
                                                         <label className="block text-xs font-medium text-gray-600 mb-1">Please specify:</label>
-                                                        <Field as="textarea" name={`children.${originalIndex}.childMedicalNeedsExplained`} placeholder="e.g., diabetes, asthma..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
+                                                        <Field as="textarea" name={`children.${originalIndex}.childMedicalNeedsExplained`} placeholder="e.g., diabetes, asthma..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white resize-none" disabled={!isEditing} />
                                                         <ErrorMessage name={`children.${originalIndex}.childMedicalNeedsExplained`} component="div" className="text-xs text-red-500 mt-1" />
                                                     </div>
                                                 )}
@@ -278,9 +278,9 @@ const ChildrenPartition = ({
                             <button
                                 type="button"
                                 className="px-4 py-2 text-xs font-medium rounded-lg transition-colors border"
-                                style={{ backgroundColor: "rgba(97, 0, 215, 0.02)", borderColor: "rgba(97, 0, 215, 0.3)", color: "#6100D7", transition: "all 0.3s ease" }}
-                                onMouseEnter={(e) => { if (isEditing) { e.currentTarget.style.backgroundColor = "#6100D7"; e.currentTarget.style.color = "#ffffff"; } }}
-                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)"; e.currentTarget.style.color = "#6100D7"; }}
+                                style={{ backgroundColor: "rgba(97, 0, 215, 0.016)", borderColor: "rgba(97, 0, 215, 0.24)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
+                                onMouseEnter={(e) => { if (isEditing) { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"; e.currentTarget.style.color = "#ffffff"; } }}
+                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.016)"; e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)"; }}
                                 onClick={() =>
                                     push({
                                         firstName: "",

@@ -10,7 +10,13 @@ import Pagination from "./pages-pagination";
 import { usePagination } from "./pagination-hooks";
 import { getAdvocatesWithClientCounts } from "@/app/lib/get-advocates-with-counts";
 
-export default function AdvocatesTable({ onSelect, active, inactive, startDate, endDate }) {
+export default function AdvocatesTable({
+  onSelect,
+  active,
+  inactive,
+  startDate,
+  endDate,
+}) {
   const [advocates, setAdvocates] = useState([]);
   const [selectedAdvocate, setSelectedAdvocate] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -29,7 +35,12 @@ export default function AdvocatesTable({ onSelect, active, inactive, startDate, 
     const fetchAdvocates = async () => {
       setLoading(true);
       try {
-        const result = await getAdvocatesWithClientCounts(active, inactive, startDate, endDate);
+        const result = await getAdvocatesWithClientCounts(
+          active,
+          inactive,
+          startDate,
+          endDate,
+        );
 
         if (result.error) {
           setFetchError(result.error);
@@ -70,15 +81,15 @@ export default function AdvocatesTable({ onSelect, active, inactive, startDate, 
         style={{ maxHeight: "300px" }}
       >
         <table className="w-full border border-gray-200 rounded-xl">
-          <thead style={{ backgroundColor: "#6100D7" }}>
+          <thead style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
             <tr>
-              <th className="text-center px-6 py-3 text-white font-semibold border-b border-purple-900">
+              <th className="text-center px-6 py-3 text-white font-semibold border-b border-purple-900/80">
                 Advocate Name
               </th>
-              <th className="text-center px-6 py-3 text-white font-semibold border-b border-purple-900">
+              <th className="text-center px-6 py-3 text-white font-semibold border-b border-purple-900/80">
                 Number of Clients in Service
               </th>
-              <th className="text-center px-6 py-3 text-white font-semibold border-b border-purple-900">
+              <th className="text-center px-6 py-3 text-white font-semibold border-b border-purple-900/80">
                 Number of New Clients
               </th>
             </tr>
@@ -86,13 +97,18 @@ export default function AdvocatesTable({ onSelect, active, inactive, startDate, 
           <tbody>
             {/* To show only the selected advocates  for the current page */}
             {currentAdvocates.map((advocate, index) => {
-              const isSelected = selectedAdvocate?.advocate_id === advocate.advocate_id;
+              const isSelected =
+                selectedAdvocate?.advocate_id === advocate.advocate_id;
               return (
                 <tr
                   key={index}
                   onClick={() => handleRowClick(advocate)}
                   className="cursor-pointer transition-colors duration-300 hover:bg-gray-50"
-                  style={isSelected ? { backgroundColor: "#F0EEF6" } : {}}
+                  style={
+                    isSelected
+                      ? { backgroundColor: "rgba(240, 238, 246, 0.8)" }
+                      : {}
+                  }
                 >
                   <td className="px-6 py-3 border-b text-center">
                     {advocate.name}
@@ -126,8 +142,12 @@ export default function AdvocatesTable({ onSelect, active, inactive, startDate, 
       {selectedAdvocate && (
         <div className="mt-4 text-center text-gray-700">
           Selected Advocate:{" "}
-          <span className="font-semibold" style={{ color: "#6100D7" }}>
-            {selectedAdvocate.name} ({selectedAdvocate.clientCount} clients, {selectedAdvocate.newClientCount} new)
+          <span
+            className="font-semibold"
+            style={{ color: "rgba(97, 0, 215, 0.8)" }}
+          >
+            {selectedAdvocate.name} ({selectedAdvocate.clientCount} clients,{" "}
+            {selectedAdvocate.newClientCount} new)
           </span>
         </div>
       )}

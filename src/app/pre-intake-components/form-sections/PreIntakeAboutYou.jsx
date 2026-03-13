@@ -25,7 +25,7 @@ const PreIntakeAboutYou = ({ values, errors }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-      <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#6100D7" }}>
+      <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
         About You
       </div>
       <div className="p-5 space-y-4">

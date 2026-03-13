@@ -103,9 +103,9 @@ const CFSAgenciesManagement = () => {
         <span
           className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full"
           style={{
-            backgroundColor: "#F0EEF6",
-            color: "#6100D7",
-            border: "1px solid #B2B3D7",
+            backgroundColor: "rgba(240, 238, 246, 0.8)",
+            color: "rgba(97, 0, 215, 0.8)",
+            border: "1px solid rgba(178, 179, 215, 0.8)",
           }}
         >
           <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span>
@@ -137,13 +137,13 @@ const CFSAgenciesManagement = () => {
           placeholder="Search CFS Agencies..."
           className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border-2 rounded-lg shadow-sm placeholder-gray-400 text-gray-700 focus:outline-none transition"
           style={{ borderColor: "rgba(209, 213, 219, 0.5)" }}
-          onFocus={(e) => (e.currentTarget.style.borderColor = "#6100D7")}
+          onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.8)")}
           onBlur={(e) =>
             (e.currentTarget.style.borderColor = "rgba(209, 213, 219, 0.5)")
           }
           onMouseEnter={(e) => {
             if (document.activeElement !== e.currentTarget)
-              e.currentTarget.style.borderColor = "#6100D7";
+              e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.8)";
           }}
           onMouseLeave={(e) => {
             if (document.activeElement !== e.currentTarget)
@@ -161,18 +161,18 @@ const CFSAgenciesManagement = () => {
           }}
           className="w-full py-2.5 text-sm font-medium rounded-lg transition-colors border-2"
           style={{
-            backgroundColor: "rgba(97, 0, 215, 0.02)",
-            borderColor: "rgba(97, 0, 215, 0.3)",
-            color: "#6100D7",
+            backgroundColor: "rgba(97, 0, 215, 0.08)",
+            borderColor: "rgba(97, 0, 215, 0.24)",
+            color: "rgba(97, 0, 215, 0.8)",
             transition: "all 0.3s ease",
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = "#ffffff";
-            e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.6)";
+            e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.8)";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)";
-            e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.3)";
+            e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.08)";
+            e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.24)";
           }}
         >
           {showForm ? "Cancel" : "+ Add New CFS Agency"}
@@ -190,12 +190,12 @@ const CFSAgenciesManagement = () => {
             <button
               onClick={handleAddCfsAgency}
               className="mt-3 w-full py-2.5 text-sm font-medium rounded-lg transition-colors"
-              style={{ backgroundColor: "#6100D7", color: "white" }}
+              style={{ backgroundColor: "rgba(97, 0, 215, 0.8)", color: "white" }}
               onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor = "#3a2649")
+                (e.currentTarget.style.backgroundColor = "rgba(58, 38, 73, 0.8)")
               }
               onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundColor = "#6100D7")
+                (e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)")
               }
             >
               Save
@@ -242,7 +242,7 @@ const CFSAgenciesManagement = () => {
             <thead>
               <tr
                 className="text-white sticky top-0"
-                style={{ backgroundColor: "#6100D7" }}
+                style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
               >
                 <th className="py-3 px-4 font-semibold text-xs uppercase tracking-wider">
                   Agency Name
@@ -350,19 +350,19 @@ const CFSAgenciesManagement = () => {
                             }}
                             className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full transition-colors border"
                             style={{
-                              backgroundColor: "rgba(97, 0, 215, 0.02)",
-                              borderColor: "rgba(97, 0, 215, 0.3)",
-                              color: "#6100D7",
+                              backgroundColor: "rgba(97, 0, 215, 0.08)",
+                              borderColor: "rgba(97, 0, 215, 0.24)",
+                              color: "rgba(97, 0, 215, 0.8)",
                               transition: "all 0.3s ease",
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = "#6100D7";
+                              e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)";
                               e.currentTarget.style.color = "#ffffff";
                             }}
                             onMouseLeave={(e) => {
                               e.currentTarget.style.backgroundColor =
-                                "rgba(97, 0, 215, 0.02)";
-                              e.currentTarget.style.color = "#6100D7";
+                                "rgba(97, 0, 215, 0.08)";
+                              e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)";
                             }}
                           >
                             <svg

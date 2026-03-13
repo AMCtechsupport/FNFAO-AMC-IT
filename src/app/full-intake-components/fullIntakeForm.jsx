@@ -378,7 +378,7 @@ export default function FullIntakeForm({
                     className="px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors"
                     style={
                       activeTab === i
-                        ? { backgroundColor: "#6100D7", color: "#fff", borderBottom: "2px solid #6100D7" }
+                        ? { backgroundColor: "rgba(97, 0, 215, 0.8)", color: "#fff", borderBottom: "2px solid rgba(97, 0, 215, 0.8)" }
                         : { color: "#6b7280", borderBottom: "2px solid transparent" }
                     }
                   >
@@ -487,9 +487,9 @@ export default function FullIntakeForm({
                 <button
                   type="submit"
                   className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors"
-                  style={{ backgroundColor: "#6100D7" }}
-                  onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
-                  onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#6100D7")}
+                  style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+                  onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "rgba(74, 0, 153, 0.8)")}
+                  onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)")}
                 >
                   Save
                 </button>
