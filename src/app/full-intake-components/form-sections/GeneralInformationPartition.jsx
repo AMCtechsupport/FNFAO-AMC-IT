@@ -68,9 +68,9 @@ const GeneralInformationPartition = ({
                                 <ErrorMessage
                                     name="treatyNumber"
                                     component={() => (
-                                    <p className="text-xs text-red-500 mt-1">
-                                        {errors.treatyNumber}
-                                    </p>
+                                        <p className="text-xs text-red-500 mt-1">
+                                            {errors.treatyNumber}
+                                        </p>
                                     )}
                                 />
                             </div>
@@ -122,15 +122,15 @@ const GeneralInformationPartition = ({
                                 <ErrorMessage
                                     name="ninePersonalHealthNumber"
                                     component={() => (
-                                    <p className="text-xs text-red-500 mt-1">
-                                        {errors.ninePersonalHealthNumber}
-                                    </p>
+                                        <p className="text-xs text-red-500 mt-1">
+                                            {errors.ninePersonalHealthNumber}
+                                        </p>
                                     )}
                                 />
                             </div>
                         </div>
                         <div className="col-span-3">
-                        {/* <label>(6-Digit):</label>
+                            {/* <label>(6-Digit):</label>
                             <Field
                                 type="number"
                                 id="sixPersonalHealthNumber"
@@ -317,109 +317,109 @@ const GeneralInformationPartition = ({
                     <h5 className="text-sm font-semibold text-gray-700 mb-3">Important Family Members and Friends</h5>
 
                     <FieldArray name="homeMembers">
-                    {({ push, remove }) => (
-                        <div>
-                        {values.homeMembers.map((member, index) => (
-                            <div key={`${member.home_members_id}-${index}`} className="bg-white rounded-lg border border-gray-200 p-4 mb-3">
-                            <div className="grid grid-cols-12 gap-4">
-                                <div className="col-span-4">
-                                <InputField
-                                    name={`homeMembers.${index}.firstName`}
-                                    label="First Name:"
-                                    placeholder="Enter First Name"
-                                    disabled={!isEditing}
-                                />
-                                </div>
+                        {({ push, remove }) => (
+                            <div>
+                                {values.homeMembers.map((member, index) => (
+                                    <div key={`${member.home_members_id}-${index}`} className="bg-white rounded-lg border border-gray-200 p-4 mb-3">
+                                        <div className="grid grid-cols-12 gap-4">
+                                            <div className="col-span-4">
+                                                <InputField
+                                                    name={`homeMembers.${index}.firstName`}
+                                                    label="First Name:"
+                                                    placeholder="Enter First Name"
+                                                    disabled={!isEditing}
+                                                />
+                                            </div>
 
-                                <div className="col-span-4">
-                                <InputField
-                                    name={`homeMembers.${index}.lastName`}
-                                    label="Last Name:"
-                                    placeholder="Enter Last Name"
-                                    disabled={!isEditing}
-                                />
-                                </div>
+                                            <div className="col-span-4">
+                                                <InputField
+                                                    name={`homeMembers.${index}.lastName`}
+                                                    label="Last Name:"
+                                                    placeholder="Enter Last Name"
+                                                    disabled={!isEditing}
+                                                />
+                                            </div>
 
-                                <div className="col-span-4">
-                                <InputField
-                                    name={`homeMembers.${index}.relationship`}
-                                    label="Relationship:"
-                                    placeholder="e.g., sibling, parent..."
-                                    disabled={!isEditing}
-                                />
-                                </div>
-                            </div>
+                                            <div className="col-span-4">
+                                                <InputField
+                                                    name={`homeMembers.${index}.relationship`}
+                                                    label="Relationship:"
+                                                    placeholder="e.g., sibling, parent..."
+                                                    disabled={!isEditing}
+                                                />
+                                            </div>
+                                        </div>
 
-                            <div className="grid grid-cols-12 gap-4 mt-4">
-                                <div className="col-span-4">
-                                    <div>
-                                    <label className="block text-xs font-medium text-gray-600 mb-1"
-                                        htmlFor={`homeMembers.${index}.phoneNumber`}
-                                    >
-                                        Phone Number:
-                                    </label>
-                                    <Field
-                                        type="number"
-                                        id={`homeMembers.${index}.phoneNumber`}
-                                        name={`homeMembers.${index}.phoneNumber`}
-                                        component={PhoneNumberInput}
-                                        placeholder="(123) 456-7890"
-                                        disabled={!isEditing}
-                                    />
+                                        <div className="grid grid-cols-12 gap-4 mt-4">
+                                            <div className="col-span-4">
+                                                <div>
+                                                    <label className="block text-xs font-medium text-gray-600 mb-1"
+                                                        htmlFor={`homeMembers.${index}.phoneNumber`}
+                                                    >
+                                                        Phone Number:
+                                                    </label>
+                                                    <Field
+                                                        type="number"
+                                                        id={`homeMembers.${index}.phoneNumber`}
+                                                        name={`homeMembers.${index}.phoneNumber`}
+                                                        component={PhoneNumberInput}
+                                                        placeholder="(123) 456-7890"
+                                                        disabled={!isEditing}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="col-span-4">
+                                                <div>
+                                                    <label className="block text-xs font-medium text-gray-600 mb-1" htmlFor={`homeMembers.${index}.email`}>Email:</label>
+                                                    <Field type="email" id={`homeMembers.${index}.email`} name={`homeMembers.${index}.email`} placeholder="e.g., name@example.com" disabled={!isEditing} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white" />
+                                                    <ErrorMessage
+                                                        name={`homeMembers.${index}.email`}
+                                                        component={() => <p className="text-xs text-red-500 mt-1">{errors.homeMembers?.[index]?.email}</p>} />
+                                                </div>
+                                            </div>
+                                            <div className="col-span-4">
+                                                <YesNoSelect
+                                                    name={`homeMembers.${index}.livingTogether`}
+                                                    label="Living Together?"
+                                                    error={errors.homeMembers?.[index]?.livingTogether}
+                                                    disabled={!isEditing}
+                                                />
+                                            </div>
+
+                                        </div>
+
+                                        <div className="flex justify-end mt-2">
+                                            <button
+                                                type="button"
+                                                className="px-3 py-1.5 text-xs font-semibold rounded-lg text-white bg-red-500 hover:bg-red-600 transition-colors"
+                                                disabled={!isEditing}
+                                                onClick={() => remove(index)}
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="col-span-4">
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-600 mb-1" htmlFor={`homeMembers.${index}.email`}>Email:</label>
-                                        <Field type="email" id={`homeMembers.${index}.email`} name={`homeMembers.${index}.email`} placeholder="e.g., name@example.com" disabled={!isEditing} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white" />
-                                        <ErrorMessage
-                                            name={`homeMembers.${index}.email`}
-                                            component={() => <p className="text-xs text-red-500 mt-1">{errors.homeMembers?.[index]?.email}</p>} />
-                                    </div>
-                                </div>
-                                <div className="col-span-4">
-                                    <YesNoSelect
-                                        name={`homeMembers.${index}.livingTogether`}
-                                        label="Living Together?"
-                                        error={errors.homeMembers?.[index]?.livingTogether}
-                                        disabled={!isEditing}
-                                    />
-                                </div>
-
-                            </div>
-
-                            <div className="flex justify-end mt-2">
+                                ))}
                                 <button
                                     type="button"
-                                    className="px-3 py-1.5 text-xs font-semibold rounded-lg text-white bg-red-500 hover:bg-red-600 transition-colors"
+                                    className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-colors border"
+                                    style={{ backgroundColor: "rgba(97, 0, 215, 0.02)", borderColor: "rgba(97, 0, 215, 0.3)", color: "#6100D7", transition: "all 0.3s ease" }}
+                                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#6100D7"; e.currentTarget.style.color = "#ffffff"; }}
+                                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)"; e.currentTarget.style.color = "#6100D7"; }}
                                     disabled={!isEditing}
-                                    onClick={() => remove(index)}
-                                >
-                                    Delete
+                                    onClick={() =>
+                                        push({
+                                            firstName: "",
+                                            lastName: "",
+                                            relationship: "",
+                                            phoneNumber: "",
+                                            email: "",
+                                            livingTogether: null
+                                        })}>
+                                    + Add Member
                                 </button>
                             </div>
-                            </div>
-                        ))}
-                        <button
-                            type="button"
-                            className="px-4 py-2 text-xs font-semibold rounded-lg text-white transition-colors mt-2"
-                            style={{ backgroundColor: "#6100D7" }}
-                            onMouseEnter={e => e.currentTarget.style.backgroundColor = "#3a2649"}
-                            onMouseLeave={e => e.currentTarget.style.backgroundColor = "#6100D7"}
-                            disabled={!isEditing}
-                            onClick={() =>
-                            push({
-                                firstName: "",
-                                lastName: "",
-                                relationship: "",
-                                phoneNumber: "",
-                                email:"",
-                                livingTogether: null
-                            })}>
-                            + Add Member
-                        </button>
-                        </div>
-                    )}
+                        )}
                     </FieldArray>
                 </div>
             </div>
@@ -597,84 +597,84 @@ const GeneralInformationPartition = ({
                         <FieldArray name="EIA">
                             {({ push, remove }) => (
                                 <div>
-                                {values.EIA.map((member, index) => (
-                                    <div key={`${member.EIA_worker_id}-${index}`} className="bg-white rounded-lg border border-gray-200 p-4 mb-3">
-                                    <div className="grid grid-cols-12 gap-4">
-                                        <div className="col-span-3">
-                                            <InputField
-                                                name={`EIA.${index}.firstName`}
-                                                label="First Name:"
-                                                placeholder="Enter First Name"
-                                                disabled={!isEditing}
-                                            />
-                                        </div>
+                                    {values.EIA.map((member, index) => (
+                                        <div key={`${member.EIA_worker_id}-${index}`} className="bg-white rounded-lg border border-gray-200 p-4 mb-3">
+                                            <div className="grid grid-cols-12 gap-4">
+                                                <div className="col-span-3">
+                                                    <InputField
+                                                        name={`EIA.${index}.firstName`}
+                                                        label="First Name:"
+                                                        placeholder="Enter First Name"
+                                                        disabled={!isEditing}
+                                                    />
+                                                </div>
 
-                                        <div className="col-span-3">
-                                            <InputField
-                                                name={`EIA.${index}.lastName`}
-                                                label="Last Name:"
-                                                placeholder="Enter Last Name"
-                                                disabled={!isEditing}
-                                            />
-                                        </div>
+                                                <div className="col-span-3">
+                                                    <InputField
+                                                        name={`EIA.${index}.lastName`}
+                                                        label="Last Name:"
+                                                        placeholder="Enter Last Name"
+                                                        disabled={!isEditing}
+                                                    />
+                                                </div>
 
-                                        <div className="col-span-3">
-                                            <div>
-                                            <label className="block text-xs font-medium text-gray-600 mb-1"
-                                                htmlFor={`EIA.${index}.phoneNumber`}
-                                            >
-                                                Phone Number:
-                                            </label>
-                                            <Field
-                                                type="number"
-                                                id={`EIA.${index}.phoneNumber`}
-                                                name={`EIA.${index}.phoneNumber`}
-                                                component={PhoneNumberInput}
-                                                placeholder="(123) 456-7890"
-                                                disabled={!isEditing}
-                                            />
+                                                <div className="col-span-3">
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-600 mb-1"
+                                                            htmlFor={`EIA.${index}.phoneNumber`}
+                                                        >
+                                                            Phone Number:
+                                                        </label>
+                                                        <Field
+                                                            type="number"
+                                                            id={`EIA.${index}.phoneNumber`}
+                                                            name={`EIA.${index}.phoneNumber`}
+                                                            component={PhoneNumberInput}
+                                                            placeholder="(123) 456-7890"
+                                                            disabled={!isEditing}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="col-span-3">
+                                                    <InputField
+                                                        name={`EIA.${index}.EIACaseNumber`}
+                                                        label="Case Number:"
+                                                        placeholder="e.g., 123456"
+                                                        disabled={!isEditing}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="flex justify-end mt-2">
+                                                <button
+                                                    type="button"
+                                                    className="px-3 py-1.5 text-xs font-semibold rounded-lg text-white bg-red-500 hover:bg-red-600 transition-colors"
+                                                    disabled={!isEditing}
+                                                    onClick={() => remove(index)}
+                                                >
+                                                    Delete
+                                                </button>
                                             </div>
                                         </div>
-                                        <div className="col-span-3">
-                                            <InputField
-                                                name={`EIA.${index}.EIACaseNumber`}
-                                                label="Case Number:"
-                                                placeholder="e.g., 123456"
-                                                disabled={!isEditing}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="flex justify-end mt-2">
-                                        <button
-                                            type="button"
-                                            className="px-3 py-1.5 text-xs font-semibold rounded-lg text-white bg-red-500 hover:bg-red-600 transition-colors"
-                                            disabled={!isEditing}
-                                            onClick={() => remove(index)}
-                                        >
-                                            Delete
-                                        </button>
-                                    </div>
-                                    </div>
-                                ))}
-                                <button
-                                    type="button"
-                                    className="px-4 py-2 text-xs font-semibold rounded-lg text-white transition-colors mt-2"
-                                    style={{ backgroundColor: "#6100D7" }}
-                                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "#3a2649"}
-                                    onMouseLeave={e => e.currentTarget.style.backgroundColor = "#6100D7"}
-                                    disabled={!isEditing}
-                                    onClick={() =>
-                                    push({
-                                        firstName: "",
-                                        lastName: "",
-                                        phoneNumber: "",
-                                        EIACaseNumber: "",
-                                    })
-                                    }
-                                >
-                                    + Add EIA Worker
-                                </button>
+                                    ))}
+                                    <button
+                                        type="button"
+                                        className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-colors border"
+                                        style={{ backgroundColor: "rgba(97, 0, 215, 0.02)", borderColor: "rgba(97, 0, 215, 0.3)", color: "#6100D7", transition: "all 0.3s ease" }}
+                                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#6100D7"; e.currentTarget.style.color = "#ffffff"; }}
+                                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)"; e.currentTarget.style.color = "#6100D7"; }}
+                                        disabled={!isEditing}
+                                        onClick={() =>
+                                            push({
+                                                firstName: "",
+                                                lastName: "",
+                                                phoneNumber: "",
+                                                EIACaseNumber: "",
+                                            })
+                                        }
+                                    >
+                                        + Add EIA Worker
+                                    </button>
                                 </div>
                             )}
                         </FieldArray>
@@ -684,55 +684,55 @@ const GeneralInformationPartition = ({
                     <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mb-4">
                         <div className="grid grid-cols-12 gap-4">
                             <div className="col-span-4">
-                            <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-1">Do you or do any of your children require youth support?</label>
-                                <div className="flex gap-4 mt-1">
-                                    <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                        <Field
-                                            className="accent-purple-600"
-                                            type="radio"
-                                            name="youthSupport"
-                                            value="yes"
-                                            disabled={!isEditing}
-                                        /> Yes
-                                    </label>
-                                    <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                        <Field
-                                            className="accent-purple-600"
-                                            type="radio"
-                                            name="youthSupport"
-                                            value="no"
-                                            disabled={!isEditing}
-                                        /> No
-                                    </label>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">Do you or do any of your children require youth support?</label>
+                                    <div className="flex gap-4 mt-1">
+                                        <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                            <Field
+                                                className="accent-purple-600"
+                                                type="radio"
+                                                name="youthSupport"
+                                                value="yes"
+                                                disabled={!isEditing}
+                                            /> Yes
+                                        </label>
+                                        <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                            <Field
+                                                className="accent-purple-600"
+                                                type="radio"
+                                                name="youthSupport"
+                                                value="no"
+                                                disabled={!isEditing}
+                                            /> No
+                                        </label>
+                                    </div>
+                                    <ErrorMessage
+                                        name="youthSupport"
+                                        component="div"
+                                        className="text-xs text-red-500 mt-1"
+                                    />
                                 </div>
-                                <ErrorMessage
-                                name="youthSupport"
-                                component="div"
-                                className="text-xs text-red-500 mt-1"
-                                />
-                            </div>
                             </div>
                             {values.youthSupport === "yes" && (
-                            <div className="col-span-8">
-                                <label className="block text-xs font-medium text-gray-600 mb-1">
-                                If yes, specify (e.g. help avoiding birth apprehension, access
-                                to prenatal care, breastfeeding information, preparing for
-                                baby, etc.):
-                                </label>
-                                <Field
-                                    as="textarea"
-                                    name="youthSupportSpecified"
-                                    placeholder="e.g., after-school programs, counselling..."
-                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
-                                    disabled={!isEditing}
-                                />
-                                <ErrorMessage
-                                    name="youthSupportSpecified"
-                                    component="div"
-                                    className="text-xs text-red-500 mt-1"
-                                />
-                            </div>
+                                <div className="col-span-8">
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                                        If yes, specify (e.g. help avoiding birth apprehension, access
+                                        to prenatal care, breastfeeding information, preparing for
+                                        baby, etc.):
+                                    </label>
+                                    <Field
+                                        as="textarea"
+                                        name="youthSupportSpecified"
+                                        placeholder="e.g., after-school programs, counselling..."
+                                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
+                                        disabled={!isEditing}
+                                    />
+                                    <ErrorMessage
+                                        name="youthSupportSpecified"
+                                        component="div"
+                                        className="text-xs text-red-500 mt-1"
+                                    />
+                                </div>
                             )}
                         </div>
                     </div>
@@ -741,55 +741,55 @@ const GeneralInformationPartition = ({
                     <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mb-4">
                         <div className="grid grid-cols-12 gap-4">
                             <div className="col-span-4">
-                            <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-1">Are you seeking support for custody related issues? </label>
-                                <div className="flex gap-4 mt-1">
-                                    <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                        <Field
-                                            className="accent-purple-600"
-                                            type="radio"
-                                            name="custodySupport"
-                                            value="yes"
-                                            disabled={!isEditing}
-                                        /> Yes
-                                    </label>
-                                    <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                        <Field
-                                            className="accent-purple-600"
-                                            type="radio"
-                                            name="custodySupport"
-                                            value="no"
-                                            disabled={!isEditing}
-                                        /> No
-                                    </label>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">Are you seeking support for custody related issues? </label>
+                                    <div className="flex gap-4 mt-1">
+                                        <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                            <Field
+                                                className="accent-purple-600"
+                                                type="radio"
+                                                name="custodySupport"
+                                                value="yes"
+                                                disabled={!isEditing}
+                                            /> Yes
+                                        </label>
+                                        <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                            <Field
+                                                className="accent-purple-600"
+                                                type="radio"
+                                                name="custodySupport"
+                                                value="no"
+                                                disabled={!isEditing}
+                                            /> No
+                                        </label>
+                                    </div>
+                                    <ErrorMessage
+                                        name="custodySupport"
+                                        component="div"
+                                        className="text-xs text-red-500 mt-1"
+                                    />
                                 </div>
-                                <ErrorMessage
-                                    name="custodySupport"
-                                    component="div"
-                                    className="text-xs text-red-500 mt-1"
-                                />
-                            </div>
                             </div>
                             {values.custodySupport === "yes" && (
-                            <div className="col-span-8">
-                                <label className="block text-xs font-medium text-gray-600 mb-1">
-                                    If yes, please specify what kind of custody-related issues
-                                    (Example: ex-spouse not honouring custody arrangement for
-                                    access/visitation, grandparent access, child support, etc.):
-                                </label>
-                                <Field
-                                    as="textarea"
-                                    name="custodySupportSpecified"
-                                    placeholder="e.g., ex-spouse not honouring custody, child support..."
-                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
-                                    disabled={!isEditing}
-                                />
-                                <ErrorMessage
-                                    name="custodySupportSpecified"
-                                    component="div"
-                                    className="text-xs text-red-500 mt-1"
-                                />
-                            </div>
+                                <div className="col-span-8">
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                                        If yes, please specify what kind of custody-related issues
+                                        (Example: ex-spouse not honouring custody arrangement for
+                                        access/visitation, grandparent access, child support, etc.):
+                                    </label>
+                                    <Field
+                                        as="textarea"
+                                        name="custodySupportSpecified"
+                                        placeholder="e.g., ex-spouse not honouring custody, child support..."
+                                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
+                                        disabled={!isEditing}
+                                    />
+                                    <ErrorMessage
+                                        name="custodySupportSpecified"
+                                        component="div"
+                                        className="text-xs text-red-500 mt-1"
+                                    />
+                                </div>
                             )}
                         </div>
                     </div>
@@ -798,53 +798,53 @@ const GeneralInformationPartition = ({
                     <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mb-4">
                         <div className="grid grid-cols-12 gap-4">
                             <div className="col-span-4">
-                            <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-1"> Do you have any criminal charges (past, active or pending)?</label>
-                                <div className="flex gap-4 mt-1">
-                                    <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                        <Field
-                                            className="accent-purple-600"
-                                            type="radio"
-                                            name="criminalCharges"
-                                            value="yes"
-                                            validate={validateRadio}
-                                            disabled={!isEditing}
-                                        /> Yes
-                                    </label>
-                                    <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                        <Field
-                                            className="accent-purple-600"
-                                            type="radio"
-                                            name="criminalCharges"
-                                            value="no"
-                                            validate={validateRadio}
-                                            disabled={!isEditing}
-                                        /> No
-                                    </label>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-600 mb-1"> Do you have any criminal charges (past, active or pending)?</label>
+                                    <div className="flex gap-4 mt-1">
+                                        <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                            <Field
+                                                className="accent-purple-600"
+                                                type="radio"
+                                                name="criminalCharges"
+                                                value="yes"
+                                                validate={validateRadio}
+                                                disabled={!isEditing}
+                                            /> Yes
+                                        </label>
+                                        <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                            <Field
+                                                className="accent-purple-600"
+                                                type="radio"
+                                                name="criminalCharges"
+                                                value="no"
+                                                validate={validateRadio}
+                                                disabled={!isEditing}
+                                            /> No
+                                        </label>
+                                    </div>
+                                    <ErrorMessage
+                                        name="criminalCharges"
+                                        component="div"
+                                        className="text-xs text-red-500 mt-1"
+                                    />
                                 </div>
-                                <ErrorMessage
-                                    name="criminalCharges"
-                                    component="div"
-                                    className="text-xs text-red-500 mt-1"
-                                />
-                            </div>
                             </div>
                             {values.criminalCharges === "yes" && (
-                            <div className="col-span-8">
-                                <label className="block text-xs font-medium text-gray-600 mb-1">If yes, please specify why: </label>
-                                <Field
-                                    as="textarea"
-                                    name="criminalChargesSpecified"
-                                    placeholder="e.g., possession, assault (2019)..."
-                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
-                                    disabled={!isEditing}
-                                />
-                                <ErrorMessage
-                                    name="criminalChargesSpecified"
-                                    component="div"
-                                    className="text-xs text-red-500 mt-1"
-                                />
-                            </div>
+                                <div className="col-span-8">
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">If yes, please specify why: </label>
+                                    <Field
+                                        as="textarea"
+                                        name="criminalChargesSpecified"
+                                        placeholder="e.g., possession, assault (2019)..."
+                                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
+                                        disabled={!isEditing}
+                                    />
+                                    <ErrorMessage
+                                        name="criminalChargesSpecified"
+                                        component="div"
+                                        className="text-xs text-red-500 mt-1"
+                                    />
+                                </div>
                             )}
                         </div>
                     </div>
@@ -853,53 +853,53 @@ const GeneralInformationPartition = ({
                     <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mb-4">
                         <div className="grid grid-cols-12 gap-4">
                             <div className="col-span-4">
-                            <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-1">Do you currently have an active arrest warrant?</label>
-                                <div className="flex gap-4 mt-1">
-                                    <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                        <Field
-                                            className="accent-purple-600"
-                                            type="radio"
-                                            name="activeWarrant"
-                                            value="yes"
-                                            validate={validateRadio}
-                                            disabled={!isEditing}
-                                        /> Yes
-                                    </label>
-                                    <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                        <Field
-                                            className="accent-purple-600"
-                                            type="radio"
-                                            name="activeWarrant"
-                                            value="no"
-                                            validate={validateRadio}
-                                            disabled={!isEditing}
-                                        /> No
-                                    </label>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">Do you currently have an active arrest warrant?</label>
+                                    <div className="flex gap-4 mt-1">
+                                        <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                            <Field
+                                                className="accent-purple-600"
+                                                type="radio"
+                                                name="activeWarrant"
+                                                value="yes"
+                                                validate={validateRadio}
+                                                disabled={!isEditing}
+                                            /> Yes
+                                        </label>
+                                        <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                            <Field
+                                                className="accent-purple-600"
+                                                type="radio"
+                                                name="activeWarrant"
+                                                value="no"
+                                                validate={validateRadio}
+                                                disabled={!isEditing}
+                                            /> No
+                                        </label>
+                                    </div>
+                                    <ErrorMessage
+                                        name="activeWarrant"
+                                        component="div"
+                                        className="text-xs text-red-500 mt-1"
+                                    />
                                 </div>
-                                <ErrorMessage
-                                    name="activeWarrant"
-                                    component="div"
-                                    className="text-xs text-red-500 mt-1"
-                                />
-                            </div>
                             </div>
                             {values.activeWarrant === "yes" && (
-                            <div className="col-span-8">
-                                <label className="block text-xs font-medium text-gray-600 mb-1">If yes, please specify why: </label>
-                                <Field
-                                    as="textarea"
-                                    name="activeWarrantSpecified"
-                                    placeholder="e.g., failure to appear, breach of conditions..."
-                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
-                                    disabled={!isEditing}
-                                />
-                                <ErrorMessage
-                                    name="activeWarrantSpecified"
-                                    component="div"
-                                    className="text-xs text-red-500 mt-1"
-                                />
-                            </div>
+                                <div className="col-span-8">
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">If yes, please specify why: </label>
+                                    <Field
+                                        as="textarea"
+                                        name="activeWarrantSpecified"
+                                        placeholder="e.g., failure to appear, breach of conditions..."
+                                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
+                                        disabled={!isEditing}
+                                    />
+                                    <ErrorMessage
+                                        name="activeWarrantSpecified"
+                                        component="div"
+                                        className="text-xs text-red-500 mt-1"
+                                    />
+                                </div>
                             )}
                         </div>
                     </div>
@@ -908,58 +908,58 @@ const GeneralInformationPartition = ({
                     <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mb-4">
                         <div className="grid grid-cols-12 gap-4">
                             <div className="col-span-4">
-                            <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-1">
-                                Are you currently under child abuse investigation?
-                                </label>
-                                <div className="flex gap-4 mt-1">
-                                    <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                        <Field
-                                            className="accent-purple-600"
-                                            type="radio"
-                                            name="activeInvestigation"
-                                            value="yes"
-                                            validate={validateRadio}
-                                            disabled={!isEditing}
-                                        /> Yes
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                                        Are you currently under child abuse investigation?
                                     </label>
-                                    <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                        <Field
-                                            className="accent-purple-600"
-                                            type="radio"
-                                            name="activeInvestigation"
-                                            value="no"
-                                            validate={validateRadio}
-                                            disabled={!isEditing}
-                                        /> No
-                                    </label>
+                                    <div className="flex gap-4 mt-1">
+                                        <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                            <Field
+                                                className="accent-purple-600"
+                                                type="radio"
+                                                name="activeInvestigation"
+                                                value="yes"
+                                                validate={validateRadio}
+                                                disabled={!isEditing}
+                                            /> Yes
+                                        </label>
+                                        <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                            <Field
+                                                className="accent-purple-600"
+                                                type="radio"
+                                                name="activeInvestigation"
+                                                value="no"
+                                                validate={validateRadio}
+                                                disabled={!isEditing}
+                                            /> No
+                                        </label>
+                                    </div>
+                                    <ErrorMessage
+                                        name="activeInvestigation"
+                                        component="div"
+                                        className="text-xs text-red-500 mt-1"
+                                    />
                                 </div>
-                                <ErrorMessage
-                                    name="activeInvestigation"
-                                    component="div"
-                                    className="text-xs text-red-500 mt-1"
-                                />
-                            </div>
                             </div>
                             {values.activeInvestigation === "yes" && (
-                            <div className="col-span-3">
-                                <label className="block text-xs font-medium text-gray-600 mb-1">If yes, start date: </label>
-                                <Field
-                                    type="date"
-                                    id="activeInvestigationExplained"
-                                    name="activeInvestigationExplained"
-                                    disabled={!isEditing}
-                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
-                                />
-                                <ErrorMessage
-                                    name="activeInvestigationExplained"
-                                    component={() => (
-                                        <p className="text-xs text-red-500 mt-1">
-                                        {errors.activeInvestigationExplained}
-                                        </p>
-                                    )}
-                                />
-                            </div>
+                                <div className="col-span-3">
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">If yes, start date: </label>
+                                    <Field
+                                        type="date"
+                                        id="activeInvestigationExplained"
+                                        name="activeInvestigationExplained"
+                                        disabled={!isEditing}
+                                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
+                                    />
+                                    <ErrorMessage
+                                        name="activeInvestigationExplained"
+                                        component={() => (
+                                            <p className="text-xs text-red-500 mt-1">
+                                                {errors.activeInvestigationExplained}
+                                            </p>
+                                        )}
+                                    />
+                                </div>
                             )}
                         </div>
                     </div>
@@ -968,55 +968,55 @@ const GeneralInformationPartition = ({
                     <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mb-4">
                         <div className="grid grid-cols-12 gap-4">
                             <div className="col-span-4">
-                            <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-1">
-                                Any active No Contact Orders or Protection Orders?
-                                </label>
-                                <div className="flex gap-4 mt-1">
-                                    <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                        <Field
-                                            className="accent-purple-600"
-                                            type="radio"
-                                            name="activeOrders"
-                                            value="yes"
-                                            validate={validateRadio}
-                                            disabled={!isEditing}
-                                        /> Yes
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                                        Any active No Contact Orders or Protection Orders?
                                     </label>
-                                    <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                        <Field
-                                            className="accent-purple-600"
-                                            type="radio"
-                                            name="activeOrders"
-                                            value="no"
-                                            validate={validateRadio}
-                                            disabled={!isEditing}
-                                        /> No
-                                    </label>
+                                    <div className="flex gap-4 mt-1">
+                                        <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                            <Field
+                                                className="accent-purple-600"
+                                                type="radio"
+                                                name="activeOrders"
+                                                value="yes"
+                                                validate={validateRadio}
+                                                disabled={!isEditing}
+                                            /> Yes
+                                        </label>
+                                        <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                            <Field
+                                                className="accent-purple-600"
+                                                type="radio"
+                                                name="activeOrders"
+                                                value="no"
+                                                validate={validateRadio}
+                                                disabled={!isEditing}
+                                            /> No
+                                        </label>
+                                    </div>
+                                    <ErrorMessage
+                                        name="activeOrders"
+                                        component="div"
+                                        className="text-xs text-red-500 mt-1"
+                                    />
                                 </div>
-                                <ErrorMessage
-                                    name="activeOrders"
-                                    component="div"
-                                    className="text-xs text-red-500 mt-1"
-                                />
-                            </div>
                             </div>
                             {values.activeOrders === "yes" && (
-                            <div className="col-span-8">
-                                <label className="block text-xs font-medium text-gray-600 mb-1">If yes, against who or against you?</label>
-                                <Field
-                                    as="textarea"
-                                    name="activeOrdersExplained"
-                                    placeholder="e.g., no contact order against ex-partner..."
-                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
-                                    disabled={!isEditing}
-                                />
-                                <ErrorMessage
-                                    name="activeOrdersExplained"
-                                    component="div"
-                                    className="text-xs text-red-500 mt-1"
-                                />
-                            </div>
+                                <div className="col-span-8">
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">If yes, against who or against you?</label>
+                                    <Field
+                                        as="textarea"
+                                        name="activeOrdersExplained"
+                                        placeholder="e.g., no contact order against ex-partner..."
+                                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none"
+                                        disabled={!isEditing}
+                                    />
+                                    <ErrorMessage
+                                        name="activeOrdersExplained"
+                                        component="div"
+                                        className="text-xs text-red-500 mt-1"
+                                    />
+                                </div>
                             )}
                         </div>
                     </div>
