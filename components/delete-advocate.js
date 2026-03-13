@@ -153,9 +153,8 @@ const DeleteAdvocate = () => {
         )}
 
         <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
-          <strong>⚠️ Warning:</strong> This permanently deletes the user
-          from the database and their user account. This action cannot be
-          undone.
+          <strong>⚠️ Warning:</strong> This permanently deletes the user from
+          the database and their user account. This action cannot be undone.
         </div>
 
         {/* Search */}
@@ -273,17 +272,24 @@ const DeleteAdvocate = () => {
             disabled={!selectedAdvocate || loading}
             className="flex-1 py-2.5 text-sm font-medium rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
-              color: "#C00707",
-              backgroundColor: "#FDE8E8",
-              borderColor: "#C00707",
+              color: "#ef4444",
+              backgroundColor: "rgba(239, 68, 68, 0.1)",
+              borderColor: "rgba(239, 68, 68, 0.3)",
+              transition: "all 0.3s ease",
             }}
-            onMouseEnter={(e) =>
-              !(!selectedAdvocate || loading) &&
-              (e.currentTarget.style.backgroundColor = "#FCC8C8")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "#FDE8E8")
-            }
+            onMouseEnter={(e) => {
+              if (!(!selectedAdvocate || loading)) {
+                e.currentTarget.style.backgroundColor = "#ef4444";
+                e.currentTarget.style.color = "#ffffff";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!(!selectedAdvocate || loading)) {
+                e.currentTarget.style.backgroundColor =
+                  "rgba(239, 68, 68, 0.1)";
+                e.currentTarget.style.color = "#ef4444";
+              }
+            }}
           >
             {loading ? "Deleting..." : "Delete User"}
           </button>
@@ -327,16 +333,20 @@ const DeleteAdvocate = () => {
                 onClick={handleConfirmDelete}
                 className="px-4 py-2 text-sm font-medium rounded-lg border transition-colors"
                 style={{
-                  color: "#C00707",
-                  backgroundColor: "#FDE8E8",
-                  borderColor: "#C00707",
+                  color: "#ef4444",
+                  backgroundColor: "rgba(239, 68, 68, 0.1)",
+                  borderColor: "rgba(239, 68, 68, 0.3)",
+                  transition: "all 0.3s ease",
                 }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#FCC8C8")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#FDE8E8")
-                }
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#ef4444";
+                  e.currentTarget.style.color = "#ffffff";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor =
+                    "rgba(239, 68, 68, 0.1)";
+                  e.currentTarget.style.color = "#ef4444";
+                }}
               >
                 Yes, Delete
               </button>
