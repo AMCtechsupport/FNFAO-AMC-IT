@@ -103,7 +103,7 @@ const FirstNationManagement = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold text-gray-900">Manage First Nations</h3>
-        <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: "#F0EEF6", color: "#47315E", border: "1px solid #B2B3D7" }}>
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: "rgba(240, 238, 246, 0.8)", color: "rgba(97, 0, 215, 0.8)", border: "1px solid rgba(178, 179, 215, 0.8)" }}>
           <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span>
           {firstNations.length} {firstNations.length === 1 ? "entry" : "entries"}
         </span>
@@ -121,7 +121,12 @@ const FirstNationManagement = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search First Nations..."
-          className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 text-gray-700 focus:outline-none transition"
+          className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border-2 rounded-lg shadow-sm placeholder-gray-400 text-gray-700 focus:outline-none transition"
+          style={{ borderColor: "rgba(209, 213, 219, 0.5)" }}
+          onFocus={(e) => e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.8)"}
+          onBlur={(e) => e.currentTarget.style.borderColor = "rgba(209, 213, 219, 0.5)"}
+          onMouseEnter={(e) => { if (document.activeElement !== e.currentTarget) e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.8)"; }}
+          onMouseLeave={(e) => { if (document.activeElement !== e.currentTarget) e.currentTarget.style.borderColor = "rgba(209, 213, 219, 0.5)"; }}
         />
       </div>
 
@@ -129,10 +134,10 @@ const FirstNationManagement = () => {
       <div>
         <button
           onClick={() => { setShowForm(!showForm); setNewFirstNation(""); }}
-          className="w-full py-2.5 text-sm font-medium rounded-lg transition-colors"
-          style={{ backgroundColor: "#B2B3D7", color: "#47315E" }}
-          onMouseEnter={e => e.currentTarget.style.backgroundColor = "#9899C0"}
-          onMouseLeave={e => e.currentTarget.style.backgroundColor = "#B2B3D7"}
+          className="w-full py-2.5 text-sm font-medium rounded-lg transition-colors border-2"
+          style={{ backgroundColor: "rgba(97, 0, 215, 0.08)", borderColor: "rgba(97, 0, 215, 0.24)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
+          onMouseEnter={e => { e.currentTarget.style.backgroundColor = "#ffffff"; e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.48)"; }}
+          onMouseLeave={e => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.08)"; e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.24)"; }}
         >
           {showForm ? "Cancel" : "+ Add New First Nation"}
         </button>
@@ -149,9 +154,9 @@ const FirstNationManagement = () => {
             <button
               onClick={handleAddFirstNation}
               className="mt-3 w-full py-2.5 text-sm font-medium rounded-lg transition-colors"
-              style={{ backgroundColor: "#47315E", color: "white" }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
+              style={{ backgroundColor: "rgba(97, 0, 215, 0.8)", color: "white" }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "rgba(58, 38, 73, 0.8)"}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"}
             >
               Save
             </button>
@@ -177,7 +182,7 @@ const FirstNationManagement = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden max-h-[600px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <table className="min-w-full text-sm text-left">
             <thead>
-              <tr className="text-white sticky top-0" style={{ backgroundColor: "#47315E" }}>
+              <tr className="text-white sticky top-0" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
                 <th className="py-3 px-4 font-semibold text-xs uppercase tracking-wider">First Nation</th>
                 <th className="py-3 px-4 font-semibold text-xs uppercase tracking-wider text-center">Action</th>
               </tr>
@@ -237,16 +242,19 @@ const FirstNationManagement = () => {
                           <button
                             onClick={() => { setEditingItem(nation.firstNationMembership); setEditValue(nation.firstNationMembership); }}
                             className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full transition-colors border"
-                            style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#47315E" }}
-                            onMouseEnter={e => e.currentTarget.style.backgroundColor = "#9899C0"}
-                            onMouseLeave={e => e.currentTarget.style.backgroundColor = "#B2B3D7"}
+                            style={{ backgroundColor: "rgba(97, 0, 215, 0.02)", borderColor: "rgba(97, 0, 215, 0.3)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
+                            onMouseEnter={e => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"; e.currentTarget.style.color = "#ffffff"; }}
+                            onMouseLeave={e => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)"; e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)"; }}
                           >
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" /></svg>
                             Edit
                           </button>
                           <button
                             onClick={() => handleRemoveFirstNation(nation.firstNationMembership)}
-                            className="inline-flex items-center gap-1.5 text-xs font-medium text-red-500 bg-red-50 hover:bg-red-100 border border-red-200 px-2.5 py-1 rounded-full transition-colors"
+                            className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full transition-colors border"
+                            style={{ backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.3)", color: "#ef4444", transition: "all 0.3s ease" }}
+                            onMouseEnter={e => { e.currentTarget.style.backgroundColor = "#ef4444"; e.currentTarget.style.color = "#ffffff"; }}
+                            onMouseLeave={e => { e.currentTarget.style.backgroundColor = "rgba(239, 68, 68, 0.1)"; e.currentTarget.style.color = "#ef4444"; }}
                           >
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
                             Remove

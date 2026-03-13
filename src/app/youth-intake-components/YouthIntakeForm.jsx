@@ -39,7 +39,7 @@ const validationSchema = Yup.object({
   ),
 
   firstNationMembership: Yup.string() // added firt nation membership validation
-    .required("First Nation Membership is required"), 
+    .required("First Nation Membership is required"),
 
   otherFirstNation: Yup.string()
     .nullable(), // added other first nation validation only if needed
@@ -132,20 +132,12 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
     };
 
     runPatch();
-    const timers = [
-      setTimeout(runPatch, 50),
-      setTimeout(runPatch, 150),
-      setTimeout(runPatch, 300),
-      setTimeout(runPatch, 600),
-      setTimeout(runPatch, 1000),
-    ];
 
-    const onClick = () => runPatch();
-    document.addEventListener("click", onClick);
+    const observer = new MutationObserver(() => runPatch());
+    observer.observe(document.body, { childList: true, subtree: true });
 
     return () => {
-      timers.forEach(clearTimeout);
-      document.removeEventListener("click", onClick);
+      observer.disconnect();
     };
   }, [isViewOnly]);
 
@@ -188,8 +180,8 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
           <YouthIntakeAgencyInfo values={values} errors={errors} />
           <YouthIntakeBiologicalParentInfo errors={errors} />
           <YouthIntakeHousingSituation />
-          <YouthIntakePeopleAtHome values={values} errors={errors} />
-          <YouthIntakeEducation values={values} setFieldValue={setFieldValue} errors={errors} />
+          <YouthIntakePeopleAtHome values={values} errors={errors} isEditing={isEditing} />
+          <YouthIntakeEducation values={values} setFieldValue={setFieldValue} errors={errors} isEditing={isEditing} />
           <YouthIntakeFinancialInfo errors={errors} />
           <YouthIntakeOtherInformation values={values} />
 
@@ -214,9 +206,9 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
                   <button
                     type="submit"
                     className="px-5 py-2.5 text-sm font-semibold rounded-lg transition-colors text-white"
-                    style={{ backgroundColor: "#47315E" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#47315E")}
+                    style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(74, 0, 153, 0.8)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)")}
                   >
                     Save
                   </button>
@@ -225,10 +217,10 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
                 <>
                   <button
                     type="submit"
-                    className="w-full py-3 text-sm font-semibold rounded-lg transition-colors text-white mb-2"
-                    style={{ backgroundColor: "#8060A0" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#6B4E8A")}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#8060A0")}
+                    className="w-full text-sm font-medium py-2.5 px-4 rounded-lg transition-colors border-2 mb-2"
+                    style={{ backgroundColor: "rgba(97, 0, 215, 0.08)", borderColor: "rgba(97, 0, 215, 0.24)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"; e.currentTarget.style.color = "#ffffff"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.08)"; e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)"; }}
                   >
                     Submit Youth Intake
                   </button>

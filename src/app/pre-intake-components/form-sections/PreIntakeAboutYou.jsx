@@ -5,7 +5,6 @@ import { Field, ErrorMessage, useFormikContext } from "formik";
 import RelationshipToChildrenSelect from "@/components/RelationshipToChildrenSelect";
 import FirstNationSelect from "@/components/FirstNationSelect";
 
-const fieldCls = "w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white";
 const labelCls = "block text-xs font-medium text-gray-600 mb-1";
 
 const RadioPair = ({ name, validate }) => (
@@ -26,7 +25,7 @@ const PreIntakeAboutYou = ({ values, errors }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-      <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+      <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
         About You
       </div>
       <div className="p-5 space-y-4">
@@ -65,7 +64,7 @@ const PreIntakeAboutYou = ({ values, errors }) => {
             <Field
               type="text" inputMode="numeric" pattern="\d*" maxLength={10}
               id="treatyNumber" placeholder="1234567890" name="treatyNumber"
-              className={fieldCls}
+              className={styles.input}
               onChange={(e) => { const d = String(e.target.value || "").replace(/\D/g, ""); setFieldValue("treatyNumber", d); }}
               onBlur={(e) => { const d = String(e.target.value || "").replace(/\D/g, ""); setFieldValue("treatyNumber", d.length > 0 ? d.padStart(10, "0") : ""); }}
             />
@@ -81,12 +80,12 @@ const PreIntakeAboutYou = ({ values, errors }) => {
           <div className="grid grid-cols-12 gap-4">
             <div className="col-span-5">
               <label className={labelCls}>Personal Health Identification Numbers (9-Digit):</label>
-              <Field type="text" inputMode="numeric" maxLength={9} id="ninePersonalHealthNumber" placeholder="123456789" name="ninePersonalHealthNumber" className={fieldCls} />
+              <Field type="text" inputMode="numeric" maxLength={9} id="ninePersonalHealthNumber" placeholder="123456789" name="ninePersonalHealthNumber" className={styles.input} />
               <ErrorMessage name="ninePersonalHealthNumber" component={() => <p className={styles.errorText}>{errors.ninePersonalHealthNumber}</p>} />
             </div>
             <div className="col-span-3">
               <label className={labelCls}>(6-Digit):</label>
-              <Field type="text" inputMode="numeric" maxLength={6} id="sixPersonalHealthNumber" placeholder="000000" name="sixPersonalHealthNumber" className={fieldCls} />
+              <Field type="text" inputMode="numeric" maxLength={6} id="sixPersonalHealthNumber" placeholder="000000" name="sixPersonalHealthNumber" className={styles.input} />
               <ErrorMessage name="sixPersonalHealthNumber" component={() => <p className={styles.errorText}>{errors.sixPersonalHealthNumber}</p>} />
             </div>
           </div>

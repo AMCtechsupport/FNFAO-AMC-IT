@@ -14,6 +14,28 @@
   text-align: center;
 }
 
+.input {
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  font-size: 13px;
+  padding: 8px 12px;
+  color: #1f2937;
+  background: #fff;
+  transition: all 0.2s ease;
+}
+
+.input:hover {
+  border-color: rgba(212, 165, 255, 0.8);
+  box-shadow: 0 0 0 2px rgba(97, 0, 215, 0.8);
+}
+
+.input:focus {
+  border-color: rgba(97, 0, 215, 0.8);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(97, 0, 215, 0.8);
+}
+
 .textarea {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   width: 100%;
@@ -27,12 +49,18 @@
   margin-top: 2px;
   display: block;
   background: #fff;
+  transition: all 0.2s ease;
+}
+
+.textarea:hover {
+  border-color: rgba(212, 165, 255, 0.8);
+  box-shadow: 0 0 0 2px rgba(97, 0, 215, 0.8);
 }
 
 .textarea:focus {
-  border-color: #47315E;
+  border-color: rgba(97, 0, 215, 0.8);
   outline: none;
-  box-shadow: 0 0 0 2px rgba(71, 49, 94, 0.1);
+  box-shadow: 0 0 0 2px rgba(97, 0, 215, 0.8);
 }
 
 .select {
@@ -46,12 +74,18 @@
   cursor: pointer;
   margin-top: 2px;
   display: block;
+  transition: all 0.2s ease;
+}
+
+.select:hover {
+  border-color: rgba(212, 165, 255, 0.8);
+  box-shadow: 0 0 0 2px rgba(97, 0, 215, 0.8);
 }
 
 .select:focus {
-  border-color: #47315E;
+  border-color: rgba(97, 0, 215, 0.8);
   outline: none;
-  box-shadow: 0 0 0 2px rgba(71, 49, 94, 0.1);
+  box-shadow: 0 0 0 2px rgba(97, 0, 215, 0.8);
 }
 
 select:disabled {

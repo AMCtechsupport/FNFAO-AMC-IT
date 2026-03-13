@@ -250,16 +250,20 @@ export default function AssignAdvocate({
   };
 
   return (
-    <div ref={containerRef} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden min-h-[580px]">
-
+    <div
+      ref={containerRef}
+      className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden min-h-[580px]"
+    >
       {/* Header */}
-      <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+      <div
+        className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider"
+        style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+      >
         Assign Client to Advocate
       </div>
 
       <div className="p-6">
         <form onSubmit={handleAssignAdvocate} className="space-y-5">
-
           {/* Client Search */}
           <div>
             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
@@ -267,8 +271,18 @@ export default function AssignAdvocate({
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+                <svg
+                  className="w-4 h-4 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+                  />
                 </svg>
               </div>
               <input
@@ -287,22 +301,53 @@ export default function AssignAdvocate({
               {filteredClients.map((client) => (
                 <div
                   key={client.client_id}
-                  onClick={() => setSelectedClient(selectedClient?.client_id === client.client_id ? null : client)}
+                  onClick={() =>
+                    setSelectedClient(
+                      selectedClient?.client_id === client.client_id
+                        ? null
+                        : client,
+                    )
+                  }
                   className="px-3 py-2.5 cursor-pointer transition-colors text-sm"
-                  style={{ backgroundColor: selectedClient?.client_id === client.client_id ? "#F0EEF6" : "" }}
-                  onMouseEnter={(e) => { if (selectedClient?.client_id !== client.client_id) e.currentTarget.style.backgroundColor = "#F8F7FC"; }}
-                  onMouseLeave={(e) => { if (selectedClient?.client_id !== client.client_id) e.currentTarget.style.backgroundColor = ""; }}
+                  style={{
+                    backgroundColor:
+                      selectedClient?.client_id === client.client_id
+                        ? "rgba(240, 238, 246, 0.8)"
+                        : "",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (selectedClient?.client_id !== client.client_id)
+                      e.currentTarget.style.backgroundColor = "rgba(248, 247, 252, 0.8)";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedClient?.client_id !== client.client_id)
+                      e.currentTarget.style.backgroundColor = "";
+                  }}
                 >
-                  <p className="font-medium text-gray-800">{client.firstName} {client.middleName} {client.lastName}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">Status: {client.clientStatus}</p>
+                  <p className="font-medium text-gray-800">
+                    {client.firstName} {client.middleName} {client.lastName}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Status: {client.clientStatus}
+                  </p>
                 </div>
               ))}
             </div>
           )}
           {searchClient.trim() && filteredClients.length === 0 && (
             <div className="flex flex-col items-center py-6 text-gray-400">
-              <svg className="w-10 h-10 mb-3 text-gray-300" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+              <svg
+                className="w-10 h-10 mb-3 text-gray-300"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+                />
               </svg>
               <p className="text-sm font-medium">No clients found.</p>
               <p className="text-xs mt-1">Try adjusting your search</p>
@@ -311,8 +356,11 @@ export default function AssignAdvocate({
 
           {/* Selected client */}
           {selectedClient && (
-            <div className="p-3 rounded-lg border text-sm" style={{ backgroundColor: "#F0EEF6", borderColor: "#B2B3D7" }}>
-              <p className="font-semibold" style={{ color: "#47315E" }}>
+            <div
+              className="p-3 rounded-lg border text-sm"
+              style={{ backgroundColor: "rgba(240, 238, 246, 0.8)", borderColor: "rgba(178, 179, 215, 0.8)" }}
+            >
+              <p className="font-semibold" style={{ color: "rgba(97, 0, 215, 0.8)" }}>
                 Selected: {selectedClient.firstName} {selectedClient.lastName}
               </p>
             </div>
@@ -325,8 +373,18 @@ export default function AssignAdvocate({
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+                <svg
+                  className="w-4 h-4 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+                  />
                 </svg>
               </div>
               <input
@@ -345,22 +403,53 @@ export default function AssignAdvocate({
               {advocates.map((advocate) => (
                 <div
                   key={advocate.advocate_id}
-                  onClick={() => setSelectedAdvocate(selectedAdvocate === advocate.advocate_id ? "" : advocate.advocate_id)}
+                  onClick={() =>
+                    setSelectedAdvocate(
+                      selectedAdvocate === advocate.advocate_id
+                        ? ""
+                        : advocate.advocate_id,
+                    )
+                  }
                   className="px-3 py-2.5 cursor-pointer transition-colors text-sm"
-                  style={{ backgroundColor: selectedAdvocate === advocate.advocate_id ? "#F0EEF6" : "" }}
-                  onMouseEnter={(e) => { if (selectedAdvocate !== advocate.advocate_id) e.currentTarget.style.backgroundColor = "#F8F7FC"; }}
-                  onMouseLeave={(e) => { if (selectedAdvocate !== advocate.advocate_id) e.currentTarget.style.backgroundColor = ""; }}
+                  style={{
+                    backgroundColor:
+                      selectedAdvocate === advocate.advocate_id
+                        ? "rgba(240, 238, 246, 0.8)"
+                        : "",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (selectedAdvocate !== advocate.advocate_id)
+                      e.currentTarget.style.backgroundColor = "rgba(248, 247, 252, 0.8)";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedAdvocate !== advocate.advocate_id)
+                      e.currentTarget.style.backgroundColor = "";
+                  }}
                 >
-                  <p className="font-medium text-gray-800">{advocate.firstName} {advocate.lastName}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{advocate.email}</p>
+                  <p className="font-medium text-gray-800">
+                    {advocate.firstName} {advocate.lastName}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    {advocate.email}
+                  </p>
                 </div>
               ))}
             </div>
           )}
           {searchAdvocate.trim() && advocates.length === 0 && (
             <div className="flex flex-col items-center py-6 text-gray-400">
-              <svg className="w-10 h-10 mb-3 text-gray-300" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+              <svg
+                className="w-10 h-10 mb-3 text-gray-300"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+                />
               </svg>
               <p className="text-sm font-medium">No advocates found.</p>
               <p className="text-xs mt-1">Try adjusting your search</p>
@@ -369,9 +458,20 @@ export default function AssignAdvocate({
 
           {/* Selected advocate */}
           {selectedAdvocate && (
-            <div className="p-3 rounded-lg border text-sm" style={{ backgroundColor: "#F0EEF6", borderColor: "#B2B3D7" }}>
-              <p className="font-semibold" style={{ color: "#47315E" }}>
-                Selected: {advocates.find(a => a.advocate_id === selectedAdvocate)?.firstName} {advocates.find(a => a.advocate_id === selectedAdvocate)?.lastName}
+            <div
+              className="p-3 rounded-lg border text-sm"
+              style={{ backgroundColor: "rgba(240, 238, 246, 0.8)", borderColor: "rgba(178, 179, 215, 0.8)" }}
+            >
+              <p className="font-semibold" style={{ color: "rgba(97, 0, 215, 0.8)" }}>
+                Selected:{" "}
+                {
+                  advocates.find((a) => a.advocate_id === selectedAdvocate)
+                    ?.firstName
+                }{" "}
+                {
+                  advocates.find((a) => a.advocate_id === selectedAdvocate)
+                    ?.lastName
+                }
               </p>
             </div>
           )}
@@ -382,9 +482,25 @@ export default function AssignAdvocate({
               type="submit"
               disabled={isAssigned}
               className="w-full py-2.5 text-sm font-medium rounded-lg transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#47315E" }}
-              onMouseEnter={(e) => { if (!isAssigned) e.currentTarget.style.backgroundColor = "#9899C0"; }}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#B2B3D7"}
+              style={{
+                backgroundColor: "rgba(97, 0, 215, 0.08)",
+                borderColor: "rgba(97, 0, 215, 0.24)",
+                color: "rgba(97, 0, 215, 0.8)",
+                transition: "all 0.3s ease",
+              }}
+              onMouseEnter={(e) => {
+                if (!isAssigned) {
+                  e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)";
+                  e.currentTarget.style.color = "#ffffff";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isAssigned) {
+                  e.currentTarget.style.backgroundColor =
+                    "rgba(97, 0, 215, 0.08)";
+                  e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)";
+                }
+              }}
             >
               Assign Advocate
             </button>
@@ -396,7 +512,6 @@ export default function AssignAdvocate({
               Clear Search
             </button>
           </div>
-
         </form>
       </div>
 
@@ -404,8 +519,10 @@ export default function AssignAdvocate({
       {showPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full overflow-hidden">
-            <div className="px-6 py-4" style={{ backgroundColor: "#47315E" }}>
-              <h3 className="text-base font-semibold text-white">Assignment Status</h3>
+            <div className="px-6 py-4" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
+              <h3 className="text-base font-semibold text-white">
+                Assignment Status
+              </h3>
             </div>
             <div className="px-6 py-4">
               <p className="text-sm text-gray-700">{message}</p>
@@ -413,9 +530,13 @@ export default function AssignAdvocate({
             <div className="bg-gray-50 px-6 py-4 flex justify-end border-t border-gray-200">
               <button
                 className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors"
-                style={{ backgroundColor: "#47315E" }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
+                style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = "rgba(58, 38, 73, 0.8)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)")
+                }
                 onClick={() => setShowPopup(false)}
               >
                 Close
@@ -424,7 +545,6 @@ export default function AssignAdvocate({
           </div>
         </div>
       )}
-
     </div>
   );
 }

@@ -17,15 +17,11 @@ export default function UserHome(props: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen flex" style={{ backgroundColor: "#cccccc" }}>
-
       {/* Sidebar */}
       <aside className="w-56 min-h-screen flex-shrink-0 bg-black px-2 py-3">
         <nav className="flex flex-col gap-0.5">
-
           {/* Role-based links */}
-          {userRole === "admin" && (
-            <UserHomeLink name="Admin" path="admin" />
-          )}
+          {userRole === "admin" && <UserHomeLink name="Admin" path="admin" />}
           {userRole === "advocate" && (
             <UserHomeLink name="Dashboard" path="user-dashboard" />
           )}
@@ -51,19 +47,13 @@ export default function UserHome(props: { children: ReactNode }) {
           {userRole === "admin" && (
             <UserHomeLink name="Manage Dropdowns" path="manage-dropdowns" />
           )}
-          {userRole === "admin" && (
-            <UserHomeLink name="Export" path="export" />
-          )}
-          {userRole === "admin" && (
-            <UserHomeLink name="Report" path="report" />
-          )}
-
+          {userRole === "admin" && <UserHomeLink name="Export" path="export" />}
+          {userRole === "admin" && <UserHomeLink name="Report" path="report" />}
         </nav>
       </aside>
 
       {/* Main content */}
       <main className="flex-1 p-6">{props.children}</main>
-
     </div>
   );
 }

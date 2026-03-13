@@ -1,6 +1,7 @@
 import React from "react";
 import { Field, ErrorMessage } from "formik";
 import InputMask from "react-input-mask";
+import styles from "@/app/pre-intake/preIntake.module.css";
 
 const InputField = ({ label, name, type = "text", placeholder, error, disabled }) => {
   return (
@@ -13,7 +14,7 @@ const InputField = ({ label, name, type = "text", placeholder, error, disabled }
               {...field}
               mask="(999) 999-9999"
               maskChar=""
-              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
+              className={styles.input}
               placeholder={placeholder}
               disabled={disabled}
             />
@@ -24,7 +25,7 @@ const InputField = ({ label, name, type = "text", placeholder, error, disabled }
           type={type}
           id={name}
           name={name}
-          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
+          className={styles.input}
           placeholder={placeholder}
           disabled={disabled}
         />

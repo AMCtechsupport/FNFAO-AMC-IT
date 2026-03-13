@@ -182,21 +182,21 @@ export default function ExportPage() {
 
         {/* Format Selection */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-          <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+          <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
             Export Format
           </div>
           <div className="p-6">
             <div className="flex flex-wrap gap-6">
               <label className="flex items-center cursor-pointer">
-                <input type="radio" name="format" value="json" checked={selectedFormat === "json"} onChange={(e) => setSelectedFormat(e.target.value)} className="mr-2 w-4 h-4" style={{ accentColor: "#47315E" }} />
+                <input type="radio" name="format" value="json" checked={selectedFormat === "json"} onChange={(e) => setSelectedFormat(e.target.value)} className="mr-2 w-4 h-4" style={{ accentColor: "rgba(97, 0, 215, 0.8)" }} />
                 <span className="text-sm text-gray-700">JSON <span className="text-gray-400">(Structured data)</span></span>
               </label>
               <label className="flex items-center cursor-pointer">
-                <input type="radio" name="format" value="csv" checked={selectedFormat === "csv"} onChange={(e) => setSelectedFormat(e.target.value)} className="mr-2 w-4 h-4" style={{ accentColor: "#47315E" }} />
+                <input type="radio" name="format" value="csv" checked={selectedFormat === "csv"} onChange={(e) => setSelectedFormat(e.target.value)} className="mr-2 w-4 h-4" style={{ accentColor: "rgba(97, 0, 215, 0.8)" }} />
                 <span className="text-sm text-gray-700">CSV <span className="text-gray-400">(Spreadsheet format)</span></span>
               </label>
               <label className="flex items-center cursor-pointer">
-                <input type="radio" name="format" value="pdf" checked={selectedFormat === "pdf"} onChange={(e) => setSelectedFormat(e.target.value)} className="mr-2 w-4 h-4" style={{ accentColor: "#47315E" }} />
+                <input type="radio" name="format" value="pdf" checked={selectedFormat === "pdf"} onChange={(e) => setSelectedFormat(e.target.value)} className="mr-2 w-4 h-4" style={{ accentColor: "rgba(97, 0, 215, 0.8)" }} />
                 <span className="text-sm text-gray-700">PDF <span className="text-gray-400">(Text report format)</span></span>
               </label>
             </div>
@@ -207,7 +207,7 @@ export default function ExportPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           {/* Export All Data */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+            <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
               Export All Data
             </div>
             <div className="p-6">
@@ -217,10 +217,10 @@ export default function ExportPage() {
               <button
                 onClick={handleExportAll}
                 disabled={isExporting}
-                className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ backgroundColor: "#47315E" }}
-                onMouseEnter={(e) => { if (!isExporting) e.currentTarget.style.backgroundColor = "#3a2649"; }}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
+                className="w-full text-sm font-medium py-2.5 px-4 rounded-lg transition-colors border-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: "rgba(97, 0, 215, 0.08)", borderColor: "rgba(97, 0, 215, 0.24)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
+                onMouseEnter={(e) => { if (!isExporting) { e.currentTarget.style.backgroundColor = "#ffffff"; e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.8)"; } }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.08)"; e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.24)"; }}
               >
                 {isExporting ? "Exporting..." : `Export All Data (${selectedFormat.toUpperCase()})`}
               </button>
@@ -229,7 +229,7 @@ export default function ExportPage() {
 
           {/* Export Youth Intake Data */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+            <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
               Export Youth Intake Data
             </div>
             <div className="p-6">
@@ -239,10 +239,10 @@ export default function ExportPage() {
               <button
                 onClick={handleExportYouthIntake}
                 disabled={isExporting}
-                className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ backgroundColor: "#47315E" }}
-                onMouseEnter={(e) => { if (!isExporting) e.currentTarget.style.backgroundColor = "#3a2649"; }}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
+                className="w-full text-sm font-medium py-2.5 px-4 rounded-lg transition-colors border-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: "rgba(97, 0, 215, 0.08)", borderColor: "rgba(97, 0, 215, 0.24)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
+                onMouseEnter={(e) => { if (!isExporting) { e.currentTarget.style.backgroundColor = "#ffffff"; e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.8)"; } }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.08)"; e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.24)"; }}
               >
                 {isExporting ? "Exporting..." : `Export Youth Intake (${selectedFormat.toUpperCase()})`}
               </button>
@@ -252,7 +252,7 @@ export default function ExportPage() {
 
         {/* Individual Table Exports */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-          <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+          <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
             Export Individual Tables
           </div>
           <div className="p-6">
@@ -263,10 +263,10 @@ export default function ExportPage() {
                   key={tableName}
                   onClick={() => handleExportTable(tableName)}
                   disabled={isExporting}
-                  className="inline-flex items-center justify-center text-xs font-medium px-3 py-2 rounded-lg transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
-                  style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#47315E" }}
-                  onMouseEnter={(e) => { if (!isExporting) e.currentTarget.style.backgroundColor = "#9899C0"; }}
-                  onMouseLeave={(e) => { if (!isExporting) e.currentTarget.style.backgroundColor = "#B2B3D7"; }}
+                  className="inline-flex items-center justify-center text-xs font-medium px-3 py-2 rounded-lg transition-colors border-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ backgroundColor: "rgba(97, 0, 215, 0.02)", borderColor: "rgba(97, 0, 215, 0.3)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
+                  onMouseEnter={(e) => { if (!isExporting) { e.currentTarget.style.backgroundColor = "#ffffff"; e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.6)"; } }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)"; e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.3)"; }}
                 >
                   {isExporting ? "..." : `${tableName} (${selectedFormat.toUpperCase()})`}
                 </button>
@@ -277,7 +277,7 @@ export default function ExportPage() {
 
         {/* Status Display */}
         {exportStatus && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6 border-l-4" style={{ borderLeftColor: "#47315E" }}>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6 border-l-4" style={{ borderLeftColor: "rgba(97, 0, 215, 0.8)" }}>
             <div className="p-4">
               <p className="text-gray-700 text-sm font-medium">{exportStatus}</p>
             </div>
@@ -286,7 +286,7 @@ export default function ExportPage() {
 
         {/* Instructions */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+          <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
             Export Instructions
           </div>
           <div className="p-6">
@@ -307,7 +307,7 @@ export default function ExportPage() {
         {showConfirmModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden">
-              <div className="px-6 py-4" style={{ backgroundColor: "#47315E" }}>
+              <div className="px-6 py-4" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
                 <div className="flex items-center">
                   <svg className="h-5 w-5 text-white flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
@@ -327,10 +327,10 @@ export default function ExportPage() {
                 </button>
                 <button
                   onClick={handleConfirm}
-                  className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors"
-                  style={{ backgroundColor: "#47315E" }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
+                  className="px-4 py-2 text-sm font-medium rounded-lg transition-colors border-2"
+                  style={{ backgroundColor: "rgba(97, 0, 215, 0.02)", borderColor: "rgba(97, 0, 215, 0.3)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#ffffff"; e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.6)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)"; e.currentTarget.style.borderColor = "rgba(97, 0, 215, 0.3)"; }}
                 >
                   Confirm Export
                 </button>

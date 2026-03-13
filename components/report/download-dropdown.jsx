@@ -29,9 +29,9 @@ export default function DownloadDropdown({ onDownloadSelect }) {
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors flex justify-center items-center gap-2"
-                style={{ backgroundColor: "#47315E" }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
+                style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "rgba(74, 0, 153, 0.8)"}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"}
             >
                 Download as
                 <svg

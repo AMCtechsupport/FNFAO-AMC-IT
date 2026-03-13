@@ -162,20 +162,12 @@ export default function FullIntakeForm({
     };
 
     runPatch();
-    const timers = [
-      setTimeout(runPatch, 50),
-      setTimeout(runPatch, 150),
-      setTimeout(runPatch, 300),
-      setTimeout(runPatch, 600),
-      setTimeout(runPatch, 1000),
-    ];
 
-    const onClick = () => runPatch();
-    document.addEventListener("click", onClick);
+    const observer = new MutationObserver(() => runPatch());
+    observer.observe(document.body, { childList: true, subtree: true });
 
     return () => {
-      timers.forEach(clearTimeout);
-      document.removeEventListener("click", onClick);
+      observer.disconnect();
       document.getElementById("view-only-style")?.remove();
     };
   }, [isViewOnly]);
@@ -378,7 +370,7 @@ export default function FullIntakeForm({
                     className="px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors"
                     style={
                       activeTab === i
-                        ? { backgroundColor: "#47315E", color: "#fff", borderBottom: "2px solid #47315E" }
+                        ? { backgroundColor: "rgba(97, 0, 215, 0.8)", color: "#fff", borderBottom: "2px solid rgba(97, 0, 215, 0.8)" }
                         : { color: "#6b7280", borderBottom: "2px solid transparent" }
                     }
                   >
@@ -487,9 +479,9 @@ export default function FullIntakeForm({
                 <button
                   type="submit"
                   className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors"
-                  style={{ backgroundColor: "#47315E" }}
-                  onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
-                  onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#47315E")}
+                  style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+                  onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "rgba(74, 0, 153, 0.8)")}
+                  onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)")}
                 >
                   Save
                 </button>

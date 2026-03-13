@@ -20,14 +20,18 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
         className={`px-2 py-1 rounded-md ${
           currentPage === 1
             ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-            : "bg-indigo-500 text-white hover:bg-indigo-600"
+            : "text-white hover:bg-purple-700/80/80"
         }`}
+        style={{
+          backgroundColor:
+            currentPage === 1 ? undefined : "rgba(97, 0, 215, 0.8)",
+        }}
       >
         Previous
       </button>
 
       {/* It shows the ellipsis for the middle pages */}
-      
+
       <div className="flex gap-1">
         {[...Array(totalPages)].map((_, idx) => {
           const pageNum = idx + 1;
@@ -42,30 +46,47 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
                 onClick={() => onPageChange(pageNum)}
                 className={`px-2 py-1 rounded-md ${
                   currentPage === pageNum
-                    ? "bg-indigo-500 text-white"
+                    ? "text-white"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
+                style={{
+                  backgroundColor:
+                    currentPage === pageNum
+                      ? "rgba(97, 0, 215, 0.8)"
+                      : undefined,
+                }}
               >
                 {pageNum}
               </button>
             );
-          } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
-            return <span key={pageNum} className="px-2">...</span>;
+          } else if (
+            pageNum === currentPage - 2 ||
+            pageNum === currentPage + 2
+          ) {
+            return (
+              <span key={pageNum} className="px-2">
+                ...
+              </span>
+            );
           }
           return null;
         })}
       </div>
 
       {/* It shows the Next button layout*/}
-      
+
       <button
         onClick={next}
         disabled={currentPage === totalPages}
         className={`px-2 py-1 rounded-md ${
           currentPage === totalPages
             ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-            : "bg-indigo-500 text-white hover:bg-indigo-600"
+            : "text-white hover:bg-purple-700/80/80"
         }`}
+        style={{
+          backgroundColor:
+            currentPage === totalPages ? undefined : "rgba(97, 0, 215, 0.8)",
+        }}
       >
         Next
       </button>

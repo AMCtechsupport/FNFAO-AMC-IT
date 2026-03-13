@@ -6,6 +6,7 @@ import { deleteClient } from "../src/app/lib/delete-client-server";
 import Pagination from "./report/pages-pagination";
 import DeleteConfirmModal from "./DeleteConfirmModal";
 import ToastNotification from "./ToastNotification";
+import SortDropdown from "./sort-dropdown";
 
 const formTypeBadge = (type) => {
   const isYouth = type === "Youth";
@@ -40,7 +41,7 @@ function ClientTable({
       {/* Section header */}
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-bold text-gray-900">{title}</h2>
-        <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: "#F0EEF6", color: "#47315E", border: "1px solid #B2B3D7" }}>
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: "rgba(240, 238, 246, 0.8)", color: "rgba(97, 0, 215, 0.8)", border: "1px solid rgba(178, 179, 215, 0.8)" }}>
           <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span>
           {clients.length} {clients.length === 1 ? "client" : "clients"}
         </span>
@@ -50,8 +51,8 @@ function ClientTable({
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex-1">
         <table className="min-w-full text-sm text-left">
           <thead>
-            <tr className="text-white" style={{ backgroundColor: "#47315E" }}>
-              <th className="py-3 px-4 font-semibold text-xs uppercase tracking-wider">Name</th>
+            <tr className="text-white" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
+              <th className="py-3 px-4 font-semibold text-xs uppercase tracking-wider text-center">Name</th>
               <th className="py-3 px-4 font-semibold text-xs uppercase tracking-wider text-center">Action</th>
             </tr>
           </thead>
@@ -82,16 +83,16 @@ function ClientTable({
                     key={client.client_id}
                     className={`transition-colors hover:bg-gray-50 ${index % 2 !== 0 ? "bg-gray-50/50" : ""}`}
                   >
-                    <td className="py-3 px-4 font-medium text-gray-800">{fullName || "—"}</td>
+                    <td className="py-3 px-4 font-medium text-gray-800 text-center">{fullName || "—"}</td>
                     <td className="py-3 px-4 whitespace-nowrap">
                       <div className="flex items-center justify-center gap-1.5">
                         <button
                           onClick={() => onView(client)}
                           disabled={isBusy}
                           className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
-                          style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#47315E" }}
-                          onMouseEnter={e => { if (!isBusy) e.currentTarget.style.backgroundColor = "#9899C0"; }}
-                          onMouseLeave={e => { if (!isBusy) e.currentTarget.style.backgroundColor = "#B2B3D7"; }}
+                          style={{ backgroundColor: "rgba(97, 0, 215, 0.08)", borderColor: "rgba(97, 0, 215, 0.24)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
+                          onMouseEnter={e => { if (!isBusy) { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"; e.currentTarget.style.color = "#ffffff"; } }}
+                          onMouseLeave={e => { if (!isBusy) { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.08)"; e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)"; } }}
                         >
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
@@ -102,7 +103,10 @@ function ClientTable({
                         <button
                           onClick={() => onDelete(client)}
                           disabled={isBusy}
-                          className="inline-flex items-center gap-1.5 text-xs font-medium text-red-500 bg-red-50 hover:bg-red-100 border border-red-200 px-2.5 py-1 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
+                          style={{ backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.3)", color: "#ef4444", transition: "all 0.3s ease" }}
+                          onMouseEnter={e => { if (!isBusy) { e.currentTarget.style.backgroundColor = "#ef4444"; e.currentTarget.style.color = "#ffffff"; } }}
+                          onMouseLeave={e => { if (!isBusy) { e.currentTarget.style.backgroundColor = "rgba(239, 68, 68, 0.1)"; e.currentTarget.style.color = "#ef4444"; } }}
                         >
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
@@ -282,7 +286,7 @@ export default function ClientsList() {
           <h1 className="text-2xl font-bold text-gray-900">List of Clients</h1>
           <p className="text-sm text-gray-500 mt-1">All youth and adult clients in the system</p>
         </div>
-        <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: "#F0EEF6", color: "#47315E", border: "1px solid #B2B3D7" }}>
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: "rgba(240, 238, 246, 0.8)", color: "rgba(97, 0, 215, 0.8)", border: "1px solid rgba(178, 179, 215, 0.8)" }}>
           <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span>
           {allYouthClients.length + allAdultClients.length} total
         </span>
@@ -291,59 +295,14 @@ export default function ClientsList() {
       {/* Filter Search */}
        <div className="flex justify-end pb-4">
         <div className="relative inline-block">
-
-          {/* Dropdown */}
-          <select
-            className="
-              appearance-none
-              bg-[#47315E]  /* Dark purple background */
-              text-white    /* White text */
-              text-sm
-              font-medium
-              rounded-lg
-              pl-10    /* padding left for icon */
-              pr-6     /* padding right for arrow */
-              py-2
-              cursor-pointer
-              shadow-md
-              transition
-              hover:bg-[#5A3D8A]   /* lighter hover background */
-            "
+          <SortDropdown
             value={sortOption}
-            onChange={(e) => {
-              setSortOption(e.target.value);
+            onChange={(value) => {
+              setSortOption(value);
               setCurrentYouthPage(1);
               setCurrentAdultPage(1);
             }}
-          >
-            <option value="newest">Newest</option>
-            <option value="oldest">Oldest</option>
-            <option value="az">A-Z</option>
-            <option value="za">Z-A</option>
-          </select>
-
-           {/* Hamburger icon inside the select */}
-          <svg
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white pointer-events-none"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-
-          {/* Dropdown arrow */}
-          <svg
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-white pointer-events-none"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-          </svg>
-
+          />
         </div>
       </div>
 

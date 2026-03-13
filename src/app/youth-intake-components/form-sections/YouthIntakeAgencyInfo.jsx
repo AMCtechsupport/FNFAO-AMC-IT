@@ -6,7 +6,6 @@ import ValidNameInput from "@/components/ValidNameInput";
 import StatusCFSFileSelect from "@/components/StatusCFSFileSelect";
 import ManageCfsAgencies from "@/components/ManageCfsAgencies";
 
-const fieldCls = "w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white";
 const labelCls = "block text-xs font-medium text-gray-600 mb-1";
 
 const RadioPair = ({ name }) => (
@@ -23,7 +22,7 @@ const RadioPair = ({ name }) => (
 const YouthIntakeAgencyInfo = ({ values, errors }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-      <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+      <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
         Agency Information
       </div>
       <div className="p-5 space-y-4">
@@ -64,7 +63,7 @@ const YouthIntakeAgencyInfo = ({ values, errors }) => {
         <div className="grid grid-cols-12 gap-4">
           <div className="col-span-4">
             <label className={labelCls} htmlFor="cfsAgentEmail">Email:</label>
-            <Field type="email" id="cfsAgentEmail" name="cfsAgentEmail" placeholder="e.g., name@example.com" className={fieldCls} />
+            <Field type="email" id="cfsAgentEmail" name="cfsAgentEmail" placeholder="e.g., name@example.com" className={styles.input} />
             <ErrorMessage name="cfsAgentEmail" component={() => <p className={styles.errorText}>{errors.cfsAgentEmail}</p>} />
           </div>
         </div>

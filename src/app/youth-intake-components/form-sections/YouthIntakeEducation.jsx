@@ -18,10 +18,10 @@ const RadioPair = ({ name, labelYes = "Yes", labelNo = "No" }) => (
   </div>
 );
 
-const YouthIntakeEducation = ({ values, setFieldValue, errors }) => {
+const YouthIntakeEducation = ({ values, setFieldValue, errors, isEditing }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-      <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+      <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
         Education
       </div>
       <div className="p-5 space-y-4">
@@ -83,7 +83,7 @@ const YouthIntakeEducation = ({ values, setFieldValue, errors }) => {
                   name={name}
                   id={name}
                   onChange={({ target: { checked } }) => setFieldValue(name, checked)}
-                  className="w-4 h-4 accent-purple-600"
+                  className="w-4 h-4 accent-purple-600/80"
                 />
                 <label htmlFor={name} className="text-sm font-normal text-gray-700 cursor-pointer">{label}</label>
               </div>
@@ -117,9 +117,11 @@ const YouthIntakeEducation = ({ values, setFieldValue, errors }) => {
                   <div key={index} className="bg-white rounded-lg border border-gray-200 p-4">
                     <div className="flex items-center justify-between mb-3">
                       <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Person {index + 1}</p>
-                      <button type="button" onClick={() => remove(index)} className="text-xs px-3 py-1 rounded-full text-white font-medium transition-colors" style={{ backgroundColor: "#ef4444" }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#dc2626")} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#ef4444")}>
+                      {isEditing && (
+                      <button type="button" onClick={() => remove(index)} className="text-xs px-3 py-1 rounded-full font-medium transition-colors border" style={{ backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.3)", color: "#ef4444", transition: "all 0.3s ease" }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#ef4444"; e.currentTarget.style.color = "#ffffff"; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239, 68, 68, 0.1)"; e.currentTarget.style.color = "#ef4444"; }}>
                         Delete
                       </button>
+                      )}
                     </div>
                     <div className="grid grid-cols-12 gap-4 mb-3">
                       <div className="col-span-3">
@@ -150,16 +152,18 @@ const YouthIntakeEducation = ({ values, setFieldValue, errors }) => {
                     </div>
                   </div>
                 ))}
+                {isEditing && (
                 <button
                   type="button"
                   onClick={() => push({ firstName: "", middleName: "", lastName: "", relationship: "", phoneNumber: "", email: "" })}
-                  className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-colors border text-white"
-                  style={{ backgroundColor: "#47315E", borderColor: "#3a2649" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3a2649")}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#47315E")}
+                  className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-colors border"
+                  style={{ backgroundColor: "rgba(97, 0, 215, 0.08)", borderColor: "rgba(97, 0, 215, 0.24)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"; e.currentTarget.style.color = "#ffffff"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.08)"; e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)"; }}
                 >
                   + Add Educational Support Person
                 </button>
+                )}
               </div>
             )}
           </FieldArray>

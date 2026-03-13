@@ -87,11 +87,9 @@ const UserLogs = () => {
     <UserHome>
       <main className="min-h-screen bg-gray-100 p-6">
         {/* Page Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Activity Logs</h1>
-            <p className="text-sm text-gray-500 mt-1">Track all system activity and client updates</p>
-          </div>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Activity Logs</h1>
+          <p className="text-sm text-gray-500 mt-1">Track all system activity and client updates</p>
         </div>
 
         {/* Search Bar */}

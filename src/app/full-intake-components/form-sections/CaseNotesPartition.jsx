@@ -70,7 +70,7 @@ const CaseNotesPartition = ({
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
                             <table className="w-full text-sm border-collapse">
                                 <thead>
-                                    <tr className="text-white text-xs uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+                                    <tr className="text-white text-xs uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
                                         <th className="px-4 py-2 text-left" style={{ width: "30%" }}>Created At</th>
                                         <th className="px-4 py-2 text-left" style={{ width: "30%" }}>Type</th>
                                         <th className="px-4 py-2 text-left text-center" style={{ width: "20%" }}>Actions</th>
@@ -123,7 +123,7 @@ const CaseNotesPartition = ({
                     {selectedNote && !editingNote && (
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4">
                             {/* Header bar */}
-                            <div className="px-5 py-3 text-white flex items-center justify-between" style={{ backgroundColor: "#47315E" }}>
+                            <div className="px-5 py-3 text-white flex items-center justify-between" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
                                 <span className="font-semibold text-sm">Case Note</span>
                                 <span className="text-xs opacity-80"><FormattedDate dateString={selectedNote.createdAt} /></span>
                             </div>
@@ -213,13 +213,13 @@ const CaseNotesPartition = ({
             {/* Edit note form */}
             {editingNote && editValues && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-                    <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>Edit Case Note</div>
+                    <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>Edit Case Note</div>
                     <div className="p-5">
                         <div className="grid grid-cols-2 gap-4 mb-4">
                             <div>
                                 <label className="block text-xs font-medium text-gray-600 mb-1">Type</label>
                                 <select
-                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
+                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white"
                                     value={editValues.type}
                                     onChange={(e) => setEditValues({ ...editValues, type: e.target.value })}
                                 >
@@ -235,7 +235,7 @@ const CaseNotesPartition = ({
                             <div>
                                 <label className="block text-xs font-medium text-gray-600 mb-1">Subtype</label>
                                 <select
-                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
+                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white"
                                     value={editValues.subType}
                                     onChange={(e) => setEditValues({ ...editValues, subType: e.target.value })}
                                 >
@@ -252,7 +252,7 @@ const CaseNotesPartition = ({
                             <div>
                                 <label className="block text-xs font-medium text-gray-600 mb-1">Description</label>
                                 <textarea
-                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-vertical"
+                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white resize-vertical"
                                     rows={5}
                                     value={editValues.description}
                                     onChange={(e) => setEditValues({ ...editValues, description: e.target.value })}
@@ -261,7 +261,7 @@ const CaseNotesPartition = ({
                             <div>
                                 <label className="block text-xs font-medium text-gray-600 mb-1">Action Plan</label>
                                 <textarea
-                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-vertical"
+                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white resize-vertical"
                                     rows={5}
                                     value={editValues.actionPlan}
                                     onChange={(e) => setEditValues({ ...editValues, actionPlan: e.target.value })}
@@ -282,7 +282,7 @@ const CaseNotesPartition = ({
                             <input
                                 type="file"
                                 accept="image/*,.pdf,.doc,.docx"
-                                className="w-full text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700"
+                                className="w-full text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-purple-50/80 file:text-purple-700/80"
                                 onChange={(e) => setEditFile(e.target.files[0] || null)}
                             />
                             {editFile && (
@@ -295,7 +295,7 @@ const CaseNotesPartition = ({
                         <div className="flex gap-2 mt-4">
                             <button
                                 className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors"
-                                style={{ backgroundColor: "#47315E" }}
+                                style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
                                 onClick={() => handleSaveNoteEdit(editingNote.note_id, editValues, editFile)}
                             >
                                 Save Changes
@@ -318,7 +318,7 @@ const CaseNotesPartition = ({
                     {({ push }) => (
                         <button
                             className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                            style={{ backgroundColor: "#47315E" }}
+                            style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
                             onClick={() => handleAddNoteClick(values, push, "case")}
                             disabled={!isEditing || !isAssignedAdvocate}
                         >
@@ -331,7 +331,7 @@ const CaseNotesPartition = ({
             {/* New note form */}
             {showNewNoteForm && !editingNote && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-                    <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>New Case Note</div>
+                    <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>New Case Note</div>
                     <div className="p-5">
                         <div className="grid grid-cols-2 gap-4 mb-4">
                             <div>
@@ -348,7 +348,7 @@ const CaseNotesPartition = ({
                                 <Field
                                     name={`notes.${values.notes.length - 1}.description`}
                                     as="textarea"
-                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-vertical"
+                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white resize-vertical"
                                     rows={5}
                                 />
                             </div>
@@ -357,7 +357,7 @@ const CaseNotesPartition = ({
                                 <Field
                                     name={`notes.${values.notes.length - 1}.actionPlan`}
                                     as="textarea"
-                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-vertical"
+                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white resize-vertical"
                                     rows={5}
                                 />
                             </div>
@@ -368,7 +368,7 @@ const CaseNotesPartition = ({
                             <input
                                 type="file"
                                 accept="image/*,.pdf,.doc,.docx"
-                                className="w-full text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700"
+                                className="w-full text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-purple-50/80 file:text-purple-700/80"
                                 onChange={(event) => {
                                     const file = event.currentTarget.files[0];
                                     setFieldValue(`notes.${values.notes.length - 1}.file`, file);
@@ -379,7 +379,7 @@ const CaseNotesPartition = ({
                         <div className="flex gap-2 mt-4">
                             <button
                                 className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors"
-                                style={{ backgroundColor: "#47315E" }}
+                                style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
                                 onClick={() => handleSaveNewNote(values.notes[values.notes.length - 1], setFieldValue, values.notes)}
                             >
                                 Save

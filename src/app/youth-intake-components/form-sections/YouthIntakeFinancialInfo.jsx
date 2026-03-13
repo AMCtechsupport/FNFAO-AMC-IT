@@ -4,7 +4,6 @@ import { Field, ErrorMessage } from "formik";
 import ValidNameInput from "@/components/ValidNameInput";
 import PhoneNumberInput from "@/components/ValidPhoneNumber";
 
-const fieldCls = "w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white";
 const labelCls = "block text-xs font-medium text-gray-600 mb-1";
 
 const RadioPair = ({ name }) => (
@@ -21,7 +20,7 @@ const RadioPair = ({ name }) => (
 const YouthIntakeFinancialInfo = ({ errors }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-      <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+      <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
         Financial Information
       </div>
       <div className="p-5 space-y-4">
@@ -50,7 +49,7 @@ const YouthIntakeFinancialInfo = ({ errors }) => {
           </div>
           <div className="col-span-4">
             <label className={labelCls} htmlFor="caseWorkerEmail">Case Worker Email:</label>
-            <Field type="email" id="caseWorkerEmail" name="caseWorkerEmail" placeholder="e.g., name@example.com" className={fieldCls} />
+            <Field type="email" id="caseWorkerEmail" name="caseWorkerEmail" placeholder="e.g., name@example.com" className={styles.input} />
             <ErrorMessage name="caseWorkerEmail" component={() => <p className={styles.errorText}>{errors.caseWorkerEmail}</p>} />
           </div>
         </div>

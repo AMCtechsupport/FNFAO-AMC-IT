@@ -5,7 +5,7 @@ import { createAdvocate } from "../src/app/lib/create-advocate-server";
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
 
-const LinkAdvocate = () => {
+const LinkAdvocate = ({ onAdvocateCreated }) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -58,6 +58,9 @@ const LinkAdvocate = () => {
             const message =
               emailResult?.error || "Welcome email could not be sent.";
             setError(`Advocate created, but email was not sent: ${message}`);
+          } else {
+            // Email sent successfully - trigger refresh of pending advocates
+            if (onAdvocateCreated) onAdvocateCreated();
           }
         } catch (emailErr) {
           console.error("Welcome email failed:", emailErr);
@@ -83,9 +86,9 @@ const LinkAdvocate = () => {
       {/* Header */}
       <div
         className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider"
-        style={{ backgroundColor: "#47315E" }}
+        style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
       >
-        Create New Advocate
+        Create New User
       </div>
 
       <div className="p-6">
@@ -113,7 +116,7 @@ const LinkAdvocate = () => {
               id="firstName"
               type="text"
               value={firstName}
-              placeholder="Advocate's first name"
+              placeholder="User's first name"
               onChange={(e) => {
                 setFirstName(e.target.value);
                 if (success) setSuccess(null);
@@ -134,7 +137,7 @@ const LinkAdvocate = () => {
               id="lastName"
               type="text"
               value={lastName}
-              placeholder="Advocate's last name"
+              placeholder="User's last name"
               onChange={(e) => {
                 setLastName(e.target.value);
                 if (success) setSuccess(null);
@@ -166,7 +169,7 @@ const LinkAdvocate = () => {
           </div>
 
           <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg space-y-1.5 text-sm text-gray-600">
-            <p>• Creates a user account so the advocate can log in</p>
+            <p>• Creates a user account so the user can log in</p>
             <p>• Sends an invitation email to set up their password</p>
           </div>
 
@@ -175,18 +178,26 @@ const LinkAdvocate = () => {
             disabled={loading}
             className="w-full py-2.5 text-sm font-medium rounded-lg transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
-              backgroundColor: "#B2B3D7",
-              borderColor: "#9899C0",
-              color: "#47315E",
+              backgroundColor: "rgba(97, 0, 215, 0.02)",
+              borderColor: "rgba(97, 0, 215, 0.3)",
+              color: "rgba(97, 0, 215, 0.8)",
+              transition: "all 0.3s ease",
             }}
             onMouseEnter={(e) => {
-              if (!loading) e.currentTarget.style.backgroundColor = "#9899C0";
+              if (!loading) {
+                e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)";
+                e.currentTarget.style.color = "#ffffff";
+              }
             }}
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "#B2B3D7")
-            }
+            onMouseLeave={(e) => {
+              if (!loading) {
+                e.currentTarget.style.backgroundColor =
+                  "rgba(97, 0, 215, 0.02)";
+                e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)";
+              }
+            }}
           >
-            {loading ? "Creating..." : "Create Advocate"}
+            {loading ? "Creating..." : "Create User"}
           </button>
         </form>
       </div>

@@ -7,7 +7,6 @@ import ProvincesSelect from "@/components/ProvincesSelect";
 import PronounSelect from "@/components/Pronouns";
 import FirstNationSelect from "@/components/FirstNationSelect";
 
-const fieldCls = "w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white";
 const labelCls = "block text-xs font-medium text-gray-600 mb-1";
 const today = new Date().toISOString().split("T")[0]; // get the current date
 
@@ -17,7 +16,7 @@ const YouthIntakeGeneralInfo = ({ errors, isEditMode, assignedAdvocateName }) =>
   return (
     <>
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-        <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+        <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
           General Information
         </div>
         <div className="p-5 space-y-4">
@@ -60,7 +59,7 @@ const YouthIntakeGeneralInfo = ({ errors, isEditMode, assignedAdvocateName }) =>
           <div className="grid grid-cols-12 gap-4">
             <div className="col-span-3">
               <label className={labelCls} htmlFor="dateOfBirth">Birth Date:*</label>
-              <Field type="date" id="dateOfBirth" name="dateOfBirth" className={fieldCls} max={today} />
+              <Field type="date" id="dateOfBirth" name="dateOfBirth" className={styles.input} max={today} />
               <ErrorMessage name="dateOfBirth" component={() => <p className={styles.errorText}>{errors.dateOfBirth}</p>} />
             </div>
             <div className="col-span-3">
@@ -84,14 +83,14 @@ const YouthIntakeGeneralInfo = ({ errors, isEditMode, assignedAdvocateName }) =>
             </div>
             <div className="col-span-5">
               <label className={labelCls} htmlFor="socialMedia">Social Media Contact:</label>
-              <Field type="text" id="socialMedia" name="socialMedia" placeholder="e.g., 'Name' on 'Platform'" className={fieldCls} />
+              <Field type="text" id="socialMedia" name="socialMedia" placeholder="e.g., 'Name' on 'Platform'" className={styles.input} />
             </div>
           </div>
 
           <div className="grid grid-cols-12 gap-4">
             <div className="col-span-5">
               <label className={labelCls} htmlFor="email">Email:</label>
-              <Field type="email" id="email" name="email" placeholder="e.g., name@example.com" className={fieldCls} />
+              <Field type="email" id="email" name="email" placeholder="e.g., name@example.com" className={styles.input} />
               <ErrorMessage name="email" component={() => <p className={styles.errorText}>{errors.email}</p>} />
             </div>
           </div>
@@ -105,7 +104,7 @@ const YouthIntakeGeneralInfo = ({ errors, isEditMode, assignedAdvocateName }) =>
               <Field
                 type="text" inputMode="numeric" pattern="\d*" maxLength={10}
                 id="treatyNumber" placeholder="1234567890" name="treatyNumber"
-                className={fieldCls}
+                className={styles.input}
                 onChange={(e) => { const d = String(e.target.value || "").replace(/\D/g, ""); setFieldValue("treatyNumber", d); }}
                 onBlur={(e) => { const d = String(e.target.value || "").replace(/\D/g, ""); setFieldValue("treatyNumber", d.length > 0 ? d.padStart(10, "0") : ""); }}
               />

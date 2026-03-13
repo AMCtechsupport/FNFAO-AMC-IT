@@ -21,7 +21,7 @@ const LogModal = ({ log, onClose }) => {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100" style={{ backgroundColor: "#47315E" }}>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
               <svg className="w-3.5 h-3.5 text-white/70" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -94,9 +94,9 @@ const LogModal = ({ log, onClose }) => {
           <button
             onClick={onClose}
             className="px-5 py-2 text-sm font-medium text-white rounded-lg transition-colors"
-            style={{ backgroundColor: "#47315E" }}
-            onMouseEnter={e => e.currentTarget.style.backgroundColor = "#5a3d72"}
-            onMouseLeave={e => e.currentTarget.style.backgroundColor = "#47315E"}
+            style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+            onMouseEnter={e => e.currentTarget.style.backgroundColor = "rgba(74, 0, 153, 0.8)"}
+            onMouseLeave={e => e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"}
           >
             Close
           </button>

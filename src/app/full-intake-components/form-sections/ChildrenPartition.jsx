@@ -18,7 +18,7 @@ const ChildrenPartition = ({
 }) => {
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-            <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+            <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
                 Children
             </div>
             <div className="p-5">
@@ -38,10 +38,10 @@ const ChildrenPartition = ({
                                     <label className="block text-xs font-medium text-gray-600 mb-1">Are there any other adults involved in your matter?</label>
                                     <div className="flex gap-4 mt-1">
                                         <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                            <Field type="radio" name="otherAdultsInvolved" value="yes" checked={values.otherAdultsInvolved === "yes"} disabled={!isEditing} className="accent-purple-600" /> Yes
+                                            <Field type="radio" name="otherAdultsInvolved" value="yes" checked={values.otherAdultsInvolved === "yes"} disabled={!isEditing} className="accent-purple-600/80" /> Yes
                                         </label>
                                         <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                            <Field type="radio" name="otherAdultsInvolved" value="no" checked={values.otherAdultsInvolved === "no"} disabled={!isEditing} className="accent-purple-600" /> No
+                                            <Field type="radio" name="otherAdultsInvolved" value="no" checked={values.otherAdultsInvolved === "no"} disabled={!isEditing} className="accent-purple-600/80" /> No
                                         </label>
                                     </div>
                                     <ErrorMessage name="otherAdultsInvolved" component="div" className="text-xs text-red-500 mt-1" />
@@ -49,7 +49,7 @@ const ChildrenPartition = ({
                                 {values.otherAdultsInvolved === "yes" && (
                                     <div className="col-span-12">
                                         <label className="block text-xs font-medium text-gray-600 mb-1">Please specify:</label>
-                                        <Field as="textarea" name="otherAdultsInvolvedExplained" placeholder="e.g., grandparent, step-parent..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
+                                        <Field as="textarea" name="otherAdultsInvolvedExplained" placeholder="e.g., grandparent, step-parent..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white resize-none" disabled={!isEditing} />
                                         <ErrorMessage name="otherAdultsInvolvedExplained" component="div" className="text-xs text-red-500 mt-1" />
                                     </div>
                                 )}
@@ -95,7 +95,7 @@ const ChildrenPartition = ({
                                                     id={`children.${originalIndex}.birthDate`}
                                                     name={`children.${originalIndex}.birthDate`}
                                                     disabled={!isEditing}
-                                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
+                                                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white"
                                                     max={today}
                                                 />
                                                 <ErrorMessage
@@ -170,7 +170,7 @@ const ChildrenPartition = ({
                                                         name={`children.${originalIndex}.childCfsAgentEmail`}
                                                         placeholder="e.g., name@example.com"
                                                         disabled={!isEditing}
-                                                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
+                                                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white"
                                                     />
                                                     <ErrorMessage
                                                         name={`children.${originalIndex}.childCfsAgentEmail`}
@@ -198,7 +198,7 @@ const ChildrenPartition = ({
                                                         name={`children.${originalIndex}.childCfsSupervisorEmail`}
                                                         placeholder="e.g., name@example.com"
                                                         disabled={!isEditing}
-                                                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white"
+                                                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white"
                                                     />
                                                     <ErrorMessage
                                                         name={`children.${originalIndex}.childCfsSupervisorEmail`}
@@ -216,10 +216,10 @@ const ChildrenPartition = ({
                                                     <label className="block text-xs font-medium text-gray-600 mb-1">Does your child have any medical needs?</label>
                                                     <div className="flex gap-4 mt-1">
                                                         <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                                            <Field type="radio" name={`children.${originalIndex}.childMedicalNeeds`} value="yes" checked={child.childMedicalNeeds === "yes"} disabled={!isEditing} className="accent-purple-600" /> Yes
+                                                            <Field type="radio" name={`children.${originalIndex}.childMedicalNeeds`} value="yes" checked={child.childMedicalNeeds === "yes"} disabled={!isEditing} className="accent-purple-600/80" /> Yes
                                                         </label>
                                                         <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                                            <Field type="radio" name={`children.${originalIndex}.childMedicalNeeds`} value="no" checked={child.childMedicalNeeds === "no"} disabled={!isEditing} className="accent-purple-600" /> No
+                                                            <Field type="radio" name={`children.${originalIndex}.childMedicalNeeds`} value="no" checked={child.childMedicalNeeds === "no"} disabled={!isEditing} className="accent-purple-600/80" /> No
                                                         </label>
                                                     </div>
                                                     <ErrorMessage name={`children.${originalIndex}.childMedicalNeeds`} component="div" className="text-xs text-red-500 mt-1" />
@@ -227,7 +227,7 @@ const ChildrenPartition = ({
                                                 {child.childMedicalNeeds === "yes" && (
                                                     <div className="col-span-12">
                                                         <label className="block text-xs font-medium text-gray-600 mb-1">Please specify:</label>
-                                                        <Field as="textarea" name={`children.${originalIndex}.childMedicalNeedsExplained`} placeholder="e.g., diabetes, asthma..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 bg-white resize-none" disabled={!isEditing} />
+                                                        <Field as="textarea" name={`children.${originalIndex}.childMedicalNeedsExplained`} placeholder="e.g., diabetes, asthma..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white resize-none" disabled={!isEditing} />
                                                         <ErrorMessage name={`children.${originalIndex}.childMedicalNeedsExplained`} component="div" className="text-xs text-red-500 mt-1" />
                                                     </div>
                                                 )}
@@ -259,25 +259,30 @@ const ChildrenPartition = ({
                                         {/* END Another Biological Parent*/}
 
                                         {/* Delete button */}
+                                        {isEditing && (
                                         <div className="flex justify-end mt-4">
                                             <button
                                                 type="button"
-                                                className="px-3 py-1.5 text-xs font-semibold rounded-lg text-white bg-red-500 hover:bg-red-600 transition-colors"
+                                                className="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors border"
+                                                style={{ backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.3)", color: "#ef4444", transition: "all 0.3s ease" }}
                                                 onClick={() => remove(originalIndex)}
-                                                disabled={!isEditing}
+                                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#ef4444"; e.currentTarget.style.color = "#ffffff"; }}
+                                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239, 68, 68, 0.1)"; e.currentTarget.style.color = "#ef4444"; }}
                                             >
                                                 Delete
                                             </button>
                                         </div>
+                                        )}
 
                                     </div>
                                 ))}
+                            {isEditing && (
                             <button
                                 type="button"
-                                className="px-4 py-2 text-xs font-semibold rounded-lg text-white transition-colors"
-                                style={{ backgroundColor: "#47315E" }}
-                                onMouseEnter={e => e.currentTarget.style.backgroundColor = "#3a2649"}
-                                onMouseLeave={e => e.currentTarget.style.backgroundColor = "#47315E"}
+                                className="px-4 py-2 text-xs font-medium rounded-lg transition-colors border"
+                                style={{ backgroundColor: "rgba(97, 0, 215, 0.016)", borderColor: "rgba(97, 0, 215, 0.24)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
+                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"; e.currentTarget.style.color = "#ffffff"; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.016)"; e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)"; }}
                                 onClick={() =>
                                     push({
                                         firstName: "",
@@ -301,10 +306,10 @@ const ChildrenPartition = ({
                                         biologicalParentLastName: "",
                                         biologicalParentFirstNation: "",
                                     })}
-                                disabled={!isEditing}
                             >
                                 + Add Child
                             </button>
+                            )}
                         </div>
                     )}
                 </FieldArray>

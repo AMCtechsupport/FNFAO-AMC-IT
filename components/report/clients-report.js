@@ -166,7 +166,7 @@ export default function ClientsReport({ clientId, setReportData }) {
 
   const renderSection = (title, dataArray) => (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm mb-6 overflow-hidden">
-      <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+      <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
         {title}
       </div>
 
@@ -175,7 +175,7 @@ export default function ClientsReport({ clientId, setReportData }) {
           dataArray.map((record, i) => (
             <div key={i} className="mb-4">
               {dataArray.length > 1 && (
-                <h4 className="font-medium mb-2" style={{ color: "#47315E" }}>
+                <h4 className="font-medium mb-2" style={{ color: "rgba(97, 0, 215, 0.8)" }}>
                   {title} #{i + 1}
                 </h4>
               )}
@@ -199,7 +199,7 @@ export default function ClientsReport({ clientId, setReportData }) {
   return (
     <div className="space-y-0">
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm mb-6">
-        <div className="px-4 py-4 text-white text-center" style={{ backgroundColor: "#47315E" }}>
+        <div className="px-4 py-4 text-white text-center" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
           <h2 className="text-xl font-bold">Report of {fullName}</h2>
         </div>
       </div>

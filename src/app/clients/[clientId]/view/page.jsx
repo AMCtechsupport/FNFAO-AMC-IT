@@ -8,8 +8,102 @@ export default function AdultClientViewRedirect() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace(`/adult-clients/${params.clientId}/view`);
-  }, [params.clientId, router]);
+    const fetchClientName = async () => {
+      if (!client_id) return;
 
-  return null;
+      try {
+        setIsLoading(true);
+        const { data: client, error } = await supabase
+          .from("Clients")
+          .select("firstName, lastName")
+          .eq("client_id", client_id)
+          .single();
+
+        if (error) {
+          console.error("Error fetching client name:", error);
+          setClientName("Unknown Client");
+        } else {
+          setClientName(`${client.firstName} ${client.lastName}`);
+        }
+      } catch (err) {
+        console.error("Unexpected error:", err);
+        setClientName("Unknown Client");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchClientName();
+  }, [client_id]);
+
+  return (
+    <UserHome>
+      <main className="min-h-screen bg-gray-100 p-6">
+
+        {/* Page header */}
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {isLoading ? "Loading..." : clientName}
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">Adult client — read-only view</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleClose}
+              className="px-4 py-2 text-sm font-semibold rounded-lg transition-colors text-white"
+              style={{ backgroundColor: "#6b7280" }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#4b5563")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6b7280")}
+            >
+              Close
+            </button>
+            <Link
+              href={`/clients/${client_id}`}
+              className="px-4 py-2 text-sm font-semibold rounded-lg transition-colors text-white no-underline"
+              style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(58, 38, 73, 0.8)")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)")}
+            >
+              Edit
+            </Link>
+          </div>
+        </div>
+
+        {/* View-only notice */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 mb-6 text-sm text-blue-800">
+          <strong>Read-Only:</strong> You are viewing an adult client record. Switch to Edit to make changes.
+        </div>
+
+        <FullIntakeForm
+          client_id={client_id}
+          isEditMode={false}
+          isViewOnly={true}
+        />
+
+        {/* Bottom action bar */}
+        <div className="flex items-center justify-between mt-4">
+          <button
+            onClick={handleClose}
+            className="px-4 py-2 text-sm font-semibold rounded-lg transition-colors text-white"
+            style={{ backgroundColor: "#6b7280" }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#4b5563")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6b7280")}
+          >
+            Close
+          </button>
+          <Link
+            href={`/clients/${client_id}`}
+            className="px-4 py-2 text-sm font-semibold rounded-lg transition-colors text-white no-underline"
+            style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(58, 38, 73, 0.8)")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)")}
+          >
+            Edit
+          </Link>
+        </div>
+
+      </main>
+    </UserHome>
+  );
 }

@@ -149,9 +149,9 @@ export default function AdvocatesReportPage() {
           type="button"
           onClick={generateAndDownloadPDF}
           className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors mt-4"
-          style={{ backgroundColor: "#47315E" }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
+          style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "rgba(58, 38, 73, 0.8)"}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"}
         >
           Download PDF
         </button>
@@ -175,9 +175,9 @@ export default function AdvocatesReportPage() {
         type="button"
         onClick={handleFinalDownload}
         className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors mt-4"
-        style={{ backgroundColor: "#47315E" }}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
-        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
+        style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "rgba(58, 38, 73, 0.8)"}
+        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"}
       >
         Download {downloadFormat.toUpperCase()}
       </button>
@@ -199,7 +199,7 @@ export default function AdvocatesReportPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
 
           {/* Header */}
-          <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider rounded-t-xl" style={{ backgroundColor: "#47315E" }}>
+          <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider rounded-t-xl" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
             Report Filters
           </div>
 
@@ -291,9 +291,9 @@ export default function AdvocatesReportPage() {
                 type="button"
                 onClick={handleFind}
                 className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors"
-                style={{ backgroundColor: "#47315E" }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#3a2649"}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#47315E"}
+                style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "rgba(58, 38, 73, 0.8)"}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"}
               >
                 Find
               </button>

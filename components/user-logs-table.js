@@ -20,15 +20,20 @@ const logTypeBadge = (type) => {
 };
 
 const formTypeBadge = (formType) => {
-  if (!formType) return <span className="text-gray-400">—</span>;
-  const isYouth = formType === "Youth Intake";
-  const label = isYouth ? "Youth" : "Adult";
-  const style = isYouth
-    ? "bg-blue-100 text-blue-700 border border-blue-200"
-    : "bg-purple-100 text-purple-700 border border-purple-200";
+  const styles = {
+    "Youth Intake": "bg-blue-100 text-blue-700 border border-blue-200",
+    "Pre-Intake": "bg-teal-100 text-teal-700 border border-teal-200",
+  };
+  const labels = {
+    "Youth Intake": "Youth Intake",
+    "Pre-Intake": "Adult Intake",
+  };
+  if (!formType || !styles[formType]) return <span className="text-gray-400">—</span>;
   return (
-    <span className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full ${style}`}>
-      {label}
+    <span
+      className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ${styles[formType]}`}
+    >
+      {labels[formType]}
     </span>
   );
 };
@@ -67,13 +72,28 @@ const LogTable = ({ logs, loading, onLogClick }) => {
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm text-left">
           <thead>
-            <tr className="text-white" style={{ backgroundColor: "#47315E" }}>
-              <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">Created At</th>
-              <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">Client</th>
-              <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">Form Type</th>
-              <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">Description</th>
-              <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">Log Type</th>
-              <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">Updated By</th>
+            <tr
+              className="text-white"
+              style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+            >
+              <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">
+                Created At
+              </th>
+              <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">
+                Client
+              </th>
+              <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">
+                Form Type
+              </th>
+              <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">
+                Description
+              </th>
+              <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">
+                Log Type
+              </th>
+              <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">
+                Updated By
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -81,8 +101,18 @@ const LogTable = ({ logs, loading, onLogClick }) => {
               <tr>
                 <td colSpan="6" className="text-center py-16 px-6">
                   <div className="flex flex-col items-center text-gray-400">
-                    <svg className="w-10 h-10 mb-3 text-gray-300" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75M6.75 21h10.5A2.25 2.25 0 0019.5 18.75V6.108a2.25 2.25 0 00-.66-1.591L15.659 1.34A2.25 2.25 0 0014.068 .75H6.75A2.25 2.25 0 004.5 3v15.75A2.25 2.25 0 006.75 21z" />
+                    <svg
+                      className="w-10 h-10 mb-3 text-gray-300"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M9 12h3.75M9 15h3.75M9 18h3.75M6.75 21h10.5A2.25 2.25 0 0019.5 18.75V6.108a2.25 2.25 0 00-.66-1.591L15.659 1.34A2.25 2.25 0 0014.068 .75H6.75A2.25 2.25 0 004.5 3v15.75A2.25 2.25 0 006.75 21z"
+                      />
                     </svg>
                     <p className="text-sm font-medium">No logs found</p>
                     <p className="text-xs mt-1">Try adjusting your search</p>
@@ -118,20 +148,49 @@ const LogTable = ({ logs, loading, onLogClick }) => {
                     <button
                       onClick={() => onLogClick(log)}
                       className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-colors border"
-                      style={{ backgroundColor: "#B2B3D7", borderColor: "#9899C0", color: "#47315E" }}
-                      onMouseEnter={e => e.currentTarget.style.backgroundColor = "#9899C0"}
-                      onMouseLeave={e => e.currentTarget.style.backgroundColor = "#B2B3D7"}
+                      style={{
+                        backgroundColor: "rgba(97, 0, 215, 0.016)",
+                        borderColor: "rgba(97, 0, 215, 0.24)",
+                        color: "rgba(97, 0, 215, 0.8)",
+                        transition: "all 0.3s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor =
+                          "rgba(97, 0, 215, 0.8)";
+                        e.currentTarget.style.color = "#ffffff";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor =
+                          "rgba(97, 0, 215, 0.016)";
+                        e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)";
+                      }}
                     >
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <svg
+                        className="w-3.5 h-3.5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
                       </svg>
                       View
                     </button>
                   </td>
                   <td className="py-3.5 px-5">{logTypeBadge(log.logType)}</td>
                   <td className="py-3.5 px-5 text-gray-700">
-                    {log.advocateName || log.clerk_user_id || <span className="text-gray-400">—</span>}
+                    {log.advocateName || log.clerk_user_id || (
+                      <span className="text-gray-400">—</span>
+                    )}
                   </td>
                 </tr>
               ))

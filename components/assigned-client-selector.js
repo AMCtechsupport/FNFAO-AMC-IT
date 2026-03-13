@@ -35,7 +35,7 @@ export default function AssignClientSelector({ advocates }) {
     <div ref={containerRef} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden min-h-[580px]">
 
       {/* Header */}
-      <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "#47315E" }}>
+      <div className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
         View Advocate's Clients
       </div>
 
@@ -70,8 +70,8 @@ export default function AssignClientSelector({ advocates }) {
                 key={advocate.advocate_id}
                 onClick={() => setSelectedAdvocate(selectedAdvocate === advocate.advocate_id ? null : advocate.advocate_id)}
                 className="px-3 py-2.5 cursor-pointer transition-colors text-sm"
-                style={{ backgroundColor: selectedAdvocate === advocate.advocate_id ? "#F0EEF6" : "" }}
-                onMouseEnter={(e) => { if (selectedAdvocate !== advocate.advocate_id) e.currentTarget.style.backgroundColor = "#F8F7FC"; }}
+                style={{ backgroundColor: selectedAdvocate === advocate.advocate_id ? "rgba(240, 238, 246, 0.8)" : "" }}
+                onMouseEnter={(e) => { if (selectedAdvocate !== advocate.advocate_id) e.currentTarget.style.backgroundColor = "rgba(248, 247, 252, 0.8)"; }}
                 onMouseLeave={(e) => { if (selectedAdvocate !== advocate.advocate_id) e.currentTarget.style.backgroundColor = ""; }}
               >
                 <p className="font-medium text-gray-800">{advocate.firstName} {advocate.lastName}</p>
