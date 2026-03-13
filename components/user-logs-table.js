@@ -20,17 +20,20 @@ const logTypeBadge = (type) => {
 };
 
 const formTypeBadge = (formType) => {
-  if (!formType) return <span className="text-gray-400">—</span>;
-  const isYouth = formType === "Youth Intake";
-  const label = isYouth ? "Youth" : "Adult";
-  const style = isYouth
-    ? "bg-blue-100 text-blue-700 border border-blue-200"
-    : "bg-purple-100/80/80 text-purple-700/80/80 border border-purple-200/80/80";
+  const styles = {
+    "Youth Intake": "bg-blue-100 text-blue-700 border border-blue-200",
+    "Pre-Intake": "bg-teal-100 text-teal-700 border border-teal-200",
+  };
+  const labels = {
+    "Youth Intake": "Youth Intake",
+    "Pre-Intake": "Adult Intake",
+  };
+  if (!formType || !styles[formType]) return <span className="text-gray-400">—</span>;
   return (
     <span
-      className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full ${style}`}
+      className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ${styles[formType]}`}
     >
-      {label}
+      {labels[formType]}
     </span>
   );
 };
@@ -73,9 +76,6 @@ const LogTable = ({ logs, loading, onLogClick }) => {
               className="text-white"
               style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
             >
-              <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">
-                Log ID
-              </th>
               <th className="py-3.5 px-5 font-semibold text-xs uppercase tracking-wider">
                 Created At
               </th>

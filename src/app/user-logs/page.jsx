@@ -87,17 +87,9 @@ const UserLogs = () => {
     <UserHome>
       <main className="min-h-screen bg-gray-100 p-6">
         {/* Page Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Activity Logs</h1>
-            <p className="text-sm text-gray-500 mt-1">Track all system activity and client updates</p>
-          </div>
-          {!loading && (
-            <span className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-full" style={{ backgroundColor: "rgba(240, 238, 246, 0.8)", color: "rgba(97, 0, 215, 0.8)", border: "1px solid rgba(178, 179, 215, 0.8)" }}>
-              <span className="w-2 h-2 rounded-full inline-block bg-purple-600/80"></span>
-              {totalLogs} {totalLogs === 1 ? "entry" : "entries"}
-            </span>
-          )}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Activity Logs</h1>
+          <p className="text-sm text-gray-500 mt-1">Track all system activity and client updates</p>
         </div>
 
         {/* Search Bar */}
