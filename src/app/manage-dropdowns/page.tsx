@@ -9,7 +9,7 @@ const FirstNationManagementPage = () => {
       <main className="min-h-screen bg-gray-100 p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Manage Dropdowns</h1>
             <p className="text-sm text-gray-500 mt-1">Manage dropdown options used across the application</p>
           </div>
         </div>

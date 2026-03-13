@@ -45,7 +45,7 @@ export default function UserHome(props: { children: ReactNode }) {
             <UserHomeLink name="User Logs" path="user-logs" />
           )}
           {userRole === "admin" && (
-            <UserHomeLink name="Settings" path="settings" />
+            <UserHomeLink name="Manage Dropdowns" path="manage-dropdowns" />
           )}
           {userRole === "admin" && <UserHomeLink name="Export" path="export" />}
           {userRole === "admin" && <UserHomeLink name="Report" path="report" />}

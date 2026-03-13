@@ -8,7 +8,7 @@ const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
 const isAdminOnlyRoute = createRouteMatcher([
   "/admin(.*)",
   "/user-logs(.*)",
-  "/settings(.*)",
+  "/manage-dropdowns(.*)",
   "/export(.*)",
   "/report(.*)",
   "/profile(.*)",
