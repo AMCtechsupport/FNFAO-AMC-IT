@@ -38,7 +38,7 @@ const PreIntakeGeneralInfo = ({ errors }) => {
             </div>
             <div className="col-span-3">
               <label className={labelCls} htmlFor="dateOfBirth">Date of Birth:*</label>
-              <Field type="date" id="dateOfBirth" name="dateOfBirth" className={styles.input} max={today}/>
+              <Field type="date" id="dateOfBirth" name="dateOfBirth" className={styles.input} max={today} />
               <ErrorMessage name="dateOfBirth" component={() => <p className={styles.errorText}>{errors.dateOfBirth}</p>} />
             </div>
           </div>
