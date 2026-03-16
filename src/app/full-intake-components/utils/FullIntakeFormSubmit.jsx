@@ -63,7 +63,7 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
                     }
                 }
                 if (noteChanges.length > 0) {
-                    lines.push(`${orig.noteType || "Note"} note updated (id: ${id}):\n  ${noteChanges.join("\n  ")}`);
+                    lines.push(`${orig.noteType || "Note"} note updated. Changed fields:\n  ${noteChanges.join("\n  ")}`);
                 }
             }
 

@@ -230,10 +230,13 @@ export default function FullIntakeForm({
         noteChanges.push(`${field}: ${prevVal} → ${currVal}`);
       }
     }
+    if (file) {
+      noteChanges.push(`file: ${originalNote?.fileName || "none"} → ${file.name}`);
+    }
     const noteType = originalNote?.noteType || "Note";
     const logDescription = noteChanges.length
       ? `${noteType} note updated. Changed fields:\n${noteChanges.join("\n")}`
-      : `${noteType} note updated (note_id: ${note_id})`;
+      : `${noteType} note updated`;
 
     // Fire log + refresh in parallel in the background
     Promise.all([
