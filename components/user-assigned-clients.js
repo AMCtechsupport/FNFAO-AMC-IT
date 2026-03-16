@@ -220,7 +220,7 @@ export default function AssignedClientsList({ advocateId }) {
                     const isYouth = client.clientType === "Youth Intake";
                     const viewHref = isYouth
                       ? `/youth-clients/${client.client_id}/view`
-                      : `/clients/${client.client_id}/view`;
+                      : `/adult-clients/${client.client_id}/view`;
 
                     return (
                       <tr
