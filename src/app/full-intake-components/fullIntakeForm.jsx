@@ -178,10 +178,10 @@ export default function FullIntakeForm({
   const handleAddNoteClick = (values, push, noteType) => {
     const newNote = {
       client_id: client_id,
-      type: values.type || "General",
-      subType: values.subType || "Uncategorized",
-      description: values.description?.trim() || "No description provided",
-      actionPlan: values.actionPlan?.trim() || "No action plan provided",
+      type: "",
+      subType: "",
+      description: "",
+      actionPlan: "",
       advocate_id: currentAdvocateId,
       createdAt: new Date().toISOString(),
       modifiedAt: new Date().toISOString(),
@@ -376,7 +376,12 @@ export default function FullIntakeForm({
                     key={tab}
                     type="button"
                     data-view-allow="true"
-                    onClick={() => setActiveTab(i)}
+                    onClick={() => {
+                      setActiveTab(i);
+                      setSelectedNote(null);
+                      setShowNewNoteForm(false);
+                      setEditingNote(null);
+                    }}
                     className="px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors"
                     style={
                       activeTab === i
