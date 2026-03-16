@@ -78,6 +78,18 @@ export const deleteAdvocate = async (advocateId) => {
       );
     }
 
+    // Nullify advocate_id in User Logs to satisfy foreign key constraint while preserving log history
+    const { error: logsUpdateError } = await supabase
+      .from("User Logs")
+      .update({ advocate_id: null })
+      .eq("advocate_id", advocateId);
+
+    if (logsUpdateError) {
+      throw new Error(
+        "Error unlinking advocate's user logs: " + logsUpdateError.message,
+      );
+    }
+
     // Delete from Supabase database
     const { error: deleteError } = await supabase
       .from("Advocates")
