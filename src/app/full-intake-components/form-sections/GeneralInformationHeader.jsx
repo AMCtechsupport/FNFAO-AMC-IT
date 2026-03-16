@@ -45,16 +45,16 @@ const GeneralInformationHeader = ({
                     {/* Name + DOB row */}
                     <div className="grid grid-cols-12 gap-4 mb-4">
                         <div className="col-span-3">
-                            <InputField name="firstName" label="First Name:*" placeholder="Enter First Name" error={errors.firstName} disabled={!isEditing} />
+                            <InputField name="firstName" label="First Name: *" placeholder="Enter First Name" error={errors.firstName} disabled={!isEditing} />
                         </div>
                         <div className="col-span-3">
-                            <InputField name="middleName" label="Middle Name" placeholder="Enter Middle Name" error={errors.middleName} disabled={!isEditing} />
+                            <InputField name="middleName" label="Middle Name: " placeholder="Enter Middle Name" error={errors.middleName} disabled={!isEditing} />
                         </div>
                         <div className="col-span-3">
-                            <InputField name="lastName" label="Last Name:*" placeholder="Enter Last Name" error={errors.lastName} disabled={!isEditing} />
+                            <InputField name="lastName" label="Last Name: *" placeholder="Enter Last Name" error={errors.lastName} disabled={!isEditing} />
                         </div>
                         <div className="col-span-3">
-                            <label className="block text-xs font-medium text-gray-600 mb-1">Birth Date:*</label>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Birth Date: *</label>
                             <Field
                                 type="date"
                                 id="dateOfBirth"

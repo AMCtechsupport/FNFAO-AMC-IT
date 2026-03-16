@@ -43,13 +43,13 @@ const YouthIntakeGeneralInfo = ({ errors, isEditMode, assignedAdvocateName }) =>
           )}
           <div className="grid grid-cols-12 gap-4">
             <div className="col-span-3">
-              <InputField name="firstName" label="First Name:*" placeholder="Enter First Name" error={errors.firstName} />
+              <InputField name="firstName" label="First Name: *" placeholder="Enter First Name" error={errors.firstName} />
             </div>
             <div className="col-span-3">
               <InputField name="middleName" label="Middle Name:" placeholder="Enter Middle Name" error={errors.middleName} />
             </div>
             <div className="col-span-3">
-              <InputField name="lastName" label="Last Name:*" placeholder="Enter Last Name" error={errors.lastName} />
+              <InputField name="lastName" label="Last Name: *" placeholder="Enter Last Name" error={errors.lastName} />
             </div>
             <div className="col-span-3">
               <PronounSelect name="pronouns" label="Preferred Pronouns:" error={errors.pronouns} />
@@ -58,7 +58,7 @@ const YouthIntakeGeneralInfo = ({ errors, isEditMode, assignedAdvocateName }) =>
 
           <div className="grid grid-cols-12 gap-4">
             <div className="col-span-3">
-              <label className={labelCls} htmlFor="dateOfBirth">Birth Date:*</label>
+              <label className={labelCls} htmlFor="dateOfBirth">Birth Date: *</label>
               <Field type="date" id="dateOfBirth" name="dateOfBirth" className={styles.input} max={today} />
               <ErrorMessage name="dateOfBirth" component={() => <p className={styles.errorText}>{errors.dateOfBirth}</p>} />
             </div>
