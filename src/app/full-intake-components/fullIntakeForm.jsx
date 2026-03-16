@@ -217,7 +217,10 @@ export default function FullIntakeForm({
       return;
     }
 
-    // Log the note edit
+    // Close immediately — don't wait for logging or refresh
+    setEditingNote(null);
+
+    // Build log description
     const formatVal = (v) => (v === null || v === undefined || v === "") ? "N/A" : String(v);
     const noteChanges = [];
     for (const field of ["type", "subType", "description", "actionPlan"]) {
@@ -231,26 +234,26 @@ export default function FullIntakeForm({
     const logDescription = noteChanges.length
       ? `${noteType} note updated. Changed fields:\n${noteChanges.join("\n")}`
       : `${noteType} note updated (note_id: ${note_id})`;
-    await fetch("/api/user-logs", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        description: logDescription,
-        logType: "UPDATE",
-        client_id,
-        clerkUserId: userId || null,
+
+    // Fire log + refresh in parallel in the background
+    Promise.all([
+      fetch("/api/user-logs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          description: logDescription,
+          logType: "UPDATE",
+          client_id,
+          clerkUserId: userId || null,
+        }),
       }),
-    });
-
-    // Refresh notes from server to reflect updated data (including new file info)
-    const notesRes = await fetch(`/api/notes?client_id=${client_id}`);
-    if (notesRes.ok) {
-      const notesJson = await notesRes.json();
-      const safeNotes = notesJson.notes || [];
-      setNotesData(safeNotes);
-    }
-
-    setEditingNote(null);
+      fetch(`/api/notes?client_id=${client_id}`).then(async (notesRes) => {
+        if (notesRes.ok) {
+          const notesJson = await notesRes.json();
+          setNotesData(notesJson.notes || []);
+        }
+      }),
+    ]);
   };
 
   const handleSaveNewNote = async (noteData, setFieldValue, currentNotes) => {
@@ -272,25 +275,29 @@ export default function FullIntakeForm({
       return;
     }
 
-    await fetch("/api/user-logs", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        description: `${noteData.noteType || "Case"} note added (type: ${noteData.type || "N/A"})`,
-        logType: "CREATE",
-        client_id,
-        clerkUserId: userId || null,
-      }),
-    });
-
+    // Close immediately — don't wait for logging or refresh
     setFieldValue("notes", currentNotes.slice(0, -1));
     setShowNewNoteForm(false);
 
-    const notesRes = await fetch(`/api/notes?client_id=${client_id}`);
-    if (notesRes.ok) {
-      const notesJson = await notesRes.json();
-      setNotesData(notesJson.notes || []);
-    }
+    // Fire log + refresh in parallel in the background
+    Promise.all([
+      fetch("/api/user-logs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          description: `${noteData.noteType || "Case"} note added (type: ${noteData.type || "N/A"})`,
+          logType: "CREATE",
+          client_id,
+          clerkUserId: userId || null,
+        }),
+      }),
+      fetch(`/api/notes?client_id=${client_id}`).then(async (notesRes) => {
+        if (notesRes.ok) {
+          const notesJson = await notesRes.json();
+          setNotesData(notesJson.notes || []);
+        }
+      }),
+    ]);
   };
 
   const validateRadio = () => undefined;
