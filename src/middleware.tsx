@@ -84,10 +84,15 @@ export default clerkMiddleware(async (auth, req) => {
 
       if (error) {
         if (error.code === "PGRST116") {
-          // Not found
+          // Not found by clerk_user_id — may be a first-time login (clerk_user_id not yet stored)
           console.log(`[MIDDLEWARE] Advocate NOT FOUND for user ${userId}`);
-          console.log(`[MIDDLEWARE] Redirecting to /unauthorized`);
-          return NextResponse.redirect(new URL("/unauthorized", req.url));
+          // Allow /setup through so linkAdvocateAccount() can run and store the clerk_user_id
+          if (req.nextUrl.pathname.startsWith("/setup")) {
+            console.log(`[MIDDLEWARE] Already on /setup, allowing through`);
+            return NextResponse.next();
+          }
+          console.log(`[MIDDLEWARE] Redirecting to /setup for account linking`);
+          return NextResponse.redirect(new URL("/setup", req.url));
         } else {
           // Other error - fail secure
           console.error(
