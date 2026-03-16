@@ -48,11 +48,10 @@ const GeneralInformationHeader = ({
                             <InputField name="firstName" label="First Name: *" placeholder="Enter First Name" error={errors.firstName} disabled={!isEditing} />
                         </div>
                         <div className="col-span-3">
-<<<<<<< HEAD
+
                             <InputField name="middleName" label="Middle Name: " placeholder="Enter Middle Name" error={errors.middleName} disabled={!isEditing} />
-=======
                             <InputField name="middleName" label="Middle Name:" placeholder="Enter Middle Name" error={errors.middleName} disabled={!isEditing} />
->>>>>>> jason-styles-fix
+
                         </div>
                         <div className="col-span-3">
                             <InputField name="lastName" label="Last Name: *" placeholder="Enter Last Name" error={errors.lastName} disabled={!isEditing} />
