@@ -294,6 +294,7 @@ const LegalNotesPartition = ({
 
                         <div className="flex gap-2 mt-4">
                             <button
+                                type="button"
                                 className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors"
                                 style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
                                 onClick={() => handleSaveNoteEdit(editingNote.note_id, editValues, editFile)}
@@ -301,6 +302,7 @@ const LegalNotesPartition = ({
                                 Save Changes
                             </button>
                             <button
+                                type="button"
                                 className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors"
                                 style={{ backgroundColor: "#6b7280" }}
                                 onClick={() => setEditingNote(null)}
@@ -378,6 +380,7 @@ const LegalNotesPartition = ({
 
                         <div className="flex gap-2 mt-4">
                             <button
+                                type="button"
                                 className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors"
                                 style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
                                 onClick={() => handleSaveNewNote(values.notes[values.notes.length - 1], setFieldValue, values.notes)}
@@ -385,6 +388,7 @@ const LegalNotesPartition = ({
                                 Save
                             </button>
                             <button
+                                type="button"
                                 className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors"
                                 style={{ backgroundColor: "#6b7280" }}
                                 onClick={() => {

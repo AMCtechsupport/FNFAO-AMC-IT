@@ -63,7 +63,7 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
                     }
                 }
                 if (noteChanges.length > 0) {
-                    lines.push(`${orig.noteType || "Note"} note updated (id: ${id}):\n  ${noteChanges.join("\n  ")}`);
+                    lines.push(`${orig.noteType || "Note"} note updated. Changed fields:\n  ${noteChanges.join("\n  ")}`);
                 }
             }
 
@@ -164,47 +164,25 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
 
             // console.log("Updating Children with values:", values.children);
 
-            // Call `handle Children Update` to update the children in the database
-            const childrenUpdateSuccess = await handleChildrenUpdate(values.children, client_id, setChildrenData);
-            // console.log("Children update result:", childrenUpdateSuccess);
-            if (!childrenUpdateSuccess) {
-                console.error("Error updating children data.");
-            }
+            // Call all sub-updates in parallel — they are fully independent of each other
+            const [childrenUpdateSuccess, familyUpdateSuccess, homeMemberUpdateSuccess, EIAUpdateSuccess, notesUpdateSuccess] = await Promise.all([
+                handleChildrenUpdate(values.children, client_id, setChildrenData),
+                handleFamilyUpdate(values.family, client_id, setFamilyData),
+                handleHomeMembersUpdate(values.homeMembers, client_id, setHomeMembersData),
+                handleEIAUpdate(values.EIA, client_id, setEIAData),
+                handleNotesUpdate(values.notes, client_id, setNotesData, supabase, userId),
+            ]);
 
-            // Call `handle family Update` to update the family and friend members in the database
-            const familyUpdateSuccess = await handleFamilyUpdate(values.family, client_id, setFamilyData);
-            // console.log("Family update result:", familyUpdateSuccess);
-            if (!familyUpdateSuccess){
-                console.error("Error update family data.");
-            }
-
-            // Call `handleHomeMembersUpdate` to update the home members in the database
-            const homeMemberUpdateSuccess = await handleHomeMembersUpdate(values.homeMembers, client_id, setHomeMembersData);
-            // console.log("Home members update result:", homeMemberUpdateSuccess);
-            if (!homeMemberUpdateSuccess){
-                console.error("Error update home members data.");
-            }
-
-            // Call `handle EIA Update` to update the EIA workers in the database
-            const EIAUpdateSuccess = await handleEIAUpdate(values.EIA, client_id, setEIAData);
-            // console.log("EIA update result:", EIAUpdateSuccess);
-            if (!EIAUpdateSuccess){
-                console.error("Error update EIA data.");
-            }
-
-            // console.log("userId antes de handleNotesUpdate:", userId);
-
-            // Call `handle Notes Update` to update the notes in the database
-            const notesUpdateSuccess = await handleNotesUpdate(values.notes, client_id, setNotesData, supabase, userId);
-            // console.log("Notes update result:", notesUpdateSuccess);
-            if (!notesUpdateSuccess){
-                console.error("Error update notes data.");
-            }
+            if (!childrenUpdateSuccess) console.error("Error updating children data.");
+            if (!familyUpdateSuccess) console.error("Error update family data.");
+            if (!homeMemberUpdateSuccess) console.error("Error update home members data.");
+            if (!EIAUpdateSuccess) console.error("Error update EIA data.");
+            if (!notesUpdateSuccess) console.error("Error update notes data.");
 
             // UPDATE originalData with the new values
             setOriginalData(normalizeDates(data[0]));  // Use the data returned by Supabase
 
-            // Insert a User Log entry for this update via API (bypasses RLS)
+            // Build log description
             const changedFields = buildChangedFieldsDescription(originalData, clientValues);
             const noteChanges = buildNoteChangesDescription(notesData, values.notes);
             const allChanges = [...changedFields, ...noteChanges];
@@ -212,7 +190,8 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
                 ? `Full intake updated for client: ${values.firstName} ${values.lastName}. Changed fields:\n${allChanges.join("\n")}`
                 : `Full intake updated for client: ${values.firstName} ${values.lastName}`;
 
-            await fetch("/api/user-logs", {
+            // Insert a User Log entry — fire and forget, no need to block redirect
+            fetch("/api/user-logs", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -227,11 +206,11 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
             setIsEditing(false);
             showToast("success", "Adult client updated successfully!");
             resetForm({ values });
-            
-            // Redirect to client list after successful update (like youth-intake form)
+
+            // Redirect after toast is visible
             setTimeout(() => {
                 router.push(`/adult-clients/${client_id}/view`);
-            }, 1500);
+            }, 500);
         } else {
             console.warn("Warning: The update did not modify any data.");
         }
