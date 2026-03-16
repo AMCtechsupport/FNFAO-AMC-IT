@@ -152,7 +152,7 @@ const CaseNotesPartition = ({
                                         as="textarea"
                                         name="description"
                                         className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 resize-none focus:outline-none"
-                                        value={selectedNote.description}
+                                        value={selectedNote.description ?? ""}
                                         rows={10}
                                         disabled
                                     />
@@ -163,7 +163,7 @@ const CaseNotesPartition = ({
                                         as="textarea"
                                         name="actionPlan"
                                         className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 resize-none focus:outline-none"
-                                        value={selectedNote.actionPlan}
+                                        value={selectedNote.actionPlan ?? ""}
                                         rows={10}
                                         disabled
                                     />
