@@ -497,7 +497,7 @@ const ManageUserRoles = () => {
     error,
     success,
   }) => (
-    <div className="space-y-2">
+    <div className="space-y-2 mb-5">
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
         <div className="flex items-center gap-2">
           <h2 className="text-xl font-bold text-gray-800">{title}</h2>
