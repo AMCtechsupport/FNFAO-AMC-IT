@@ -150,9 +150,21 @@ export const getFormInitialValues = ({
         biologicalParentLastName: child.biologicalParentLastName || "",
         biologicalParentFirstNation: child.biologicalParentFirstNation || "",
     })) || [],
-    notes: notesData || [],
-    caseNotes: caseNotes || [],
-    legalNotes: legalNotes || [],
+    notes: (notesData || []).map(note => ({
+        ...note,
+        description: note.description ?? "",
+        actionPlan: note.actionPlan ?? "",
+    })),
+    caseNotes: (caseNotes || []).map(note => ({
+        ...note,
+        description: note.description ?? "",
+        actionPlan: note.actionPlan ?? "",
+    })),
+    legalNotes: (legalNotes || []).map(note => ({
+        ...note,
+        description: note.description ?? "",
+        actionPlan: note.actionPlan ?? "",
+    })),
     family: familyData || [],
     EIA: EIAData.map(worker => ({
         firstName: worker.firstName || "",

@@ -53,6 +53,9 @@ export const deleteClient = async (clientId) => {
       .delete()
       .eq("client_id", clientId);
 
+    // Delete Files
+    await supabase.from("Files").delete().eq("client_id", clientId);
+
     // Finally, delete the client
     const { data: clientData, error: selectError } = await supabase
       .from("Clients")

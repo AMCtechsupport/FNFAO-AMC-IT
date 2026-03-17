@@ -152,7 +152,7 @@ const LegalNotesPartition = ({
                                         as="textarea"
                                         name="description"
                                         className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 resize-none focus:outline-none"
-                                        value={selectedNote.description}
+                                        value={selectedNote.description ?? ""}
                                         rows={10}
                                         disabled
                                     />
@@ -163,7 +163,7 @@ const LegalNotesPartition = ({
                                         as="textarea"
                                         name="actionPlan"
                                         className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 resize-none focus:outline-none"
-                                        value={selectedNote.actionPlan}
+                                        value={selectedNote.actionPlan ?? ""}
                                         rows={10}
                                         disabled
                                     />
@@ -294,6 +294,7 @@ const LegalNotesPartition = ({
 
                         <div className="flex gap-2 mt-4">
                             <button
+                                type="button"
                                 className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors"
                                 style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
                                 onClick={() => handleSaveNoteEdit(editingNote.note_id, editValues, editFile)}
@@ -301,6 +302,7 @@ const LegalNotesPartition = ({
                                 Save Changes
                             </button>
                             <button
+                                type="button"
                                 className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors"
                                 style={{ backgroundColor: "#6b7280" }}
                                 onClick={() => setEditingNote(null)}
@@ -350,6 +352,7 @@ const LegalNotesPartition = ({
                                     as="textarea"
                                     className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white resize-vertical"
                                     rows={5}
+                                    placeholder="Enter legal note description..."
                                 />
                             </div>
                             <div>
@@ -359,6 +362,7 @@ const LegalNotesPartition = ({
                                     as="textarea"
                                     className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white resize-vertical"
                                     rows={5}
+                                    placeholder="Enter action plan..."
                                 />
                             </div>
                         </div>
@@ -378,13 +382,24 @@ const LegalNotesPartition = ({
 
                         <div className="flex gap-2 mt-4">
                             <button
+                                type="button"
                                 className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors"
                                 style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
-                                onClick={() => handleSaveNewNote(values.notes[values.notes.length - 1], setFieldValue, values.notes)}
+                                onClick={() => {
+                                    const note = values.notes[values.notes.length - 1];
+                                    const isEmpty = !note.type && !note.subType && !note.description?.trim() && !note.actionPlan?.trim() && !note.file;
+                                    if (isEmpty) {
+                                        setFieldValue("notes", values.notes.slice(0, -1));
+                                        setShowNewNoteForm(false);
+                                        return;
+                                    }
+                                    handleSaveNewNote(note, setFieldValue, values.notes);
+                                }}
                             >
                                 Save
                             </button>
                             <button
+                                type="button"
                                 className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors"
                                 style={{ backgroundColor: "#6b7280" }}
                                 onClick={() => {
