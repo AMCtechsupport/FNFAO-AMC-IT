@@ -84,10 +84,15 @@ export default clerkMiddleware(async (auth, req) => {
 
       if (error) {
         if (error.code === "PGRST116") {
-          // Not found
+          // Not found by clerk_user_id — may be a first-time login (clerk_user_id not yet stored)
           console.log(`[MIDDLEWARE] Advocate NOT FOUND for user ${userId}`);
-          console.log(`[MIDDLEWARE] Redirecting to /unauthorized`);
-          return NextResponse.redirect(new URL("/unauthorized", req.url));
+          // Allow /setup through so linkAdvocateAccount() can run and store the clerk_user_id
+          if (req.nextUrl.pathname.startsWith("/setup")) {
+            console.log(`[MIDDLEWARE] Already on /setup, allowing through`);
+            return NextResponse.next();
+          }
+          console.log(`[MIDDLEWARE] Redirecting to /setup for account linking`);
+          return NextResponse.redirect(new URL("/setup", req.url));
         } else {
           // Other error - fail secure
           console.error(
@@ -115,22 +120,30 @@ export default clerkMiddleware(async (auth, req) => {
     }
   }
 
-  // Only perform the role check for admin-only routes to keep other requests fast
-  if (isAdminOnlyRoute(req)) {
-    console.log(`[MIDDLEWARE] Route is admin-only, checking role`);
+  // Check role for all protected routes — must be "admin" or "advocate"
+  if (isProtectedRoute(req)) {
+    console.log(`[MIDDLEWARE] Checking role for protected route`);
     try {
       const user = await clerk.users.getUser(userId);
       const userRole = user.publicMetadata?.role as UserRole;
 
-      if (userRole !== "admin") {
+      if (userRole !== "admin" && userRole !== "advocate") {
+        console.log(
+          `[MIDDLEWARE] User has invalid role (${userRole}), redirecting to /unauthorized`,
+        );
+        return NextResponse.redirect(new URL("/unauthorized", req.url));
+      }
+
+      if (isAdminOnlyRoute(req) && userRole !== "admin") {
         console.log(
           `[MIDDLEWARE] User is not admin, redirecting to /unauthorized`,
         );
         return NextResponse.redirect(new URL("/unauthorized", req.url));
       }
-      console.log(`[MIDDLEWARE] User is admin, allowing access`);
+
+      console.log(`[MIDDLEWARE] User role ${userRole} is valid, allowing access`);
     } catch (err) {
-      console.error(`[MIDDLEWARE] Error checking admin role: ${err}`);
+      console.error(`[MIDDLEWARE] Error checking role: ${err}`);
       return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
   }

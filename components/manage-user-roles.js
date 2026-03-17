@@ -56,6 +56,11 @@ const ManageUserRoles = () => {
   const [adminSuccess, setAdminSuccess] = useState(null);
   const [advocateError, setAdvocateError] = useState(null);
   const [advocateSuccess, setAdvocateSuccess] = useState(null);
+  const [editingNameFor, setEditingNameFor] = useState(null);
+  const [editingNames, setEditingNames] = useState({});
+  const [nameSaving, setNameSaving] = useState(false);
+  const [nameError, setNameError] = useState(null);
+  const [nameSuccess, setNameSuccess] = useState(null);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -160,6 +165,12 @@ const ManageUserRoles = () => {
     [advocateUsers, draftRoles],
   );
 
+  const getEditingUserGroup = (userId) => {
+    if (adminUsers.some((u) => u.id === userId)) return "admin";
+    if (advocateUsers.some((u) => u.id === userId)) return "advocate";
+    return null;
+  };
+
   const handleRoleChange = (userId, newRole) => {
     setDraftRoles((prev) => ({ ...prev, [userId]: normalizeRole(newRole) }));
     setOpenDropdownFor(null);
@@ -167,6 +178,66 @@ const ManageUserRoles = () => {
     setAdminSuccess(null);
     setAdvocateError(null);
     setAdvocateSuccess(null);
+  };
+
+  const handleNameEditStart = (user) => {
+    setEditingNameFor(user.id);
+    setEditingNames({
+      [user.id]: { firstName: user.firstName, lastName: user.lastName },
+    });
+    setNameError(null);
+    setNameSuccess(null);
+  };
+
+  const handleNameChange = (userId, firstName, lastName) => {
+    setEditingNames((prev) => ({
+      ...prev,
+      [userId]: { firstName, lastName },
+    }));
+  };
+
+  const handleNameCancel = () => {
+    setEditingNameFor(null);
+    setEditingNames({});
+    setNameError(null);
+    setNameSuccess(null);
+  };
+
+  const handleNameSave = async (user) => {
+    const edited = editingNames[user.id];
+    if (!edited) return;
+
+    setNameSaving(true);
+    setNameError(null);
+    setNameSuccess(null);
+
+    try {
+      const response = await fetch("/api/update-user-name", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id,
+          firstName: edited.firstName,
+          lastName: edited.lastName,
+        }),
+      });
+
+      const json = await response.json();
+
+      if (!response.ok) {
+        throw new Error(json?.error || "Failed to update name");
+      }
+
+      setNameSuccess("Name updated successfully.");
+      setEditingNameFor(null);
+      setEditingNames({});
+      await fetchUsers();
+    } catch (err) {
+      console.error("Error saving name:", err);
+      setNameError(err?.message || "Failed to update name");
+    } finally {
+      setNameSaving(false);
+    }
   };
 
   const handleCancel = (group) => {
@@ -248,19 +319,108 @@ const ManageUserRoles = () => {
     const currentLabel = ROLE_OPTIONS.find(
       (opt) => opt.value === draftRole,
     )?.label;
+    const isEditingName = editingNameFor === user.id;
+    const editedName = editingNames[user.id];
 
     return (
       <div
         key={user.id}
-        className="border border-gray-300 rounded-2xl px-4 py-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3"
+        className="group border border-gray-300 rounded-2xl px-4 py-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3"
       >
         <div className="min-w-0 flex-1 flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
-          <p className="md:basis-1/2 md:shrink-0 md:min-w-0 text-base font-semibold text-gray-800 truncate">
-            {user.fullName || "-"}
-          </p>
-          <p className="min-w-0 text-sm font-semibold text-gray-600 truncate">
-            {user.email || "-"}
-          </p>
+          {isEditingName && editedName ? (
+            <div className="flex flex-col md:flex-row md:items-center gap-2 md:basis-1/2 md:shrink-0">
+              <input
+                type="text"
+                value={editedName.firstName}
+                onChange={(e) =>
+                  handleNameChange(user.id, e.target.value, editedName.lastName)
+                }
+                placeholder="First Name"
+                className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-300"
+                disabled={nameSaving}
+              />
+              <input
+                type="text"
+                value={editedName.lastName}
+                onChange={(e) =>
+                  handleNameChange(
+                    user.id,
+                    editedName.firstName,
+                    e.target.value,
+                  )
+                }
+                placeholder="Last Name"
+                className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-300"
+                disabled={nameSaving}
+              />
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleNameSave(user)}
+                  disabled={nameSaving}
+                  className="p-2 text-green-600 hover:text-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Save"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleNameCancel}
+                  disabled={nameSaving}
+                  className="p-2 text-red-600 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Cancel"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="relative md:basis-1/2 md:shrink-0 md:min-w-0 flex items-center gap-2">
+                <p className="text-base font-semibold text-gray-800 truncate">
+                  {user.fullName || "-"}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => handleNameEditStart(user)}
+                  className="p-1 text-gray-500 opacity-10 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                  title="Edit name"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                  </svg>
+                </button>
+              </div>
+              <p className="min-w-0 text-sm font-semibold text-gray-600 truncate">
+                {user.email || "-"}
+              </p>
+            </>
+          )}
         </div>
 
         <div className="relative flex items-center gap-2 shrink-0">
@@ -437,6 +597,18 @@ const ManageUserRoles = () => {
       {success && (
         <div className="bg-green-100 border border-green-400 text-green-700 px-3 py-2 rounded text-sm">
           {success}
+        </div>
+      )}
+
+      {getEditingUserGroup(editingNameFor || "") === group && nameError && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded text-sm">
+          {nameError}
+        </div>
+      )}
+
+      {getEditingUserGroup(editingNameFor || "") === group && nameSuccess && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-3 py-2 rounded text-sm">
+          {nameSuccess}
         </div>
       )}
 
