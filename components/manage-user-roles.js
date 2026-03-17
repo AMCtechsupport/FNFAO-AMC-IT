@@ -325,7 +325,7 @@ const ManageUserRoles = () => {
     return (
       <div
         key={user.id}
-        className="group border border-gray-300 rounded-2xl px-4 py-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3"
+        className="group border border-gray-300 rounded-2xl px-4 py-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 items-center"
       >
         <div className="min-w-0 flex-1 flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
           {isEditingName && editedName ? (
