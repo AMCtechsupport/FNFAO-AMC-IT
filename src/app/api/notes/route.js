@@ -13,7 +13,12 @@ export async function GET(request) {
 
     const { data, error } = await supabase
       .from("Notes")
-      .select("*, Advocates!advocate_id(firstName, lastName), Files!file_id(fileName, filePath)")
+      .select(`
+        *,
+        author:Advocates!Notes_advocate_id_fkey(firstName, lastName),
+        editor:Advocates!fk_modified_by_advocate(firstName, lastName),
+        Files!file_id(fileName, filePath)
+      `)
       .eq("client_id", client_id)
       .order("note_id", { ascending: true });
 
@@ -24,8 +29,11 @@ export async function GET(request) {
 
     const notes = (data || []).map((note) => ({
       ...note,
-      authorName: note.Advocates
-        ? `${note.Advocates.firstName} ${note.Advocates.lastName}`
+      authorName: note.author
+        ? `${note.author.firstName} ${note.author.lastName}`
+        : null,
+      editorName: note.editor
+        ? `${note.editor.firstName} ${note.editor.lastName}`
         : null,
       fileName: note.Files?.fileName || null,
       filePath: note.Files?.filePath || null,
@@ -139,13 +147,14 @@ export async function PATCH(request) {
     const actionPlan = formData.get("actionPlan");
     const client_id = formData.get("client_id");
     const owner_id = formData.get("owner_id");
+    const modified_by_advocate_id = formData.get("advocate_id"); // Editor's advocate_id
     const file = formData.get("file"); // File object or null
 
     if (!note_id) {
       return NextResponse.json({ error: "note_id is required" }, { status: 400 });
     }
 
-    // Enforce 24-hour edit window
+    // Fetch existing note
     const { data: existingNote, error: fetchError } = await supabase
       .from("Notes")
       .select("createdAt")
@@ -156,18 +165,15 @@ export async function PATCH(request) {
       return NextResponse.json({ error: "Note not found" }, { status: 404 });
     }
 
-    const createdAt = new Date(existingNote.createdAt);
-    if (isNaN(createdAt.getTime())) {
-      return NextResponse.json({ error: "Note has an invalid creation time" }, { status: 500 });
-    }
-    const nowWinnipeg = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Winnipeg" }));
-    const createdWinnipeg = new Date(createdAt.toLocaleString("en-US", { timeZone: "America/Winnipeg" }));
-    if (nowWinnipeg - createdWinnipeg >= 24 * 60 * 60 * 1000) {
-      return NextResponse.json({ error: "Notes can only be edited within 24 hours of creation" }, { status: 403 });
-    }
-
     const modifiedAt = new Date().toISOString();
-    const updatePayload = { type, subType, description, actionPlan, modifiedAt };
+    const updatePayload = {
+      type,
+      subType,
+      description,
+      actionPlan,
+      modifiedAt,
+      modified_by_advocate_id: modified_by_advocate_id || null
+    };
 
     // Handle optional file upload
     if (file && file.size > 0) {

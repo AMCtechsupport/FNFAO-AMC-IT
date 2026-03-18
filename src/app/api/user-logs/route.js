@@ -83,6 +83,11 @@ export async function GET(request) {
         const rawDesc = log.description.split("||by:")[0];
         if (/youth[\s-]intake/i.test(rawDesc)) formType = "Youth Intake";
         else if (/full[\s-]intake/i.test(rawDesc) || /pre[\s-]intake/i.test(rawDesc)) formType = "Pre-Intake";
+        // Extract formType from ||formType: tag for deleted clients
+        const formTypeTagMatch = log.description.match(/\|\|formType:([^|\n]+)/);
+        if (formTypeTagMatch && formTypeTagMatch[1]) {
+          formType = formTypeTagMatch[1];
+        }
       }
       if (!formType) {
         formType = clientMap[log.client_id]?.clientType || null;
