@@ -239,9 +239,10 @@ export default function FullIntakeForm({
     const noteType = originalNote?.noteType || "Note";
     const clientName = `${originalData?.firstName || "N/A"} ${originalData?.lastName || "N/A"}`;
     // Prefer modified_by_advocate for log description if available
+    const formType = originalData?.clientType || "";
     const logDescription = noteChanges.length
-      ? `${noteType} note updated. Changed fields:\n${noteChanges.join("\n")} for client: ${clientName}`
-      : `${noteType} note updated for client: ${clientName}`;
+      ? `${noteType} note updated. Changed fields:\n${noteChanges.join("\n")} for client: ${clientName}${formType ? ` ||formType:${formType}` : ""}`
+      : `${noteType} note updated for client: ${clientName}${formType ? ` ||formType:${formType}` : ""}`;
 
     // Fire log + refresh in parallel in the background
     Promise.all([
