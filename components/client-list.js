@@ -8,6 +8,13 @@ import DeleteConfirmModal from "./DeleteConfirmModal";
 import ToastNotification from "./ToastNotification";
 import SortDropdown from "./sort-dropdown";
 
+//Status filter dropdown options
+const statusOptions = [
+  { value: "all", label: "All Clients" },
+  { value: "active", label: "Active Clients" },
+  { value: "inactive", label: "Inactive Clients" },
+];
+
 const formTypeBadge = (type) => {
   const isYouth = type === "Youth";
   return (
@@ -148,7 +155,8 @@ export default function ClientsList() {
   const router = useRouter();
   // Stores the selected sorting option from the dropdown
   // default = newest clients first
-  const [sortOption, setSortOption] = useState("newest"); 
+  const [sortOption, setSortOption] = useState("newest");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -177,13 +185,25 @@ export default function ClientsList() {
 
   const filterClients = (clients) => {
     return clients.filter((client) => {
-      const term = searchQuery.trim().toLowerCase();
-      if (!term) return true;
-      const fullName = [client.firstName, client.lastName]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-      return fullName.includes(term);
+
+      // SEARCH
+      const fullName = `${client.firstName || ""} ${client.lastName || ""}`.toLowerCase();
+      const matchesSearch = fullName.includes(searchQuery.toLowerCase());
+
+      // STATUS FILTER
+      if (statusFilter === "all") {
+        return matchesSearch;
+      }
+
+      if (statusFilter === "active") {
+        return matchesSearch && client.clientStatus === "Active";
+      }
+
+      if (statusFilter === "inactive") {
+        return matchesSearch && client.clientStatus === "Inactive";
+      }
+
+      return matchesSearch;
     });
   };
 
@@ -292,18 +312,30 @@ export default function ClientsList() {
         </span>
       </div>
 
-      {/* Filter Search */}
-       <div className="flex justify-end pb-4">
-        <div className="relative inline-block">
-          <SortDropdown
-            value={sortOption}
-            onChange={(value) => {
-              setSortOption(value);
-              setCurrentYouthPage(1);
-              setCurrentAdultPage(1);
-            }}
-          />
-        </div>
+      {/* Filter + Sort */}
+      <div className="flex justify-end gap-3 pb-4">
+
+        {/* Status Filter */}
+        <SortDropdown
+          value={statusFilter}
+          onChange={(value) => {
+            setStatusFilter(value);
+            setCurrentYouthPage(1);
+            setCurrentAdultPage(1);
+          }}
+          options={statusOptions}
+        />
+
+        {/* Sort Dropdown (your existing one) */}
+        <SortDropdown
+          value={sortOption}
+          onChange={(value) => {
+            setSortOption(value);
+            setCurrentYouthPage(1);
+            setCurrentAdultPage(1);
+          }}
+        />
+
       </div>
 
        {/* Search */}
