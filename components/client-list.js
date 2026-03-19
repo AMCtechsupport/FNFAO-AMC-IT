@@ -186,26 +186,20 @@ export default function ClientsList() {
   const filterClients = (clients) => {
     return clients.filter((client) => {
 
-      // SEARCH
-      const fullName = `${client.firstName || ""} ${client.lastName || ""}`.toLowerCase();
-      const matchesSearch = fullName.includes(searchQuery.toLowerCase());
+        // SEARCH
+        const fullName = `${client.firstName || ""} ${client.lastName || ""}`.toLowerCase();
+        const matchesSearch = fullName.includes(searchQuery.toLowerCase());
 
-      // STATUS FILTER
-      if (statusFilter === "all") {
-        return matchesSearch;
-      }
-
-      if (statusFilter === "active") {
-        return matchesSearch && client.clientStatus === "Active";
-      }
-
-      if (statusFilter === "inactive") {
-        return matchesSearch && client.clientStatus === "Inactive";
-      }
-
-      return matchesSearch;
-    });
-  };
+        // STATUS FILTER
+          if (statusFilter === "active") {
+          return matchesSearch && client.clientStatus === "Active";
+        } else if (statusFilter === "inactive") {
+          return matchesSearch && client.clientStatus === "Inactive";
+        } else {
+          return matchesSearch; // "all"
+        }
+      });
+    };
 
     // Function that sorts clients based on the dropdown selection
   const sortClients = (clients) => {
