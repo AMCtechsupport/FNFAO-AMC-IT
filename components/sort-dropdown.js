@@ -38,10 +38,11 @@ const SortDropdown = ({ value, onChange, options = [] }) => {
       {/* Dropdown Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="inline-flex items-center justify-between gap-2 text-white text-sm font-medium px-4 py-1.5 cursor-pointer transition rounded-lg"
-        style={{
+        className="inline-flex items-center justify-between gap-2 text-white text-sm font-medium px-4 py-1.5 cursor-pointer transition rounded-lg whitespace-nowrap"       
+         style={{
           backgroundColor: "rgba(97, 0, 215, 0.8)",
-          width: "140px",
+          minWidth: "140px",
+          width: "auto",
         }}
         onMouseEnter={(e) => {
           if (!isOpen)
