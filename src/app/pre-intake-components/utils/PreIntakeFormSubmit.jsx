@@ -1,4 +1,5 @@
 import { useUser } from "@clerk/clerk-react";
+import { assignAdvocateToMyself } from "../../../components/assign-client-to-myself";
 import supabase from "../../lib/supabase";
 
 // Function to get Manitoba current date/time
@@ -164,6 +165,11 @@ const PreIntakeFormSubmit = (showToast) => {
                     clerkUserId: user?.id || null,
                 }),
             });
+
+            // (NEW LOGIC) check to see if client is automatically assigned
+            if (assignToMyself === true) {
+                assignAdvocateToMyself();
+            }
 
             // Reset form and show success message
             showToast("success", "Pre-intake sent successfully");

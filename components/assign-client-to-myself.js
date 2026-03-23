@@ -1,9 +1,12 @@
-"use client";
-
 import { updateClientStatus } from "./client-active";
+import { getAdvocateProfile } from "../src/app/lib/get-advocate-server";
 import supabase from "../../lib/supabase";
 
-export default async function AssignAdvocateToMyself({ clientToAssign }) {
+/**
+ * test
+ * @param {} param0 
+ */
+async function assignAdvocateToMyself({ clientToAssign }) {
     let advocate = null;
     let advocateError = null;
 
@@ -14,7 +17,7 @@ export default async function AssignAdvocateToMyself({ clientToAssign }) {
     advocateError = err.message || "Could not load advocate profile";
     }
 
-    let advocateId = advocate.advocate_id;
+    const advocateId = advocate.advocate_id;
 
     const { error: autoassignError } = await supabase
       .from("Assigned Advocates")
@@ -26,3 +29,5 @@ export default async function AssignAdvocateToMyself({ clientToAssign }) {
 
     await updateClientStatus(clientToAssign);
 }
+
+export default assignAdvocateToMyself;
