@@ -1,12 +1,12 @@
 import { updateClientStatus } from "./client-active";
 import { getAdvocateProfile } from "../src/app/lib/get-advocate-server";
-import supabase from "../../lib/supabase";
+import supabase from "@/app/lib/supabase";
 
 /**
  * test
  * @param {} param0 
  */
-async function assignAdvocateToMyself({ clientToAssign }) {
+export async function assignClientToMyself(clientToAssign) {
     let advocate = null;
     let advocateError = null;
 
@@ -18,16 +18,16 @@ async function assignAdvocateToMyself({ clientToAssign }) {
     }
 
     const advocateId = advocate.advocate_id;
+    console.log(`AdvocateId: ${advocateId}`);
+    console.log(`client_id: ${clientToAssign}`);
 
     const { error: autoassignError } = await supabase
       .from("Assigned Advocates")
-      .insert([{ clientToAssign, advocateId }]);
+      .insert([{ client_id: clientToAssign, advocate_id: advocateId}]);
 
     if (autoassignError) {
         throw autoassignError;
     }
 
-    await updateClientStatus(clientToAssign);
+    // await updateClientStatus(clientToAssign);
 }
-
-export default assignAdvocateToMyself;

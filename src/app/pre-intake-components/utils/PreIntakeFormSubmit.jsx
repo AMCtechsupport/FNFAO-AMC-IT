@@ -1,5 +1,5 @@
 import { useUser } from "@clerk/clerk-react";
-import { assignAdvocateToMyself } from "../../../components/assign-client-to-myself";
+import { assignClientToMyself } from "../../../../components/assign-client-to-myself";
 import supabase from "../../lib/supabase";
 
 // Function to get Manitoba current date/time
@@ -166,10 +166,15 @@ const PreIntakeFormSubmit = (showToast) => {
                 }),
             });
 
-            // (NEW LOGIC) check to see if client is automatically assigned
-            if (assignToMyself === true) {
-                assignAdvocateToMyself();
-            }
+            // (NEW LOGIC) check to see if client is automatically assigned/auto assign test
+            console.log("I got to this part of the submission code.");
+            try {
+                await assignClientToMyself(clientId);
+                console.log("If I can read this, that means it executed my assign client code.");
+            } catch (error) {
+                console.log("something messed up");
+                console.log(error);
+            }   
 
             // Reset form and show success message
             showToast("success", "Pre-intake sent successfully");
