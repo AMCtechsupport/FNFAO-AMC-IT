@@ -39,7 +39,7 @@ npm install npm@latest -g
 1. Request environment variables from the project admin/owner or from passed down documentation
 2. Clone the repo
 ```sh
-git clone https:
+git clone https://github.com/bitprojectspace/amc-fnfao.git
 ```
 3. Install NPM packages
 ```sh

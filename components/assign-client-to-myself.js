@@ -1,8 +1,6 @@
 "use client";
 
 import { updateClientStatus } from "./client-active";
-import { useState, useEffect, useRef } from "react";
-
 import supabase from "../../lib/supabase";
 
 export default async function AssignAdvocateToMyself({ clientToAssign }) {
@@ -25,4 +23,6 @@ export default async function AssignAdvocateToMyself({ clientToAssign }) {
     if (autoassignError) {
         throw autoassignError;
     }
+
+    await updateClientStatus(clientToAssign);
 }
