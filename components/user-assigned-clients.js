@@ -231,6 +231,9 @@ export default function AssignedClientsList({ advocateId }) {
                           {fullName || (
                             <span className="text-gray-400">(No name)</span>
                           )}
+                          <div className="text-xs text-gray-500 mt-1">
+                            Status: {client.clientStatus || "—"}
+                          </div>
                         </td>
                         <td className="py-3.5 px-5">
                           {formTypeBadge(client.clientType)}

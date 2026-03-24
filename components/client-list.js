@@ -91,7 +91,12 @@ function ClientTable({
                     key={client.client_id}
                     className={`transition-colors hover:bg-gray-50 ${index % 2 !== 0 ? "bg-gray-50/50" : ""}`}
                   >
-                    <td className="py-3 px-4 font-medium text-gray-800 text-center">{fullName || "—"}</td>
+                    <td className="py-3 px-4 font-medium text-gray-800 text-center">
+                      {fullName || "—"}
+                      <div className="text-xs text-gray-500 mt-1">
+                        Status: {client.clientStatus || "—"}
+                      </div>
+                    </td>
                     <td className="py-3 px-4 whitespace-nowrap">
                       <div className="flex items-center justify-center gap-1.5">
                         <button
