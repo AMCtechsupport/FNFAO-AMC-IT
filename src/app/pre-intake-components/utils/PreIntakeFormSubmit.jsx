@@ -166,13 +166,10 @@ const PreIntakeFormSubmit = (showToast) => {
                 }),
             });
 
-            // (NEW LOGIC) check to see if client is automatically assigned/auto assign test
-            console.log("I got to this part of the submission code.");
+            // Assigns client to advocate who submit the form
             try {
                 await assignClientToMyself(clientId);
-                console.log("If I can read this, that means it executed my assign client code.");
             } catch (error) {
-                console.log("something messed up");
                 console.log(error);
             }   
 

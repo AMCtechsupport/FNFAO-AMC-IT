@@ -28,6 +28,6 @@ export async function assignClientToMyself(clientToAssign) {
     if (autoassignError) {
         throw autoassignError;
     }
-
-    // await updateClientStatus(clientToAssign);
+    
+    updateClientStatus(clientToAssign);
 }
