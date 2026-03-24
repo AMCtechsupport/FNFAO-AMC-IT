@@ -86,9 +86,14 @@ export default function AssignedClientsToAdvocate({ advocateId }) {
           {assignedClients.map((assignment) => (
             <div key={assignment.Clients.client_id} className="p-4">
               <div className="flex items-start justify-between gap-3 mb-3">
-                <p className="text-base font-bold text-gray-900">
-                  {assignment.Clients.firstName} {assignment.Clients.lastName}
-                </p>
+                <div>
+                  <p className="text-base font-bold text-gray-900">
+                    {assignment.Clients.firstName} {assignment.Clients.lastName}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Status: {assignment.Clients.clientStatus || "—"}
+                  </p>
+                </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <Link
                     href={`/clients/${assignment.Clients.client_id}`}
