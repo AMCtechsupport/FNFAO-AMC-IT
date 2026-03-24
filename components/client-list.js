@@ -13,6 +13,7 @@ const statusOptions = [
   { value: "all", label: "All Clients" },
   { value: "active", label: "Active Clients" },
   { value: "inactive", label: "Inactive Clients" },
+  { value: "ciwg", label: "Critical Incident Working Group" },
 ];
 
 const formTypeBadge = (type) => {
@@ -193,9 +194,15 @@ export default function ClientsList() {
         // STATUS FILTER
           if (statusFilter === "active") {
           return matchesSearch && client.clientStatus === "Active";
+          
         } else if (statusFilter === "inactive") {
           return matchesSearch && client.clientStatus === "Inactive";
-        } else {
+        
+        } else if (statusFilter === "ciwg") {
+          return matchesSearch && client.clientStatus === "Critical Incident Working Group";
+        }
+        
+        else {
           return matchesSearch; // "all"
         }
       });
