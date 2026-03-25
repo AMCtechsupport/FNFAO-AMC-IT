@@ -155,6 +155,8 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, showToas
         clientData.createdAt = currentDate;
         clientData.dateModified = currentDate;
         clientData.clientType = "Youth Intake";
+        // Set clientStatus to 'Inactive' if no advocate is assigned
+        clientData.clientStatus = (!selectedAdvocate || selectedAdvocate === "none") ? "Inactive" : undefined;
 
         const { data: client, error: clientError } = await supabase
             .from("Clients")
@@ -303,15 +305,12 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, showToas
         });
 
         // Assigns client to advocate who submit the form
-        if (selectedAdvocate === "none") {
-            updateClientStatus(clientId, "Inactive");
-        } else {
-            if (selectedAdvocate && selectedAdvocate.length > 0) {
+        if (selectedAdvocate && selectedAdvocate.length > 0 && selectedAdvocate !== "none") {
             const { error: assignAdvocateError } = 
                 assignClientToAdvocate(clientId, selectedAdvocate);
             if (assignAdvocateError) {
                 throw assignAdvocateError;
-            }}
+            }
         }
 
         // Reset form and show success message
