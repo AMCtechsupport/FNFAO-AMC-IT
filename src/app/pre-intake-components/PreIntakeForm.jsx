@@ -141,7 +141,7 @@ export default function PreIntakeForm() {
                 <p className="text-sm text-gray-500 italic">Legal notes can be added after the client is created.</p>
               )}
             </div>
-            <div className="col-span-5">
+            <div className="mb-6 ml-6 w-72">
               <Field
                   name="selectedAdvocate"
                   component={assignAdvocateUponSubmission}
