@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Formik, Form } from "formik";
+import { Formik, Form, Field } from "formik";
 
 import preIntakeInitialValues from "./utils/preIntakeInitialValues";
 import PreIntakeInputValidation from "./utils/PreIntakeInputValidation";
@@ -12,6 +12,7 @@ import ChildrenPartition from "../full-intake-components/form-sections/ChildrenP
 import HealthWellnessPartition from "../full-intake-components/form-sections/HealthWellnessPartition";
 import ChildFamilyServicesPartition from "../full-intake-components/form-sections/ChildFamilyServices";
 import ReferredBySelect from "@/components/ReferredBySelect";
+import assignAdvocateUponSubmission from "@/components/AssignAdvocateUponSubmission";
 import ValidationErrorToast from "../../../components/ValidationErrorToast";
 import ToastNotification from "../../../components/ToastNotification";
 
@@ -139,6 +140,14 @@ export default function PreIntakeForm() {
               {activeTab === 5 && (
                 <p className="text-sm text-gray-500 italic">Legal notes can be added after the client is created.</p>
               )}
+            </div>
+            <div className="col-span-5">
+              <Field
+                  name="assignAdvocateUponSubmission"
+                  component={assignAdvocateUponSubmission}
+                  label="Assign Advocate"
+                  error={errors.assignAdvocateUponSubmission}
+              />
             </div>
           </div>
 

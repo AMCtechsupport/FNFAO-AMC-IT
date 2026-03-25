@@ -1,35 +1,43 @@
 import React, { useEffect, useState } from "react";
 import { ErrorMessage } from "formik";
-import supabase from "@/app/lib/supabase";
+// import supabase from "@/app/lib/supabase";
 import styles from "@/app/pre-intake/preIntake.module.css";
 
-export default function AssignAdvocateUponSubmission({ field, form, label, error, disabled }) {
+export default function AssignAdvocateUponSubmission({ field, form, label, error }) {
     const { name, value } = field;
     const { errors, touched, setFieldValue } = form;
 
-    const [firstNations, setFirstNations] = useState([]);
+    // const [firstNations, setFirstNations] = useState([]);
+    const [allAdvocates, setAllAdvocates] = useState([]);
+    const [advocates, setAdvocates] = useState([]);
 
     useEffect(() => {
-        const fetchFirstNations = async () => {
-            const { data, error } = await supabase
-                .from("First Nations")
-                .select("nation_id,firstNationMembership")
-            if (error) {
-                console.error(error);
-            } else {
-                const priority = ["Non-Status", "Metis", "New Nation"];
+        const fetchAdvocatesDropdown = async () => {
+            try {
+            const res = await fetch(`/api/advocates`);
 
-                const sorted = data.sort((a, b) => {
-                    if (priority.includes(a.firstNationMembership)) return -1;
-                    if (priority.includes(b.firstNationMembership)) return 1;
-                    return 0;
-                });
+            if (!res.ok) {
+                const json = await res.json().catch(() => ({}));
+                console.error(
+                    "Error fetching advocates:",
+                    json?.error || `Status ${res.status}`,
+                );
+                setAdvocates([]);
+                return;
+            }
 
-                setFirstNations(sorted);
+            const json = await res.json();
+            const advocatesList = json.advocates || [];
+            setAllAdvocates(advocatesList);
+            setAdvocates(advocatesList);
+            } catch (err) {
+                console.error("Unexpected error:", err);
+                setAllAdvocates([]);
+                setAdvocates([]);
             }
         };
 
-        fetchFirstNations();
+        fetchAdvocatesDropdown();
     }, []);
 
     const handleChange = (e) => {
@@ -45,14 +53,14 @@ export default function AssignAdvocateUponSubmission({ field, form, label, error
             id={name}
             name={name}
             value={value || ""}
-            disabled={disabled}
+            // disabled={disabled}
             onChange={handleChange}
             className={`${styles.select} ${errors[name] && touched[name] ? "border-red-400" : ""}`}
         >
-            <option value="">Select a first nation</option>
-            {firstNations.map((nation) => (
-            <option key={nation.nation_id} value={nation.firstNationMembership}>
-                {nation.firstNationMembership}
+            <option value="">None</option>
+            {advocates.map((advocate) => (
+            <option key={advocate.advocate_id} value={advocate.advocate_id}>
+                {advocate.firstName} {advocate.lastName}
             </option>
             ))}
         </select>
