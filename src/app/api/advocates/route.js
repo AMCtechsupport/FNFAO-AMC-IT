@@ -6,12 +6,6 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search") || "";
 
-    console.log("[/api/advocates] Request params:", { search });
-    console.log(
-      "[/api/advocates] Using service role key:",
-      process.env.SUPABASE_SERVICE_ROLE_KEY ? "YES" : "NO (using anon key)",
-    );
-
     // Start with base query
     let query = supabase.from("Advocates").select("*");
 
@@ -43,11 +37,6 @@ export async function GET(request) {
     // Execute query
     const { data, error } = await query;
 
-    console.log("[/api/advocates] Result:", {
-      dataLength: data?.length,
-      error,
-    });
-
     if (error) {
       console.error("[/api/advocates] Error fetching advocates:", error);
       return NextResponse.json(
@@ -59,8 +48,6 @@ export async function GET(request) {
         { status: 500 },
       );
     }
-
-    console.log("[/api/advocates] Success:", { dataLength: data?.length });
 
     return NextResponse.json({
       advocates: data || [],

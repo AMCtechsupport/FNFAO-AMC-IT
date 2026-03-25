@@ -13,8 +13,6 @@ export async function handleEIAUpdate (EIA, client_id, setEIAData ){
             return false;
         }
 
-        console.log("Existing EIA in DB:", existingEIA); // quitar
-
         const existingEIAIds = existingEIA.map(member => member.EIA_worker_id); // Extracts EIA_worker_id from existingEIA
         const newMember = [];
         const updatedMembers = [];
@@ -31,7 +29,6 @@ export async function handleEIAUpdate (EIA, client_id, setEIAData ){
 
         // Detect deleted members
         const deletedMembersIds = existingEIAIds.filter(id => !receivedMembersIds.includes(id));
-        console.log("Datos EIA a insertar en la BD:", JSON.stringify(newMember, null, 2));
 
         // Insert new member
         if (newMember.length > 0) {
@@ -40,7 +37,6 @@ export async function handleEIAUpdate (EIA, client_id, setEIAData ){
                 console.error("Error inserting new member:", insertError);
                 return false;
             }
-            console.log("New member inserted:", newMember);
         }
 
         // Update existing members
@@ -55,14 +51,12 @@ export async function handleEIAUpdate (EIA, client_id, setEIAData ){
                 return false;
             }
         }
-        console.log("Existing member updated:", updatedMembers);
 
         // Filter invalid IDs before deleting
         const validDeletedMembersIds = deletedMembersIds.filter(id => Number.isInteger(id));
 
         // Delete removed members
         if (validDeletedMembersIds.length > 0) {
-            console.log("Attempting to delete members:", validDeletedMembersIds);
 
             const { data, error: deleteError } = await supabase
                 .from("EIA Workers")
@@ -74,11 +68,7 @@ export async function handleEIAUpdate (EIA, client_id, setEIAData ){
                 console.error("Error deleting EIA member:", deleteError.message || deleteError);
                 return false;
             }
-
-            console.log("Members deleted successfully:", data);
-        } else {
-            console.log("No members to delete.");
-        }
+        } 
 
         // Gets updated member again after modifications
         const { data: updatedMemberList, error: fetchUpdatedMembersError } = await supabase
@@ -90,8 +80,6 @@ export async function handleEIAUpdate (EIA, client_id, setEIAData ){
             console.error("Error fetching updated member:", fetchUpdatedMembersError);
         return false;
         }
-
-        // console.log("Lista actualizada después de eliminar:", updatedMemberList);
 
         // EIAData status updated
         setEIAData(updatedMemberList);

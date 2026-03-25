@@ -58,7 +58,6 @@ export const deleteAdvocate = async (advocateId) => {
       try {
         await clerkClient.users.deleteUser(advocate.clerk_user_id);
         deletedFromClerk = true;
-        console.log(`Deleted Clerk user: ${advocate.clerk_user_id}`);
       } catch (clerkError) {
         console.error("Error deleting from Clerk:", clerkError);
         // Don't throw error here - we'll still try to delete from database

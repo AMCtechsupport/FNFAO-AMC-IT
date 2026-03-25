@@ -101,9 +101,6 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, showToas
         }
         }
 
-        // Debug: Log converted values to verify conversion
-        console.log("🔍 DEBUG - Converted values for database:", convertedValues);
-
         // Get the current date in ISO 8601 format
         const currentDate = getManitobaDateTime();
 
@@ -158,9 +155,6 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, showToas
         clientData.createdAt = currentDate;
         clientData.dateModified = currentDate;
         clientData.clientType = "Youth Intake";
-
-        // Debug: Log final client data being sent to database
-        console.log("🔍 DEBUG - Final clientData for database:", clientData);
 
         const { data: client, error: clientError } = await supabase
             .from("Clients")
@@ -217,8 +211,6 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, showToas
             console.error("Error inserting home members:", homeMemberError);
             throw homeMemberError;
             }
-
-            // console.log("Home Members inserted successfully:", homeMembersData);
         }
         }
 
@@ -258,11 +250,6 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, showToas
             );
             throw educationalPersonsError;
             }
-
-            // console.log(
-            //   "Educational support persons inserted successfully:",
-            //   educationalPersonsData
-            // );
         }
         }
 
@@ -297,11 +284,6 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, showToas
             console.error("Code:", emergencyContactError.code || "No code");
             throw emergencyContactError;
         }
-
-        // console.log(
-        //   "Emergency contact inserted successfully:",
-        //   emergencyContactData
-        // );
         }
 
         // Insert a User Log entry for this submission via API (bypasses RLS)
