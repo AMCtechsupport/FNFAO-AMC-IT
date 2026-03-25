@@ -15,5 +15,5 @@ export async function assignClientToAdvocate(clientToAssign, advocateId) {
         throw autoassignError;
     }
     
-    updateClientStatus(clientToAssign);
+    updateClientStatus(clientToAssign, "Active");
 }

@@ -169,8 +169,8 @@ const PreIntakeFormSubmit = (showToast) => {
             });
 
             // Assigns client to advocate who submit the form
-            if (selectedAdvocate === "") {
-                updateClientStatus(clientId);
+            if (selectedAdvocate === "none") {
+                updateClientStatus(clientId, "Inactive");
             } else {
                 if (selectedAdvocate && selectedAdvocate.length > 0) {
                 const { error: assignAdvocateError } = 

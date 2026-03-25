@@ -57,7 +57,7 @@ export default function AssignAdvocateUponSubmission({ field, form, label, error
             onChange={handleChange}
             className={`${styles.select} ${errors[name] && touched[name] ? "border-red-400" : ""}`}
         >
-            <option value="">None</option>
+            <option value="none">None</option>
             {advocates.map((advocate) => (
             <option key={advocate.advocate_id} value={advocate.advocate_id}>
                 {advocate.firstName} {advocate.lastName}
