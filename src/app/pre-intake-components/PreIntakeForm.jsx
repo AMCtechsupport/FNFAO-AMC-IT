@@ -70,7 +70,7 @@ export default function PreIntakeForm() {
 
           {/* Tab bar */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-            <div className="flex border-b border-gray-200 overflow-x-auto">
+            <div className="flex flex-wrap border-b border-gray-200 overflow-x-auto">
               {TABS.map((tab, i) => {
                 const tabHasError = submitCount > 0 && TAB_ERROR_FIELDS[i]?.some(field => errors[field]);
                 return (
