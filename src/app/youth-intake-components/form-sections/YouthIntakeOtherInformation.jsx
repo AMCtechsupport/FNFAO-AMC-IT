@@ -1,5 +1,6 @@
 "use client";
 import styles from "../../youth-intake/youthIntake.module.css";
+import AssignAdvocateUponSubmission from "@/components/AssignAdvocateUponSubmission";
 import { Field, ErrorMessage } from "formik";
 
 const labelCls = "block text-xs font-medium text-gray-600 mb-1";
@@ -106,6 +107,13 @@ const YouthIntakeOtherInformation = ({ values }) => {
           <Field as="textarea" name="additionalInformation" placeholder="Additional client information includes..." className={styles.textarea} />
         </div>
 
+      </div>
+      <div className="mb-6 ml-6 w-72">
+        <Field
+            name="selectedAdvocate"
+            component={AssignAdvocateUponSubmission}
+            label="Assign Advocate"
+        />
       </div>
     </div>
   );

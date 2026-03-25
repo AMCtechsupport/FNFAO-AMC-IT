@@ -12,7 +12,7 @@ import ChildrenPartition from "../full-intake-components/form-sections/ChildrenP
 import HealthWellnessPartition from "../full-intake-components/form-sections/HealthWellnessPartition";
 import ChildFamilyServicesPartition from "../full-intake-components/form-sections/ChildFamilyServices";
 import ReferredBySelect from "@/components/ReferredBySelect";
-import assignAdvocateUponSubmission from "@/components/AssignAdvocateUponSubmission";
+import AssignAdvocateUponSubmission from "@/components/AssignAdvocateUponSubmission";
 import ValidationErrorToast from "../../../components/ValidationErrorToast";
 import ToastNotification from "../../../components/ToastNotification";
 
@@ -144,9 +144,9 @@ export default function PreIntakeForm() {
             <div className="mb-6 ml-6 w-72">
               <Field
                   name="selectedAdvocate"
-                  component={assignAdvocateUponSubmission}
+                  component={AssignAdvocateUponSubmission}
                   label="Assign Advocate"
-                  error={errors.assignAdvocateUponSubmission}
+                  error={errors.AssignAdvocateUponSubmission}
               />
             </div>
           </div>

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Formik, Form } from "formik";
+import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import { useUser } from "@clerk/clerk-react";
 import ValidationErrorToast from "../../../components/ValidationErrorToast";
@@ -20,6 +20,7 @@ import YouthIntakeBiologicalParentInfo from "./form-sections/YouthIntakeBiologic
 import YouthIntakeAgencyInfo from "./form-sections/YouthIntakeAgencyInfo";
 import YouthIntakeEmergencyContact from "./form-sections/YouthIntakeEmergencyContact";
 import YouthIntakeGeneralInfo from "./form-sections/YouthIntakeGeneralInfo";
+import AssignAdvocateUponSubmission from "@/components/AssignAdvocateUponSubmission";
 
 // Utils
 import YouthIntakeFetchClientData from "./utils/YouthIntakeFetchClientData";
@@ -184,6 +185,7 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
           <YouthIntakeEducation values={values} setFieldValue={setFieldValue} errors={errors} isEditing={isEditing} />
           <YouthIntakeFinancialInfo errors={errors} />
           <YouthIntakeOtherInformation values={values} />
+
 
 
           {!isViewOnly && (

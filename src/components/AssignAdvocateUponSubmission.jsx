@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { ErrorMessage } from "formik";
-// import supabase from "@/app/lib/supabase";
 import styles from "@/app/pre-intake/preIntake.module.css";
 
 export default function AssignAdvocateUponSubmission({ field, form, label, error }) {
@@ -53,7 +52,6 @@ export default function AssignAdvocateUponSubmission({ field, form, label, error
             id={name}
             name={name}
             value={value || ""}
-            // disabled={disabled}
             onChange={handleChange}
             className={`${styles.select} ${errors[name] && touched[name] ? "border-red-400" : ""}`}
         >
