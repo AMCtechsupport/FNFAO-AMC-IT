@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import validator from "validator";
 import supabase from "../../lib/supabase";
 import youthIntakeDefaultValues from "./youthIntakeDefaultValues";
+import { assignClientToAdvocate } from "../../../../components/assign-client-to-advocate";
 
 // Function to get Manitoba current date/time 
 const getManitobaDateTime = () => {
@@ -113,6 +114,7 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, showToas
         emergencyContactNumber,
         homeMembers,
         educationalPersons,
+        selectedAdvocate,
         ...clientData
         } = convertedValues;
 
@@ -317,6 +319,18 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, showToas
             clerkUserId: user?.id || null,
           }),
         });
+
+        // Assigns client to advocate who submit the form
+        if (selectedAdvocate === "none") {
+            updateClientStatus(clientId, "Inactive");
+        } else {
+            if (selectedAdvocate && selectedAdvocate.length > 0) {
+            const { error: assignAdvocateError } = 
+                assignClientToAdvocate(clientId, selectedAdvocate);
+            if (assignAdvocateError) {
+                throw assignAdvocateError;
+            }}
+        }
 
         // Reset form and show success message
         showToast("success", isEditMode ? "Youth client updated successfully" : "Youth Intake sent successfully");

@@ -1,4 +1,6 @@
 import { useUser } from "@clerk/clerk-react";
+import { assignClientToAdvocate } from "../../../../components/assign-client-to-advocate";
+import { updateClientStatus } from "../../../../components/client-active";
 import supabase from "../../lib/supabase";
 
 // Function to get Manitoba current date/time
@@ -59,6 +61,7 @@ const PreIntakeFormSubmit = (showToast) => {
                 family,
                 homeMembers,
                 EIA,
+                selectedAdvocate,
                 ...clientData
             } = convertedValues;
 
@@ -164,6 +167,18 @@ const PreIntakeFormSubmit = (showToast) => {
                     clerkUserId: user?.id || null,
                 }),
             });
+
+            // Assigns client to advocate who submit the form
+            if (selectedAdvocate === "none") {
+                updateClientStatus(clientId, "Inactive");
+            } else {
+                if (selectedAdvocate && selectedAdvocate.length > 0) {
+                const { error: assignAdvocateError } = 
+                    assignClientToAdvocate(clientId, selectedAdvocate);
+                if (assignAdvocateError) {
+                    throw assignAdvocateError;
+                }}
+            }
 
             // Reset form and show success message
             showToast("success", "Pre-intake sent successfully");
