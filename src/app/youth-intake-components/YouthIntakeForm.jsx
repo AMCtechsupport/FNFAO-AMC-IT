@@ -184,7 +184,7 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
           <YouthIntakePeopleAtHome values={values} errors={errors} isEditing={isEditing} />
           <YouthIntakeEducation values={values} setFieldValue={setFieldValue} errors={errors} isEditing={isEditing} />
           <YouthIntakeFinancialInfo errors={errors} />
-          <YouthIntakeOtherInformation values={values} />
+          <YouthIntakeOtherInformation values={values} isEditing={isEditing}/>
 
 
 
