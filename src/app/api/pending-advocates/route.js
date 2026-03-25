@@ -6,17 +6,10 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search") || "";
 
-    console.log("[/api/pending-advocates] Request params:", { search });
-
     // Fetch all advocates
     const { data: allAdvocates, error } = await supabase
       .from("Advocates")
       .select("advocate_id, firstName, lastName, email, createdAt, clerk_user_id");
-
-    console.log("[/api/pending-advocates] Fetch result:", {
-      totalAdvocates: allAdvocates?.length,
-      error: error?.message,
-    });
 
     if (error) {
       console.error("[/api/pending-advocates] Supabase fetch error:", error);
@@ -33,10 +26,6 @@ export async function GET(request) {
     let pendingAdvocates = (allAdvocates || []).filter(
       (advocate) => advocate.clerk_user_id === null
     );
-
-    console.log("[/api/pending-advocates] After null filter:", {
-      pendingCount: pendingAdvocates.length,
-    });
 
     // Sort by createdAt descending (newest first)
     pendingAdvocates = pendingAdvocates.sort((a, b) => {
@@ -61,10 +50,6 @@ export async function GET(request) {
         );
       });
     }
-
-    console.log("[/api/pending-advocates] Final result:", {
-      count: pendingAdvocates.length,
-    });
 
     // Remove clerk_user_id from response (not needed on frontend)
     const response = pendingAdvocates.map(({ clerk_user_id, ...rest }) => rest);

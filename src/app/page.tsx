@@ -2,7 +2,6 @@
 import supabase from "./lib/supabase";
 
 export default function Home() {
-  // console.log(supabase);
   return (
     <div className="flex flex-col" style={{ height: "calc(100vh - 96px)" }}>
       <main
