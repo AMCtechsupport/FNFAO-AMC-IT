@@ -143,7 +143,7 @@ export default function PreIntakeForm() {
             </div>
             <div className="col-span-5">
               <Field
-                  name="assignAdvocateUponSubmission"
+                  name="selectedAdvocate"
                   component={assignAdvocateUponSubmission}
                   label="Assign Advocate"
                   error={errors.assignAdvocateUponSubmission}
