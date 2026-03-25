@@ -158,6 +158,8 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, showToas
         clientData.createdAt = currentDate;
         clientData.dateModified = currentDate;
         clientData.clientType = "Youth Intake";
+        // Set clientStatus to 'Inactive' if no advocate is assigned
+        clientData.clientStatus = (!selectedAdvocate || selectedAdvocate === "none") ? "Inactive" : undefined;
 
         // Debug: Log final client data being sent to database
         console.log("🔍 DEBUG - Final clientData for database:", clientData);
@@ -321,15 +323,12 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, showToas
         });
 
         // Assigns client to advocate who submit the form
-        if (selectedAdvocate === "none") {
-            updateClientStatus(clientId, "Inactive");
-        } else {
-            if (selectedAdvocate && selectedAdvocate.length > 0) {
+        if (selectedAdvocate && selectedAdvocate.length > 0 && selectedAdvocate !== "none") {
             const { error: assignAdvocateError } = 
                 assignClientToAdvocate(clientId, selectedAdvocate);
             if (assignAdvocateError) {
                 throw assignAdvocateError;
-            }}
+            }
         }
 
         // Reset form and show success message
