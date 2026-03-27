@@ -18,7 +18,7 @@ export const getAssignedClients = async (advocateId) => {
     const { data, error } = await supabase
       .from("Assigned Advocates")
       .select(
-        "assigned_advocate_id, dateAssigned, Clients(client_id, firstName, middleName, lastName, clientType)",
+        "assigned_advocate_id, dateAssigned, Clients(client_id, firstName, middleName, lastName, clientType, clientStatus)",
       )
       .eq("advocate_id", advocateId)
       .order("dateAssigned", { ascending: false });

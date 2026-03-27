@@ -19,11 +19,6 @@ const useSyncClerkWithSupabase = () => {
         access_token: token,
         refresh_token: "", // Leave the refresh_token empty because Clerk handles it
       });
-
-
-       if (user) {
-        console.log("Usuario logueado:", user.emailAddresses[0]?.emailAddress);
-      }
     };
 
     syncSession();

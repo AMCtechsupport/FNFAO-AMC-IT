@@ -13,8 +13,6 @@ export async function handleFamilyUpdate (family, client_id, setFamilyData ){
             return false;
         }
 
-        console.log("Existing family in DB:", existingFamily); // quitar
-
         const existingFamilyIds = existingFamily.map(member => member.family_and_friends_id); // Extracts family_and_friends_id from existingFamily
         const newMember = [];
         const updatedMembers = [];
@@ -39,7 +37,6 @@ export async function handleFamilyUpdate (family, client_id, setFamilyData ){
                 console.error("Error inserting new member:", insertError);
                 return false;
             }
-            console.log("New member inserted:", newMember);
         }
 
         // Update existing members
@@ -54,15 +51,12 @@ export async function handleFamilyUpdate (family, client_id, setFamilyData ){
                 return false;
             }
         }
-        console.log("Existing member updated:", updatedMembers);
 
         // Filter invalid IDs before deleting
         const validDeletedMembersIds = deletedMembersIds.filter(id => Number.isInteger(id));
-        // console.log("IDs a eliminar (antes de la eliminación):", validDeletedMembersIds);
 
         // Delete removed members
         if (validDeletedMembersIds.length > 0) {
-            console.log("Attempting to delete members:", validDeletedMembersIds);
 
             const { data, error: deleteError } = await supabase
                 .from("Important Family and Friends")
@@ -74,10 +68,6 @@ export async function handleFamilyUpdate (family, client_id, setFamilyData ){
                 console.error("Error deleting member:", deleteError.message || deleteError);
                 return false;
             }
-
-            console.log("Members deleted successfully:", data);
-        } else {
-            console.log("No members to delete.");
         }
 
         // Gets updated member again after modifications
@@ -90,8 +80,6 @@ export async function handleFamilyUpdate (family, client_id, setFamilyData ){
             console.error("Error fetching updated member:", fetchUpdatedMembersError);
         return false;
         }
-
-        // console.log("Lista actualizada después de eliminar:", updatedMemberList);
 
         // FamilyData status updated
         setFamilyData(updatedMemberList);

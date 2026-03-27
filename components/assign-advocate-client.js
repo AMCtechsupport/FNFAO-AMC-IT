@@ -226,7 +226,7 @@ export default function AssignAdvocate({
       setShowPopup(true);
 
       // Update client status to 'Active' after successful assignment
-      await updateClientStatus(selectedClient.client_id);
+      await updateClientStatus(selectedClient.client_id, "Active");
 
       // Reset selection and fetch fresh data
       setSelectedClient(null);

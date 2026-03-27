@@ -5,15 +5,6 @@ import TypeNoteSelect from "@/components/TypeNoteSelect";
 import SubTypeNoteSelect from "@/components/SubTypeNoteSelect";
 import FormattedDate from "@/components/FormattedDate";
 
-const isWithin24Hours = (createdAt) => {
-    if (!createdAt) return false;
-    const created = new Date(createdAt);
-    if (isNaN(created.getTime())) return false;
-    const nowWinnipeg = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Winnipeg" }));
-    const createdWinnipeg = new Date(created.toLocaleString("en-US", { timeZone: "America/Winnipeg" }));
-    return nowWinnipeg - createdWinnipeg < 24 * 60 * 60 * 1000;
-};
-
 const LegalNotesPartition = ({
     notesData,
     selectedNote,
@@ -59,9 +50,11 @@ const LegalNotesPartition = ({
         if (signedUrl) window.open(signedUrl, "_blank");
     };
 
+    const legalNotes = notesData.filter(note => note.noteType?.toLowerCase() === "legal");
+
     return (
         <>
-            {notesData.length === 0 ? (
+            {legalNotes.length === 0 ? (
                 <p className="text-gray-500 italic mt-2">No notes found for this client.</p>
             ) : (
                 <>
@@ -77,8 +70,7 @@ const LegalNotesPartition = ({
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {[...notesData]
-                                        .filter(note => note.noteType?.toLowerCase() === "legal")
+                                    {[...legalNotes]
                                         .sort((a, b) => b.note_id - a.note_id)
                                         .map((note) => (
                                         <tr key={note.note_id} className="border-b border-gray-100 hover:bg-gray-50">
@@ -98,7 +90,7 @@ const LegalNotesPartition = ({
                                                     >
                                                         View
                                                     </button>
-                                                    {isEditing && isAssignedAdvocate && isWithin24Hours(note.createdAt) && (
+                                                    {isEditing && isAssignedAdvocate && (
                                                         <button
                                                             className="px-3 py-1 text-xs font-semibold rounded-lg text-white transition-colors"
                                                             style={{ backgroundColor: "#f59e0b" }}
@@ -152,7 +144,7 @@ const LegalNotesPartition = ({
                                         as="textarea"
                                         name="description"
                                         className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 resize-none focus:outline-none"
-                                        value={selectedNote.description}
+                                        value={selectedNote.description ?? ""}
                                         rows={10}
                                         disabled
                                     />
@@ -163,7 +155,7 @@ const LegalNotesPartition = ({
                                         as="textarea"
                                         name="actionPlan"
                                         className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 resize-none focus:outline-none"
-                                        value={selectedNote.actionPlan}
+                                        value={selectedNote.actionPlan ?? ""}
                                         rows={10}
                                         disabled
                                     />
@@ -193,7 +185,13 @@ const LegalNotesPartition = ({
                             <div className="px-5 py-3 bg-gray-50 border-t border-gray-200 flex items-center justify-between text-xs text-gray-500">
                                 <span>
                                     <strong>Author:</strong> {selectedNote.authorName || "—"}
-                                    {"  ·  "}
+                                    {selectedNote.editorName && (
+                                        <>
+                                            {" | "}
+                                            <strong>Last edited by:</strong> {selectedNote.editorName}
+                                        </>
+                                    )}
+                                    {" | "}
                                     <strong>Last updated:</strong> <FormattedDate dateString={selectedNote.modifiedAt} />
                                 </span>
                                 <button
@@ -294,6 +292,7 @@ const LegalNotesPartition = ({
 
                         <div className="flex gap-2 mt-4">
                             <button
+                                type="button"
                                 className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors"
                                 style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
                                 onClick={() => handleSaveNoteEdit(editingNote.note_id, editValues, editFile)}
@@ -301,6 +300,7 @@ const LegalNotesPartition = ({
                                 Save Changes
                             </button>
                             <button
+                                type="button"
                                 className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors"
                                 style={{ backgroundColor: "#6b7280" }}
                                 onClick={() => setEditingNote(null)}
@@ -320,7 +320,7 @@ const LegalNotesPartition = ({
                             className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
                             style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
                             onClick={() => handleAddNoteClick(values, push, "legal")}
-                            disabled={!isEditing || !isAssignedAdvocate}
+                            disabled={!isEditing}
                         >
                             + Add Legal Note
                         </button>
@@ -350,6 +350,7 @@ const LegalNotesPartition = ({
                                     as="textarea"
                                     className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white resize-vertical"
                                     rows={5}
+                                    placeholder="Enter legal note description..."
                                 />
                             </div>
                             <div>
@@ -359,6 +360,7 @@ const LegalNotesPartition = ({
                                     as="textarea"
                                     className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white resize-vertical"
                                     rows={5}
+                                    placeholder="Enter action plan..."
                                 />
                             </div>
                         </div>
@@ -378,13 +380,24 @@ const LegalNotesPartition = ({
 
                         <div className="flex gap-2 mt-4">
                             <button
+                                type="button"
                                 className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors"
                                 style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
-                                onClick={() => handleSaveNewNote(values.notes[values.notes.length - 1], setFieldValue, values.notes)}
+                                onClick={() => {
+                                    const note = values.notes[values.notes.length - 1];
+                                    const isEmpty = !note.type && !note.subType && !note.description?.trim() && !note.actionPlan?.trim() && !note.file;
+                                    if (isEmpty) {
+                                        setFieldValue("notes", values.notes.slice(0, -1));
+                                        setShowNewNoteForm(false);
+                                        return;
+                                    }
+                                    handleSaveNewNote(note, setFieldValue, values.notes);
+                                }}
                             >
                                 Save
                             </button>
                             <button
+                                type="button"
                                 className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors"
                                 style={{ backgroundColor: "#6b7280" }}
                                 onClick={() => {

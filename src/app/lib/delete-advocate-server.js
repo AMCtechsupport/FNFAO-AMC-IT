@@ -58,7 +58,6 @@ export const deleteAdvocate = async (advocateId) => {
       try {
         await clerkClient.users.deleteUser(advocate.clerk_user_id);
         deletedFromClerk = true;
-        console.log(`Deleted Clerk user: ${advocate.clerk_user_id}`);
       } catch (clerkError) {
         console.error("Error deleting from Clerk:", clerkError);
         // Don't throw error here - we'll still try to delete from database
@@ -75,6 +74,18 @@ export const deleteAdvocate = async (advocateId) => {
     if (notesDeleteError) {
       throw new Error(
         "Error deleting advocate's notes: " + notesDeleteError.message,
+      );
+    }
+
+    // Nullify advocate_id in User Logs to satisfy foreign key constraint while preserving log history
+    const { error: logsUpdateError } = await supabase
+      .from("User Logs")
+      .update({ advocate_id: null })
+      .eq("advocate_id", advocateId);
+
+    if (logsUpdateError) {
+      throw new Error(
+        "Error unlinking advocate's user logs: " + logsUpdateError.message,
       );
     }
 

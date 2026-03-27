@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import validator from "validator";
 import supabase from "../../lib/supabase";
 import youthIntakeDefaultValues from "./youthIntakeDefaultValues";
+import { assignClientToAdvocate } from "../../../../components/assign-client-to-advocate";
 
 // Function to get Manitoba current date/time 
 const getManitobaDateTime = () => {
@@ -100,9 +101,6 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, showToas
         }
         }
 
-        // Debug: Log converted values to verify conversion
-        console.log("🔍 DEBUG - Converted values for database:", convertedValues);
-
         // Get the current date in ISO 8601 format
         const currentDate = getManitobaDateTime();
 
@@ -113,6 +111,7 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, showToas
         emergencyContactNumber,
         homeMembers,
         educationalPersons,
+        selectedAdvocate,
         ...clientData
         } = convertedValues;
 
@@ -156,9 +155,8 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, showToas
         clientData.createdAt = currentDate;
         clientData.dateModified = currentDate;
         clientData.clientType = "Youth Intake";
-
-        // Debug: Log final client data being sent to database
-        console.log("🔍 DEBUG - Final clientData for database:", clientData);
+        // Set clientStatus to 'Inactive' if no advocate is assigned
+        clientData.clientStatus = (!selectedAdvocate || selectedAdvocate === "none") ? "Inactive" : undefined;
 
         const { data: client, error: clientError } = await supabase
             .from("Clients")
@@ -215,8 +213,6 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, showToas
             console.error("Error inserting home members:", homeMemberError);
             throw homeMemberError;
             }
-
-            // console.log("Home Members inserted successfully:", homeMembersData);
         }
         }
 
@@ -256,11 +252,6 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, showToas
             );
             throw educationalPersonsError;
             }
-
-            // console.log(
-            //   "Educational support persons inserted successfully:",
-            //   educationalPersonsData
-            // );
         }
         }
 
@@ -295,11 +286,6 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, showToas
             console.error("Code:", emergencyContactError.code || "No code");
             throw emergencyContactError;
         }
-
-        // console.log(
-        //   "Emergency contact inserted successfully:",
-        //   emergencyContactData
-        // );
         }
 
         // Insert a User Log entry for this submission via API (bypasses RLS)
@@ -317,6 +303,15 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, showToas
             clerkUserId: user?.id || null,
           }),
         });
+
+        // Assigns client to advocate who submit the form
+        if (selectedAdvocate && selectedAdvocate.length > 0 && selectedAdvocate !== "none") {
+            const { error: assignAdvocateError } = 
+                assignClientToAdvocate(clientId, selectedAdvocate);
+            if (assignAdvocateError) {
+                throw assignAdvocateError;
+            }
+        }
 
         // Reset form and show success message
         showToast("success", isEditMode ? "Youth client updated successfully" : "Youth Intake sent successfully");

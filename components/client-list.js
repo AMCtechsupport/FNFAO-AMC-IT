@@ -8,6 +8,14 @@ import DeleteConfirmModal from "./DeleteConfirmModal";
 import ToastNotification from "./ToastNotification";
 import SortDropdown from "./sort-dropdown";
 
+//Status filter dropdown options
+const statusOptions = [
+  { value: "all", label: "All Clients" },
+  { value: "active", label: "Active Clients" },
+  { value: "inactive", label: "Inactive Clients" },
+  { value: "ciwg", label: "Critical Incident Working Group" },
+];
+
 const formTypeBadge = (type) => {
   const isYouth = type === "Youth";
   return (
@@ -83,7 +91,12 @@ function ClientTable({
                     key={client.client_id}
                     className={`transition-colors hover:bg-gray-50 ${index % 2 !== 0 ? "bg-gray-50/50" : ""}`}
                   >
-                    <td className="py-3 px-4 font-medium text-gray-800 text-center">{fullName || "—"}</td>
+                    <td className="py-3 px-4 font-medium text-gray-800 text-center">
+                      {fullName || "—"}
+                      <div className="text-xs text-gray-500 mt-1">
+                        Status: {client.clientStatus || "—"}
+                      </div>
+                    </td>
                     <td className="py-3 px-4 whitespace-nowrap">
                       <div className="flex items-center justify-center gap-1.5">
                         <button
@@ -148,7 +161,8 @@ export default function ClientsList() {
   const router = useRouter();
   // Stores the selected sorting option from the dropdown
   // default = newest clients first
-  const [sortOption, setSortOption] = useState("newest"); 
+  const [sortOption, setSortOption] = useState("newest");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -177,15 +191,27 @@ export default function ClientsList() {
 
   const filterClients = (clients) => {
     return clients.filter((client) => {
-      const term = searchQuery.trim().toLowerCase();
-      if (!term) return true;
-      const fullName = [client.firstName, client.lastName]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-      return fullName.includes(term);
-    });
-  };
+
+        // SEARCH
+        const fullName = `${client.firstName || ""} ${client.lastName || ""}`.toLowerCase();
+        const matchesSearch = fullName.includes(searchQuery.toLowerCase());
+
+        // STATUS FILTER
+          if (statusFilter === "active") {
+          return matchesSearch && client.clientStatus === "Active";
+          
+        } else if (statusFilter === "inactive") {
+          return matchesSearch && client.clientStatus === "Inactive";
+        
+        } else if (statusFilter === "ciwg") {
+          return matchesSearch && client.clientStatus === "Critical Incident Working Group";
+        }
+        
+        else {
+          return matchesSearch; // "all"
+        }
+      });
+    };
 
     // Function that sorts clients based on the dropdown selection
   const sortClients = (clients) => {
@@ -292,18 +318,30 @@ export default function ClientsList() {
         </span>
       </div>
 
-      {/* Filter Search */}
-       <div className="flex justify-end pb-4">
-        <div className="relative inline-block">
-          <SortDropdown
-            value={sortOption}
-            onChange={(value) => {
-              setSortOption(value);
-              setCurrentYouthPage(1);
-              setCurrentAdultPage(1);
-            }}
-          />
-        </div>
+      {/* Filter + Sort */}
+      <div className="flex justify-end gap-3 pb-4">
+
+        {/* Status Filter */}
+        <SortDropdown
+          value={statusFilter}
+          onChange={(value) => {
+            setStatusFilter(value);
+            setCurrentYouthPage(1);
+            setCurrentAdultPage(1);
+          }}
+          options={statusOptions}
+        />
+
+        {/* Sort Dropdown (your existing one) */}
+        <SortDropdown
+          value={sortOption}
+          onChange={(value) => {
+            setSortOption(value);
+            setCurrentYouthPage(1);
+            setCurrentAdultPage(1);
+          }}
+        />
+
       </div>
 
        {/* Search */}
