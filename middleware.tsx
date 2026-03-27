@@ -22,6 +22,7 @@ const isAdminOnlyRoute = createRouteMatcher([
   "/profile(.*)",
 ]);
 
+// Routes advocates are allowed to access
 const isAdvocateAllowedRoute = createRouteMatcher([
   "/user-dashboard(.*)",
   "/pre-intake(.*)",
@@ -30,6 +31,7 @@ const isAdvocateAllowedRoute = createRouteMatcher([
   "/adult-clients(.*)",
 ]);
 
+// Routes both roles can access
 const isSharedRoute = createRouteMatcher([
   "/clients(.*)",
 ]);
