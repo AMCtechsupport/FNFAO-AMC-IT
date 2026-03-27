@@ -1,10 +1,18 @@
 import { clerkMiddleware, createRouteMatcher, createClerkClient } from "@clerk/nextjs/server";
+import { createClient } from "@supabase/supabase-js";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
-// Clerk client — reads publicMetadata directly, no JWT template required
+// Clerk client
 const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
 
-// Routes only admins can access
+// Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+);
+
+// Route matchers
 const isAdminOnlyRoute = createRouteMatcher([
   "/admin(.*)",
   "/user-logs(.*)",
@@ -14,7 +22,6 @@ const isAdminOnlyRoute = createRouteMatcher([
   "/profile(.*)",
 ]);
 
-// Routes advocates are allowed to access
 const isAdvocateAllowedRoute = createRouteMatcher([
   "/user-dashboard(.*)",
   "/pre-intake(.*)",
@@ -23,7 +30,6 @@ const isAdvocateAllowedRoute = createRouteMatcher([
   "/adult-clients(.*)",
 ]);
 
-// Routes both roles can access
 const isSharedRoute = createRouteMatcher([
   "/clients(.*)",
 ]);
@@ -32,25 +38,51 @@ const isProtectedRoute = (req: NextRequest) =>
   isAdminOnlyRoute(req) || isAdvocateAllowedRoute(req) || isSharedRoute(req);
 
 export default clerkMiddleware(async (auth, req) => {
-  if (!isProtectedRoute(req)) return;
 
-  // Require authentication for all protected routes — no external API call here
+  const res = NextResponse.next();
+
+  // Allow public routes
+  if (!isProtectedRoute(req)) {
+    return res;
+  }
+
+  // Require authentication
   await auth.protect();
 
-  // Only call Clerk's API for admin-only routes.
-  // Advocate and shared routes skip this call entirely, keeping those requests fast
-  // and avoiding timeouts that would break page loads and form submissions.
+  const { userId } = await auth();
+  if (!userId) return res;
+
+  const user = await clerk.users.getUser(userId);
+  const role = user.publicMetadata?.role as "admin" | "advocate" | undefined;
+
+  // Admin-only routes
   if (isAdminOnlyRoute(req)) {
-    const { userId } = await auth();
-    if (!userId) return;
-
-    const user = await clerk.users.getUser(userId);
-    const role = user.publicMetadata?.role as "admin" | "advocate" | undefined;
-
     if (role !== "admin") {
-      return Response.redirect(new URL("/unauthorized", req.url));
+      return NextResponse.redirect(new URL("/unauthorized", req.url));
+    }
+  } else {
+    // Advocate/shared routes
+    if (role !== "admin" && role !== "advocate") {
+      const email = user.primaryEmailAddress?.emailAddress?.toLowerCase();
+
+      if (email) {
+        const { data } = await supabase
+          .from("Advocates")
+          .select("advocate_id")
+          .eq("email", email)
+          .is("clerk_user_id", null)
+          .single();
+
+        if (data) {
+          return NextResponse.redirect(new URL("/setup", req.url));
+        }
+      }
+
+      return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
   }
+
+  return res;
 });
 
 export const config = {
