@@ -2,10 +2,66 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Forbidden</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Access Forbidden | AMC-FNFAO</title>
+  <link href="/globals.css" rel="stylesheet">
+  <style>
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #f3f4f6 0%, #e0e7ef 100%);
+      font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+      color: #1e293b;
+    }
+    .container {
+      background: rgba(255,255,255,0.95);
+      border-radius: 1.5rem;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+      padding: 2.5rem 2rem 2rem 2rem;
+      text-align: center;
+      max-width: 400px;
+    }
+    .logo {
+      width: 150px;
+      margin-bottom: 0 rem;
+      border: black 2px solid;
+      background-color: black;
+      opacity: 0.8  ;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin: 0 0 0.5rem 0;
+      color: #b91c1c;
+      letter-spacing: 1px;
+    }
+    .subtitle {
+      font-size: 1.1rem;
+      color: #475569;
+      margin-bottom: 1.5rem;
+      font-style: italic;
+    }
+    .desc {
+      color: #334155;
+      margin-bottom: 1.5rem;
+    }
+
+  </style>
 </head>
 <body>
-  <h1>403 Forbidden</h1>
-  <p>Directory listing is not allowed.</p>
+  <div class="container">
+    <img src="/logo.png" alt="AMC-FNFAO Logo" class="logo" />
+    <h1>403 Forbidden</h1>
+    <div class="subtitle">Abinoojiyak Bigiiwewag — Our Children are Coming Home</div>
+    <div class="desc">
+      Directory listing is not allowed.<br>
+      For the safety and privacy of our community, access to this folder is restricted.<br>
+      <br>
+      <strong>If you believe this is an error, please contact the site administrator.</strong>
+    </div>
+  </div>
 </body>
 </html>
