@@ -24,10 +24,20 @@ const nextConfig: NextConfig = {
             key: "X-Frame-Options",
             value: "DENY",
           },
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
         ],
       },
     ];
   },
+};
+
+// Remove X-Powered-By header for security
+const removePoweredBy = (_req: any, res: any, next: any) => {
+  if (res.removeHeader) res.removeHeader('X-Powered-By');
+  if (next) next();
 };
 
 export default nextConfig;
