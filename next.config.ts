@@ -21,6 +21,7 @@ const nextConfig: NextConfig = {
             connect-src 'self'
               https://*.clerk.dev
               https://*.clerk.accounts.dev
+              wss://*.supabase.co
               https://*.supabase.co
               https://challenges.cloudflare.com;
             frame-src
