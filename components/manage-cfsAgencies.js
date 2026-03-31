@@ -1,10 +1,13 @@
-"use client";
 
+"use client";
 import React, { useState, useEffect } from "react";
 import supabase from "@/app/lib/supabase";
+import DeleteConfirmModal from "./DeleteConfirmModal";
 
 const CFSAgenciesManagement = () => {
   const [cfsAgencies, setCfsAgencies] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [toDelete, setToDelete] = useState(null);
   const [newCfsAgency, setNewCfsAgency] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -89,6 +92,8 @@ const CFSAgenciesManagement = () => {
         cfsAgencies.filter((agency) => agency.agencyName !== agencyName),
       );
     }
+    setShowDeleteModal(false);
+    setToDelete(null);
   };
 
   const filtered = cfsAgencies.filter((agency) =>
@@ -381,9 +386,7 @@ const CFSAgenciesManagement = () => {
                             Edit
                           </button>
                           <button
-                            onClick={() =>
-                              handleRemoveCfsAgency(agency.agencyName)
-                            }
+                            onClick={() => { setShowDeleteModal(true); setToDelete(agency); }}
                             className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full transition-colors border"
                             style={{
                               backgroundColor: "rgba(239, 68, 68, 0.1)",
@@ -425,6 +428,15 @@ const CFSAgenciesManagement = () => {
             </tbody>
           </table>
         </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && toDelete && (
+        <DeleteConfirmModal
+          client={{ firstName: toDelete.agencyName, lastName: "" }}
+          onConfirm={() => handleRemoveCfsAgency(toDelete.agencyName)}
+          onCancel={() => { setShowDeleteModal(false); setToDelete(null); }}
+        />
       )}
     </div>
   );

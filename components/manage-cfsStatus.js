@@ -1,10 +1,13 @@
-"use client";
 
+"use client";
 import React, { useState, useEffect } from "react";
 import supabase from "@/app/lib/supabase";
+import DeleteConfirmModal from "./DeleteConfirmModal";
 
 const CFSStatusManagement = () => {
   const [cfsStatuses, setCfsStatuses] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [toDelete, setToDelete] = useState(null);
   const [newCfsStatus, setNewCfsStatus] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -89,6 +92,8 @@ const CFSStatusManagement = () => {
         cfsStatuses.filter((status) => status.cfsStatus !== cfsStatus)
       );
     }
+    setShowDeleteModal(false);
+    setToDelete(null);
   };
 
   const filtered = cfsStatuses.filter((status) =>
@@ -247,7 +252,7 @@ const CFSStatusManagement = () => {
                             Edit
                           </button>
                           <button
-                            onClick={() => handleRemoveCfsStatus(status.cfsStatus)}
+                            onClick={() => { setShowDeleteModal(true); setToDelete(status); }}
                             className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full transition-colors border"
                             style={{ backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.3)", color: "#ef4444", transition: "all 0.3s ease" }}
                             onMouseEnter={e => { e.currentTarget.style.backgroundColor = "#ef4444"; e.currentTarget.style.color = "#ffffff"; }}
@@ -265,6 +270,15 @@ const CFSStatusManagement = () => {
             </tbody>
           </table>
         </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && toDelete && (
+        <DeleteConfirmModal
+          client={{ firstName: toDelete.cfsStatus, lastName: "" }}
+          onConfirm={() => handleRemoveCfsStatus(toDelete.cfsStatus)}
+          onCancel={() => { setShowDeleteModal(false); setToDelete(null); }}
+        />
       )}
     </div>
   );
