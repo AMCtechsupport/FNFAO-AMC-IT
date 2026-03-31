@@ -11,7 +11,8 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: `
               default-src 'self';
-              script-src 'self' 'unsafe-inline' https://*.clerk.dev https://*.clerk.accounts.dev;
+              script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://*.clerk.dev https://*.clerk.accounts.dev;
+              worker-src 'self' blob:;
               style-src 'self' https://fonts.googleapis.com 'unsafe-inline';
               img-src 'self' data: blob: https:;
               connect-src 'self' https://*.clerk.dev https://*.clerk.accounts.dev https://*.supabase.co;
