@@ -63,18 +63,26 @@ const CFSAgenciesManagement = () => {
       .from("CFS Agencies")
       .update({ agencyName: editValue })
       .eq("agencyName", oldValue);
-
     if (error) {
       setError("Error updating CFS Agency");
       console.error("Error updating CFS Agency:", error);
     } else {
-      setCfsAgencies(
-        cfsAgencies.map((a) =>
-          a.agencyName === oldValue ? { agencyName: editValue } : a,
-        ),
-      );
-      setEditingItem(null);
-      setEditValue("");
+      // Update all clients referencing the old CFS Agency name
+      const { error: clientUpdateError } = await supabase
+        .from("Clients")
+        .update({ cfsAgency: editValue })
+        .eq("cfsAgency", oldValue);
+      if (clientUpdateError) {
+        setError("CFS Agency updated, but failed to update clients using this value.");
+      } else {
+        setCfsAgencies(
+          cfsAgencies.map((a) =>
+            a.agencyName === oldValue ? { agencyName: editValue } : a,
+          ),
+        );
+        setEditingItem(null);
+        setEditValue("");
+      }
     }
   };
 

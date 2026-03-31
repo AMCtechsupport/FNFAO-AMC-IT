@@ -63,18 +63,26 @@ const CFSStatusManagement = () => {
       .from("CFS Status")
       .update({ cfsStatus: editValue })
       .eq("cfsStatus", oldValue);
-
     if (error) {
       setError("Error updating CFS Status");
       console.error("Error updating CFS Status:", error);
     } else {
-      setCfsStatuses(
-        cfsStatuses.map((s) =>
-          s.cfsStatus === oldValue ? { cfsStatus: editValue } : s
-        )
-      );
-      setEditingItem(null);
-      setEditValue("");
+      // Update all clients referencing the old CFS Status name
+      const { error: clientUpdateError } = await supabase
+        .from("Clients")
+        .update({ statusCFSFile: editValue })
+        .eq("statusCFSFile", oldValue);
+      if (clientUpdateError) {
+        setError("CFS Status updated, but failed to update clients using this value.");
+      } else {
+        setCfsStatuses(
+          cfsStatuses.map((s) =>
+            s.cfsStatus === oldValue ? { cfsStatus: editValue } : s
+          )
+        );
+        setEditingItem(null);
+        setEditValue("");
+      }
     }
   };
 

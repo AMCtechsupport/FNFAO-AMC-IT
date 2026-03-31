@@ -64,19 +64,27 @@ const FirstNationManagement = () => {
       .from("First Nations")
       .update({ firstNationMembership: editValue })
       .eq("firstNationMembership", oldValue);
-
     if (error) {
       setError("Error updating First Nation");
     } else {
-      setFirstNations(
-        firstNations.map((n) =>
-          n.firstNationMembership === oldValue
-            ? { firstNationMembership: editValue }
-            : n
-        )
-      );
-      setEditingItem(null);
-      setEditValue("");
+      // Update all clients referencing the old First Nation name
+      const { error: clientUpdateError } = await supabase
+        .from("Clients")
+        .update({ firstNationMembership: editValue })
+        .eq("firstNationMembership", oldValue);
+      if (clientUpdateError) {
+        setError("First Nation updated, but failed to update clients using this value.");
+      } else {
+        setFirstNations(
+          firstNations.map((n) =>
+            n.firstNationMembership === oldValue
+              ? { firstNationMembership: editValue }
+              : n
+          )
+        );
+        setEditingItem(null);
+        setEditValue("");
+      }
     }
   };
 
