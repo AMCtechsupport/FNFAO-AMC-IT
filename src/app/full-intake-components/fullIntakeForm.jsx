@@ -212,7 +212,7 @@ export default function FullIntakeForm({
     if (!res.ok) {
       const errData = await res.json().catch(() => ({}));
       if (res.status === 403) {
-        alert(errData.error || "This note can no longer be edited (24-hour window has passed).");
+        alert(errData.error || "This note can only be edited on the day it was created.");
         setEditingNote(null);
       } else {
         console.error("[handleSaveNoteEdit] PATCH failed:", errData);
