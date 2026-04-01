@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { getAssignedClients } from "@/app/lib/get-assigned-clients-server";
+import FilterStatus from "./filter_status";
+import { getFilteredAndSortedAssignedClients } from "./filter_status_utils";
 
 const formTypeBadge = (clientType) => {
   const isYouth = clientType === "Youth Intake";
@@ -25,6 +27,8 @@ export default function AssignedClientsList({ advocateId }) {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortOption, setSortOption] = useState("newest");
+  const [statusFilter, setStatusFilter] = useState("all");
   const clientsPerPage = 10;
 
   useEffect(() => {
@@ -64,17 +68,12 @@ export default function AssignedClientsList({ advocateId }) {
     fetchClients();
   }, [advocateId]);
 
-  // Client-side filtering by name (contains)
-  const filteredClients = allClients.filter((assignment) => {
-    if (!searchQuery.trim()) return true;
-    const client = assignment.Clients;
-    const term = searchQuery.trim().toLowerCase();
-    const fullName = [client.firstName, client.lastName]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase();
-    return fullName.includes(term);
-  });
+  const filteredClients = getFilteredAndSortedAssignedClients(
+    allClients,
+    searchQuery,
+    statusFilter,
+    sortOption,
+  );
 
   const totalClients = filteredClients.length;
   const totalPages = Math.max(1, Math.ceil(totalClients / clientsPerPage));
@@ -105,6 +104,26 @@ export default function AssignedClientsList({ advocateId }) {
           <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span>
           {allClients.length} {allClients.length === 1 ? "client" : "clients"}
         </span>
+      </div>
+
+      {/* Filter + Sort */}
+      <div className="flex justify-end gap-3 pb-4">
+        <FilterStatus
+          variant="status"
+          value={statusFilter}
+          onChange={(value) => {
+            setStatusFilter(value);
+            setCurrentPage(1);
+          }}
+        />
+        <FilterStatus
+          variant="sort"
+          value={sortOption}
+          onChange={(value) => {
+            setSortOption(value);
+            setCurrentPage(1);
+          }}
+        />
       </div>
 
       {/* Search */}

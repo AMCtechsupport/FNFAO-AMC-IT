@@ -6,15 +6,8 @@ import { deleteClient } from "../src/app/lib/delete-client-server";
 import Pagination from "./report/pages-pagination";
 import DeleteConfirmModal from "./DeleteConfirmModal";
 import ToastNotification from "./ToastNotification";
-import SortDropdown from "./sort-dropdown";
-
-//Status filter dropdown options
-const statusOptions = [
-  { value: "all", label: "All Clients" },
-  { value: "active", label: "Active Clients" },
-  { value: "inactive", label: "Inactive Clients" },
-  { value: "ciwg", label: "Critical Incident Working Group" },
-];
+import FilterStatus from "./filter_status";
+import { getFilteredAndSortedClients } from "./filter_status_utils";
 
 const formTypeBadge = (type) => {
   const isYouth = type === "Youth";
@@ -189,72 +182,18 @@ export default function ClientsList() {
     setTimeout(() => setToast(null), 4000);
   };
 
-  const filterClients = (clients) => {
-    return clients.filter((client) => {
-
-        // SEARCH
-        const fullName = `${client.firstName || ""} ${client.lastName || ""}`.toLowerCase();
-        const matchesSearch = fullName.includes(searchQuery.toLowerCase());
-
-        // STATUS FILTER
-          if (statusFilter === "active") {
-          return matchesSearch && client.clientStatus === "Active";
-          
-        } else if (statusFilter === "inactive") {
-          return matchesSearch && client.clientStatus === "Inactive";
-        
-        } else if (statusFilter === "ciwg") {
-          return matchesSearch && client.clientStatus === "Critical Incident Working Group";
-        }
-        
-        else {
-          return matchesSearch; // "all"
-        }
-      });
-    };
-
-    // Function that sorts clients based on the dropdown selection
-  const sortClients = (clients) => {
-
-    // Create a copy of the array so React state isn't mutated
-    let sorted = [...clients];
-
-    // NEWEST FIRST
-    if (sortOption === "newest") {
-      sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    }
-
-    // OLDEST FIRST
-    else if (sortOption === "oldest") {
-      sorted.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-    }
-
-    // ALPHABETICAL A → Z
-    else if (sortOption === "az") {
-      sorted.sort((a, b) => {
-        const nameA = `${a.firstName ?? ""} ${a.lastName ?? ""}`.toLowerCase();
-        const nameB = `${b.firstName ?? ""} ${b.lastName ?? ""}`.toLowerCase();
-        return nameA.localeCompare(nameB);
-      });
-    }
-
-    // ALPHABETICAL Z → A
-    else if (sortOption === "za") {
-      sorted.sort((a, b) => {
-        const nameA = `${a.firstName ?? ""} ${a.lastName ?? ""}`.toLowerCase();
-        const nameB = `${b.firstName ?? ""} ${b.lastName ?? ""}`.toLowerCase();
-        return nameB.localeCompare(nameA);
-      });
-    }
-
-    return sorted;
-  };
-  
-
-  // First filter clients by search
-  // Then apply sorting
-  const filteredYouth = sortClients(filterClients(allYouthClients));
-  const filteredAdult = sortClients(filterClients(allAdultClients));
+  const filteredYouth = getFilteredAndSortedClients(
+    allYouthClients,
+    searchQuery,
+    statusFilter,
+    sortOption,
+  );
+  const filteredAdult = getFilteredAndSortedClients(
+    allAdultClients,
+    searchQuery,
+    statusFilter,
+    sortOption,
+  );
 
   const totalYouthPages = Math.max(1, Math.ceil(filteredYouth.length / clientsPerPage));
   const totalAdultPages = Math.max(1, Math.ceil(filteredAdult.length / clientsPerPage));
@@ -322,18 +261,19 @@ export default function ClientsList() {
       <div className="flex justify-end gap-3 pb-4">
 
         {/* Status Filter */}
-        <SortDropdown
+        <FilterStatus
+          variant="status"
           value={statusFilter}
           onChange={(value) => {
             setStatusFilter(value);
             setCurrentYouthPage(1);
             setCurrentAdultPage(1);
           }}
-          options={statusOptions}
         />
 
         {/* Sort Dropdown (your existing one) */}
-        <SortDropdown
+        <FilterStatus
+          variant="sort"
           value={sortOption}
           onChange={(value) => {
             setSortOption(value);
