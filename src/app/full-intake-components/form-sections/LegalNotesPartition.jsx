@@ -4,6 +4,7 @@ import { Field, ErrorMessage, FieldArray } from "formik";
 import TypeNoteSelect from "@/components/TypeNoteSelect";
 import SubTypeNoteSelect from "@/components/SubTypeNoteSelect";
 import FormattedDate from "@/components/FormattedDate";
+import { canEditNote } from "@/app/lib/note-edit-utils";
 
 const LegalNotesPartition = ({
     notesData,
@@ -25,6 +26,7 @@ const LegalNotesPartition = ({
 }) => {
     const [editValues, setEditValues] = useState(null);
     const [editFile, setEditFile] = useState(null);
+    const canEditSelectedNote = canEditNote(editingNote, isAssignedAdvocate);
 
     useEffect(() => {
         if (editingNote) {
@@ -92,8 +94,9 @@ const LegalNotesPartition = ({
                                                     </button>
                                                     {isEditing && isAssignedAdvocate && (
                                                         <button
-                                                            className="px-3 py-1 text-xs font-semibold rounded-lg text-white transition-colors"
+                                                            className="px-3 py-1 text-xs font-semibold rounded-lg text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                             style={{ backgroundColor: "#f59e0b" }}
+                                                            disabled={!canEditNote(note, isAssignedAdvocate)}
                                                             onClick={() => {
                                                                 handleCloseNoteDetails();
                                                                 setEditingNote(note);
@@ -212,6 +215,9 @@ const LegalNotesPartition = ({
             {editingNote && editValues && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
                     <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>Edit Legal Note</div>
+                    <div className="px-5 py-3 bg-red-500 text-white text-xs font-semibold rounded mx-5 mt-4 mb-0">
+                        ⚠️ Notes can be edited till today only.
+                    </div>
                     <div className="p-5">
                         <div className="grid grid-cols-2 gap-4 mb-4">
                             <div>
@@ -293,8 +299,9 @@ const LegalNotesPartition = ({
                         <div className="flex gap-2 mt-4">
                             <button
                                 type="button"
-                                className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors"
+                                className="px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
+                                disabled={!canEditSelectedNote}
                                 onClick={() => handleSaveNoteEdit(editingNote.note_id, editValues, editFile)}
                             >
                                 Save Changes
@@ -332,6 +339,9 @@ const LegalNotesPartition = ({
             {showNewNoteForm && !editingNote && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
                     <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>New Legal Note</div>
+                    <div className="px-5 py-3 bg-red-500 text-white text-xs font-semibold rounded mx-5 mt-4 mb-0">
+                        ⚠️ Notes can be edited till today only.
+                    </div>
                     <div className="p-5">
                         <div className="grid grid-cols-2 gap-4 mb-4">
                             <div>

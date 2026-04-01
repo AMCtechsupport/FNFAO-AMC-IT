@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 import supabase from "../../lib/supabase";
+import { isSameCalendarDay } from "../../lib/note-edit-utils";
 
 export async function GET(request) {
   try {
@@ -163,6 +164,13 @@ export async function PATCH(request) {
 
     if (fetchError || !existingNote) {
       return NextResponse.json({ error: "Note not found" }, { status: 404 });
+    }
+
+    if (!isSameCalendarDay(existingNote.createdAt)) {
+      return NextResponse.json(
+        { error: "This note can only be edited on the day it was created." },
+        { status: 403 },
+      );
     }
 
     const modifiedAt = new Date().toISOString();
