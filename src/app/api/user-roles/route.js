@@ -160,21 +160,6 @@ export async function PATCH(req) {
         );
       }
 
-      // Prevent changing any admin's role
-      try {
-        const existing = await clerkClient.users.getUser(item.userId);
-        if (existing.publicMetadata?.role === "admin") {
-          return NextResponse.json(
-            { error: "You cannot change the role of an admin user." },
-            { status: 403 },
-          );
-        }
-      } catch (error) {
-        return NextResponse.json(
-          { error: "Failed to verify user role." },
-          { status: 400 },
-        );
-      }
     }
 
     const results = [];
