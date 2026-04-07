@@ -20,13 +20,6 @@ function fullIntakeInitialValues ({
             EIAData,
             homeMembersData,
     });
-        
-    console.log("📊 FORM INITIAL VALUES (after conversion):");
-    console.log(JSON.stringify(formInitialValues, null, 2));
-    
-    console.log("🔍 RADIO BUTTON FIELD COMPARISON:");
-    console.log("Field Name | Database Value | Form Value");
-    console.log("----------------------------------------");
 
     // Radio button fields comparison
     const radioFields = [
@@ -42,12 +35,7 @@ function fullIntakeInitialValues ({
     radioFields.forEach(field => {
         const dbValue = originalData?.[field];
         const formValue = formInitialValues[field];
-        console.log(`${field} | ${dbValue} | ${formValue}`);
     });
-    
-    console.log("\n🔍 TEXT FIELD COMPARISON:");
-    console.log("Field Name | Database Value | Form Value");
-    console.log("----------------------------------------");
 
     // Text field comparison
     const textFields = [
@@ -60,7 +48,6 @@ function fullIntakeInitialValues ({
     textFields.forEach(field => {
         const dbValue = originalData?.[field];
         const formValue = formInitialValues[field];
-        console.log(`${field} | "${dbValue}" | "${formValue}"`);
     });
 
     return formInitialValues;

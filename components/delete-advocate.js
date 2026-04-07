@@ -12,6 +12,8 @@ const DeleteAdvocate = () => {
   const [success, setSuccess] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [currentUserRole, setCurrentUserRole] = useState(null);
 
   // Fetch advocates via secure server API (uses service role key)
   const fetchAdvocates = async () => {
@@ -28,6 +30,8 @@ const DeleteAdvocate = () => {
       const advocatesList = json.advocates || [];
       setAllAdvocates(advocatesList);
       setAdvocates(advocatesList);
+      setCurrentUserId(json.currentUserId || null);
+      setCurrentUserRole(json.currentUserRole || null);
     } catch (err) {
       console.error("Unexpected error while fetching advocates:", err);
       setError("Unexpected error occurred while fetching advocates.");
@@ -82,6 +86,24 @@ const DeleteAdvocate = () => {
     setSelectedAdvocate(advocate);
     setError(null);
     setSuccess(null);
+  };
+
+  const canDeleteAdvocate = (advocate) => {
+    // Check if advocate is the current user
+    if (advocate.clerk_user_id === currentUserId) {
+      return false;
+    }
+    // Check if advocate is an admin (by looking up in the current list or marking in data)
+    // Since we don't have role info in advocates list, we'll check against currentUserRole
+    // Admins should not be deletable - but we need role info in the list
+    return true;
+  };
+
+  const getDeleteBlockReason = (advocate) => {
+    if (advocate.clerk_user_id === currentUserId) {
+      return "You cannot delete your own account.";
+    }
+    return null;
   };
 
   const handleDeleteClick = () => {
@@ -195,32 +217,56 @@ const DeleteAdvocate = () => {
         {/* Search results */}
         {advocates.length > 0 && (
           <div className="border border-gray-200 rounded-lg max-h-72 overflow-y-auto divide-y divide-gray-100">
-            {advocates.map((advocate) => (
-              <div
-                key={advocate.advocate_id}
-                onClick={() => handleSelectAdvocate(advocate)}
-                className="px-3 py-2.5 cursor-pointer transition-colors text-sm"
-                style={{
-                  backgroundColor:
-                    selectedAdvocate?.advocate_id === advocate.advocate_id
-                      ? "#FDE8E8"
-                      : "",
-                }}
-                onMouseEnter={(e) => {
-                  if (selectedAdvocate?.advocate_id !== advocate.advocate_id)
-                    e.currentTarget.style.backgroundColor = "#F5EFEF";
-                }}
-                onMouseLeave={(e) => {
-                  if (selectedAdvocate?.advocate_id !== advocate.advocate_id)
-                    e.currentTarget.style.backgroundColor = "";
-                }}
-              >
-                <p className="font-medium text-gray-800">
-                  {advocate.firstName} {advocate.lastName}
-                </p>
-                <p className="text-xs text-gray-500 mt-0.5">{advocate.email}</p>
-              </div>
-            ))}
+            {advocates.map((advocate) => {
+              const isSelf = advocate.clerk_user_id === currentUserId;
+              const isSelectable = canDeleteAdvocate(advocate);
+              return (
+                <div
+                  key={advocate.advocate_id}
+                  onClick={() => isSelectable && handleSelectAdvocate(advocate)}
+                  className={`px-3 py-2.5 text-sm ${
+                    isSelectable
+                      ? "cursor-pointer transition-colors"
+                      : "cursor-not-allowed opacity-50"
+                  }`}
+                  style={{
+                    backgroundColor:
+                      selectedAdvocate?.advocate_id === advocate.advocate_id
+                        ? "#FDE8E8"
+                        : "",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (
+                      isSelectable &&
+                      selectedAdvocate?.advocate_id !== advocate.advocate_id
+                    )
+                      e.currentTarget.style.backgroundColor = "#F5EFEF";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (
+                      isSelectable &&
+                      selectedAdvocate?.advocate_id !== advocate.advocate_id
+                    )
+                      e.currentTarget.style.backgroundColor = "";
+                  }}
+                  title={isSelf ? "This is you - cannot delete" : ""}
+                >
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium text-gray-800">
+                      {advocate.firstName} {advocate.lastName}
+                    </p>
+                    {isSelf && (
+                      <span className="min-w-[4.5rem] text-center text-xs font-medium px-2 py-1 rounded-full text-blue-700 bg-blue-100 flex-shrink-0">
+                        You
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    {advocate.email}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         )}
         {searchAdvocate.trim() && advocates.length === 0 && (
@@ -255,12 +301,16 @@ const DeleteAdvocate = () => {
             >
               Selected for Deletion
             </p>
-            <p className="font-medium text-gray-800">
-              {selectedAdvocate.firstName} {selectedAdvocate.lastName}
-            </p>
-            <p className="text-xs text-gray-500 mt-0.5">
-              {selectedAdvocate.email}
-            </p>
+            <div className="flex items-center gap-2">
+              <div>
+                <p className="font-medium text-gray-800">
+                  {selectedAdvocate.firstName} {selectedAdvocate.lastName}
+                </p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {selectedAdvocate.email}
+                </p>
+              </div>
+            </div>
           </div>
         )}
 

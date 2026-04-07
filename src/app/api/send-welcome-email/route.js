@@ -53,17 +53,17 @@ export async function POST(request) {
             </table>
 
             <p style="color: #555555; font-size: 16px; line-height: 1.6; margin-bottom: 32px;">
-              Click the button below to go to the app and sign in using this email address.
+              Click the button below to go to the app and <b>Sign Up</b> or continue with <b>Google</b> using this email address.
             </p>
 
             <a
               href="${appUrl}"
-              style="display: inline-block; background-color: #7504ff; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; margin-bottom: 20px; font-size: 16px; font-weight: 600;"
+              style="display: inline-block; background-color: #a954f7; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; margin-bottom: 20px; font-size: 16px; font-weight: 600;"
             >
               Go to App
             </a>
             <p style="color: #555555; font-size: 12px; line-height: 1.6; margin-bottom: 20px;">
-              *Note: To protect your account, we recommend setting up a password by clicking on the profile icon in the top right corner of the app and selecting "Manage Account" > "Security" > "Set Password"
+              *Note: If you sign-in using Google, To protect your account, we recommend setting up a password by clicking on the profile icon in the top right corner of the app and selecting "Manage Account" > "Security" > "Set Password"
             </p>
             <p style="color: #aaaaaa; font-size: 13px; margin-top: 20px;">
               If you did not expect this email, you can safely ignore it.

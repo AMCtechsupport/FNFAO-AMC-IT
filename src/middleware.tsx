@@ -53,27 +53,18 @@ const isAdminOnlyRoute = createRouteMatcher([
 export default clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
 
-  console.log(
-    `[MIDDLEWARE] Processing request to ${req.nextUrl.pathname}, userId: ${userId}`,
-  );
-
   if (isProtectedRoute(req)) {
-    console.log(`[MIDDLEWARE] Route is protected, running auth.protect()`);
     // Redirect unauthenticated users to sign-in
     await auth.protect();
   }
 
   if (!userId) {
-    console.log(`[MIDDLEWARE] No userId, allowing request`);
     return NextResponse.next();
   }
 
   // Verify advocate exists in database for all protected routes
   // This ensures deleted advocates cannot access any protected pages
   if (isProtectedRoute(req)) {
-    console.log(
-      `[MIDDLEWARE] Checking if advocate exists for userId: ${userId}`,
-    );
     try {
       // Check if user exists in Advocates table
       const { data: advocate, error } = await supabaseMiddleware
@@ -84,58 +75,47 @@ export default clerkMiddleware(async (auth, req) => {
 
       if (error) {
         if (error.code === "PGRST116") {
-          // Not found
-          console.log(`[MIDDLEWARE] Advocate NOT FOUND for user ${userId}`);
-          console.log(`[MIDDLEWARE] Redirecting to /unauthorized`);
-          return NextResponse.redirect(new URL("/unauthorized", req.url));
+          // Allow /setup through so linkAdvocateAccount() can run and store the clerk_user_id
+          if (req.nextUrl.pathname.startsWith("/setup")) {
+            return NextResponse.next();
+          }
+          return NextResponse.redirect(new URL("/setup", req.url));
         } else {
           // Other error - fail secure
           console.error(
             `[MIDDLEWARE] Error querying advocate: ${error.message}`,
           );
-          console.log(`[MIDDLEWARE] Redirecting to /unauthorized due to error`);
           return NextResponse.redirect(new URL("/unauthorized", req.url));
         }
       }
 
       if (advocate) {
-        console.log(
-          `[MIDDLEWARE] Advocate FOUND for user ${userId}, allowing access`,
-        );
-      } else {
-        console.log(
-          `[MIDDLEWARE] Advocate is null for user ${userId}, redirecting`,
-        );
         return NextResponse.redirect(new URL("/unauthorized", req.url));
       }
     } catch (err) {
       console.error(`[MIDDLEWARE] Exception in advocate check: ${err}`);
-      console.log(`[MIDDLEWARE] Redirecting to /unauthorized due to exception`);
       return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
   }
 
-  // Only perform the role check for admin-only routes to keep other requests fast
-  if (isAdminOnlyRoute(req)) {
-    console.log(`[MIDDLEWARE] Route is admin-only, checking role`);
+  // Check role for all protected routes — must be "admin" or "advocate"
+  if (isProtectedRoute(req)) {
     try {
       const user = await clerk.users.getUser(userId);
       const userRole = user.publicMetadata?.role as UserRole;
 
-      if (userRole !== "admin") {
-        console.log(
-          `[MIDDLEWARE] User is not admin, redirecting to /unauthorized`,
-        );
+      if (userRole !== "admin" && userRole !== "advocate") {
         return NextResponse.redirect(new URL("/unauthorized", req.url));
       }
-      console.log(`[MIDDLEWARE] User is admin, allowing access`);
+
+      if (isAdminOnlyRoute(req) && userRole !== "admin") {
+        return NextResponse.redirect(new URL("/unauthorized", req.url));
+      }
     } catch (err) {
-      console.error(`[MIDDLEWARE] Error checking admin role: ${err}`);
+      console.error(`[MIDDLEWARE] Error checking role: ${err}`);
       return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
   }
-
-  console.log(`[MIDDLEWARE] All checks passed, allowing request to proceed`);
 });
 
 export const config = {

@@ -33,6 +33,8 @@ export async function GET() {
   const auth = await requireAdmin();
   if (!auth.ok) return auth.response;
 
+  const user = await currentUser();
+
   try {
     const { data: advocates, error: advocatesError } = await supabase
       .from("Advocates")
@@ -103,6 +105,7 @@ export async function GET() {
 
     return NextResponse.json({
       users,
+      currentUserId: user?.id || null,
       meta: {
         totalClerkUsers,
         includedSupabaseUsers: users.length,
@@ -121,6 +124,9 @@ export async function GET() {
 export async function PATCH(req) {
   const auth = await requireAdmin();
   if (!auth.ok) return auth.response;
+
+  const currentUserData = await currentUser();
+  const currentUserId = currentUserData?.id;
 
   try {
     const body = await req.json();
@@ -142,6 +148,30 @@ export async function PATCH(req) {
       if (!item.userId || !ALLOWED_ROLES.has(item.role)) {
         return NextResponse.json(
           { error: "Invalid role update payload." },
+          { status: 400 },
+        );
+      }
+
+      // Prevent self role change
+      if (item.userId === currentUserId) {
+        return NextResponse.json(
+          { error: "You cannot change your own role." },
+          { status: 403 },
+        );
+      }
+
+      // Prevent changing any admin's role
+      try {
+        const existing = await clerkClient.users.getUser(item.userId);
+        if (existing.publicMetadata?.role === "admin") {
+          return NextResponse.json(
+            { error: "You cannot change the role of an admin user." },
+            { status: 403 },
+          );
+        }
+      } catch (error) {
+        return NextResponse.json(
+          { error: "Failed to verify user role." },
           { status: 400 },
         );
       }

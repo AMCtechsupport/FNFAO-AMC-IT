@@ -13,8 +13,6 @@ export async function handleHomeMembersUpdate (homeMenbers, client_id, setHomeMe
             return false;
         }
 
-        console.log("Existing homeMenbers in DB:", existingHomMembers); // quitar
-
         const existingHomeMembersIds = existingHomMembers.map(member => member.home_members_id); // Extracts home_members_id from existingHomMembers
         const newMember = [];
         const updatedMembers = [];
@@ -31,8 +29,6 @@ export async function handleHomeMembersUpdate (homeMenbers, client_id, setHomeMe
 
         // Detect deleted members
         const deletedMembersIds = existingHomeMembersIds.filter(id => !receivedMembersIds.includes(id));
-        console.log("Datos a insertar en la BD:", JSON.stringify(newMember, null, 2));
-
 
         // Insert new member
         if (newMember.length > 0) {
@@ -41,7 +37,6 @@ export async function handleHomeMembersUpdate (homeMenbers, client_id, setHomeMe
                 console.error("Error inserting new member:", insertError);
                 return false;
             }
-            console.log("New member inserted:", newMember);
         }
 
         // Update existing members
@@ -56,15 +51,12 @@ export async function handleHomeMembersUpdate (homeMenbers, client_id, setHomeMe
                 return false;
             }
         }
-        console.log("Existing member updated:", updatedMembers);
 
         // Filter invalid IDs before deleting
         const validDeletedMembersIds = deletedMembersIds.filter(id => Number.isInteger(id));
-        // console.log("IDs a eliminar (antes de la eliminación):", validDeletedMembersIds);
 
         // Delete removed members
         if (validDeletedMembersIds.length > 0) {
-            console.log("Attempting to delete members:", validDeletedMembersIds);
 
             const { data, error: deleteError } = await supabase
                 .from("Home Members")
@@ -76,10 +68,6 @@ export async function handleHomeMembersUpdate (homeMenbers, client_id, setHomeMe
                 console.error("Error deleting member:", deleteError.message || deleteError);
                 return false;
             }
-
-            console.log("Members deleted successfully:", data);
-        } else {
-            console.log("No members to delete.");
         }
 
         // Gets updated member again after modifications
@@ -92,8 +80,6 @@ export async function handleHomeMembersUpdate (homeMenbers, client_id, setHomeMe
             console.error("Error fetching updated member:", fetchUpdatedMembersError);
         return false;
         }
-
-        // console.log("Lista actualizada después de eliminar:", updatedMemberList);
 
         // FamilyData status updated
         setHomeMembersData(updatedMemberList);

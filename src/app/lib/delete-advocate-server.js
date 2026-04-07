@@ -17,9 +17,25 @@ export const deleteAdvocate = async (advocateId) => {
     throw new Error("User not found or not authenticated");
   }
 
-  // Note: You might want to add role-based authorization here
-  // For example, check if the user has admin privileges
-  // This would depend on how you've implemented role management in your app
+  // Prevent self-deletion
+  if (user.id === advocateId) {
+    throw new Error("You cannot delete your own account.");
+  }
+
+  // Check if the admin is trying to delete another admin
+  if (user.publicMetadata?.role === "admin") {
+    try {
+      const targetUser = await clerkClient.users.getUser(advocateId);
+      if (targetUser.publicMetadata?.role === "admin") {
+        throw new Error("You cannot delete an admin account.");
+      }
+    } catch (error) {
+      if (error.message === "You cannot delete an admin account.") {
+        throw error;
+      }
+      // User lookup failed but continue with deletion attempt
+    }
+  }
 
   try {
     // First, check if the advocate exists and get their Clerk user ID
@@ -58,7 +74,6 @@ export const deleteAdvocate = async (advocateId) => {
       try {
         await clerkClient.users.deleteUser(advocate.clerk_user_id);
         deletedFromClerk = true;
-        console.log(`Deleted Clerk user: ${advocate.clerk_user_id}`);
       } catch (clerkError) {
         console.error("Error deleting from Clerk:", clerkError);
         // Don't throw error here - we'll still try to delete from database
@@ -75,6 +90,18 @@ export const deleteAdvocate = async (advocateId) => {
     if (notesDeleteError) {
       throw new Error(
         "Error deleting advocate's notes: " + notesDeleteError.message,
+      );
+    }
+
+    // Nullify advocate_id in User Logs to satisfy foreign key constraint while preserving log history
+    const { error: logsUpdateError } = await supabase
+      .from("User Logs")
+      .update({ advocate_id: null })
+      .eq("advocate_id", advocateId);
+
+    if (logsUpdateError) {
+      throw new Error(
+        "Error unlinking advocate's user logs: " + logsUpdateError.message,
       );
     }
 

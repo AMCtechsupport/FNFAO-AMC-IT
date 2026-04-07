@@ -1,10 +1,13 @@
-"use client";
 
+"use client";
 import React, { useState, useEffect } from "react";
 import supabase from "@/app/lib/supabase";
+import DeleteConfirmModal from "./DeleteConfirmModal";
 
 const FirstNationManagement = () => {
   const [firstNations, setFirstNations] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [toDelete, setToDelete] = useState(null);
   const [newFirstNation, setNewFirstNation] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -61,19 +64,27 @@ const FirstNationManagement = () => {
       .from("First Nations")
       .update({ firstNationMembership: editValue })
       .eq("firstNationMembership", oldValue);
-
     if (error) {
       setError("Error updating First Nation");
     } else {
-      setFirstNations(
-        firstNations.map((n) =>
-          n.firstNationMembership === oldValue
-            ? { firstNationMembership: editValue }
-            : n
-        )
-      );
-      setEditingItem(null);
-      setEditValue("");
+      // Update all clients referencing the old First Nation name
+      const { error: clientUpdateError } = await supabase
+        .from("Clients")
+        .update({ firstNationMembership: editValue })
+        .eq("firstNationMembership", oldValue);
+      if (clientUpdateError) {
+        setError("First Nation updated, but failed to update clients using this value.");
+      } else {
+        setFirstNations(
+          firstNations.map((n) =>
+            n.firstNationMembership === oldValue
+              ? { firstNationMembership: editValue }
+              : n
+          )
+        );
+        setEditingItem(null);
+        setEditValue("");
+      }
     }
   };
 
@@ -92,6 +103,8 @@ const FirstNationManagement = () => {
         )
       );
     }
+    setShowDeleteModal(false);
+    setToDelete(null);
   };
 
   const filtered = firstNations.filter((nation) =>
@@ -250,7 +263,7 @@ const FirstNationManagement = () => {
                             Edit
                           </button>
                           <button
-                            onClick={() => handleRemoveFirstNation(nation.firstNationMembership)}
+                            onClick={() => { setShowDeleteModal(true); setToDelete(nation); }}
                             className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full transition-colors border"
                             style={{ backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.3)", color: "#ef4444", transition: "all 0.3s ease" }}
                             onMouseEnter={e => { e.currentTarget.style.backgroundColor = "#ef4444"; e.currentTarget.style.color = "#ffffff"; }}
@@ -268,6 +281,15 @@ const FirstNationManagement = () => {
             </tbody>
           </table>
         </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && toDelete && (
+        <DeleteConfirmModal
+          client={{ firstName: toDelete.firstNationMembership, lastName: "" }}
+          onConfirm={() => handleRemoveFirstNation(toDelete.firstNationMembership)}
+          onCancel={() => { setShowDeleteModal(false); setToDelete(null); }}
+        />
       )}
     </div>
   );

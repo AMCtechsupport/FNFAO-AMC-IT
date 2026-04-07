@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Formik, Form } from "formik";
+import { Formik, Form, Field } from "formik";
 
 import preIntakeInitialValues from "./utils/preIntakeInitialValues";
 import PreIntakeInputValidation from "./utils/PreIntakeInputValidation";
@@ -12,6 +12,7 @@ import ChildrenPartition from "../full-intake-components/form-sections/ChildrenP
 import HealthWellnessPartition from "../full-intake-components/form-sections/HealthWellnessPartition";
 import ChildFamilyServicesPartition from "../full-intake-components/form-sections/ChildFamilyServices";
 import ReferredBySelect from "@/components/ReferredBySelect";
+import AssignAdvocateUponSubmission from "@/components/AssignAdvocateUponSubmission";
 import ValidationErrorToast from "../../../components/ValidationErrorToast";
 import ToastNotification from "../../../components/ToastNotification";
 
@@ -70,7 +71,7 @@ export default function PreIntakeForm() {
 
           {/* Tab bar */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-            <div className="flex border-b border-gray-200 overflow-x-auto">
+            <div className="flex flex-wrap border-b border-gray-200 overflow-x-auto">
               {TABS.map((tab, i) => {
                 const tabHasError = submitCount > 0 && TAB_ERROR_FIELDS[i]?.some(field => errors[field]);
                 return (
@@ -139,6 +140,14 @@ export default function PreIntakeForm() {
               {activeTab === 5 && (
                 <p className="text-sm text-gray-500 italic">Legal notes can be added after the client is created.</p>
               )}
+            </div>
+            <div className="mb-6 ml-6 w-72">
+              <Field
+                  name="selectedAdvocate"
+                  component={AssignAdvocateUponSubmission}
+                  label="Assign Advocate"
+                  error={errors.AssignAdvocateUponSubmission}
+              />
             </div>
           </div>
 

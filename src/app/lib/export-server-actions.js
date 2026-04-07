@@ -59,9 +59,6 @@ function convertToPDF(data, title) {
 // Function to export all data from Supabase
 export async function exportAllDataAction(format = "json") {
   try {
-    console.log(
-      `🚀 Starting data export from Supabase in ${format.toUpperCase()} format...`,
-    );
 
     const exportData = {
       timestamp: new Date().toISOString(),
@@ -88,20 +85,16 @@ export async function exportAllDataAction(format = "json") {
 
     for (const tableName of tables) {
       try {
-        console.log(`📊 Exporting table: ${tableName}`);
 
         const { data, error } = await supabase.from(tableName).select("*");
 
         if (error) {
-          console.error(`❌ Error exporting ${tableName}:`, error);
+          console.error(`Error exporting ${tableName}:`, error);
           exportData.tables[tableName] = {
             error: error.message,
             data: null,
           };
         } else {
-          console.log(
-            `✅ Successfully exported ${tableName}: ${data?.length || 0} records`,
-          );
           exportData.tables[tableName] = {
             count: data?.length || 0,
             data: data || [],
@@ -109,7 +102,7 @@ export async function exportAllDataAction(format = "json") {
         }
       } catch (tableError) {
         console.error(
-          `❌ Unexpected error exporting ${tableName}:`,
+          `Unexpected error exporting ${tableName}:`,
           tableError,
         );
         exportData.tables[tableName] = {
@@ -156,7 +149,7 @@ export async function exportAllDataAction(format = "json") {
       format,
     };
   } catch (error) {
-    console.error("❌ Export failed:", error);
+    console.error("Export failed:", error);
     return {
       success: false,
       message: error.message,
@@ -168,14 +161,11 @@ export async function exportAllDataAction(format = "json") {
 // Function to export specific table
 export async function exportTableAction(tableName, format = "json") {
   try {
-    console.log(
-      `📊 Exporting single table: ${tableName} in ${format.toUpperCase()} format`,
-    );
 
     const { data, error } = await supabase.from(tableName).select("*");
 
     if (error) {
-      console.error(`❌ Error exporting ${tableName}:`, error);
+      console.error(`Error exporting ${tableName}:`, error);
       return {
         success: false,
         message: error.message,
@@ -216,7 +206,7 @@ export async function exportTableAction(tableName, format = "json") {
       format,
     };
   } catch (error) {
-    console.error(`❌ Export failed for ${tableName}:`, error);
+    console.error(`Error exporting ${tableName}:`, error);
     return {
       success: false,
       message: error.message,
@@ -228,9 +218,6 @@ export async function exportTableAction(tableName, format = "json") {
 // Function to export youth intake data
 export async function exportYouthIntakeDataAction(format = "json") {
   try {
-    console.log(
-      `📊 Exporting Youth Intake specific data in ${format.toUpperCase()} format...`,
-    );
 
     const exportData = {
       timestamp: new Date().toISOString(),
@@ -245,10 +232,9 @@ export async function exportYouthIntakeDataAction(format = "json") {
       .eq("clientType", "Youth Intake");
 
     if (clientsError) {
-      console.error("❌ Error exporting youth clients:", clientsError);
+      console.error("Error exporting youth clients:", clientsError);
       exportData.tables.Clients = { error: clientsError.message, data: null };
     } else {
-      console.log(`✅ Youth clients: ${youthClients?.length || 0} records`);
       exportData.tables.Clients = {
         count: youthClients?.length || 0,
         data: youthClients || [],
@@ -264,13 +250,12 @@ export async function exportYouthIntakeDataAction(format = "json") {
         .in("client_id", clientIds);
 
       if (homeError) {
-        console.error("❌ Error exporting home members:", homeError);
+        console.error("Error exporting home members:", homeError);
         exportData.tables["Home Members"] = {
           error: homeError.message,
           data: null,
         };
       } else {
-        console.log(`✅ Home members: ${homeMembers?.length || 0} records`);
         exportData.tables["Home Members"] = {
           count: homeMembers?.length || 0,
           data: homeMembers || [],
@@ -283,15 +268,12 @@ export async function exportYouthIntakeDataAction(format = "json") {
         .in("client_id", clientIds);
 
       if (eduError) {
-        console.error("❌ Error exporting educational persons:", eduError);
+        console.error("Error exporting educational persons:", eduError);
         exportData.tables["Educational Support Persons"] = {
           error: eduError.message,
           data: null,
         };
       } else {
-        console.log(
-          `✅ Educational persons: ${educationalPersons?.length || 0} records`,
-        );
         exportData.tables["Educational Support Persons"] = {
           count: educationalPersons?.length || 0,
           data: educationalPersons || [],
@@ -304,15 +286,12 @@ export async function exportYouthIntakeDataAction(format = "json") {
         .in("client_id", clientIds);
 
       if (emergencyError) {
-        console.error("❌ Error exporting emergency contacts:", emergencyError);
+        console.error("Error exporting emergency contacts:", emergencyError);
         exportData.tables["Emergency Contacts"] = {
           error: emergencyError.message,
           data: null,
         };
       } else {
-        console.log(
-          `✅ Emergency contacts: ${emergencyContacts?.length || 0} records`,
-        );
         exportData.tables["Emergency Contacts"] = {
           count: emergencyContacts?.length || 0,
           data: emergencyContacts || [],
@@ -357,7 +336,7 @@ export async function exportYouthIntakeDataAction(format = "json") {
       format,
     };
   } catch (error) {
-    console.error("❌ Youth Intake export failed:", error);
+    console.error("Error exporting youth intake data:", error);
     return {
       success: false,
       message: error.message,

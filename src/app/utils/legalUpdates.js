@@ -14,8 +14,6 @@ export async function handleLegalUpdate (notes, client_id, setNotesData, noteTyp
             return false;
         }
 
-        console.log("Existing Notes in DB:", existingNotes); // quitar
-
         const existingNotesIds = existingNotes.map(note => note.note_id); // Extracts note_id from existingNotes
         const newNotes = [];
         const updatedNotes = [];
@@ -40,7 +38,6 @@ export async function handleLegalUpdate (notes, client_id, setNotesData, noteTyp
                 console.error("Error inserting new note:", insertError);
                 return false;
             }
-            console.log("New note inserted:", newNotes);
         }
 
         // Update existing notes
@@ -55,7 +52,6 @@ export async function handleLegalUpdate (notes, client_id, setNotesData, noteTyp
                 return false;
             }
         }
-        console.log("Existing note updated:", updatedNotes);
 
         // Delete removed note
         if (deletedNotesIds.length > 0) {
@@ -68,7 +64,6 @@ export async function handleLegalUpdate (notes, client_id, setNotesData, noteTyp
                 console.error("Error deleting note:", deleteError);
                 return false;
             }
-            console.log("Note deleted:", deletedNotesIds);
         }
 
         // ------------------------

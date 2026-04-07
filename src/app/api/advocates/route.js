@@ -1,16 +1,18 @@
 import { NextResponse } from "next/server";
+import { currentUser } from "@clerk/nextjs/server";
+import { createClerkClient } from "@clerk/nextjs/server";
 import supabase from "../../lib/supabase";
 
+const clerkClient = createClerkClient({
+  secretKey: process.env.CLERK_SECRET_KEY,
+});
+
 export async function GET(request) {
+  const user = await currentUser();
+
   try {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search") || "";
-
-    console.log("[/api/advocates] Request params:", { search });
-    console.log(
-      "[/api/advocates] Using service role key:",
-      process.env.SUPABASE_SERVICE_ROLE_KEY ? "YES" : "NO (using anon key)",
-    );
 
     // Start with base query
     let query = supabase.from("Advocates").select("*");
@@ -26,27 +28,22 @@ export async function GET(request) {
         // If numeric, search by both ID and name containing the number
         query = query.or(
           `advocate_id.eq.${parseInt(trimmedSearch, 10)},` +
-          `firstName.ilike.%${trimmedSearch}%,` +
-          `lastName.ilike.%${trimmedSearch}%,` +
-          `email.ilike.%${trimmedSearch}%`
+            `firstName.ilike.%${trimmedSearch}%,` +
+            `lastName.ilike.%${trimmedSearch}%,` +
+            `email.ilike.%${trimmedSearch}%`,
         );
       } else {
         // If text, search by name or email
         query = query.or(
           `firstName.ilike.%${trimmedSearch}%,` +
-          `lastName.ilike.%${trimmedSearch}%,` +
-          `email.ilike.%${trimmedSearch}%`
+            `lastName.ilike.%${trimmedSearch}%,` +
+            `email.ilike.%${trimmedSearch}%`,
         );
       }
     }
 
     // Execute query
     const { data, error } = await query;
-
-    console.log("[/api/advocates] Result:", {
-      dataLength: data?.length,
-      error,
-    });
 
     if (error) {
       console.error("[/api/advocates] Error fetching advocates:", error);
@@ -60,11 +57,24 @@ export async function GET(request) {
       );
     }
 
-    console.log("[/api/advocates] Success:", { dataLength: data?.length });
+    // Get current user role from Clerk if authenticated
+    let currentUserRole = null;
+    let currentUserId = null;
+    if (user?.id) {
+      try {
+        const clerkUser = await clerkClient.users.getUser(user.id);
+        currentUserRole = clerkUser?.publicMetadata?.role || null;
+        currentUserId = user.id;
+      } catch (err) {
+        console.error("Error fetching current user role:", err);
+      }
+    }
 
     return NextResponse.json({
       advocates: data || [],
       count: data?.length || 0,
+      currentUserId: currentUserId,
+      currentUserRole: currentUserRole,
     });
   } catch (err) {
     console.error("[/api/advocates] Unexpected error:", err);

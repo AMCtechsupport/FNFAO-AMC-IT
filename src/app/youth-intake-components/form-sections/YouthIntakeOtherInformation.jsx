@@ -1,5 +1,6 @@
 "use client";
 import styles from "../../youth-intake/youthIntake.module.css";
+import AssignAdvocateUponSubmission from "@/components/AssignAdvocateUponSubmission";
 import { Field, ErrorMessage } from "formik";
 
 const labelCls = "block text-xs font-medium text-gray-600 mb-1";
@@ -15,7 +16,7 @@ const RadioPair = ({ name }) => (
   </div>
 );
 
-const YouthIntakeOtherInformation = ({ values }) => {
+const YouthIntakeOtherInformation = ({ values, isEditing }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
       <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
@@ -107,6 +108,15 @@ const YouthIntakeOtherInformation = ({ values }) => {
         </div>
 
       </div>
+      {isEditing ? <p></p> :
+      <div className="mb-6 ml-6 w-72">
+        <Field
+            name="selectedAdvocate"
+            component={AssignAdvocateUponSubmission}
+            label="Assign Advocate"
+        />
+      </div>
+      }
     </div>
   );
 };

@@ -45,16 +45,18 @@ const GeneralInformationHeader = ({
                     {/* Name + DOB row */}
                     <div className="grid grid-cols-12 gap-4 mb-4">
                         <div className="col-span-3">
-                            <InputField name="firstName" label="First Name" placeholder="Enter First Name" error={errors.firstName} disabled={!isEditing} />
+                            <InputField name="firstName" label="First Name: *" placeholder="Enter First Name" error={errors.firstName} disabled={!isEditing} />
                         </div>
                         <div className="col-span-3">
-                            <InputField name="middleName" label="Middle Name" placeholder="Enter Middle Name" error={errors.middleName} disabled={!isEditing} />
+
+                            <InputField name="middleName" label="Middle Name: " placeholder="Enter Middle Name" error={errors.middleName} disabled={!isEditing} />
+
                         </div>
                         <div className="col-span-3">
-                            <InputField name="lastName" label="Last Name" placeholder="Enter Last Name" error={errors.lastName} disabled={!isEditing} />
+                            <InputField name="lastName" label="Last Name: *" placeholder="Enter Last Name" error={errors.lastName} disabled={!isEditing} />
                         </div>
                         <div className="col-span-3">
-                            <label className="block text-xs font-medium text-gray-600 mb-1">Birth Date</label>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Birth Date: *</label>
                             <Field
                                 type="date"
                                 id="dateOfBirth"
@@ -70,23 +72,23 @@ const GeneralInformationHeader = ({
                     {/* Address row */}
                     <div className="grid grid-cols-12 gap-4 mb-4">
                         <div className="col-span-3">
-                            <InputField name="address" label="Address" placeholder="e.g., 123 Main Street" error={errors.address} disabled={!isEditing} />
+                            <InputField name="address" label="Address:" placeholder="e.g., 123 Main Street" error={errors.address} disabled={!isEditing} />
                         </div>
                         <div className="col-span-3">
-                            <InputField name="city" label="City" placeholder="e.g., Winnipeg" error={errors.city} disabled={!isEditing} />
+                            <InputField name="city" label="City:" placeholder="e.g., Winnipeg" error={errors.city} disabled={!isEditing} />
                         </div>
                         <div className="col-span-4">
-                            <ProvincesSelect name="province" label="Province" error={errors.province} disabled={!isEditing} />
+                            <ProvincesSelect name="province" label="Province:" error={errors.province} disabled={!isEditing} />
                         </div>
                         <div className="col-span-2">
-                            <InputField name="postalCode" label="Postal Code" placeholder="A1A 1A1" error={errors.postalCode} disabled={!isEditing} />
+                            <InputField name="postalCode" label="Postal Code:" placeholder="A1A 1A1" error={errors.postalCode} disabled={!isEditing} />
                         </div>
                     </div>
 
                     {/* Contact row */}
                     <div className="grid grid-cols-12 gap-4">
                         <div className="col-span-4">
-                            <label className="block text-xs font-medium text-gray-600 mb-1">Phone Number</label>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Phone Number:</label>
                             <Field
                                 type="number"
                                 id="phoneNumber"
@@ -98,7 +100,7 @@ const GeneralInformationHeader = ({
                             <ErrorMessage name="phoneNumber" component={() => <p className="text-xs text-red-500 mt-1">{errors.phoneNumber}</p>} />
                         </div>
                         <div className="col-span-4">
-                            <label className="block text-xs font-medium text-gray-600 mb-1">Email</label>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Email:</label>
                             <Field
                                 type="email"
                                 id="email"
