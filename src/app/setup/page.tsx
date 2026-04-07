@@ -45,6 +45,7 @@ export default function SetupPage() {
       <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
         <h1 className="text-xl font-semibold text-gray-800 mb-3">Setting up your account...</h1>
         <p className="text-gray-500">Please wait, you will be redirected shortly.</p>
+        <p className="text-gray-500">If you are not redirected after a minute, please refresh your page.</p>
       </div>
     </div>
   );
