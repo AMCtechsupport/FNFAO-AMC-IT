@@ -313,20 +313,6 @@ export default function ClientsList() {
         </div>
       ) : (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-          {/* Youth Clients */}
-          <ClientTable
-            title="Youth Clients"
-            clients={filteredYouth}
-            paginated={paginatedYouth}
-            currentPage={currentYouthPage}
-            totalPages={totalYouthPages}
-            onPageChange={setCurrentYouthPage}
-            onView={handleView}
-            onDelete={handleDeleteClick}
-            activeClientId={activeClientId}
-            deletingClientId={deletingClientId}
-            emptyMessage="No youth clients found"
-          />
 
           {/* Adult Clients */}
           <ClientTable
@@ -341,6 +327,21 @@ export default function ClientsList() {
             activeClientId={activeClientId}
             deletingClientId={deletingClientId}
             emptyMessage="No adult clients found"
+          />
+          
+          {/* Youth Clients */}
+          <ClientTable
+            title="Youth Clients"
+            clients={filteredYouth}
+            paginated={paginatedYouth}
+            currentPage={currentYouthPage}
+            totalPages={totalYouthPages}
+            onPageChange={setCurrentYouthPage}
+            onView={handleView}
+            onDelete={handleDeleteClick}
+            activeClientId={activeClientId}
+            deletingClientId={deletingClientId}
+            emptyMessage="No youth clients found"
           />
         </div>
       )}
