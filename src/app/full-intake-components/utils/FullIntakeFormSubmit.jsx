@@ -78,8 +78,6 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
             return lines;
         };
 
-        // console.log("Form submitted with values:", values);
-        // console.log("onSubmit values.notes:", values);
         // Validate that client_id is valid
         if (!client_id) {
             console.error("Error: client_id is not valid:", client_id);
@@ -106,13 +104,7 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
             return;
         }
 
-        // console.log("Updating Clients with values:", values);
         const { children, notes, actionPlan, description, type, subType, advocate_id, family, homeMembers, EIA, caseNotes, legalNotes, childMedicalNeeds, childMedicalNeedsExplained,  ...clientValues } = values; // Extract 'children', 'notes', etc  and leave only the 'Clients' values
-
-        // console.log("Values before updating Clients:", JSON.stringify(clientValues, null, 2)); //quitar
-        // console.log("Updating client_id:", client_id);//quitar
-        // console.log("Children data before update:", JSON.stringify(values.children, null, 2)); //quitar
-        // console.log("Notes data before update:", JSON.stringify(values.notes, null, 2)); //quitar
 
         // Add dateModified field with the current date and time
         clientValues.dateModified = new Date().toISOString();
@@ -160,9 +152,6 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
 
         // Confirm that the update was successful
         if (data && data.length > 0) {
-            // console.log("Update successful. Updated data:", data);
-
-            // console.log("Updating Children with values:", values.children);
 
             // Call all sub-updates in parallel — they are fully independent of each other
             const [childrenUpdateSuccess, familyUpdateSuccess, homeMemberUpdateSuccess, EIAUpdateSuccess, notesUpdateSuccess] = await Promise.all([
@@ -174,10 +163,10 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
             ]);
 
             if (!childrenUpdateSuccess) console.error("Error updating children data.");
-            if (!familyUpdateSuccess) console.error("Error update family data.");
-            if (!homeMemberUpdateSuccess) console.error("Error update home members data.");
-            if (!EIAUpdateSuccess) console.error("Error update EIA data.");
-            if (!notesUpdateSuccess) console.error("Error update notes data.");
+            if (!familyUpdateSuccess) console.error("Error updating family data.");
+            if (!homeMemberUpdateSuccess) console.error("Error updating home members data.");
+            if (!EIAUpdateSuccess) console.error("Error updating EIA data.");
+            if (!notesUpdateSuccess) console.error("Error updating notes data.");
 
             // UPDATE originalData with the new values
             setOriginalData(normalizeDates(data[0]));  // Use the data returned by Supabase

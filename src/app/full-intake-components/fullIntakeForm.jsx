@@ -202,14 +202,17 @@ export default function FullIntakeForm({
     formData.append("description", updatedFields.description || "");
     formData.append("actionPlan", updatedFields.actionPlan || "");
     formData.append("client_id", client_id || "");
-    if (currentAdvocateId) formData.append("owner_id", String(currentAdvocateId));
+    if (currentAdvocateId) {
+      formData.append("owner_id", String(currentAdvocateId));
+      formData.append("advocate_id", String(currentAdvocateId)); // Track editor
+    }
     if (file) formData.append("file", file);
 
     const res = await fetch("/api/notes", { method: "PATCH", body: formData });
     if (!res.ok) {
       const errData = await res.json().catch(() => ({}));
       if (res.status === 403) {
-        alert(errData.error || "This note can no longer be edited (24-hour window has passed).");
+        alert(errData.error || "This note can only be edited on the day it was created.");
         setEditingNote(null);
       } else {
         console.error("[handleSaveNoteEdit] PATCH failed:", errData);
@@ -220,7 +223,7 @@ export default function FullIntakeForm({
     // Close immediately — don't wait for logging or refresh
     setEditingNote(null);
 
-    // Build log description
+    // Build log description with client and advocate names
     const formatVal = (v) => (v === null || v === undefined || v === "") ? "N/A" : String(v);
     const noteChanges = [];
     for (const field of ["type", "subType", "description", "actionPlan"]) {
@@ -234,9 +237,12 @@ export default function FullIntakeForm({
       noteChanges.push(`file: ${originalNote?.fileName || "none"} → ${file.name}`);
     }
     const noteType = originalNote?.noteType || "Note";
+    const clientName = `${originalData?.firstName || "N/A"} ${originalData?.lastName || "N/A"}`;
+    // Prefer modified_by_advocate for log description if available
+    const formType = originalData?.clientType || "";
     const logDescription = noteChanges.length
-      ? `${noteType} note updated. Changed fields:\n${noteChanges.join("\n")}`
-      : `${noteType} note updated`;
+      ? `${noteType} note updated. Changed fields:\n${noteChanges.join("\n")} for client: ${clientName}${formType ? ` ||formType:${formType}` : ""}`
+      : `${noteType} note updated for client: ${clientName}${formType ? ` ||formType:${formType}` : ""}`;
 
     // Fire log + refresh in parallel in the background
     Promise.all([
@@ -283,12 +289,14 @@ export default function FullIntakeForm({
     setShowNewNoteForm(false);
 
     // Fire log + refresh in parallel in the background
+    const clientName = `${originalData?.firstName || "N/A"} ${originalData?.lastName || "N/A"}`;
+    const formType = originalData?.clientType || "";
     Promise.all([
       fetch("/api/user-logs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          description: `${noteData.noteType || "Case"} note added (type: ${noteData.type || "N/A"})`,
+          description: `${noteData.noteType || "Case"} note added for client: ${clientName}${formType ? ` ||formType:${formType}` : ""}`,
           logType: "CREATE",
           client_id,
           clerkUserId: userId || null,

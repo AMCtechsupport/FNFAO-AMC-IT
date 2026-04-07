@@ -62,7 +62,6 @@ const UserLogs = () => {
         "postgres_changes",
         { event: "*", schema: "public", table: "User Logs" },
         (payload) => {
-          console.log("Change received in User Logs table:", payload);
           fetchLogs();
         }
       )

@@ -86,12 +86,20 @@ export default function AssignedClientsToAdvocate({ advocateId }) {
           {assignedClients.map((assignment) => (
             <div key={assignment.Clients.client_id} className="p-4">
               <div className="flex items-start justify-between gap-3 mb-3">
-                <p className="text-base font-bold text-gray-900">
-                  {assignment.Clients.firstName} {assignment.Clients.lastName}
-                </p>
+                <div>
+                  <p className="text-base font-bold text-gray-900">
+                    {assignment.Clients.firstName} {assignment.Clients.lastName}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Status: {assignment.Clients.clientStatus || "—"}
+                  </p>
+                </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <Link
-                    href={`/clients/${assignment.Clients.client_id}`}
+                    href={`/${assignment.Clients.clientType == 'Pre-Intake' ? 
+                      'adult-clients' : 
+                      'youth-clients'
+                    }/${assignment.Clients.client_id}/view`}
                     className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full border no-underline transition-colors"
                     style={{ backgroundColor: "rgba(97, 0, 215, 0.02)", borderColor: "rgba(97, 0, 215, 0.3)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#ffffff"}

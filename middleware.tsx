@@ -1,8 +1,9 @@
 import { clerkMiddleware, createRouteMatcher, createClerkClient } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
-// Clerk client — reads publicMetadata directly, no JWT template required
+// Clerk client
 const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
 
 // Supabase client for middleware
@@ -39,27 +40,33 @@ const isProtectedRoute = (req: NextRequest) =>
   isAdminOnlyRoute(req) || isAdvocateAllowedRoute(req) || isSharedRoute(req);
 
 export default clerkMiddleware(async (auth, req) => {
-  if (!isProtectedRoute(req)) return;
 
-  // Require authentication for all protected routes
+  const res = NextResponse.next();
+
+  // Allow public routes
+  if (!isProtectedRoute(req)) {
+    return res;
+  }
+
+  // Require authentication
   await auth.protect();
 
   const { userId } = await auth();
-  if (!userId) return;
+  if (!userId) return res;
 
   const user = await clerk.users.getUser(userId);
   const role = user.publicMetadata?.role as "admin" | "advocate" | undefined;
 
+  // Admin-only routes: require "admin" role
   if (isAdminOnlyRoute(req)) {
-    // Admin-only routes: require "admin" role
     if (role !== "admin") {
-      return Response.redirect(new URL("/unauthorized", req.url));
+      return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
   } else {
-    // Advocate and shared routes: require "admin" or "advocate" role
+    // Advocate and shared routes: require "admin" or "advocate"
     if (role !== "admin" && role !== "advocate") {
-      // Check if this Clerk account's email matches an unlinked advocate row
       const email = user.primaryEmailAddress?.emailAddress?.toLowerCase();
+
       if (email) {
         const { data } = await supabase
           .from("Advocates")
@@ -69,13 +76,15 @@ export default clerkMiddleware(async (auth, req) => {
           .single();
 
         if (data) {
-          // Unlinked advocate found — redirect to /setup to link and assign role
-          return Response.redirect(new URL("/setup", req.url));
+          return NextResponse.redirect(new URL("/setup", req.url));
         }
       }
-      return Response.redirect(new URL("/unauthorized", req.url));
+
+      return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
   }
+
+  return res;
 });
 
 export const config = {

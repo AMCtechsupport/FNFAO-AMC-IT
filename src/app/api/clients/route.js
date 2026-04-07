@@ -27,19 +27,6 @@ export async function GET(request) {
     const dateOfBirth = searchParams.get("dateOfBirth") || "";
     const countOnly = searchParams.get("count") === "true";
 
-    console.log("[/api/clients] Request params:", {
-      clientType,
-      page,
-      pageSize,
-      search,
-      dateOfBirth,
-      countOnly,
-    });
-    console.log(
-      "[/api/clients] Using service role key:",
-      process.env.SUPABASE_SERVICE_ROLE_KEY ? "YES" : "NO (using anon key)",
-    );
-
     if (!clientType) {
       return NextResponse.json(
         { error: "clientType parameter is required" },
@@ -102,8 +89,6 @@ export async function GET(request) {
 
     const { count, error: countError } = await countQuery;
 
-    console.log("[/api/clients] Count result:", { count, countError });
-
     if (countError) {
       console.error("[/api/clients] Error getting count:", countError);
       return NextResponse.json(
@@ -118,7 +103,6 @@ export async function GET(request) {
 
     // If only count is requested, return it
     if (countOnly) {
-      console.log("[/api/clients] Returning count only:", count);
       return NextResponse.json({ count: count || 0 });
     }
 
@@ -131,11 +115,6 @@ export async function GET(request) {
 
     const { data, error } = await dataQuery;
 
-    console.log("[/api/clients] Data result:", {
-      dataLength: data?.length,
-      error,
-    });
-
     if (error) {
       console.error("[/api/clients] Error fetching clients:", error);
       return NextResponse.json(
@@ -147,13 +126,6 @@ export async function GET(request) {
         { status: 500 },
       );
     }
-
-    console.log("[/api/clients] Success:", {
-      dataLength: data?.length,
-      count,
-      page,
-      pageSize,
-    });
 
     return NextResponse.json({
       data: data || [],

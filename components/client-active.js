@@ -1,11 +1,11 @@
 // clientUtils.js
 import supabase from "../src/app/lib/supabase";
 
-export const updateClientStatus = async (clientId) => {
+export const updateClientStatus = async (clientId, status) => {
   try {
     const { error } = await supabase
       .from("Clients")
-      .update({ clientStatus: "Active" })
+      .update({ clientStatus: status })
       .eq("client_id", clientId);
 
     if (error) {

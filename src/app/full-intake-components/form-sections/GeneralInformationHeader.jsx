@@ -50,7 +50,6 @@ const GeneralInformationHeader = ({
                         <div className="col-span-3">
 
                             <InputField name="middleName" label="Middle Name: " placeholder="Enter Middle Name" error={errors.middleName} disabled={!isEditing} />
-                            <InputField name="middleName" label="Middle Name:" placeholder="Enter Middle Name" error={errors.middleName} disabled={!isEditing} />
 
                         </div>
                         <div className="col-span-3">
