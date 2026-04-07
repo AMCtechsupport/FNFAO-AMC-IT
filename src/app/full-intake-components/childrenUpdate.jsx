@@ -1,7 +1,6 @@
 import supabase from "../lib/supabase";
 
 // const {data, error} = await supabase.auth.getSession();
-// console.log('Supabase session: ', data)
 
 const handleChildrenUpdate = async (children, client_id, setChildrenData ) => {
     try {
@@ -62,7 +61,6 @@ const handleChildrenUpdate = async (children, client_id, setChildrenData ) => {
 
         // Insert new children with better error logging
         if (newChildren.length > 0) {
-            console.log("🔍 Attempting to insert new children:", JSON.stringify(newChildren, null, 2));
             
             const { data: insertedData, error: insertError } = await supabase
                 .from("Childs")
@@ -70,7 +68,7 @@ const handleChildrenUpdate = async (children, client_id, setChildrenData ) => {
                 .select();
             
             if (insertError) {
-                console.error("❌ Detailed error inserting new children:");
+                console.error("Detailed error inserting new children:");
                 console.error("Error message:", insertError.message || "No message");
                 console.error("Error details:", insertError.details || "No details");
                 console.error("Error hint:", insertError.hint || "No hint");
@@ -79,7 +77,6 @@ const handleChildrenUpdate = async (children, client_id, setChildrenData ) => {
                 console.error("Data being inserted:", JSON.stringify(newChildren, null, 2));
                 return false;
             }
-            console.log("✅ New children inserted successfully:", insertedData);
         }
 
         // Update existing children
@@ -100,7 +97,6 @@ const handleChildrenUpdate = async (children, client_id, setChildrenData ) => {
                 return false;
             }
         }
-        console.log("✅ Existing children updated:", updatedChildren.length, "children");
 
         // Delete removed children
         if (deletedChildrenIds.length > 0) {
@@ -119,7 +115,6 @@ const handleChildrenUpdate = async (children, client_id, setChildrenData ) => {
                 console.error("Child IDs being deleted:", deletedChildrenIds);
                 return false;
             }
-            console.log("✅ Children deleted:", deletedChildrenIds);
         }
 
         // Gets updated children again after modifications

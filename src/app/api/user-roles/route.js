@@ -33,6 +33,8 @@ export async function GET() {
   const auth = await requireAdmin();
   if (!auth.ok) return auth.response;
 
+  const user = await currentUser();
+
   try {
     const { data: advocates, error: advocatesError } = await supabase
       .from("Advocates")
@@ -103,6 +105,7 @@ export async function GET() {
 
     return NextResponse.json({
       users,
+      currentUserId: user?.id || null,
       meta: {
         totalClerkUsers,
         includedSupabaseUsers: users.length,
@@ -121,6 +124,9 @@ export async function GET() {
 export async function PATCH(req) {
   const auth = await requireAdmin();
   if (!auth.ok) return auth.response;
+
+  const currentUserData = await currentUser();
+  const currentUserId = currentUserData?.id;
 
   try {
     const body = await req.json();
@@ -145,6 +151,15 @@ export async function PATCH(req) {
           { status: 400 },
         );
       }
+
+      // Prevent self role change
+      if (item.userId === currentUserId) {
+        return NextResponse.json(
+          { error: "You cannot change your own role." },
+          { status: 403 },
+        );
+      }
+
     }
 
     const results = [];
