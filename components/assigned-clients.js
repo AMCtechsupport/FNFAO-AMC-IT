@@ -96,7 +96,10 @@ export default function AssignedClientsToAdvocate({ advocateId }) {
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <Link
-                    href={`/clients/${assignment.Clients.client_id}`}
+                    href={`/${assignment.Clients.clientType == 'Pre-Intake' ? 
+                      'adult-clients' : 
+                      'youth-clients'
+                    }/${assignment.Clients.client_id}/view`}
                     className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full border no-underline transition-colors"
                     style={{ backgroundColor: "rgba(97, 0, 215, 0.02)", borderColor: "rgba(97, 0, 215, 0.3)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#ffffff"}
