@@ -17,7 +17,7 @@ const FirstNationSelect = ({ field, form, label, error, disabled }) => {
       if (error) {
         console.error(error);
       } else {
-        const priority = ["Non-Status", "Metis", "New Nation"];
+        const priority = ["Non-Status", "Metis", "Métis"];
 
         const sorted = data.sort((a, b) => {
           if (priority.includes(a.firstNationMembership)) return -1;
