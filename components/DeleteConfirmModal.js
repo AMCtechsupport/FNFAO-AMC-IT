@@ -10,7 +10,7 @@ export default function DeleteConfirmModal({ client, onConfirm, onCancel }) {
             </svg>
           </div>
           <div>
-            <h3 className="text-base font-semibold text-gray-900">Delete Client</h3>
+            <h3 className="text-base font-semibold text-gray-900">Are You Sure?</h3>
             <p className="text-xs text-gray-500">This action cannot be undone</p>
           </div>
         </div>
