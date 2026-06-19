@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   async headers() {
     return [
       {
@@ -11,25 +10,14 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: `
             default-src 'self';
-            script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:
-              https://*.clerk.dev
-              https://*.clerk.accounts.dev
-              https://challenges.cloudflare.com;
+            script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:;
             worker-src 'self' blob:;
             style-src 'self' https://fonts.googleapis.com 'unsafe-inline';
             img-src 'self' data: blob: https:;
-            connect-src 'self'
-              https://*.clerk.dev
-              https://*.clerk.accounts.dev
-              wss://*.supabase.co
-              https://*.supabase.co
-              https://challenges.cloudflare.com;
-            frame-src
-              https://*.clerk.accounts.dev
-              https://challenges.cloudflare.com;
+            connect-src 'self';
             object-src 'none';
             frame-ancestors 'none';
-          `.replace(/\s+/g, " ").trim()
+          `.replace(/\s+/g, " ").trim(),
           },
           {
             key: "X-Frame-Options",
@@ -43,12 +31,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-};
-
-// Remove X-Powered-By header for security
-const removePoweredBy = (_req: any, res: any, next: any) => {
-  if (res.removeHeader) res.removeHeader('X-Powered-By');
-  if (next) next();
 };
 
 export default nextConfig;

@@ -1,7 +1,6 @@
-// src/app/unauthorized/page.tsx
 "use client";
 
-import { SignOutButton } from "@clerk/nextjs";
+import { signOut } from "next-auth/react";
 
 export default function UnauthorizedPage() {
   return (
@@ -11,7 +10,7 @@ export default function UnauthorizedPage() {
           <h1 className="text-2xl font-bold text-gray-900">Access denied</h1>
 
           <p className="mt-2 text-gray-700">
-            Your account is signed in, but it doesn’t have the required role to
+            Your account is signed in, but it does not have the required role to
             access this page.
           </p>
 
@@ -20,11 +19,13 @@ export default function UnauthorizedPage() {
           </p>
 
           <div className="mt-6 flex items-center gap-3">
-            <SignOutButton>
-              <button className="px-4 py-2 rounded-md bg-black text-white hover:bg-gray-900 transition !p-[10px_30px]">
-                Sign out
-              </button>
-            </SignOutButton>
+            <button
+              type="button"
+              onClick={() => signOut({ callbackUrl: "/" })}
+              className="px-4 py-2 rounded-md bg-black text-white hover:bg-gray-900 transition !p-[10px_30px]"
+            >
+              Sign out
+            </button>
           </div>
         </div>
       </div>

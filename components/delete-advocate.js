@@ -90,7 +90,7 @@ const DeleteAdvocate = () => {
 
   const canDeleteAdvocate = (advocate) => {
     // Check if advocate is the current user
-    if (advocate.clerk_user_id === currentUserId) {
+    if (String(advocate.advocate_id) === String(currentUserId)) {
       return false;
     }
     // Check if advocate is an admin (by looking up in the current list or marking in data)
@@ -100,7 +100,7 @@ const DeleteAdvocate = () => {
   };
 
   const getDeleteBlockReason = (advocate) => {
-    if (advocate.clerk_user_id === currentUserId) {
+    if (String(advocate.advocate_id) === String(currentUserId)) {
       return "You cannot delete your own account.";
     }
     return null;
@@ -218,7 +218,7 @@ const DeleteAdvocate = () => {
         {advocates.length > 0 && (
           <div className="border border-gray-200 rounded-lg max-h-72 overflow-y-auto divide-y divide-gray-100">
             {advocates.map((advocate) => {
-              const isSelf = advocate.clerk_user_id === currentUserId;
+              const isSelf = String(advocate.advocate_id) === String(currentUserId);
               const isSelectable = canDeleteAdvocate(advocate);
               return (
                 <div

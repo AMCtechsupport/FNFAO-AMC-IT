@@ -10,56 +10,78 @@
 
 The AMC-FNFAO Database is a system to track information about clients who are served at the First Nations Family Advocate Office.
 
-Features of the application include...
-* Creation and management of clients.
-* Assign client to advocates, who can edit and update their records.
-* Ability to export data and generate reports.
-
-...and more.
-
 ### Built With
 
 * [Next.js](https://nextjs.org/)
 * [Tailwind CSS](https://tailwindcss.com/)
-* [Supabase](https://supabase.com/)
+* [PostgreSQL](https://www.postgresql.org/) on DigitalOcean
+* [Auth.js](https://authjs.dev/) for authentication
 
-## Getting Started
+## Environment Variables
 
-To get a local copy of the application up and running, follow these simple steps.
+Create `.env.local` for local development:
 
-### Prerequisites
+```env
+DATABASE_URL=postgresql://user:password@host:5432/dbname
+AUTH_SECRET=generate-a-long-random-string
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-* npm
-```sh
-npm install npm@latest -g
+# Optional seed overrides
+ADMIN_EMAIL=admin@fnfao.local
+ADMIN_PASSWORD=changeme123
+
+# Optional email
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=no-reply@example.com
+
+# Optional file storage path (defaults to ./storage/attachments)
+ATTACHMENTS_DIR=./storage/attachments
 ```
 
-### Installation
+Generate `AUTH_SECRET`:
 
-1. Request environment variables from the project admin/owner or from passed down documentation
-2. Clone the repo
 ```sh
-git clone https://github.com/bitprojectspace/amc-fnfao.git
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
-3. Install NPM packages
+
+## Database Setup
+
+1. Create a DigitalOcean Managed PostgreSQL database
+2. Link it to your App Platform app (sets `DATABASE_URL`)
+3. Run the seed script once:
+
+```sh
+npm run db:seed
+```
+
+This creates all tables and a default admin user.
+
+## Local Development
+
 ```sh
 npm install
-```
-4. Create a .env.local file in the root of the project, and add your environment variables there
-
-## Usage
-
-To run the application in development mode, run in the root of the project:
-```sh
+npm run db:seed
 npm run dev
 ```
 
-To build the application to be production-ready, run in the root of the project:
-```sh
-npm run build
-```
+Sign in at `/login` with the admin credentials from your env vars.
 
-To run the production build after it's creation, run in the root of the project:
+## DigitalOcean Deployment
+
+1. Create an App Platform app from this repo
+2. Add a Managed PostgreSQL database and link it to the app
+3. Set environment variables:
+   - `AUTH_SECRET` (required, secret)
+   - `NEXT_PUBLIC_APP_URL` (your app URL, build + run)
+4. Deploy the app
+5. Run `npm run db:seed` against the production database once (from a machine that can reach it, or use DO console)
+
+You do **not** need Supabase or Clerk.
+
+## Usage
+
 ```sh
-npm start
+npm run dev      # development
+npm run build    # production build
+npm start        # run production build
 ```

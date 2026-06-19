@@ -1,47 +1,31 @@
 "use server";
 
-import { currentUser } from "@clerk/nextjs/server";
-import { createClerkClient } from "@clerk/nextjs/server";
-import supabase from "./supabase";
-
-// Create clerk client instance
-const clerkClient = createClerkClient({
-  secretKey: process.env.CLERK_SECRET_KEY,
-});
+import { requireAdmin, requireUser } from "./auth-server";
+import supabase from "./supabase.server";
 
 export const deleteAdvocate = async (advocateId) => {
-  // Retrieve the current user
-  const user = await currentUser();
+  const user = await requireUser();
 
-  if (!user) {
-    throw new Error("User not found or not authenticated");
-  }
-
-  // Prevent self-deletion
-  if (user.id === advocateId) {
+  if (String(user.advocateId) === String(advocateId)) {
     throw new Error("You cannot delete your own account.");
   }
 
-  // Check if the admin is trying to delete another admin
-  if (user.publicMetadata?.role === "admin") {
-    try {
-      const targetUser = await clerkClient.users.getUser(advocateId);
-      if (targetUser.publicMetadata?.role === "admin") {
-        throw new Error("You cannot delete an admin account.");
-      }
-    } catch (error) {
-      if (error.message === "You cannot delete an admin account.") {
-        throw error;
-      }
-      // User lookup failed but continue with deletion attempt
+  if (user.role === "admin") {
+    const { data: targetAdvocate } = await supabase
+      .from("Advocates")
+      .select("role")
+      .eq("advocate_id", advocateId)
+      .single();
+
+    if (targetAdvocate?.role === "admin") {
+      throw new Error("You cannot delete an admin account.");
     }
   }
 
   try {
-    // First, check if the advocate exists and get their Clerk user ID
     const { data: advocate, error: selectError } = await supabase
       .from("Advocates")
-      .select("advocate_id, firstName, lastName, clerk_user_id")
+      .select("advocate_id, firstName, lastName")
       .eq("advocate_id", advocateId)
       .single();
 
@@ -52,7 +36,6 @@ export const deleteAdvocate = async (advocateId) => {
       throw new Error("Error finding advocate: " + selectError.message);
     }
 
-    // Check if advocate has any assigned clients
     const { data: assignedClients, error: checkError } = await supabase
       .from("Assigned Advocates")
       .select("client_id")
@@ -68,75 +51,29 @@ export const deleteAdvocate = async (advocateId) => {
       );
     }
 
-    // Delete from Clerk first (if they have a Clerk account)
-    let deletedFromClerk = false;
-    if (advocate.clerk_user_id) {
-      try {
-        await clerkClient.users.deleteUser(advocate.clerk_user_id);
-        deletedFromClerk = true;
-      } catch (clerkError) {
-        console.error("Error deleting from Clerk:", clerkError);
-        // Don't throw error here - we'll still try to delete from database
-        // But we'll mention it in the success message
-      }
-    }
-
-    // Delete advocate's notes first to satisfy foreign key constraint
-    const { error: notesDeleteError } = await supabase
+    await supabase.from("Notes").update({ advocate_id: null }).eq("advocate_id", advocateId);
+    await supabase
       .from("Notes")
-      .delete()
-      .eq("advocate_id", advocateId);
+      .update({ modified_by_advocate_id: null })
+      .eq("modified_by_advocate_id", advocateId);
 
-    if (notesDeleteError) {
-      throw new Error(
-        "Error deleting advocate's notes: " + notesDeleteError.message,
-      );
-    }
+    await supabase.from("User Logs").update({ advocate_id: null }).eq("advocate_id", advocateId);
 
-    // Nullify advocate_id in User Logs to satisfy foreign key constraint while preserving log history
-    const { error: logsUpdateError } = await supabase
-      .from("User Logs")
-      .update({ advocate_id: null })
-      .eq("advocate_id", advocateId);
-
-    if (logsUpdateError) {
-      throw new Error(
-        "Error unlinking advocate's user logs: " + logsUpdateError.message,
-      );
-    }
-
-    // Delete from Supabase database
     const { error: deleteError } = await supabase
       .from("Advocates")
       .delete()
       .eq("advocate_id", advocateId);
 
     if (deleteError) {
-      throw new Error(
-        "Error deleting advocate from database: " + deleteError.message,
-      );
-    }
-
-    // Build success message
-    let successMessage = `Advocate ${advocate.firstName} ${advocate.lastName} has been successfully deleted from the database`;
-
-    if (advocate.clerk_user_id) {
-      if (deletedFromClerk) {
-        successMessage += " and their user account has been removed";
-      } else {
-        successMessage +=
-          " (Note: Could not remove user account - may need manual cleanup)";
-      }
+      throw new Error("Error deleting advocate from database: " + deleteError.message);
     }
 
     return {
       success: true,
-      message: successMessage,
-      deletedFromClerk: deletedFromClerk,
-      hadClerkAccount: !!advocate.clerk_user_id,
+      message: `Advocate ${advocate.firstName} ${advocate.lastName} has been successfully deleted.`,
     };
-  } catch (err) {
-    console.error("Error deleting advocate:", err);
-    throw err;
+  } catch (error) {
+    console.error("Error in deleteAdvocate:", error);
+    throw error;
   }
 };

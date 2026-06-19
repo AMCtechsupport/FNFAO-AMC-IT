@@ -1,21 +1,17 @@
 "use client";
 import { useState, useEffect } from "react";
 import UserHome from "../../../user-home/page";
-import { useAuth } from "@clerk/nextjs";
 import supabase from "../../../lib/supabase";
-
 import { useParams, useRouter } from "next/navigation";
 import FullIntakeForm from "../../../full-intake-components/fullIntakeForm";
 
-export default function AdultClientEdit({}) {
+export default function AdultClientEdit() {
   const params = useParams();
   const router = useRouter();
   const client_id = params?.clientId;
 
   const [clientName, setClientName] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-
-  const { userId, getToken } = useAuth();
 
   const handleClose = () => {
     if (window.history.length > 1) {
@@ -82,12 +78,7 @@ export default function AdultClientEdit({}) {
           <strong>Edit Mode:</strong> You are editing an existing adult client record.
         </div>
 
-        <FullIntakeForm
-          client_id={client_id}
-          userId={userId}
-          isEditMode={true}
-          getToken={getToken}
-        />
+        <FullIntakeForm client_id={client_id} isEditMode={true} />
 
       </main>
     </UserHome>

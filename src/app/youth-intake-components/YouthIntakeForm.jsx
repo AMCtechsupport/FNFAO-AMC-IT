@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
-import { useUser } from "@clerk/clerk-react";
+import { useSession } from "next-auth/react";
 import ValidationErrorToast from "../../../components/ValidationErrorToast";
 import ToastNotification from "../../../components/ToastNotification";
 
@@ -47,7 +47,8 @@ const validationSchema = Yup.object({
 });
 
 function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
-  const { user } = useUser();
+  const { data: session } = useSession();
+  const user = session?.user;
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(isEditMode && !isViewOnly);
   const [toast, setToast] = useState(null);

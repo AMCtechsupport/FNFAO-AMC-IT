@@ -163,7 +163,7 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, showToas
             .insert([
             {
                 ...clientData,
-                createdBy: user?.id ?? null,
+                createdBy: user?.advocateId ? String(user.advocateId) : null,
             },
             ])
             .select();
@@ -300,7 +300,7 @@ const YouthIntakeFormSubmit = async (values, {resetForm}, user, router, showToas
               : `Youth intake created for client: ${values.firstName} ${values.lastName}`,
             logType: isEditMode ? "UPDATE" : "INSERT",
             client_id: clientId,
-            clerkUserId: user?.id || null,
+            advocateId: user?.advocateId || null,
           }),
         });
 

@@ -1,7 +1,9 @@
 import type { ComponentType } from "react";
-import supabase from "../lib/supabase";
+import supabase from "../lib/supabase.server";
 import UserHome from "../user-home/page";
 import ClientsListJS from "../../../components/client-list";
+
+export const dynamic = "force-dynamic";
 
 const ClientsList = ClientsListJS as ComponentType<{ initialClients: any[]; totalCount: number | null }>;
 
@@ -21,11 +23,13 @@ export default async function ClientsPage() {
 // Fetch clients data (could be from an API or direct DB query)
 async function fetchClientsData(page: number) {
   try {
-    const { data, error, count } = await supabase
+    const queryBuilder = supabase
       .from("Clients")
       .select("*", { count: "exact" })
       .range((page - 1) * 10, page * 10 - 1)
       .order("dateModified", { ascending: false });
+
+    const { data, error, count } = await queryBuilder.execute();
 
     if (error) {
       console.error("Error fetching data:", error.message);

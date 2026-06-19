@@ -1,115 +1,58 @@
 import { NextResponse } from "next/server";
-import { createClerkClient, currentUser } from "@clerk/nextjs/server";
-import supabase from "../../lib/supabase";
-
-const clerkClient = createClerkClient({
-  secretKey: process.env.CLERK_SECRET_KEY,
-});
+import supabase from "../../lib/supabase.server";
+import { auth } from "@/auth";
 
 const ALLOWED_ROLES = new Set(["admin", "advocate"]);
 
 async function requireAdmin() {
-  const user = await currentUser();
+  const session = await auth();
 
-  if (!user) {
+  if (!session?.user) {
     return {
       ok: false,
       response: NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
     };
   }
 
-  const role = user.publicMetadata?.role;
-  if (role !== "admin") {
+  if (session.user.role !== "admin") {
     return {
       ok: false,
       response: NextResponse.json({ error: "Forbidden" }, { status: 403 }),
     };
   }
 
-  return { ok: true };
+  return { ok: true, session };
 }
 
 export async function GET() {
-  const auth = await requireAdmin();
-  if (!auth.ok) return auth.response;
-
-  const user = await currentUser();
+  const authResult = await requireAdmin();
+  if (!authResult.ok) return authResult.response;
 
   try {
-    const { data: advocates, error: advocatesError } = await supabase
+    const { data: advocates, error } = await supabase
       .from("Advocates")
-      .select("clerk_user_id, firstName, lastName, email");
+      .select("advocate_id, firstName, lastName, email, role, createdAt")
+      .order("firstName", { ascending: true });
 
-    if (advocatesError) {
-      throw new Error("Failed to read advocate profiles from Supabase.");
+    if (error) {
+      throw new Error("Failed to read advocate profiles.");
     }
 
-    const advocatesByClerkId = new Map();
-    const advocatesByEmail = new Map();
-
-    for (const advocate of advocates || []) {
-      const advocateClerkUserId = (advocate?.clerk_user_id || "").trim();
-      const advocateEmail = (advocate?.email || "").toLowerCase().trim();
-
-      if (advocateClerkUserId) {
-        advocatesByClerkId.set(advocateClerkUserId, advocate);
-      }
-
-      if (advocateEmail) {
-        advocatesByEmail.set(advocateEmail, advocate);
-      }
-    }
-
-    const usersResponse = await clerkClient.users.getUserList({
-      limit: 200,
-    });
-
-    const totalClerkUsers = usersResponse?.data?.length || 0;
-
-    const users = (usersResponse?.data || [])
-      .map((user) => {
-        const clerkEmailRaw =
-          user.primaryEmailAddress?.emailAddress ||
-          user.emailAddresses?.[0]?.emailAddress ||
-          "";
-        const clerkEmail = clerkEmailRaw.toLowerCase().trim();
-
-        const advocateByClerkId = advocatesByClerkId.get(user.id);
-        const advocateByEmail = clerkEmail
-          ? advocatesByEmail.get(clerkEmail)
-          : null;
-
-        const linkedAdvocate = advocateByClerkId || advocateByEmail;
-
-        const email = linkedAdvocate?.email || "";
-        const firstName = linkedAdvocate?.firstName || "";
-        const lastName = linkedAdvocate?.lastName || "";
-        const fullName = `${firstName} ${lastName}`.trim() || "User";
-
-        return {
-          id: user.id,
-          email,
-          firstName,
-          lastName,
-          fullName,
-          verifiedFromSupabase: !!linkedAdvocate,
-          dataSource: linkedAdvocate
-            ? advocateByClerkId
-              ? "Supabase (clerk_user_id match)"
-              : "Supabase (email match)"
-            : "No Supabase match",
-          role: user.publicMetadata?.role === "admin" ? "admin" : "advocate",
-        };
-      })
-      .filter((user) => user.verifiedFromSupabase);
+    const users = (advocates || []).map((advocate) => ({
+      id: String(advocate.advocate_id),
+      email: advocate.email,
+      firstName: advocate.firstName,
+      lastName: advocate.lastName,
+      fullName: `${advocate.firstName || ""} ${advocate.lastName || ""}`.trim(),
+      role: advocate.role === "admin" ? "admin" : "advocate",
+      createdAt: advocate.createdAt,
+    }));
 
     return NextResponse.json({
       users,
-      currentUserId: user?.id || null,
+      currentUserId: String(authResult.session.user.advocateId),
       meta: {
-        totalClerkUsers,
-        includedSupabaseUsers: users.length,
-        excludedWithoutSupabase: totalClerkUsers - users.length,
+        totalUsers: users.length,
       },
     });
   } catch (error) {
@@ -122,65 +65,45 @@ export async function GET() {
 }
 
 export async function PATCH(req) {
-  const auth = await requireAdmin();
-  if (!auth.ok) return auth.response;
+  const authResult = await requireAdmin();
+  if (!authResult.ok) return authResult.response;
 
-  const currentUserData = await currentUser();
-  const currentUserId = currentUserData?.id;
+  const currentUserId = String(authResult.session.user.advocateId);
 
   try {
     const body = await req.json();
     const updates = Array.isArray(body?.updates) ? body.updates : [];
 
     if (updates.length === 0) {
-      return NextResponse.json(
-        { error: "No role updates provided." },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "No role updates provided." }, { status: 400 });
     }
 
-    const normalizedUpdates = updates.map((item) => ({
-      userId: item?.userId,
-      role: typeof item?.role === "string" ? item.role.toLowerCase() : "",
-    }));
+    const results = [];
 
-    for (const item of normalizedUpdates) {
-      if (!item.userId || !ALLOWED_ROLES.has(item.role)) {
-        return NextResponse.json(
-          { error: "Invalid role update payload." },
-          { status: 400 },
-        );
+    for (const item of updates) {
+      const userId = item?.userId;
+      const role = typeof item?.role === "string" ? item.role.toLowerCase() : "";
+
+      if (!userId || !ALLOWED_ROLES.has(role)) {
+        return NextResponse.json({ error: "Invalid role update payload." }, { status: 400 });
       }
 
-      // Prevent self role change
-      if (item.userId === currentUserId) {
+      if (userId === currentUserId) {
         return NextResponse.json(
           { error: "You cannot change your own role." },
           { status: 403 },
         );
       }
 
-    }
+      const { error } = await supabase
+        .from("Advocates")
+        .update({ role })
+        .eq("advocate_id", userId);
 
-    const results = [];
-    for (const item of normalizedUpdates) {
-      try {
-        const existing = await clerkClient.users.getUser(item.userId);
-        await clerkClient.users.updateUserMetadata(item.userId, {
-          publicMetadata: {
-            ...(existing.publicMetadata || {}),
-            role: item.role,
-          },
-        });
-
-        results.push({ userId: item.userId, success: true, role: item.role });
-      } catch (error) {
-        console.error(`Failed to update role for user ${item.userId}:`, error);
-        results.push({
-          userId: item.userId,
-          success: false,
-          error: "Failed to update role.",
-        });
+      if (error) {
+        results.push({ userId, success: false, error: error.message });
+      } else {
+        results.push({ userId, success: true, role });
       }
     }
 
@@ -202,9 +125,6 @@ export async function PATCH(req) {
     });
   } catch (error) {
     console.error("Error updating user roles:", error);
-    return NextResponse.json(
-      { error: "Failed to update user roles." },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Failed to update user roles." }, { status: 500 });
   }
 }

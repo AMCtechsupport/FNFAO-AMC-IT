@@ -33,7 +33,10 @@ export const DataDisplay: React.FC<PageProps> = ({
         });
       }
 
-      const { data, error } = await query;
+      const { data, error } = await (query as unknown as Promise<{
+        data: string[] | null;
+        error: { message: string } | null;
+      }>);
 
       if (error) {
         setFetchError("Could not fetch the table");

@@ -148,7 +148,10 @@ export default function ClientFilterPage() {
         if (startDate) query = query.gte("createdAt", startDate);
         if (endDate) query = query.lte("createdAt", endDate);
 
-        const { data, error } = await query;
+        const { data, error } = await (query as unknown as Promise<{
+          data: any[] | null;
+          error: { message: string } | null;
+        }>);
 
         if (error) throw error;
 

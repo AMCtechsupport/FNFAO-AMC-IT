@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import supabase from "../../lib/supabase";
+import supabase from "../../lib/supabase.server";
 
 // Builds PostgREST or() conditions that match any client_id whose decimal
 // representation starts with `termStr`, e.g. "4" matches 4, 40-49, 400-499…

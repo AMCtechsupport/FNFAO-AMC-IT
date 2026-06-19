@@ -1,6 +1,6 @@
 "use server";
 
-import supabase from "./supabase";
+import supabase from "./supabase.server";
 import { saveLongPdf } from "./saveLongPdf";
 
 // Helper function to convert data to CSV format

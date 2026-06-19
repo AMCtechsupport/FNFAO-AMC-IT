@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useSession } from "next-auth/react";
 
 const SORT_OPTIONS = [
   { value: "az", label: "Name (A–Z)" },
@@ -29,7 +29,9 @@ const applySort = (list, sort) => {
 };
 
 const PendingAdvocates = ({ refreshTrigger }) => {
-  const { isLoaded, isSignedIn } = useAuth();
+  const { status } = useSession();
+  const isLoaded = status !== "loading";
+  const isSignedIn = status === "authenticated";
   const [allAdvocates, setAllAdvocates] = useState([]);
   const [advocates, setAdvocates] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");

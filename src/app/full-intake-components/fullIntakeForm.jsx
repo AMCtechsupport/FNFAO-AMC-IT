@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { Formik, Form } from "formik";
 
 // Form sections
@@ -22,12 +23,12 @@ const TABS = ["General", "Children", "Health & Wellness", "Child & Family Servic
 
 export default function FullIntakeForm({
   client_id,
-  userId,
-  getToken,
   isEditMode = false,
   isViewOnly = false,
 }) {
   const router = useRouter();
+  const { data: session } = useSession();
+  const userId = session?.user?.advocateId ? String(session.user.advocateId) : null;
   const [originalData, setOriginalData] = useState(null);
   const [childrenData, setChildrenData] = useState([]);
   const [familyData, setFamilyData] = useState([]);
@@ -253,7 +254,7 @@ export default function FullIntakeForm({
           description: logDescription,
           logType: "UPDATE",
           client_id,
-          clerkUserId: userId || null,
+          advocateId: userId || null,
         }),
       }),
       fetch(`/api/notes?client_id=${client_id}`).then(async (notesRes) => {
@@ -299,7 +300,7 @@ export default function FullIntakeForm({
           description: `${noteData.noteType || "Case"} note added for client: ${clientName}${formType ? ` ||formType:${formType}` : ""}`,
           logType: "CREATE",
           client_id,
-          clerkUserId: userId || null,
+          advocateId: userId || null,
         }),
       }),
       fetch(`/api/notes?client_id=${client_id}`).then(async (notesRes) => {
@@ -351,7 +352,6 @@ export default function FullIntakeForm({
             values,
             { resetForm },
             userId,
-            getToken,
             router,
             showToast,
             client_id,

@@ -9,6 +9,7 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -17,8 +18,13 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
   const handleCreateAdvocate = async (e) => {
     e.preventDefault();
 
-    if (!firstName.trim() || !lastName.trim() || !email.trim()) {
+    if (!firstName.trim() || !lastName.trim() || !email.trim() || !password.trim()) {
       setError("Please fill in all required fields.");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
       return;
     }
 
@@ -36,6 +42,7 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         email: email.trim(),
+        password: password.trim(),
       });
 
       if (result.success) {
@@ -72,6 +79,7 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
         setFirstName("");
         setLastName("");
         setEmail("");
+        setPassword("");
       }
     } catch (error) {
       console.error("Error creating advocate:", error);
@@ -164,6 +172,28 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
                 if (success) setSuccess(null);
               }}
               required
+              className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none transition"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5"
+            >
+              Temporary Password <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              placeholder="At least 8 characters"
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (success) setSuccess(null);
+              }}
+              required
+              minLength={8}
               className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none transition"
             />
           </div>

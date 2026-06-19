@@ -1,15 +1,16 @@
 "use server";
 
-import supabase from "./supabase";
+import bcrypt from "bcryptjs";
+import supabase from "./supabase.server";
 
-export const createAdvocate = async ({ firstName, lastName, email }) => {
-  if (!firstName || !lastName || !email) {
-    throw new Error("First name, last name, and email are required");
+export const createAdvocate = async ({ firstName, lastName, email, password, role = "advocate" }) => {
+  if (!firstName || !lastName || !email || !password) {
+    throw new Error("First name, last name, email, and password are required");
   }
 
   const normalizedEmail = email.toLowerCase().trim();
+  const normalizedRole = role === "admin" ? "admin" : "advocate";
 
-  // Check if email already exists in Supabase
   const { data: existing, error: checkError } = await supabase
     .from("Advocates")
     .select("advocate_id")
@@ -24,13 +25,16 @@ export const createAdvocate = async ({ firstName, lastName, email }) => {
     throw new Error("An advocate with this email already exists");
   }
 
+  const password_hash = await bcrypt.hash(password, 12);
+
   const { data, error } = await supabase
     .from("Advocates")
     .insert({
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       email: normalizedEmail,
-      clerk_user_id: null,
+      password_hash,
+      role: normalizedRole,
     })
     .select()
     .single();
@@ -41,7 +45,7 @@ export const createAdvocate = async ({ firstName, lastName, email }) => {
 
   return {
     success: true,
-    message: `Advocate ${firstName} ${lastName} created successfully. Their Clerk account will be linked automatically when they sign in.`,
+    message: `Advocate ${firstName} ${lastName} created successfully.`,
     advocate: data,
   };
 };

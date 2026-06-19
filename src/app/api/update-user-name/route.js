@@ -1,23 +1,18 @@
 import { NextResponse } from "next/server";
-import { createClerkClient, currentUser } from "@clerk/nextjs/server";
-import supabase from "../../lib/supabase";
-
-const clerkClient = createClerkClient({
-  secretKey: process.env.CLERK_SECRET_KEY,
-});
+import supabase from "../../lib/supabase.server";
+import { auth } from "@/auth";
 
 async function requireAdmin() {
-  const user = await currentUser();
+  const session = await auth();
 
-  if (!user) {
+  if (!session?.user) {
     return {
       ok: false,
       response: NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
     };
   }
 
-  const role = user.publicMetadata?.role;
-  if (role !== "admin") {
+  if (session.user.role !== "admin") {
     return {
       ok: false,
       response: NextResponse.json({ error: "Forbidden" }, { status: 403 }),
@@ -28,8 +23,8 @@ async function requireAdmin() {
 }
 
 export async function PATCH(req) {
-  const auth = await requireAdmin();
-  if (!auth.ok) return auth.response;
+  const authResult = await requireAdmin();
+  if (!authResult.ok) return authResult.response;
 
   try {
     const body = await req.json();
@@ -52,41 +47,23 @@ export async function PATCH(req) {
       );
     }
 
-    // Update Supabase Advocates table
-    const { error: supabaseError } = await supabase
+    const { error } = await supabase
       .from("Advocates")
       .update({ firstName: trimmedFirstName, lastName: trimmedLastName })
-      .eq("clerk_user_id", userId);
+      .eq("advocate_id", userId);
 
-    if (supabaseError) {
-      throw new Error(
-        `Failed to update Supabase: ${supabaseError.message || "Unknown error"}`,
-      );
+    if (error) {
+      throw new Error(error.message);
     }
-
-    // Update Clerk user
-    const existing = await clerkClient.users.getUser(userId);
-    await clerkClient.users.updateUserMetadata(userId, {
-      publicMetadata: {
-        ...(existing.publicMetadata || {}),
-      },
-      firstName: trimmedFirstName,
-      lastName: trimmedLastName,
-    });
-
-    const fullName = `${trimmedFirstName} ${trimmedLastName}`;
 
     return NextResponse.json({
       success: true,
       firstName: trimmedFirstName,
       lastName: trimmedLastName,
-      fullName,
+      fullName: `${trimmedFirstName} ${trimmedLastName}`,
     });
   } catch (error) {
     console.error("Error updating user name:", error);
-    return NextResponse.json(
-      { error: "Failed to update user name" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Failed to update user name" }, { status: 500 });
   }
 }

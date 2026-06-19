@@ -1,21 +1,17 @@
 "use client";
 import { useState, useEffect } from "react";
 import UserHome from "../../../user-home/page";
-import { useAuth } from "@clerk/nextjs";
 import supabase from "../../../lib/supabase";
-
 import { useParams, useRouter } from "next/navigation";
 import YouthIntakeForm from "../../../youth-intake-components/YouthIntakeForm";
 
-export default function YouthClientEdit({}) {
+export default function YouthClientEdit() {
   const params = useParams();
   const router = useRouter();
   const client_id = params?.clientId;
 
   const [clientName, setClientName] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-
-  const { getToken } = useAuth();
 
   const handleClose = () => {
     if (window.history.length > 1) {
@@ -82,7 +78,7 @@ export default function YouthClientEdit({}) {
           <strong>Edit Mode:</strong> You are editing an existing youth client record.
         </div>
 
-        <YouthIntakeForm editClientId={client_id} isEditMode={true} getToken={getToken} />
+        <YouthIntakeForm editClientId={client_id} isEditMode={true} />
 
       </main>
     </UserHome>

@@ -1,6 +1,6 @@
 "use server";
 
-import supabase from "./supabase";
+import supabase from "./supabase.server";
 
 export async function getAdvocateClientData(advocateId) {
   try {

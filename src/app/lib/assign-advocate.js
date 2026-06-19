@@ -1,5 +1,5 @@
 // lib/assign-advocate.js
-import supabase from "./supabase";
+import supabase from "./supabase.server";
 
 // Server function to fetch clients and advocates
 export async function fetchClientsAndAdvocates() {

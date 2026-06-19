@@ -8,7 +8,7 @@ import { handleHomeMembersUpdate } from "../../utils/homeMebersUpdate";
 import { handleEIAUpdate } from "../../utils/EIAUpdates";
 import handleChildrenUpdate from "../childrenUpdate";
 
-const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, router, showToast, client_id, originalData, childrenData, familyData, homeMembersData, EIAData, notesData, setChildrenData, setFamilyData, setHomeMembersData, setEIAData, setNotesData, setOriginalData, setShowNewNoteForm, setIsEditing) => {
+const FullIntakeFormSubmit = async (values, { resetForm }, userId, router, showToast, client_id, originalData, childrenData, familyData, homeMembersData, EIAData, notesData, setChildrenData, setFamilyData, setHomeMembersData, setEIAData, setNotesData, setOriginalData, setShowNewNoteForm, setIsEditing) => {
     try {
         const normalizeValue = (value) => {
             if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value)) {
@@ -187,7 +187,7 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, getToken, rou
                     description,
                     logType: "UPDATE",
                     client_id,
-                    clerkUserId: userId || null,
+                    advocateId: userId || null,
                 }),
             });
 

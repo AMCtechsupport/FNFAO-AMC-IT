@@ -2,26 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
-import useSyncClerkWithSupabase from "../components/useSyncClerkWithSupabase";
+import { signOut, useSession } from "next-auth/react";
 
 export default function Header() {
-  useSyncClerkWithSupabase();
+  const { data: session, status } = useSession();
+  const role = session?.user?.role;
 
-  const { user, isLoaded, isSignedIn } = useUser();
-
-  // Determine route based on role
   let dashboardRoute = "/";
-  const role = user?.publicMetadata?.role;
-
-  if (isSignedIn) {
-    if (role === "admin") {
-      dashboardRoute = "/admin";
-    } else if (role === "advocate") {
-      dashboardRoute = "/user-dashboard";
-    } else {
-      dashboardRoute = "/user-dashboard";
-    }
+  if (session?.user) {
+    dashboardRoute = role === "admin" ? "/admin" : "/user-dashboard";
   }
 
   return (
@@ -39,17 +28,26 @@ export default function Header() {
         </Link>
 
         <div className="flex items-center space-x-6">
-          {isLoaded && isSignedIn ? (
-            <UserButton />
-          ) : (
-            <SignInButton mode="modal">
+          {status === "authenticated" ? (
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-gray-300 hidden sm:inline">
+                {session.user?.name || session.user?.email}
+              </span>
               <button
                 type="button"
-                className="rounded-md bg-[#7504ff] px-5 py-2 text-sm font-semibold text-white border border-[#6a04e6] hover:bg-[#6700ea] transition-colors"
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="rounded-md bg-[#7504ff] px-4 py-2 text-sm font-semibold text-white border border-[#6a04e6] hover:bg-[#6700ea] transition-colors"
               >
-                Sign In
+                Sign Out
               </button>
-            </SignInButton>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="rounded-md bg-[#7504ff] px-5 py-2 text-sm font-semibold text-white border border-[#6a04e6] hover:bg-[#6700ea] transition-colors"
+            >
+              Sign In
+            </Link>
           )}
         </div>
       </div>

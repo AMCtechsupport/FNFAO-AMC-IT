@@ -4,6 +4,8 @@ import AssignAdvocate from "../../../components/assign-advocate-client";
 import AssignClientSelector from "../../../components/assigned-client-selector";
 import UserHome from "../user-home/page";
 
+export const dynamic = "force-dynamic";
+
 export default async function AssignPage() {
   // RBAC is enforced by middleware now
 

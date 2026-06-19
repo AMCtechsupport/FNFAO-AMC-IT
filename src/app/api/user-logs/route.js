@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import supabase from "../../lib/supabase";
+import supabase from "../../lib/supabase.server";
+import { auth } from "@/auth";
 
 export async function GET(request) {
   try {
@@ -139,18 +140,23 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { description, logType, client_id, clerkUserId } = body;
+    const { description, logType, client_id, advocateId } = body;
 
-    // Look up advocate_id and name server-side (bypasses RLS)
-    let advocate_id = null;
+    let advocate_id = advocateId || null;
     let advocateName = null;
-    if (clerkUserId) {
+
+    if (!advocate_id) {
+      const session = await auth();
+      advocate_id = session?.user?.advocateId || null;
+      advocateName = session?.user?.name || null;
+    }
+
+    if (advocate_id && !advocateName) {
       const { data: advocateData } = await supabase
         .from("Advocates")
         .select("advocate_id, firstName, lastName")
-        .eq("clerk_user_id", clerkUserId)
+        .eq("advocate_id", advocate_id)
         .single();
-      advocate_id = advocateData?.advocate_id || null;
       if (advocateData?.firstName || advocateData?.lastName) {
         advocateName = `${advocateData.firstName || ""} ${advocateData.lastName || ""}`.trim();
       }

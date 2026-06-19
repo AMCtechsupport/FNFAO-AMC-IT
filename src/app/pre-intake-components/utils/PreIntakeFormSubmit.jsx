@@ -1,4 +1,4 @@
-import { useUser } from "@clerk/clerk-react";
+import { useSession } from "next-auth/react";
 import { assignClientToAdvocate } from "../../../../components/assign-client-to-advocate";
 import { updateClientStatus } from "../../../../components/client-active";
 import supabase from "../../lib/supabase";
@@ -29,7 +29,8 @@ const getManitobaDateTime = () => {
 };
 
 const PreIntakeFormSubmit = (showToast) => {
-    const { user } = useUser();
+    const { data: session } = useSession();
+    const user = session?.user;
     const onSubmitPreIntake = async (values, { resetForm }) => {
         try {
             const convertedValues = {};
@@ -78,7 +79,7 @@ const PreIntakeFormSubmit = (showToast) => {
                 .insert([
                     {
                         ...clientData,
-                        createdBy: user?.id ?? null,
+                        createdBy: user?.advocateId ? String(user.advocateId) : null,
                     },
                 ])
                 .select();
@@ -166,7 +167,7 @@ const PreIntakeFormSubmit = (showToast) => {
                     description: `Pre-intake created for client: ${values.firstName} ${values.lastName}`,
                     logType: "INSERT",
                     client_id: clientId,
-                    clerkUserId: user?.id || null,
+                    advocateId: user?.advocateId || null,
                 }),
             });
 

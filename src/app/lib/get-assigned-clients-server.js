@@ -1,14 +1,10 @@
 "use server";
 
-import { currentUser } from "@clerk/nextjs/server";
-import supabase from "./supabase";
+import { requireUser } from "./auth-server";
+import supabase from "./supabase.server";
 
 export const getAssignedClients = async (advocateId) => {
-  // Verify user is authenticated
-  const user = await currentUser();
-  if (!user) {
-    throw new Error("User not authenticated");
-  }
+  await requireUser();
 
   if (!advocateId) {
     throw new Error("No advocate linked to this account");

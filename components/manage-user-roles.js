@@ -39,9 +39,7 @@ const ManageUserRoles = () => {
   const [draftRoles, setDraftRoles] = useState({});
   const [currentUserId, setCurrentUserId] = useState(null);
   const [meta, setMeta] = useState({
-    totalClerkUsers: 0,
-    includedSupabaseUsers: 0,
-    excludedWithoutSupabase: 0,
+    totalUsers: 0,
   });
   const [adminSearchTerm, setAdminSearchTerm] = useState("");
   const [advocateSearchTerm, setAdvocateSearchTerm] = useState("");
@@ -79,10 +77,7 @@ const ManageUserRoles = () => {
       }));
 
       setMeta({
-        totalClerkUsers: json?.meta?.totalClerkUsers || 0,
-        includedSupabaseUsers:
-          json?.meta?.includedSupabaseUsers || loadedUsers.length,
-        excludedWithoutSupabase: json?.meta?.excludedWithoutSupabase || 0,
+        totalUsers: json?.meta?.totalUsers || loadedUsers.length,
       });
 
       const initialDrafts = loadedUsers.reduce((acc, user) => {
@@ -630,13 +625,6 @@ const ManageUserRoles = () => {
 
   return (
     <div className="space-y-6">
-      {meta.excludedWithoutSupabase > 0 && (
-        <div className="bg-amber-50 border border-amber-300 text-amber-800 px-3 py-2 rounded text-sm">
-          {meta.excludedWithoutSupabase} Clerk user(s) are hidden because they
-          are not linked to a Supabase advocate profile.
-        </div>
-      )}
-
       {renderBlock({
         title: "Admins",
         filteredList: filteredAdmins,

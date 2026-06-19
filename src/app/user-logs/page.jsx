@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import supabase from "../lib/supabase";
 import LogTable from "../../../components/user-logs-table";
 import SearchBar from "../../../components/user-logs-search";
 import LogModal from "../../../components/user-logs-modal";
@@ -55,21 +54,8 @@ const UserLogs = () => {
 
     fetchLogs();
 
-    // Real-time subscription: re-fetch via API when User Logs table changes
-    const logsChannel = supabase
-      .channel("user-logs-channel")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "User Logs" },
-        (payload) => {
-          fetchLogs();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      logsChannel.unsubscribe();
-    };
+    const interval = setInterval(fetchLogs, 30000);
+    return () => clearInterval(interval);
   }, [searchQuery, currentPage]);
 
   const handleSearchChange = (e) => {
