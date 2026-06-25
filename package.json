@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next start",
+    "start": "node scripts/seed.mjs && next start",
     "lint": "next lint",
     "db:seed": "node scripts/seed.mjs"
   },

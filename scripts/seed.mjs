@@ -30,16 +30,22 @@ async function main() {
   const adminPassword = process.env.ADMIN_PASSWORD || "changeme123";
   const passwordHash = await bcrypt.hash(adminPassword, 12);
 
-  await pool.query(
-    `INSERT INTO "Advocates" ("firstName", "lastName", email, password_hash, role)
-     VALUES ($1, $2, $3, $4, 'admin')
-     ON CONFLICT (email) DO UPDATE
-     SET password_hash = EXCLUDED.password_hash,
-         role = 'admin',
-         "firstName" = EXCLUDED."firstName",
-         "lastName" = EXCLUDED."lastName"`,
-    ["Admin", "User", adminEmail, passwordHash],
+  // Create admin only if that email does not exist yet (safe to run on every deploy).
+  const existingAdmin = await pool.query(
+    `SELECT advocate_id FROM "Advocates" WHERE LOWER(email) = $1 LIMIT 1`,
+    [adminEmail],
   );
+
+  if (existingAdmin.rows.length === 0) {
+    await pool.query(
+      `INSERT INTO "Advocates" ("firstName", "lastName", email, password_hash, role)
+       VALUES ($1, $2, $3, $4, 'admin')`,
+      ["Admin", "User", adminEmail, passwordHash],
+    );
+    console.log(`Admin user created: ${adminEmail}`);
+  } else {
+    console.log(`Admin user already exists: ${adminEmail} (password unchanged)`);
+  }
 
   const seedDropdowns = [
     ['INSERT INTO "First Nations" ("firstNationMembership") VALUES ($1) ON CONFLICT DO NOTHING', ["Sample First Nation"]],

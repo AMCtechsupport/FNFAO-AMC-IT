@@ -69,12 +69,22 @@ Sign in at `/login` with the admin credentials from your env vars.
 ## DigitalOcean Deployment
 
 1. Create an App Platform app from this repo
-2. Add a Managed PostgreSQL database and link it to the app
-3. Set environment variables:
-   - `AUTH_SECRET` (required, secret)
-   - `NEXT_PUBLIC_APP_URL` (your app URL, build + run)
-4. Deploy the app
-5. Run `npm run db:seed` against the production database once (from a machine that can reach it, or use DO console)
+2. Add a Managed PostgreSQL database and **link it to the app** (injects `DATABASE_URL`)
+3. Set environment variables in **App → Settings → Environment Variables**:
+
+| Variable | Required | Build + Run | Notes |
+|----------|----------|-------------|-------|
+| `DATABASE_URL` | Yes | Run | Auto-set when database is linked |
+| `AUTH_SECRET` | Yes | **Both** | Random string; generate with command below |
+| `NEXT_PUBLIC_APP_URL` | Yes | **Both** | e.g. `https://your-app.ondigitalocean.app` |
+| `ADMIN_EMAIL` | Recommended | Run | Login email for first admin (default: `admin@fnfao.local`) |
+| `ADMIN_PASSWORD` | Recommended | Run | Login password for first admin (default: `changeme123`) |
+| `RESEND_API_KEY` | No | Run | Welcome emails only |
+| `RESEND_FROM_EMAIL` | No | Run | From address for emails |
+
+4. Deploy the app. The **start command** runs `scripts/seed.mjs` automatically before the server starts (creates tables + first admin if missing).
+5. Verify: open `https://your-app.ondigitalocean.app/api/health`
+6. Sign in at `/login` with `ADMIN_EMAIL` / `ADMIN_PASSWORD`
 
 You do **not** need Supabase or Clerk.
 
