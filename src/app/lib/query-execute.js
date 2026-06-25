@@ -73,10 +73,26 @@ export async function executeQuery(payload) {
   }
 }
 
+function ensureEmbedForeignKeys(table, parsed) {
+  if (!parsed.columns.length || parsed.columns[0] === "*") return;
+
+  const embeds = [...(parsed.embeds || []), ...(parsed.aggregates || [])];
+  const columnSet = new Set(parsed.columns);
+
+  for (const embed of embeds) {
+    const config = resolveEmbedConfig(table, embed);
+    if (config?.localKey && !columnSet.has(config.localKey)) {
+      parsed.columns.push(config.localKey);
+      columnSet.add(config.localKey);
+    }
+  }
+}
+
 async function executeSelect(payload) {
   const table = payload.table;
   const tableAlias = "t";
   const parsed = parseSelectColumns(payload.selectColumns, table);
+  ensureEmbedForeignKeys(table, parsed);
   const wantsCount = payload.selectOptions?.count === "exact";
   const headOnly = payload.selectOptions?.head === true;
 
