@@ -86,7 +86,7 @@ async function executeSelect(payload) {
 
   for (const filter of payload.filters) {
     if (filter.type === "or") {
-      const parsedOr = parseOrExpression(filter.expression, paramIndex, tableAlias);
+      const parsedOr = parseOrExpression(filter.expression, paramIndex, tableAlias, table);
       whereParts.push(`(${parsedOr.sql})`);
       params.push(...parsedOr.params);
       paramIndex = parsedOr.nextIndex;

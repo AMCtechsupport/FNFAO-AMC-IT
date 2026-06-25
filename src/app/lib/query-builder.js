@@ -45,6 +45,27 @@ export function quoteTable(name) {
   return quoteIdent(name);
 }
 
+function splitSelectParts(selectStr) {
+  const parts = [];
+  let current = "";
+  let depth = 0;
+
+  for (let i = 0; i < selectStr.length; i++) {
+    const ch = selectStr[i];
+    if (ch === "(") depth++;
+    if (ch === ")") depth--;
+    if (ch === "," && depth === 0) {
+      if (current.trim()) parts.push(current.trim());
+      current = "";
+      continue;
+    }
+    current += ch;
+  }
+
+  if (current.trim()) parts.push(current.trim());
+  return parts;
+}
+
 export function parseSelectColumns(selectStr, table) {
   if (!selectStr || selectStr.trim() === "*") {
     return { columns: ["*"], embeds: [], aggregates: [] };
@@ -54,10 +75,7 @@ export function parseSelectColumns(selectStr, table) {
   const aggregates = [];
   const columns = [];
 
-  const parts = selectStr
-    .split(",")
-    .map((p) => p.trim())
-    .filter(Boolean);
+  const parts = splitSelectParts(selectStr);
 
   for (const part of parts) {
     const aggMatch = part.match(/^(\w+)\(count\)$/);
@@ -88,7 +106,7 @@ export function parseSelectColumns(selectStr, table) {
   return { columns, embeds, aggregates };
 }
 
-export function parseOrExpression(expr, paramStart, tableAlias = "t") {
+export function parseOrExpression(expr, paramStart, tableAlias = "t", baseTable = null) {
   const params = [];
   let paramIndex = paramStart;
   const conditions = [];
@@ -100,7 +118,7 @@ export function parseOrExpression(expr, paramStart, tableAlias = "t") {
       const andParts = splitOrExpression(inner);
       const andConds = [];
       for (const part of andParts) {
-        const parsed = parseFilterPart(part, tableAlias, paramIndex);
+        const parsed = parseFilterPart(part, tableAlias, paramIndex, baseTable);
         andConds.push(parsed.sql);
         params.push(...parsed.params);
         paramIndex += parsed.params.length;
@@ -109,7 +127,7 @@ export function parseOrExpression(expr, paramStart, tableAlias = "t") {
       continue;
     }
 
-    const parsed = parseFilterPart(chunk, tableAlias, paramIndex);
+    const parsed = parseFilterPart(chunk, tableAlias, paramIndex, baseTable);
     conditions.push(parsed.sql);
     params.push(...parsed.params);
     paramIndex += parsed.params.length;
@@ -138,12 +156,31 @@ function splitOrExpression(expr) {
   return parts;
 }
 
-function parseFilterPart(part, tableAlias, paramIndex) {
+function resolveEmbeddedRelation(baseTable, embedTableName) {
+  const tableRelations = RELATIONS[baseTable] || {};
+  if (embedTableName === "Clients" && tableRelations.Clients) {
+    return tableRelations.Clients;
+  }
+  return null;
+}
+
+function parseFilterPart(part, tableAlias, paramIndex, baseTable = null) {
   const embedded = part.match(/^(\w+)\.(\w+)\.(ilike|eq|gte|lte|lt|gt)\.(.+)$/);
   if (embedded) {
     const [, embedTable, col, op, rawVal] = embedded;
     const colRef = `${quoteIdent(embedTable)}.${quoteIdent(col)}`;
-    return buildCondition(colRef, op, rawVal, paramIndex);
+    const condition = buildCondition(colRef, op, rawVal, paramIndex);
+
+    const embedConfig = baseTable ? resolveEmbeddedRelation(baseTable, embedTable) : null;
+    if (embedConfig) {
+      const foreignTable = embedConfig.foreignTable || embedConfig.table;
+      return {
+        sql: `EXISTS (SELECT 1 FROM ${quoteTable(foreignTable)} ${quoteIdent(embedTable)} WHERE ${quoteIdent(embedTable)}.${quoteIdent(embedConfig.foreignKey)} = ${tableAlias}.${quoteIdent(embedConfig.localKey)} AND ${condition.sql})`,
+        params: condition.params,
+      };
+    }
+
+    return condition;
   }
 
   const inMatch = part.match(/^(\w+)\.in\.\((.+)\)$/);
