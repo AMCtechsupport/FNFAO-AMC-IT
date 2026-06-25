@@ -46,7 +46,7 @@ export default function PreIntakeForm() {
   const [toast, setToast] = useState(null);
   const showToast = (type, message) => {
     setToast({ type, message });
-    setTimeout(() => setToast(null), 4000);
+    setTimeout(() => setToast(null), type === "error" ? 12000 : 4000);
   };
   const { onSubmitPreIntake } = PreIntakeFormSubmit(showToast);
   const [activeTab, setActiveTab] = useState(0);

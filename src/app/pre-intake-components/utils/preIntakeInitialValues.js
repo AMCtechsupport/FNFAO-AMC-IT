@@ -110,6 +110,7 @@ const preIntakeInitialValues = {
   visitsChildFrequency: "",
   parentalCapacityDone: "",
   parentalCapacity: "",
+  selectedAdvocate: "",
 };
 
 export default preIntakeInitialValues;

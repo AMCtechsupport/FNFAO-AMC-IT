@@ -206,8 +206,11 @@ async function executeInsert(payload) {
   const inserted = [];
 
   for (const row of rows) {
-    const keys = Object.keys(row);
-    const values = keys.map((k) => row[k]);
+    const cleanRow = Object.fromEntries(
+      Object.entries(row).filter(([, value]) => value !== undefined),
+    );
+    const keys = Object.keys(cleanRow);
+    const values = keys.map((k) => cleanRow[k]);
     const placeholders = keys.map((_, i) => `$${i + 1}`);
     const sql = `INSERT INTO ${quoteTable(payload.table)} (${keys.map(quoteIdent).join(", ")}) VALUES (${placeholders.join(", ")}) RETURNING *`;
     const result = await query(sql, values);

@@ -1,7 +1,8 @@
 import { useSession } from "next-auth/react";
 import { assignClientToAdvocate } from "../../../../components/assign-client-to-advocate";
-import { updateClientStatus } from "../../../../components/client-active";
 import supabase from "../../lib/supabase";
+import { sanitizeChildForInsert, sanitizeClientInsertData } from "../../lib/client-form-utils";
+import { formatApiError } from "../../lib/format-api-error";
 
 // Function to get Manitoba current date/time
 const getManitobaDateTime = () => {
@@ -33,45 +34,27 @@ const PreIntakeFormSubmit = (showToast) => {
     const user = session?.user;
     const onSubmitPreIntake = async (values, { resetForm }) => {
         try {
-            const convertedValues = {};
-
-            // Loop through all fields in the 'values' object
-            // to convert them from "yes/no" to true/false
-            for (let key in values) {
-                if (values[key] === "yes") {
-                    convertedValues[key] = true;
-                } else if (values[key] === "no") {
-                    convertedValues[key] = false;
-                } else if (
-                    values[key] === "" ||
-                    values[key] === undefined ||
-                    values[key] === null
-                ) {
-                    convertedValues[key] = null; // Assigns null if nothing is selected
-                } else {
-                    convertedValues[key] = values[key];
-                }
-            }
-
-            // Get Manitoba current date/time
-            const currentDate = getManitobaDateTime();
-
-            // Extract arrays from convertedValues; keep the rest as client data
             const {
                 children,
                 family,
                 homeMembers,
                 EIA,
                 selectedAdvocate,
-                ...clientData
-            } = convertedValues;
+                ...rest
+            } = values;
+
+            const clientData = sanitizeClientInsertData(rest);
+
+            // Get Manitoba current date/time
+            const currentDate = getManitobaDateTime();
 
             // Add date fields before inserting
             clientData.createdAt = currentDate;
             clientData.dateModified = currentDate;
             clientData.clientType = "Pre-Intake";
             // Set clientStatus to 'Inactive' if no advocate is assigned
-            clientData.clientStatus = (!selectedAdvocate || selectedAdvocate === "none") ? "Inactive" : undefined;
+            clientData.clientStatus =
+                !selectedAdvocate || selectedAdvocate === "none" ? "Inactive" : undefined;
 
             // Insert client data into the 'Clients' table
             const { data: client, error: clientError } = await supabase
@@ -101,28 +84,10 @@ const PreIntakeFormSubmit = (showToast) => {
 
             // If there are children, sanitize and insert them into the 'Childs' table
             if (listedChildren.length > 0) {
-                const childrenToInsert = listedChildren.map((child) => {
-                    const sanitized = { ...child };
-
-                    // Convert childMedicalNeeds from string to boolean/null
-                    if (sanitized.childMedicalNeeds === "yes") {
-                        sanitized.childMedicalNeeds = true;
-                    } else if (sanitized.childMedicalNeeds === "no") {
-                        sanitized.childMedicalNeeds = false;
-                    } else if (sanitized.childMedicalNeeds === "" || sanitized.childMedicalNeeds === null || sanitized.childMedicalNeeds === undefined) {
-                        sanitized.childMedicalNeeds = null;
-                    }
-
-                    // Ensure phone number fields are null when empty
-                    if (sanitized.childCfsAgentNumber === "" || sanitized.childCfsAgentNumber === undefined) {
-                        sanitized.childCfsAgentNumber = null;
-                    }
-                    if (sanitized.childCfsSupervisorNumber === "" || sanitized.childCfsSupervisorNumber === undefined) {
-                        sanitized.childCfsSupervisorNumber = null;
-                    }
-
-                    return { ...sanitized, client_id: clientId };
-                });
+                const childrenToInsert = listedChildren.map((child) => ({
+                    ...sanitizeChildForInsert(child),
+                    client_id: clientId,
+                }));
 
                 const { error: childrenError } = await supabase
                     .from("Childs")
@@ -190,7 +155,7 @@ const PreIntakeFormSubmit = (showToast) => {
             console.error("Error submitting pre-intake:", error);
             showToast(
                 "error",
-                error?.message || "Failed to submit pre-intake. Please try again.",
+                formatApiError(error, "Failed to submit pre-intake. Please try again."),
             );
         }
 

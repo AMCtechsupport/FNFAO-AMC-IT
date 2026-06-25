@@ -15,7 +15,13 @@ export async function POST(request) {
   } catch (err) {
     console.error("[/api/db] Error:", err);
     return NextResponse.json(
-      { error: "Internal server error", details: err.message },
+      {
+        error: err.message || "Internal server error",
+        details:
+          process.env.NODE_ENV === "development" && err.stack
+            ? err.stack.split("\n").slice(0, 3).join("\n")
+            : undefined,
+      },
       { status: 500 },
     );
   }

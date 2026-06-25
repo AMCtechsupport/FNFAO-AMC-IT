@@ -1,15 +1,41 @@
 import { createQueryClient } from "./query-builder.js";
 
 async function clientExecutor(payload) {
-  const res = await fetch("/api/db", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  const json = await res.json();
-  if (!res.ok) {
-    return { data: null, error: { message: json.error || "Database request failed" } };
+  let res;
+  let json;
+  try {
+    res = await fetch("/api/db", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    json = await res.json();
+  } catch (err) {
+    return { data: null, error: { message: err.message || "Network error contacting database" } };
   }
+
+  if (!res.ok) {
+    const message =
+      [json.error, json.details].filter(Boolean).join(": ") || "Database request failed";
+    return { data: null, error: { message, details: json.details, code: json.code } };
+  }
+
+  if (json?.error) {
+    const dbError = json.error;
+    const message =
+      typeof dbError === "string"
+        ? dbError
+        : [dbError.message, dbError.code].filter(Boolean).join(" ");
+    return {
+      data: null,
+      error: {
+        message: message || "Database request failed",
+        details: typeof dbError === "object" ? dbError.details : undefined,
+        code: typeof dbError === "object" ? dbError.code : undefined,
+      },
+    };
+  }
+
   return json;
 }
 
