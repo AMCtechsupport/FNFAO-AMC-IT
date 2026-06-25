@@ -242,8 +242,8 @@ export class QueryBuilder {
     this.rangeTo = null;
     this.insertPayload = null;
     this.updatePayload = null;
-    this.single = false;
-    this.maybeSingle = false;
+    this.returnSingle = false;
+    this.returnMaybeSingle = false;
   }
 
   select(columns = "*", options = {}) {
@@ -332,12 +332,12 @@ export class QueryBuilder {
   }
 
   single() {
-    this.single = true;
+    this.returnSingle = true;
     return this;
   }
 
   maybeSingle() {
-    this.maybeSingle = true;
+    this.returnMaybeSingle = true;
     return this;
   }
 
@@ -357,14 +357,17 @@ export class QueryBuilder {
       rangeTo: this.rangeTo,
       insertPayload: this.insertPayload,
       updatePayload: this.updatePayload,
-      single: this.single,
-      maybeSingle: this.maybeSingle,
+      single: this.returnSingle,
+      maybeSingle: this.returnMaybeSingle,
     };
   }
 
   static fromSerialized(payload, executor) {
     const qb = new QueryBuilder(payload.table, executor);
-    Object.assign(qb, payload);
+    const { single, maybeSingle, ...rest } = payload;
+    Object.assign(qb, rest);
+    qb.returnSingle = single ?? false;
+    qb.returnMaybeSingle = maybeSingle ?? false;
     return qb;
   }
 
