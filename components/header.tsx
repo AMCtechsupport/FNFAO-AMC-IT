@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import SignOutButton from "./sign-out-button";
 
 export default function Header() {
   const { data: session, status } = useSession();
@@ -33,13 +34,9 @@ export default function Header() {
               <span className="text-sm text-gray-300 hidden sm:inline">
                 {session.user?.name || session.user?.email}
               </span>
-              <button
-                type="button"
-                onClick={() => signOut({ callbackUrl: "/" })}
+              <SignOutButton
                 className="rounded-md bg-[#7504ff] px-4 py-2 text-sm font-semibold text-white border border-[#6a04e6] hover:bg-[#6700ea] transition-colors"
-              >
-                Sign Out
-              </button>
+              />
             </div>
           ) : (
             <Link

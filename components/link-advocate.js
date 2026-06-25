@@ -46,7 +46,7 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
       });
 
       if (result.success) {
-        setSuccess(result.message);
+        const tempPassword = password.trim();
 
         // Send welcome email and surface API errors to help troubleshooting
         try {
@@ -57,6 +57,7 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
               firstName: firstName.trim(),
               lastName: lastName.trim(),
               email: email.trim(),
+              temporaryPassword: tempPassword,
             }),
           });
 
@@ -65,12 +66,16 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
             const message =
               emailResult?.error || "Welcome email could not be sent.";
             setError(`Advocate created, but email was not sent: ${message}`);
+            setSuccess(result.message);
           } else {
-            // Email sent successfully - trigger refresh of pending advocates
+            setSuccess(
+              `${result.message} A welcome email with sign-in instructions was sent.`,
+            );
             if (onAdvocateCreated) onAdvocateCreated();
           }
         } catch (emailErr) {
           console.error("Welcome email failed:", emailErr);
+          setSuccess(result.message);
           setError(
             "Advocate created, but email was not sent due to a network error.",
           );
@@ -199,8 +204,8 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
           </div>
 
           <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg space-y-1.5 text-sm text-gray-600">
-            <p>• Creates a user account so the user can log in</p>
-            <p>• Sends an invitation email to set up their password</p>
+            <p>• Creates a user account so the user can log in at /login</p>
+            <p>• Sends a welcome email with the sign-in link and temporary password</p>
           </div>
 
           <button

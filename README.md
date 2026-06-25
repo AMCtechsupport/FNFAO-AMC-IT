@@ -79,8 +79,13 @@ Sign in at `/login` with the admin credentials from your env vars.
 | `NEXT_PUBLIC_APP_URL` | Yes | **Both** | e.g. `https://your-app.ondigitalocean.app` |
 | `ADMIN_EMAIL` | Recommended | Run | Login email for first admin (default: `admin@fnfao.local`) |
 | `ADMIN_PASSWORD` | Recommended | Run | Login password for first admin (default: `changeme123`) |
-| `RESEND_API_KEY` | No | Run | Welcome emails only |
-| `RESEND_FROM_EMAIL` | No | Run | From address for emails |
+| `SMTP_HOST` | For emails | Run | Same SMTP server as your other AMC apps |
+| `SMTP_PORT` | For emails | Run | Usually `587` |
+| `SMTP_SECURE` | No | Run | `true` for port 465, otherwise `false` |
+| `SMTP_USER` | For emails | Run | SMTP username |
+| `SMTP_PASS` | For emails | Run | SMTP password |
+| `EMAIL_FROM` | No | Run | From address (defaults to `SMTP_USER`) |
+| `EMAIL_FROM_NAME` | No | Run | Display name (default: `AMC FNFAO`) |
 
 4. Deploy the app. The **start command** runs `scripts/seed.mjs` automatically before the server starts (creates tables + first admin if missing).
 5. Verify: open `https://your-app.ondigitalocean.app/api/health`

@@ -1,6 +1,6 @@
 "use client";
 
-import { signOut } from "next-auth/react";
+import SignOutButton from "../../../components/sign-out-button";
 
 export default function UnauthorizedPage() {
   return (
@@ -19,13 +19,10 @@ export default function UnauthorizedPage() {
           </p>
 
           <div className="mt-6 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => signOut({ callbackUrl: "/" })}
+            <SignOutButton
+              label="Sign out"
               className="px-4 py-2 rounded-md bg-black text-white hover:bg-gray-900 transition !p-[10px_30px]"
-            >
-              Sign out
-            </button>
+            />
           </div>
         </div>
       </div>

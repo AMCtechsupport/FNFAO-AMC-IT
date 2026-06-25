@@ -2,9 +2,15 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 
+const authUrl =
+  process.env.AUTH_URL ||
+  process.env.NEXT_PUBLIC_APP_URL ||
+  undefined;
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
   secret: process.env.AUTH_SECRET,
+  ...(authUrl ? { url: authUrl } : {}),
   session: { strategy: "jwt" },
   pages: {
     signIn: "/login",
