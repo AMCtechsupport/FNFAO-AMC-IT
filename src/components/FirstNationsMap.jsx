@@ -3,9 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import supabase from "@/app/lib/supabase";
 
-const MANITOBA_CENTER = [55.0, -96.5];
-const DEFAULT_ZOOM = 5.5;
+const MANITOBA_SW = [48.99, -102.05];
+const MANITOBA_NE = [59.85, -89.15];
+const MANITOBA_MIN_ZOOM = 5.5;
 const MAX_CLIENTS_IN_POPUP = 20;
+
+function isInManitoba(lat, lng) {
+  return lat >= 48.5 && lat <= 61 && lng >= -102.5 && lng <= -88;
+}
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -120,10 +125,11 @@ export default function FirstNationsMap() {
         return;
       }
 
-      const nations = (nationsResult.data || []).filter(
-        (nation) =>
-          Number.isFinite(Number(nation.latitude)) && Number.isFinite(Number(nation.longitude)),
-      );
+      const nations = (nationsResult.data || []).filter((nation) => {
+        const lat = Number(nation.latitude);
+        const lng = Number(nation.longitude);
+        return Number.isFinite(lat) && Number.isFinite(lng) && isInManitoba(lat, lng);
+      });
       const clientsByNation = groupClientsByNation(clientsResult.data || []);
 
       setNationCount(nations.length);
@@ -144,12 +150,17 @@ export default function FirstNationsMap() {
 
       const map = L.map(mapContainerRef.current, {
         scrollWheelZoom: true,
-      }).setView(MANITOBA_CENTER, DEFAULT_ZOOM);
+        minZoom: MANITOBA_MIN_ZOOM,
+      });
 
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         maxZoom: 18,
       }).addTo(map);
+
+      const manitobaBounds = L.latLngBounds(MANITOBA_SW, MANITOBA_NE);
+      map.setMaxBounds(manitobaBounds.pad(0.08));
+      map.fitBounds(manitobaBounds, { padding: [20, 20] });
 
       const bounds = [];
 
@@ -195,9 +206,19 @@ export default function FirstNationsMap() {
         markersRef.current.push(marker);
       }
 
-      if (bounds.length > 1) {
-        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 7 });
+      if (bounds.length > 0) {
+        const markerBounds = L.latLngBounds(bounds);
+        map.fitBounds(markerBounds, { padding: [48, 48], maxZoom: 8 });
+        if (map.getZoom() < MANITOBA_MIN_ZOOM) {
+          map.fitBounds(manitobaBounds, { padding: [20, 20] });
+        }
+      } else {
+        map.fitBounds(manitobaBounds, { padding: [20, 20] });
       }
+
+      window.requestAnimationFrame(() => {
+        map.invalidateSize();
+      });
 
       mapRef.current = map;
       setLoading(false);
