@@ -15,14 +15,19 @@ const FirstNationSelect = ({ field, form, label, error, disabled }) => {
         .from("First Nations")
         .select("nation_id,firstNationMembership")
       if (error) {
-        console.error(error);
+        console.error("Error loading First Nations:", error);
       } else {
-        const priority = ["Non-Status", "Metis", "Métis"];
+        const priority = ["Non-Status", "Metis", "Métis", "Other"];
 
-        const sorted = data.sort((a, b) => {
-          if (priority.includes(a.firstNationMembership)) return -1;
-          if (priority.includes(b.firstNationMembership)) return 1;
-          return 0;
+        const sorted = (data || []).sort((a, b) => {
+          const aPri = priority.indexOf(a.firstNationMembership);
+          const bPri = priority.indexOf(b.firstNationMembership);
+          if (aPri !== -1 || bPri !== -1) {
+            if (aPri === -1) return 1;
+            if (bPri === -1) return -1;
+            return aPri - bPri;
+          }
+          return a.firstNationMembership.localeCompare(b.firstNationMembership);
         });
 
         setFirstNations(sorted);
@@ -49,7 +54,7 @@ const FirstNationSelect = ({ field, form, label, error, disabled }) => {
         onChange={handleChange}
         className={`${styles.select} ${errors[name] && touched[name] ? "border-red-400" : ""}`}
       >
-        <option value="">Select a first nation</option>
+        <option value="">Optional — select if applicable</option>
         {firstNations.map((nation) => (
           <option key={nation.nation_id} value={nation.firstNationMembership}>
             {nation.firstNationMembership}

@@ -31,7 +31,7 @@ function tabHasFieldError(errors, field) {
 // Fields belonging to each tab that can produce validation errors
 const TAB_ERROR_FIELDS = [
   // Tab 0: General
-  ["firstName", "middleName", "lastName", "dateOfBirth", "firstNationMembership", "otherFirstNation",
+  ["firstName", "middleName", "lastName", "dateOfBirth",
     "phoneNumber", "address", "city", "postalCode", "email",
     "emergencyContactFirstName", "emergencyContactLastName", "emergencyContactNumber",
     "ninePersonalHealthNumber", "sixPersonalHealthNumber",

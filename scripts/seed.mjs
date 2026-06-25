@@ -47,8 +47,18 @@ async function main() {
     console.log(`Admin user already exists: ${adminEmail} (password unchanged)`);
   }
 
+  const defaultFirstNations = [
+    "Non-Status",
+    "Métis",
+    "Metis",
+    "Other",
+  ];
+
   const seedDropdowns = [
-    ['INSERT INTO "First Nations" ("firstNationMembership") VALUES ($1) ON CONFLICT DO NOTHING', ["Sample First Nation"]],
+    ...defaultFirstNations.map((name) => [
+      'INSERT INTO "First Nations" ("firstNationMembership") VALUES ($1) ON CONFLICT ("firstNationMembership") DO NOTHING',
+      [name],
+    ]),
     ['INSERT INTO "CFS Agencies" ("agencyName") VALUES ($1) ON CONFLICT DO NOTHING', ["Sample CFS Agency"]],
     ['INSERT INTO "CFS Status" ("cfsStatus") VALUES ($1) ON CONFLICT DO NOTHING', ["Open"]],
   ];
