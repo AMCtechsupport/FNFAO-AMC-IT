@@ -288,7 +288,7 @@ export class QueryBuilder {
   }
 
   select(columns = "*", options = {}) {
-    if (this.action === "delete" || this.action === "update") {
+    if (this.action === "delete" || this.action === "update" || this.action === "insert") {
       this.selectColumns = columns;
       this.selectOptions = options;
       return this;

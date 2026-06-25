@@ -8,7 +8,8 @@ const RelationshipToChildrenSelect = ({name, label, error, disabled }) => {
         <>
             <label htmlFor="relationshipToChildren" className="block text-xs font-medium text-gray-600 mb-1">{label}</label>
             <Field as="select" name={name} className={styles.select} disabled={disabled}>
-                <option value="">Select an option</option>
+                <option value="">Select an option (optional if no children)</option>
+                <option value="notApplicable">Not applicable / no children</option>
                 <option value="parent">Parent</option>
                 <option value="grandparent">Grandparent</option>
                 <option value="childInCare">Child-in-Care</option>

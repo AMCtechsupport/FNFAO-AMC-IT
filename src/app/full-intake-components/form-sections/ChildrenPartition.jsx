@@ -28,7 +28,7 @@ const ChildrenPartition = ({
 
                 <div className="grid grid-cols-12 gap-4 mb-4">
                     <div className="col-span-4">
-                        <RelationshipToChildrenSelect name="relationshipToChildren" label="What is your relationship to the child(ren)?" error={errors.relationshipToChildren} disabled={!isEditing} />
+                        <RelationshipToChildrenSelect name="relationshipToChildren" label="What is your relationship to the child(ren)? (required only if listing children)" error={errors.relationshipToChildren} disabled={!isEditing} />
                     </div>
                 </div>
                 <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mb-4">

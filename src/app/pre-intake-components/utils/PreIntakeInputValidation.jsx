@@ -9,6 +9,15 @@ function validatePhoneNumber(value) {
     return undefined;
 }
 
+function childHasContent(child) {
+    if (!child) return false;
+    return Boolean(
+        (child.firstName && child.firstName.trim()) ||
+        (child.lastName && child.lastName.trim()) ||
+        child.birthDate,
+    );
+}
+
 const PreIntakeInputValidation=
 (values) => {
     let errors = {};
@@ -51,7 +60,9 @@ const PreIntakeInputValidation=
         }
     }
 
-    if (!values.relationshipToChildren) {
+    const listedChildren = (values.children || []).filter(childHasContent);
+
+    if (listedChildren.length > 0 && !values.relationshipToChildren) {
     errors.relationshipToChildren =
         "Please select your relationship to the child(ren)";
     }
@@ -79,7 +90,9 @@ const PreIntakeInputValidation=
         errors.emergencyContactNumber = emergencyContactNumberError;
     }
 
-    values.children.forEach((child, index) => {
+    (values.children || []).forEach((child, index) => {
+        if (!childHasContent(child)) return;
+
         const childCfsAgentNumberError = validatePhoneNumber(
         child.childCfsAgentNumber
         );

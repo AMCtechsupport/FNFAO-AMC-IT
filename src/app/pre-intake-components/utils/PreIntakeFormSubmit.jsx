@@ -88,13 +88,20 @@ const PreIntakeFormSubmit = (showToast) => {
                 throw clientError;
             }
 
-            // Get the inserted client's ID
-            const clientId = client[0]?.client_id;
+            const clientRows = Array.isArray(client) ? client : client ? [client] : [];
+            const clientId = clientRows[0]?.client_id;
             if (!clientId) throw new Error("Failed to retrieve client ID.");
 
+            const listedChildren = (children || []).filter(
+                (child) =>
+                    (child?.firstName && child.firstName.trim()) ||
+                    (child?.lastName && child.lastName.trim()) ||
+                    child?.birthDate,
+            );
+
             // If there are children, sanitize and insert them into the 'Childs' table
-            if (children && children.length > 0) {
-                const childrenToInsert = children.map((child) => {
+            if (listedChildren.length > 0) {
+                const childrenToInsert = listedChildren.map((child) => {
                     const sanitized = { ...child };
 
                     // Convert childMedicalNeeds from string to boolean/null
@@ -173,11 +180,7 @@ const PreIntakeFormSubmit = (showToast) => {
 
             // Assigns client to advocate who submit the form
             if (selectedAdvocate && selectedAdvocate.length > 0 && selectedAdvocate !== "none") {
-                const { error: assignAdvocateError } = 
-                    assignClientToAdvocate(clientId, selectedAdvocate);
-                if (assignAdvocateError) {
-                    throw assignAdvocateError;
-                }
+                await assignClientToAdvocate(clientId, selectedAdvocate);
             }
 
             // Reset form and show success message
@@ -185,6 +188,10 @@ const PreIntakeFormSubmit = (showToast) => {
             resetForm();
         } catch (error) {
             console.error("Error submitting pre-intake:", error);
+            showToast(
+                "error",
+                error?.message || "Failed to submit pre-intake. Please try again.",
+            );
         }
 
     };
