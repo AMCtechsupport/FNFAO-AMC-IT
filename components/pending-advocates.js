@@ -18,9 +18,13 @@ const applySort = (list, sort) => {
         (b.firstName + " " + b.lastName).localeCompare(a.firstName + " " + a.lastName)
       );
     case "newest":
-      return sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      return sorted.sort(
+        (a, b) => new Date(b.createdAt || b.created_at) - new Date(a.createdAt || a.created_at),
+      );
     case "oldest":
-      return sorted.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+      return sorted.sort(
+        (a, b) => new Date(a.createdAt || a.created_at) - new Date(b.createdAt || b.created_at),
+      );
     default:
       return sorted.sort((a, b) =>
         (a.firstName + " " + a.lastName).localeCompare(b.firstName + " " + b.lastName)
@@ -312,7 +316,7 @@ const PendingAdvocates = ({ refreshTrigger }) => {
 
                 <div className="flex items-center gap-2 shrink-0">
                   <span className="min-w-[7rem] text-center text-xs font-medium px-2 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
-                    Awaiting Signup
+                    New User
                   </span>
 
                   <button

@@ -1,5 +1,6 @@
 "use server";
 
+import { requireAdmin } from "./auth-server";
 import supabase from "./supabase.server";
 import { saveLongPdf } from "./saveLongPdf";
 
@@ -59,7 +60,7 @@ function convertToPDF(data, title) {
 // Function to export all data from Supabase
 export async function exportAllDataAction(format = "json") {
   try {
-
+    await requireAdmin();
     const exportData = {
       timestamp: new Date().toISOString(),
       format: format,
@@ -161,7 +162,7 @@ export async function exportAllDataAction(format = "json") {
 // Function to export specific table
 export async function exportTableAction(tableName, format = "json") {
   try {
-
+    await requireAdmin();
     const { data, error } = await supabase.from(tableName).select("*");
 
     if (error) {
@@ -218,7 +219,7 @@ export async function exportTableAction(tableName, format = "json") {
 // Function to export youth intake data
 export async function exportYouthIntakeDataAction(format = "json") {
   try {
-
+    await requireAdmin();
     const exportData = {
       timestamp: new Date().toISOString(),
       type: "Youth Intake Export",

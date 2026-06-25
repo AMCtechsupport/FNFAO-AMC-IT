@@ -90,12 +90,13 @@ export function parseSelectColumns(selectStr, table) {
       continue;
     }
 
-    const embedHint = part.match(/^(\w+)(?:!([\w]+))?\(([^)]+)\)$/);
+    const embedHint = part.match(/^(?:(\w+):)?(\w+)(?:!([\w]+))?\(([^)]+)\)$/);
     if (embedHint) {
       embeds.push({
-        name: embedHint[1],
-        hint: embedHint[2] || null,
-        columns: embedHint[3].split(",").map((c) => c.trim()),
+        alias: embedHint[1] || null,
+        name: embedHint[2],
+        hint: embedHint[3] || null,
+        columns: embedHint[4].split(",").map((c) => c.trim()),
       });
       continue;
     }
@@ -242,19 +243,22 @@ export function resolveEmbedConfig(table, embed) {
   }
 
   if (table === "Notes") {
-    if (embed.hint === "Notes_advocate_id_fkey" || embed.name === "Advocates" && !embed.hint?.includes("modified")) {
-      return { ...tableRelations.author, alias: embed.hint === "Notes_advocate_id_fkey" ? "author" : "Advocates" };
+    if (embed.hint === "Notes_advocate_id_fkey" || (embed.name === "Advocates" && !embed.hint?.includes("modified"))) {
+      return {
+        ...tableRelations.author,
+        alias: embed.alias || (embed.hint === "Notes_advocate_id_fkey" ? "author" : "Advocates"),
+      };
     }
     if (embed.hint === "fk_modified_by_advocate") {
-      return { ...tableRelations.editor, alias: "editor" };
+      return { ...tableRelations.editor, alias: embed.alias || "editor" };
     }
     if (embed.name === "Files") {
-      return { ...tableRelations.Files, alias: "Files" };
+      return { ...tableRelations.Files, alias: embed.alias || "Files" };
     }
   }
 
   if (table === "User Logs" && embed.name === "Advocates") {
-    return { ...tableRelations.Advocates, alias: "Advocates" };
+    return { ...tableRelations.Advocates, alias: embed.alias || "Advocates" };
   }
 
   if (embed.name === "Clients" && tableRelations.Clients) {

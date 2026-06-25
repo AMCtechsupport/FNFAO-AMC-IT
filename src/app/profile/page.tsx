@@ -6,6 +6,7 @@ import LinkAdvocate from "../../../components/link-advocate";
 import DeleteAdvocate from "../../../components/delete-advocate";
 import PendingAdvocates from "../../../components/pending-advocates";
 import ManageUserRoles from "../../../components/manage-user-roles";
+import ChangePassword from "../../../components/change-password";
 import UserHome from "../user-home/page";
 
 const ProfilePage = () => {
@@ -23,6 +24,10 @@ const ProfilePage = () => {
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
           <p className="text-sm text-gray-500 mt-1">Create new users and manage existing ones</p>
+        </div>
+
+        <div className="mb-6 max-w-lg">
+          <ChangePassword />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">

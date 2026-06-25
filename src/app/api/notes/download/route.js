@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import supabase from "../../../lib/supabase.server";
+import { requireApiUser } from "../../../lib/api-auth";
 
 export async function GET(request) {
+  const authResult = await requireApiUser();
+  if (!authResult.ok) return authResult.response;
+
   try {
     const { searchParams } = new URL(request.url);
     const file_path = searchParams.get("file_path");

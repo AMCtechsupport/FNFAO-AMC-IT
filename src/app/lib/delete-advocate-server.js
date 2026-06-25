@@ -1,25 +1,23 @@
 "use server";
 
-import { requireAdmin, requireUser } from "./auth-server";
+import { requireAdmin } from "./auth-server";
 import supabase from "./supabase.server";
 
 export const deleteAdvocate = async (advocateId) => {
-  const user = await requireUser();
+  const user = await requireAdmin();
 
   if (String(user.advocateId) === String(advocateId)) {
     throw new Error("You cannot delete your own account.");
   }
 
-  if (user.role === "admin") {
-    const { data: targetAdvocate } = await supabase
-      .from("Advocates")
-      .select("role")
-      .eq("advocate_id", advocateId)
-      .single();
+  const { data: targetAdvocate } = await supabase
+    .from("Advocates")
+    .select("role")
+    .eq("advocate_id", advocateId)
+    .single();
 
-    if (targetAdvocate?.role === "admin") {
-      throw new Error("You cannot delete an admin account.");
-    }
+  if (targetAdvocate?.role === "admin") {
+    throw new Error("You cannot delete an admin account.");
   }
 
   try {

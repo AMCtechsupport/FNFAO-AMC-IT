@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import supabase from "../../lib/supabase.server";
+import { requireApiUser } from "../../lib/api-auth";
 
 export async function GET(request) {
+  const authResult = await requireApiUser();
+  if (!authResult.ok) return authResult.response;
+
   try {
     const { searchParams } = new URL(request.url);
     const client_id = searchParams.get("client_id");
@@ -56,6 +60,9 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+  const authResult = await requireApiUser();
+  if (!authResult.ok) return authResult.response;
+
   try {
     const body = await request.json();
     const { client_id, advocate_id } = body;

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import supabase from "../../lib/supabase.server";
+import { requireApiUser } from "../../lib/api-auth";
 
 // Builds PostgREST or() conditions that match any client_id whose decimal
 // representation starts with `termStr`, e.g. "4" matches 4, 40-49, 400-499…
@@ -18,6 +19,9 @@ function buildIdStartsWithConditions(termStr, maxDigits = 7) {
 }
 
 export async function GET(request) {
+  const authResult = await requireApiUser();
+  if (!authResult.ok) return authResult.response;
+
   try {
     const { searchParams } = new URL(request.url);
     const clientType = searchParams.get("clientType");
@@ -143,6 +147,9 @@ export async function GET(request) {
 }
 
 export async function PATCH(request) {
+  const authResult = await requireApiUser();
+  if (!authResult.ok) return authResult.response;
+
   try {
     const body = await request.json();
     const { client_id, clientValues } = body;

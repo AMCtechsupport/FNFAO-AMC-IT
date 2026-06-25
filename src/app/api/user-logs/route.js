@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import supabase from "../../lib/supabase.server";
-import { auth } from "@/auth";
+import { requireApiAdmin, requireApiUser } from "../../lib/api-auth";
 
 export async function GET(request) {
+  const authResult = await requireApiAdmin();
+  if (!authResult.ok) return authResult.response;
+
   try {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search") || "";
@@ -138,6 +141,9 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+  const authResult = await requireApiUser();
+  if (!authResult.ok) return authResult.response;
+
   try {
     const body = await request.json();
     const { description, logType, client_id, advocateId } = body;
@@ -146,9 +152,8 @@ export async function POST(request) {
     let advocateName = null;
 
     if (!advocate_id) {
-      const session = await auth();
-      advocate_id = session?.user?.advocateId || null;
-      advocateName = session?.user?.name || null;
+      advocate_id = authResult.session.user.advocateId || null;
+      advocateName = authResult.session.user.name || null;
     }
 
     if (advocate_id && !advocateName) {

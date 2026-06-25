@@ -2,8 +2,12 @@ import { NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 import supabase from "../../lib/supabase.server";
 import { isSameCalendarDay } from "../../lib/note-edit-utils";
+import { requireApiUser } from "../../lib/api-auth";
 
 export async function GET(request) {
+  const authResult = await requireApiUser();
+  if (!authResult.ok) return authResult.response;
+
   try {
     const { searchParams } = new URL(request.url);
     const client_id = searchParams.get("client_id");
@@ -48,6 +52,9 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+  const authResult = await requireApiUser();
+  if (!authResult.ok) return authResult.response;
+
   try {
     const formData = await request.formData();
     const type = formData.get("type");
@@ -139,6 +146,9 @@ export async function POST(request) {
 }
 
 export async function PATCH(request) {
+  const authResult = await requireApiUser();
+  if (!authResult.ok) return authResult.response;
+
   try {
     const formData = await request.formData();
     const note_id = formData.get("note_id");

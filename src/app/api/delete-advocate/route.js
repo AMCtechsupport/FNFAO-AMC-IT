@@ -1,14 +1,12 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { deleteAdvocate } from "../../lib/delete-advocate-server";
+import { requireApiAdmin } from "../../lib/api-auth";
 
 export async function POST(request) {
-  try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const authResult = await requireApiAdmin();
+  if (!authResult.ok) return authResult.response;
 
+  try {
     const { advocate_id } = await request.json();
 
     if (!advocate_id) {
