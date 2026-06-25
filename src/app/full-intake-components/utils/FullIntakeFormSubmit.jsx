@@ -118,7 +118,7 @@ const FullIntakeFormSubmit = async (values, { resetForm }, userId, router, showT
             'residentialSchool', 'cfsCare', 'adoptedScoop', 'experiencedSuicide', 
             'MMIWG2S', 'familyViolence', 'FASD', 'ADHD', 'PTSD', 'depression', 
             'cancerAutoimmuneCondition', 'otherMentalCondition', 'negativeCopingSkills',
-            'educationalGoals', 'accessElder', 'kinship', 'prentativeSupport', 
+            'educationalGoals', 'accessElder', 'kinship', 'preventativeSupport', 
             'privateAgreement', 'previousInvolvement', 'parentalCapacityDone', 
             'cfsExplain', 'turnToKinshipCare'
         ];

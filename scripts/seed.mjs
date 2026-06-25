@@ -10,34 +10,15 @@ import {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-/**
- * One-time fixes for columns created with wrong PostgreSQL identifier casing.
- * Unquoted camelCase in CREATE TABLE folds to lowercase; the app quotes camelCase on insert.
- */
-async function applySchemaMigrations(pool) {
-  const { rows } = await pool.query(`
-    SELECT a.attname AS name
-    FROM pg_attribute a
-    JOIN pg_class c ON c.oid = a.attrelid
-    JOIN pg_namespace n ON n.oid = c.relnamespace
-    WHERE n.nspname = 'public'
-      AND c.relname = 'Clients'
-      AND a.attnum > 0
-      AND NOT a.attisdropped
-      AND a.attname IN ('prentativesupport', 'prentativeSupport')
-  `);
-
-  const names = new Set(rows.map((row) => row.name));
-
-  if (names.has("prentativesupport") && !names.has("prentativeSupport")) {
-    await pool.query(
-      `ALTER TABLE "Clients" RENAME COLUMN prentativesupport TO "prentativeSupport"`,
-    );
-    console.log('Migration: renamed Clients.prentativesupport -> "prentativeSupport"');
-  } else if (!names.has("prentativesupport") && !names.has("prentativeSupport")) {
-    await pool.query(`ALTER TABLE "Clients" ADD COLUMN "prentativeSupport" BOOLEAN`);
-    console.log('Migration: added Clients."prentativeSupport" column');
-  }
+/** Drop misspelled columns and ensure correctly named ones exist. */
+async function ensurePreventativeSupportColumns(pool) {
+  await pool.query(`ALTER TABLE "Clients" DROP COLUMN IF EXISTS prentativesupport`);
+  await pool.query(`ALTER TABLE "Clients" DROP COLUMN IF EXISTS "prentativeSupport"`);
+  await pool.query(`ALTER TABLE "Clients" DROP COLUMN IF EXISTS "prentativeSupportExplained"`);
+  await pool.query(`ALTER TABLE "Clients" ADD COLUMN IF NOT EXISTS "preventativeSupport" BOOLEAN`);
+  await pool.query(
+    `ALTER TABLE "Clients" ADD COLUMN IF NOT EXISTS "preventativeSupportExplained" TEXT`,
+  );
 }
 
 async function main() {
@@ -60,7 +41,7 @@ async function main() {
   const schemaSql = fs.readFileSync(schemaPath, "utf8");
   await pool.query(schemaSql);
 
-  await applySchemaMigrations(pool);
+  await ensurePreventativeSupportColumns(pool);
 
   const adminEmail = (process.env.ADMIN_EMAIL || "admin@fnfao.local").toLowerCase();
   const adminPassword = process.env.ADMIN_PASSWORD || "changeme123";

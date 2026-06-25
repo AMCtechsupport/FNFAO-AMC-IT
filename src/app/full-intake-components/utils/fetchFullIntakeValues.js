@@ -28,7 +28,7 @@ function fullIntakeInitialValues ({
         'custodySupport', 'criminalCharges', 'activeWarrant',
         'activeInvestigation', 'activeOrders', 'currentLawyer', 'legalAssistance',
         'residentialSchool', 'negativeCopingSkills', 'educationalGoals', 'accessElder',
-        'kinship', 'prentativeSupport', 'privateAgreement', 'previousInvolvement',
+        'kinship', 'preventativeSupport', 'privateAgreement', 'previousInvolvement',
         'parentalCapacityDone', 'cfsExplain', 'turnToKinshipCare'
     ];
 

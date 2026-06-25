@@ -31,7 +31,7 @@ export const CLIENT_BOOLEAN_FIELDS = [
   "educationalGoals",
   "accessElder",
   "kinship",
-  "prentativeSupport",
+  "preventativeSupport",
   "privateAgreement",
   "previousInvolvement",
   "parentalCapacityDone",

@@ -401,19 +401,19 @@ const ChildFamilyServicesPartition = ({
                                 <label className="block text-xs font-medium text-gray-600 mb-1">Did you receive any preventative supports to assist you with your children prior to their apprehension?</label>
                                 <div className="flex gap-4 mt-1">
                                     <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                        <Field type="radio" name="prentativeSupport" value="yes" checked={values.prentativeSupport === "yes"} disabled={!isEditing} className="accent-purple-600/80" /> Yes
+                                        <Field type="radio" name="preventativeSupport" value="yes" checked={values.preventativeSupport === "yes"} disabled={!isEditing} className="accent-purple-600/80" /> Yes
                                     </label>
                                     <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                        <Field type="radio" name="prentativeSupport" value="no" checked={values.prentativeSupport === "no"} disabled={!isEditing} className="accent-purple-600/80" /> No
+                                        <Field type="radio" name="preventativeSupport" value="no" checked={values.preventativeSupport === "no"} disabled={!isEditing} className="accent-purple-600/80" /> No
                                     </label>
                                 </div>
-                                <ErrorMessage name="prentativeSupport" component="div" className="text-xs text-red-500 mt-1" />
+                                <ErrorMessage name="preventativeSupport" component="div" className="text-xs text-red-500 mt-1" />
                             </div>
-                            {values.prentativeSupport === "yes" && (
+                            {values.preventativeSupport === "yes" && (
                                 <div className="col-span-8">
                                     <label className="block text-xs font-medium text-gray-600 mb-1">If yes, explain:</label>
-                                    <Field as="textarea" name="prentativeSupportExplained" placeholder="e.g., family support worker, parenting programs..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white resize-none" disabled={!isEditing} />
-                                    <ErrorMessage name="prentativeSupportExplained" component="div" className="text-xs text-red-500 mt-1" />
+                                    <Field as="textarea" name="preventativeSupportExplained" placeholder="e.g., family support worker, parenting programs..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white resize-none" disabled={!isEditing} />
+                                    <ErrorMessage name="preventativeSupportExplained" component="div" className="text-xs text-red-500 mt-1" />
                                 </div>
                             )}
                         </div>
