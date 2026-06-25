@@ -103,7 +103,8 @@ export async function sendAdvocateWelcomeEmail({
             </p>`
     : `
             <p style="color: #555555; font-size: 16px; line-height: 1.6; margin-bottom: 16px;">
-              Your administrator created your account. Use the button below to open the sign-in page with your email address and the temporary password they provided.
+              Sign in with <strong>Sign in with AMC email</strong> on the login page using your
+              <strong>@manitobachiefs.com</strong> Microsoft 365 account. No password is required.
             </p>`;
 
   const html = `
@@ -130,7 +131,7 @@ export async function sendAdvocateWelcomeEmail({
 
   const textPassword = temporaryPassword
     ? `Temporary password: ${temporaryPassword}\n\n`
-    : "Use the temporary password your administrator gave you.\n\n";
+    : "Sign in with your @manitobachiefs.com Microsoft 365 account (Sign in with AMC email). No password is required.\n\n";
 
   const text = [
     greet.replace(/<[^>]+>/g, ""),

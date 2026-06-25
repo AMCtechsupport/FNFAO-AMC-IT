@@ -9,7 +9,6 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
 
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -18,18 +17,13 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
   const handleCreateAdvocate = async (e) => {
     e.preventDefault();
 
-    if (!firstName.trim() || !lastName.trim() || !email.trim() || !password.trim()) {
+    if (!firstName.trim() || !lastName.trim() || !email.trim()) {
       setError("Please fill in all required fields.");
       return;
     }
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
-      return;
-    }
-
     if (!EMAIL_REGEX.test(email.trim())) {
-      setError("Please enter a valid email address (e.g. name@example.com).");
+      setError("Please enter a valid email address (e.g. name@manitobachiefs.com).");
       return;
     }
 
@@ -42,13 +36,9 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         email: email.trim(),
-        password: password.trim(),
       });
 
       if (result.success) {
-        const tempPassword = password.trim();
-
-        // Send welcome email and surface API errors to help troubleshooting
         try {
           const emailResponse = await fetch("/api/send-welcome-email", {
             method: "POST",
@@ -57,34 +47,29 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
               firstName: firstName.trim(),
               lastName: lastName.trim(),
               email: email.trim(),
-              temporaryPassword: tempPassword,
             }),
           });
 
           if (!emailResponse.ok) {
             const emailResult = await emailResponse.json().catch(() => ({}));
-            const message =
-              emailResult?.error || "Welcome email could not be sent.";
+            const message = emailResult?.error || "Welcome email could not be sent.";
             setError(`Advocate created, but email was not sent: ${message}`);
             setSuccess(result.message);
           } else {
             setSuccess(
-              `${result.message} A welcome email with sign-in instructions was sent.`,
+              `${result.message} A welcome email with Microsoft sign-in instructions was sent.`,
             );
             if (onAdvocateCreated) onAdvocateCreated();
           }
         } catch (emailErr) {
           console.error("Welcome email failed:", emailErr);
           setSuccess(result.message);
-          setError(
-            "Advocate created, but email was not sent due to a network error.",
-          );
+          setError("Advocate created, but email was not sent due to a network error.");
         }
 
         setFirstName("");
         setLastName("");
         setEmail("");
-        setPassword("");
       }
     } catch (error) {
       console.error("Error creating advocate:", error);
@@ -96,7 +81,6 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      {/* Header */}
       <div
         className="px-4 py-3 text-white text-xs font-semibold uppercase tracking-wider"
         style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
@@ -171,7 +155,7 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
               id="email"
               type="email"
               value={email}
-              placeholder="e.g., name@example.com"
+              placeholder="name@manitobachiefs.com"
               onChange={(e) => {
                 setEmail(e.target.value);
                 if (success) setSuccess(null);
@@ -181,31 +165,10 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
             />
           </div>
 
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5"
-            >
-              Temporary Password <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              placeholder="At least 8 characters"
-              onChange={(e) => {
-                setPassword(e.target.value);
-                if (success) setSuccess(null);
-              }}
-              required
-              minLength={8}
-              className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg placeholder-gray-400 text-gray-700 focus:outline-none transition"
-            />
-          </div>
-
           <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg space-y-1.5 text-sm text-gray-600">
-            <p>• Creates a user account so the user can log in at /login</p>
-            <p>• Sends a welcome email with the sign-in link and temporary password</p>
+            <p>• Creates a user account for Microsoft 365 sign-in</p>
+            <p>• Email must match their @manitobachiefs.com Microsoft account</p>
+            <p>• Sends a welcome email with the sign-in link (no password)</p>
           </div>
 
           <button
@@ -226,8 +189,7 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
             }}
             onMouseLeave={(e) => {
               if (!loading) {
-                e.currentTarget.style.backgroundColor =
-                  "rgba(97, 0, 215, 0.02)";
+                e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.02)";
                 e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)";
               }
             }}

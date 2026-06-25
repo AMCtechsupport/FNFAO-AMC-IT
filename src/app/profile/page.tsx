@@ -1,7 +1,6 @@
-// src/app/profile/page.js
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LinkAdvocate from "../../../components/link-advocate";
 import DeleteAdvocate from "../../../components/delete-advocate";
 import PendingAdvocates from "../../../components/pending-advocates";
@@ -11,6 +10,14 @@ import UserHome from "../user-home/page";
 
 const ProfilePage = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [ssoConfigured, setSsoConfigured] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/auth/sso-status")
+      .then((res) => res.json())
+      .then((data) => setSsoConfigured(Boolean(data.ssoConfigured)))
+      .catch(() => setSsoConfigured(false));
+  }, []);
 
   const handleAdvocateCreated = () => {
     setRefreshTrigger((prev) => prev + 1);
@@ -20,15 +27,16 @@ const ProfilePage = () => {
     <UserHome>
       <main className="min-h-screen bg-gray-100 p-6">
 
-        {/* Page Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
           <p className="text-sm text-gray-500 mt-1">Create new users and manage existing ones</p>
         </div>
 
-        <div className="mb-6 max-w-lg">
-          <ChangePassword />
-        </div>
+        {!ssoConfigured && (
+          <div className="mb-6 max-w-lg">
+            <ChangePassword />
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <LinkAdvocate onAdvocateCreated={handleAdvocateCreated} />
