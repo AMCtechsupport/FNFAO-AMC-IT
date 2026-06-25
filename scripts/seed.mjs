@@ -3,6 +3,10 @@ import path from "path";
 import pg from "pg";
 import bcrypt from "bcryptjs";
 import { fileURLToPath } from "url";
+import {
+  importFirstNationsFromCsv,
+  seedDefaultFirstNationOptions,
+} from "./import-first-nations.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -79,18 +83,10 @@ async function main() {
     console.log(`Admin user already exists: ${adminEmail} (password unchanged)`);
   }
 
-  const defaultFirstNations = [
-    "Non-Status",
-    "Métis",
-    "Metis",
-    "Other",
-  ];
+  await importFirstNationsFromCsv(pool);
+  await seedDefaultFirstNationOptions(pool);
 
   const seedDropdowns = [
-    ...defaultFirstNations.map((name) => [
-      'INSERT INTO "First Nations" ("firstNationMembership") VALUES ($1) ON CONFLICT ("firstNationMembership") DO NOTHING',
-      [name],
-    ]),
     ['INSERT INTO "CFS Agencies" ("agencyName") VALUES ($1) ON CONFLICT DO NOTHING', ["Sample CFS Agency"]],
     ['INSERT INTO "CFS Status" ("cfsStatus") VALUES ($1) ON CONFLICT DO NOTHING', ["Open"]],
   ];

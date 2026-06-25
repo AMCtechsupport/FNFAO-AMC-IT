@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "node scripts/seed.mjs && node scripts/verify-spaces.mjs && next start",
     "lint": "next lint",
-    "db:seed": "node scripts/seed.mjs"
+    "db:seed": "node scripts/seed.mjs",
+    "db:import-nations": "node scripts/import-first-nations.mjs"
   },
   "engines": {
     "node": "20.x"

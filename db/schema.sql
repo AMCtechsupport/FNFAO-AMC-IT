@@ -12,7 +12,12 @@ CREATE TABLE IF NOT EXISTS "Advocates" (
 
 CREATE TABLE IF NOT EXISTS "First Nations" (
   nation_id SERIAL PRIMARY KEY,
-  "firstNationMembership" TEXT NOT NULL UNIQUE
+  "firstNationMembership" TEXT NOT NULL UNIQUE,
+  "bandNumber" INTEGER,
+  latitude DOUBLE PRECISION,
+  longitude DOUBLE PRECISION,
+  "bandOfficePhone" TEXT,
+  "chiefName" TEXT
 );
 
 CREATE TABLE IF NOT EXISTS "CFS Agencies" (
