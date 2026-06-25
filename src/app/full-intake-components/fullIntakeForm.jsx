@@ -8,6 +8,7 @@ import { Formik, Form } from "formik";
 import HealthWellnessPartition from "./form-sections/HealthWellnessPartition";
 import CaseNotesPartition from "./form-sections/CaseNotesPartition";
 import LegalNotesPartition from "./form-sections/LegalNotesPartition";
+import AllAttachmentsPartition from "./form-sections/AllAttachmentsPartition";
 import ChildrenPartition from "./form-sections/ChildrenPartition";
 import ChildFamilyServicesPartition from "./form-sections/ChildFamilyServices";
 import GeneralInformationPartition from "./form-sections/GeneralInformationPartition";
@@ -20,7 +21,7 @@ import { fetchClientData } from "./utils/fetchClientData";
 import FullIntakeFormSubmit from "./utils/FullIntakeFormSubmit";
 import StickyFormActions from "@/components/StickyFormActions";
 
-const TABS = ["General", "Children", "Health & Wellness", "Child & Family Services", "Case Notes", "Legal Notes"];
+const TABS = ["General", "Children", "Health & Wellness", "Child & Family Services", "Case Notes", "Legal Notes", "All Attachmented Files"];
 
 export default function FullIntakeForm({
   client_id,
@@ -479,6 +480,9 @@ export default function FullIntakeForm({
                     isAssignedAdvocate={isAssignedAdvocate}
                     errors={errors}
                   />
+                )}
+                {activeTab === 6 && (
+                  <AllAttachmentsPartition notesData={notesData} />
                 )}
               </div>
             </div>
