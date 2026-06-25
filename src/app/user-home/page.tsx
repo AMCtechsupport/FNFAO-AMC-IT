@@ -14,8 +14,8 @@ export default function UserHome(props: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen flex [--sidebar-width:14rem]" style={{ backgroundColor: "#cccccc" }}>
-      <aside className="w-56 min-h-screen flex-shrink-0 bg-black px-2 py-3">
-        <nav className="flex flex-col gap-0.5">
+      <aside className="w-56 min-h-screen flex-shrink-0 bg-black px-2 py-3 flex flex-col">
+        <nav className="flex flex-col gap-0.5 flex-1">
           {userRole === "admin" && <UserHomeLink name="Admin" path="admin" />}
           {userRole === "advocate" && (
             <UserHomeLink name="Dashboard" path="user-dashboard" />
@@ -43,6 +43,10 @@ export default function UserHome(props: { children: ReactNode }) {
           {userRole === "admin" && <UserHomeLink name="Export" path="export" />}
           {userRole === "admin" && <UserHomeLink name="Report" path="report" />}
         </nav>
+
+        <div className="pt-3 mt-3 border-t border-gray-800">
+          <UserHomeLink name="Map" path="map" />
+        </div>
       </aside>
 
       <main className="flex-1 p-6">{props.children}</main>

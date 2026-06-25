@@ -19,6 +19,7 @@ const protectedPrefixes = [
   "/clients",
   "/full-intake",
   "/data-collection",
+  "/map",
   "/user-home",
   ...adminOnlyPrefixes,
 ];
