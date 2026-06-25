@@ -19,7 +19,15 @@ export async function GET(request) {
 
   try {
     const buffer = await readAttachment(filePath);
-    const contentType = await getAttachmentContentType(filePath);
+    let contentType = await getAttachmentContentType(filePath);
+    const lowerPath = filePath.toLowerCase();
+    if (contentType === "application/octet-stream") {
+      if (lowerPath.endsWith(".pdf")) contentType = "application/pdf";
+      else if (/\.(jpe?g)$/.test(lowerPath)) contentType = "image/jpeg";
+      else if (lowerPath.endsWith(".png")) contentType = "image/png";
+      else if (lowerPath.endsWith(".gif")) contentType = "image/gif";
+      else if (lowerPath.endsWith(".webp")) contentType = "image/webp";
+    }
     const safeName = fileName || filePath.split("/").pop() || "download";
     const headers = new Headers();
     headers.set("Content-Type", contentType);

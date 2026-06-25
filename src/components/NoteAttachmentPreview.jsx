@@ -9,19 +9,46 @@ function getFileKind(fileName) {
   return "other";
 }
 
-async function fetchAttachmentUrl(filePath, fileName, { inline = false } = {}) {
+async function fetchPreviewBlobUrl(filePath, fileName) {
+  const params = new URLSearchParams({ file_path: filePath, inline: "1" });
+  if (fileName) params.set("file_name", fileName);
+
+  const res = await fetch(`/api/files/download?${params.toString()}`, {
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}));
+    throw new Error(json.error || `Could not load attachment (${res.status})`);
+  }
+
+  const buffer = await res.arrayBuffer();
+  const headerType = res.headers.get("content-type") || "";
+  const ext = (fileName || filePath).split(".").pop()?.toLowerCase();
+  const fallbackType =
+    ext === "pdf"
+      ? "application/pdf"
+      : ["jpg", "jpeg", "png", "gif", "webp", "bmp"].includes(ext)
+        ? `image/${ext === "jpg" ? "jpeg" : ext}`
+        : "application/octet-stream";
+  const mimeType =
+    headerType && headerType !== "application/octet-stream" ? headerType : fallbackType;
+
+  return URL.createObjectURL(new Blob([buffer], { type: mimeType }));
+}
+
+async function fetchDownloadUrl(filePath, fileName) {
   const params = new URLSearchParams({ file_path: filePath });
   if (fileName) params.set("file_name", fileName);
-  if (inline) params.set("inline", "1");
 
   const res = await fetch(`/api/notes/download?${params.toString()}`);
   if (!res.ok) {
-    throw new Error("Could not load attachment");
+    throw new Error("Could not prepare download");
   }
 
   const { signedUrl } = await res.json();
   if (!signedUrl) {
-    throw new Error("Attachment URL unavailable");
+    throw new Error("Download URL unavailable");
   }
 
   return signedUrl;
@@ -42,17 +69,24 @@ export default function NoteAttachmentPreview({ filePath, fileName }) {
     }
 
     let cancelled = false;
+    let objectUrl = null;
 
     (async () => {
       setLoading(true);
       setLoadError(null);
+      setPreviewUrl((current) => {
+        if (current?.startsWith("blob:")) URL.revokeObjectURL(current);
+        return null;
+      });
+
       try {
-        const url = await fetchAttachmentUrl(filePath, fileName, { inline: true });
-        if (!cancelled) setPreviewUrl(url);
+        objectUrl = await fetchPreviewBlobUrl(filePath, fileName);
+        if (!cancelled) setPreviewUrl(objectUrl);
       } catch (err) {
         if (!cancelled) {
           setLoadError(err.message || "Failed to load preview");
         }
+        if (objectUrl) URL.revokeObjectURL(objectUrl);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -60,12 +94,13 @@ export default function NoteAttachmentPreview({ filePath, fileName }) {
 
     return () => {
       cancelled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
   }, [filePath, fileName, canPreview]);
 
   const handleDownload = async () => {
     try {
-      const url = await fetchAttachmentUrl(filePath, fileName);
+      const url = await fetchDownloadUrl(filePath, fileName);
       window.open(url, "_blank");
     } catch {
       // ignore — user can retry

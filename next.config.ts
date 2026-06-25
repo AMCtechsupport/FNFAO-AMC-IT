@@ -14,6 +14,7 @@ const nextConfig: NextConfig = {
             worker-src 'self' blob:;
             style-src 'self' https://fonts.googleapis.com 'unsafe-inline';
             img-src 'self' data: blob: https:;
+            frame-src 'self' blob:;
             connect-src 'self';
             object-src 'none';
             frame-ancestors 'none';
