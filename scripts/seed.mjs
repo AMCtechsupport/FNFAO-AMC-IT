@@ -6,6 +6,36 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+/**
+ * One-time fixes for columns created with wrong PostgreSQL identifier casing.
+ * Unquoted camelCase in CREATE TABLE folds to lowercase; the app quotes camelCase on insert.
+ */
+async function applySchemaMigrations(pool) {
+  const { rows } = await pool.query(`
+    SELECT a.attname AS name
+    FROM pg_attribute a
+    JOIN pg_class c ON c.oid = a.attrelid
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'public'
+      AND c.relname = 'Clients'
+      AND a.attnum > 0
+      AND NOT a.attisdropped
+      AND a.attname IN ('prentativesupport', 'prentativeSupport')
+  `);
+
+  const names = new Set(rows.map((row) => row.name));
+
+  if (names.has("prentativesupport") && !names.has("prentativeSupport")) {
+    await pool.query(
+      `ALTER TABLE "Clients" RENAME COLUMN prentativesupport TO "prentativeSupport"`,
+    );
+    console.log('Migration: renamed Clients.prentativesupport -> "prentativeSupport"');
+  } else if (!names.has("prentativesupport") && !names.has("prentativeSupport")) {
+    await pool.query(`ALTER TABLE "Clients" ADD COLUMN "prentativeSupport" BOOLEAN`);
+    console.log('Migration: added Clients."prentativeSupport" column');
+  }
+}
+
 async function main() {
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) {
@@ -25,6 +55,8 @@ async function main() {
   const schemaPath = path.join(__dirname, "..", "db", "schema.sql");
   const schemaSql = fs.readFileSync(schemaPath, "utf8");
   await pool.query(schemaSql);
+
+  await applySchemaMigrations(pool);
 
   const adminEmail = (process.env.ADMIN_EMAIL || "admin@fnfao.local").toLowerCase();
   const adminPassword = process.env.ADMIN_PASSWORD || "changeme123";

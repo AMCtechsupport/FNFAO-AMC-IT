@@ -177,7 +177,7 @@ CREATE TABLE IF NOT EXISTS "Clients" (
   "martialStatus" TEXT,
   "childrenInCareDuration" TEXT,
   "anyConcerns" TEXT,
-  prentativeSupport BOOLEAN,
+  "prentativeSupport" BOOLEAN,
   "prentativeSupportExplained" TEXT,
   "privateAgreement" BOOLEAN,
   "privateAgreementExplained" TEXT,
