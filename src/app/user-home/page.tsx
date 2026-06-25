@@ -13,7 +13,7 @@ export default function UserHome(props: { children: ReactNode }) {
   if (status === "loading") return null;
 
   return (
-    <div className="min-h-screen flex" style={{ backgroundColor: "#cccccc" }}>
+    <div className="min-h-screen flex [--sidebar-width:14rem]" style={{ backgroundColor: "#cccccc" }}>
       <aside className="w-56 min-h-screen flex-shrink-0 bg-black px-2 py-3">
         <nav className="flex flex-col gap-0.5">
           {userRole === "admin" && <UserHomeLink name="Admin" path="admin" />}
