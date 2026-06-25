@@ -75,6 +75,7 @@ export async function executeQuery(payload) {
 
 async function executeSelect(payload) {
   const table = payload.table;
+  const tableAlias = "t";
   const parsed = parseSelectColumns(payload.selectColumns, table);
   const wantsCount = payload.selectOptions?.count === "exact";
   const headOnly = payload.selectOptions?.head === true;
@@ -85,8 +86,8 @@ async function executeSelect(payload) {
 
   for (const filter of payload.filters) {
     if (filter.type === "or") {
-      const parsedOr = parseOrExpression(filter.expression, paramIndex, "t");
-      whereParts.push(`(${parsedOr.sql.replace(/\bt\./g, `${quoteTable(table)}.`)})`);
+      const parsedOr = parseOrExpression(filter.expression, paramIndex, tableAlias);
+      whereParts.push(`(${parsedOr.sql})`);
       params.push(...parsedOr.params);
       paramIndex = parsedOr.nextIndex;
       continue;
@@ -94,7 +95,7 @@ async function executeSelect(payload) {
 
     paramIndex++;
     const col = quoteIdent(filter.column);
-    const tableRef = `${quoteTable(table)}.${col}`;
+    const tableRef = `${tableAlias}.${col}`;
 
     switch (filter.type) {
       case "eq":
@@ -149,7 +150,7 @@ async function executeSelect(payload) {
 
   if (wantsCount) {
     const countRes = await query(
-      `SELECT COUNT(*)::int AS count FROM ${quoteTable(table)} ${whereSql}`,
+      `SELECT COUNT(*)::int AS count FROM ${quoteTable(table)} ${tableAlias} ${whereSql}`,
       params,
     );
     count = countRes.rows[0]?.count ?? 0;
@@ -159,12 +160,14 @@ async function executeSelect(payload) {
   if (headOnly) return { data: null, count: 0, error: null };
 
   const selectCols =
-    parsed.columns[0] === "*" ? "t.*" : parsed.columns.map((c) => `t.${quoteIdent(c)}`).join(", ");
+    parsed.columns[0] === "*"
+      ? `${tableAlias}.*`
+      : parsed.columns.map((c) => `${tableAlias}.${quoteIdent(c)}`).join(", ");
 
-  let sql = `SELECT ${selectCols} FROM ${quoteTable(table)} t ${whereSql}`;
+  let sql = `SELECT ${selectCols} FROM ${quoteTable(table)} ${tableAlias} ${whereSql}`;
 
   if (payload.orderBy?.column) {
-    sql += ` ORDER BY t.${quoteIdent(payload.orderBy.column)} ${payload.orderBy.ascending ? "ASC" : "DESC"}`;
+    sql += ` ORDER BY ${tableAlias}.${quoteIdent(payload.orderBy.column)} ${payload.orderBy.ascending ? "ASC" : "DESC"}`;
   }
 
   const dataParams = [...params];
