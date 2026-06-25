@@ -11,6 +11,7 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const filePath = searchParams.get("file_path");
   const fileName = searchParams.get("file_name");
+  const inline = searchParams.get("inline") === "1";
 
   if (!filePath) {
     return NextResponse.json({ error: "file_path is required" }, { status: 400 });
@@ -19,11 +20,12 @@ export async function GET(request) {
   try {
     const buffer = await readAttachment(filePath);
     const contentType = await getAttachmentContentType(filePath);
+    const safeName = fileName || filePath.split("/").pop() || "download";
     const headers = new Headers();
     headers.set("Content-Type", contentType);
     headers.set(
       "Content-Disposition",
-      `attachment; filename="${fileName || filePath.split("/").pop() || "download"}"`,
+      `${inline ? "inline" : "attachment"}; filename="${safeName}"`,
     );
     return new NextResponse(buffer, { headers });
   } catch (err) {

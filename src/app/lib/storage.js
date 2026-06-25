@@ -111,6 +111,9 @@ async function objectExists(storagePath) {
 
 function buildDownloadUrl(storagePath, options = {}) {
   const params = new URLSearchParams({ file_path: storagePath });
+  if (options.inline) {
+    params.set("inline", "1");
+  }
   if (options.download) {
     params.set(
       "file_name",

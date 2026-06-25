@@ -4,6 +4,7 @@ import { Field, ErrorMessage, FieldArray } from "formik";
 import TypeNoteSelect from "@/components/TypeNoteSelect";
 import SubTypeNoteSelect from "@/components/SubTypeNoteSelect";
 import FormattedDate from "@/components/FormattedDate";
+import NoteAttachmentPreview from "@/components/NoteAttachmentPreview";
 import { canEditNote } from "@/app/lib/note-edit-utils";
 
 const CaseNotesPartition = ({
@@ -42,15 +43,6 @@ const CaseNotesPartition = ({
             setEditFile(null);
         }
     }, [editingNote]);
-
-    const handleDownloadFile = async (filePath, fileName) => {
-        const params = new URLSearchParams({ file_path: filePath });
-        if (fileName) params.set("file_name", fileName);
-        const res = await fetch(`/api/notes/download?${params.toString()}`);
-        if (!res.ok) return;
-        const { signedUrl } = await res.json();
-        if (signedUrl) window.open(signedUrl, "_blank");
-    };
 
     const caseNotes = notesData.filter(note => note.noteType?.toLowerCase() === "case");
 
@@ -168,19 +160,11 @@ const CaseNotesPartition = ({
                             {/* Attachment */}
                             {selectedNote.fileName && (
                                 <div className="mx-5 mb-5 bg-gray-50 border border-dashed border-gray-300 rounded-lg p-4">
-                                    <label className="block text-xs font-medium text-gray-600 mb-1">Attachment</label>
-                                    <div className="flex items-center gap-2 mt-1">
-                                        <span className="bg-gray-200 px-3 py-1 rounded-full text-sm font-medium text-gray-700">
-                                            {selectedNote.fileName}
-                                        </span>
-                                        <button
-                                            className="px-3 py-1 text-xs font-semibold rounded-lg transition-colors border border-blue-300 text-blue-600 bg-white hover:bg-blue-50"
-                                            onClick={() => handleDownloadFile(selectedNote.filePath, selectedNote.fileName)}
-                                            data-view-allow="true"
-                                        >
-                                            Download
-                                        </button>
-                                    </div>
+                                    <label className="block text-xs font-medium text-gray-600 mb-2">Attachment</label>
+                                    <NoteAttachmentPreview
+                                        filePath={selectedNote.filePath}
+                                        fileName={selectedNote.fileName}
+                                    />
                                 </div>
                             )}
 

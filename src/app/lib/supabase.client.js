@@ -75,6 +75,9 @@ const supabase = {
         },
         async createSignedUrl(storagePath, _expiresIn = 3600, options = {}) {
           const params = new URLSearchParams({ file_path: storagePath });
+          if (options.inline) {
+            params.set("inline", "1");
+          }
           if (options.download) {
             params.set(
               "file_name",

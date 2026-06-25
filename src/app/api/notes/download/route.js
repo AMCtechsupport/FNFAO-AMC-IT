@@ -10,14 +10,17 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const file_path = searchParams.get("file_path");
     const file_name = searchParams.get("file_name");
+    const inline = searchParams.get("inline") === "1";
 
     if (!file_path) {
       return NextResponse.json({ error: "file_path is required" }, { status: 400 });
     }
 
+    const urlOptions = inline ? { inline: true } : { download: file_name || true };
+
     const { data, error } = await supabase.storage
       .from("attachments")
-      .createSignedUrl(file_path, 3600, { download: file_name || true }); // 1-hour expiry
+      .createSignedUrl(file_path, 3600, urlOptions);
 
     if (error) {
       console.error("[/api/notes/download] Error creating signed URL:", error);
