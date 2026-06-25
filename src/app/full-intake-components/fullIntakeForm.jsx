@@ -18,6 +18,7 @@ import fetchFullIntakeValues from "./utils/fetchFullIntakeValues";
 import fullIntakeInputValidation from "./utils/fullIntakeInputValidation";
 import { fetchClientData } from "./utils/fetchClientData";
 import FullIntakeFormSubmit from "./utils/FullIntakeFormSubmit";
+import StickyFormActions from "@/components/StickyFormActions";
 
 const TABS = ["General", "Children", "Health & Wellness", "Child & Family Services", "Case Notes", "Legal Notes"];
 
@@ -483,17 +484,17 @@ export default function FullIntakeForm({
             </div>
 
             {!isViewOnly && (
-              <div className="flex justify-between items-center mb-6">
+              <StickyFormActions>
                 <button
                   type="button"
-                  className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors"
+                  className="px-5 py-2.5 text-sm font-semibold rounded-lg transition-colors text-white"
                   style={{ backgroundColor: "#6b7280" }}
                   onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#4b5563")}
                   onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#6b7280")}
                   onClick={() => {
                     resetForm();
                     setShowNewNoteForm(false);
-                    router.push(`/adult-clients/${client_id}/view`); //go back to viewing page
+                    router.push(`/adult-clients/${client_id}/view`);
                   }}
                 >
                   Cancel
@@ -501,18 +502,18 @@ export default function FullIntakeForm({
 
                 <button
                   type="submit"
-                  className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors"
+                  className="px-5 py-2.5 text-sm font-semibold rounded-lg transition-colors text-white"
                   style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}
                   onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "rgba(74, 0, 153, 0.8)")}
                   onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)")}
                 >
                   Save
                 </button>
-              </div>
+              </StickyFormActions>
             )}
 
             {toast && (
-              <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white ${toast.type === "success" ? "bg-green-500" : "bg-red-500"}`}>
+              <div className={`fixed bottom-24 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white ${toast.type === "success" ? "bg-green-500" : "bg-red-500"}`}>
                 {toast.type === "success" ? (
                   <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />

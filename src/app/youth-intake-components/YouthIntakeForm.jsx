@@ -6,6 +6,7 @@ import * as Yup from "yup";
 import { useSession } from "next-auth/react";
 import ValidationErrorToast from "../../../components/ValidationErrorToast";
 import ToastNotification from "../../../components/ToastNotification";
+import StickyFormActions from "@/components/StickyFormActions";
 
 import youthIntakeInputValidation from "./utils/youthIntakeInputValidation";
 import ReferredBySelect from "@/components/ReferredBySelect";
@@ -192,7 +193,7 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
           {!isViewOnly && (
             <>
               {isEditMode ? (
-                <div className="flex items-center justify-between mt-4 mb-2">
+                <StickyFormActions>
                   <button
                     type="button"
                     className="px-5 py-2.5 text-sm font-semibold rounded-lg transition-colors text-white"
@@ -201,7 +202,7 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#6b7280")}
                     onClick={() => {
                       resetForm();
-                      router.push(`/youth-clients/${editClientId}/view`); // go back to viewing page
+                      router.push(`/youth-clients/${editClientId}/view`);
                     }}
                   >
                     Cancel
@@ -215,23 +216,25 @@ function YouthIntakeForm({ editClientId, isEditMode, isViewOnly = false }) {
                   >
                     Save
                   </button>
-                </div>
+                </StickyFormActions>
               ) : (
                 <>
-                  <button
-                    type="submit"
-                    className="w-full text-sm font-medium py-2.5 px-4 rounded-lg transition-colors border-2 mb-2"
-                    style={{ backgroundColor: "rgba(97, 0, 215, 0.08)", borderColor: "rgba(97, 0, 215, 0.24)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"; e.currentTarget.style.color = "#ffffff"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.08)"; e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)"; }}
-                  >
-                    Submit Youth Intake
-                  </button>
+                  <StickyFormActions>
+                    <button
+                      type="submit"
+                      className="w-full sm:w-auto sm:ml-auto text-sm font-semibold py-2.5 px-6 rounded-lg transition-colors border-2"
+                      style={{ backgroundColor: "rgba(97, 0, 215, 0.08)", borderColor: "rgba(97, 0, 215, 0.24)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"; e.currentTarget.style.color = "#ffffff"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.08)"; e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)"; }}
+                    >
+                      Submit Youth Intake
+                    </button>
+                  </StickyFormActions>
                   <ValidationErrorToast showToast={showToast} message="Some required fields are incomplete. Please scroll up to check for errors." />
                 </>
               )}
 
-              <ToastNotification toast={toast} />
+              <ToastNotification toast={toast} position="bottom-24" />
             </>
           )}
         </Form>

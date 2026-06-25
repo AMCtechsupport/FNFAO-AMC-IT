@@ -15,6 +15,7 @@ import ReferredBySelect from "@/components/ReferredBySelect";
 import AssignAdvocateUponSubmission from "@/components/AssignAdvocateUponSubmission";
 import ValidationErrorToast from "../../../components/ValidationErrorToast";
 import ToastNotification from "../../../components/ToastNotification";
+import StickyFormActions from "@/components/StickyFormActions";
 
 const TABS = ["General", "Children", "Health & Wellness", "Child & Family Services", "Case Notes", "Legal Notes"];
 
@@ -65,7 +66,7 @@ export default function PreIntakeForm() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Client Pre-Intake Form</h1>
-              <p className="text-sm text-gray-500 mt-1">Complete all sections and submit when ready</p>
+              <p className="text-sm text-gray-500 mt-1">Submit stays visible at the bottom while you complete each section</p>
             </div>
             <div className="w-72">
               <ReferredBySelect name="referredBy" label="How did the client learn about FNFAO?" error={errors.referredBy} />
@@ -151,27 +152,29 @@ export default function PreIntakeForm() {
                 <p className="text-sm text-gray-500 italic">Legal notes can be added after the client is created.</p>
               )}
             </div>
-            <div className="mb-6 ml-6 w-72">
-              <Field
-                  name="selectedAdvocate"
-                  component={AssignAdvocateUponSubmission}
-                  label="Assign Advocate"
-                  error={errors.AssignAdvocateUponSubmission}
-              />
-            </div>
           </div>
 
-          <button
-            type="submit"
-            className="w-full text-sm font-medium py-2.5 px-4 rounded-lg transition-colors border-2 mb-2"
-            style={{ backgroundColor: "rgba(97, 0, 215, 0.08)", borderColor: "rgba(97, 0, 215, 0.24)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
-            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"; e.currentTarget.style.color = "#ffffff"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.08)"; e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)"; }}
-          >
-            Submit Pre-Intake
-          </button>
+          <StickyFormActions>
+            <div className="w-full sm:w-72 min-w-[12rem]">
+              <Field
+                name="selectedAdvocate"
+                component={AssignAdvocateUponSubmission}
+                label="Assign Advocate"
+                error={errors.AssignAdvocateUponSubmission}
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full sm:w-auto shrink-0 text-sm font-semibold py-2.5 px-6 rounded-lg transition-colors border-2"
+              style={{ backgroundColor: "rgba(97, 0, 215, 0.08)", borderColor: "rgba(97, 0, 215, 0.24)", color: "rgba(97, 0, 215, 0.8)", transition: "all 0.3s ease" }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.8)"; e.currentTarget.style.color = "#ffffff"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(97, 0, 215, 0.08)"; e.currentTarget.style.color = "rgba(97, 0, 215, 0.8)"; }}
+            >
+              Submit Pre-Intake
+            </button>
+          </StickyFormActions>
           <ValidationErrorToast showToast={showToast} message="Some required fields are incomplete. Check tabs with a red dot for errors." />
-          <ToastNotification toast={toast} />
+          <ToastNotification toast={toast} position="bottom-24" />
         </Form>
       )}
     </Formik>

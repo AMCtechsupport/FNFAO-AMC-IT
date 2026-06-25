@@ -1,11 +1,11 @@
-export default function ToastNotification({ toast }) {
+export default function ToastNotification({ toast, position = "bottom-6" }) {
   if (!toast) return null;
 
   const isError = toast.type !== "success";
 
   return (
     <div
-      className={`fixed bottom-6 right-6 z-50 max-w-lg px-4 py-3 rounded-lg shadow-lg text-sm text-white ${
+      className={`fixed ${position} right-6 z-50 max-w-lg px-4 py-3 rounded-lg shadow-lg text-sm text-white ${
         isError ? "bg-red-600" : "bg-green-500"
       }`}
       role="alert"
