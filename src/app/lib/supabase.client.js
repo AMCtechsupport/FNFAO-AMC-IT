@@ -22,8 +22,30 @@ const supabase = {
   storage: {
     from(_bucket) {
       return {
-        async upload() {
-          return { data: null, error: { message: "Upload through /api/notes" } };
+        async upload(storagePath, fileOrBuffer, options = {}) {
+          const formData = new FormData();
+          formData.append("storage_path", storagePath);
+
+          if (typeof File !== "undefined" && fileOrBuffer instanceof File) {
+            formData.append("file", fileOrBuffer);
+          } else if (fileOrBuffer instanceof Blob) {
+            formData.append("file", fileOrBuffer);
+          } else {
+            const blob = new Blob([fileOrBuffer], {
+              type: options.contentType || "application/octet-stream",
+            });
+            formData.append("file", blob, storagePath.split("/").pop() || "upload");
+          }
+
+          const res = await fetch("/api/files/upload", {
+            method: "POST",
+            body: formData,
+          });
+          const json = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            return { data: null, error: { message: json.error || "Upload failed" } };
+          }
+          return { data: { path: json.path || storagePath }, error: null };
         },
         async createSignedUrl(storagePath, _expiresIn = 3600, options = {}) {
           const params = new URLSearchParams({ file_path: storagePath });

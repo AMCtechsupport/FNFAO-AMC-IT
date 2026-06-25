@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { readAttachment } from "@/app/lib/storage";
+import { getAttachmentContentType, readAttachment } from "@/app/lib/storage";
 
 export async function GET(request) {
   const session = await auth();
@@ -18,8 +18,9 @@ export async function GET(request) {
 
   try {
     const buffer = await readAttachment(filePath);
+    const contentType = await getAttachmentContentType(filePath);
     const headers = new Headers();
-    headers.set("Content-Type", "application/octet-stream");
+    headers.set("Content-Type", contentType);
     headers.set(
       "Content-Disposition",
       `attachment; filename="${fileName || filePath.split("/").pop() || "download"}"`,

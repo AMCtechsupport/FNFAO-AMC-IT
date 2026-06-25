@@ -30,12 +30,26 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 ADMIN_EMAIL=admin@fnfao.local
 ADMIN_PASSWORD=changeme123
 
-# Optional email
-RESEND_API_KEY=
-RESEND_FROM_EMAIL=no-reply@example.com
+# Optional email (SMTP — same vars as AMC constitution app)
+SMTP_HOST=
+SMTP_USER=
+SMTP_PASS=
+SMTP_PORT=587
+EMAIL_FROM=
+EMAIL_FROM_NAME=AMC FNFAO
 
-# Optional file storage path (defaults to ./storage/attachments)
+# Optional file storage — local disk when Spaces is not set
 ATTACHMENTS_DIR=./storage/attachments
+
+# DigitalOcean Spaces — dedicated FNFAO bucket (recommended for production)
+# Create a NEW Space in the DO control panel; do not reuse the constitution app bucket.
+# SPACES_ENDPOINT=https://tor1.digitaloceanspaces.com
+#   (or the Origin Endpoint DO shows, e.g. https://fnfaobucket.tor1.digitaloceanspaces.com)
+# SPACES_BUCKET=fnfaobucket
+# SPACES_REGION=tor1
+# SPACES_ACCESS_KEY_ID=
+# SPACES_SECRET_ACCESS_KEY=
+# SPACES_ATTACHMENTS_PREFIX=attachments
 ```
 
 Generate `AUTH_SECRET`:
@@ -86,6 +100,25 @@ Sign in at `/login` with the admin credentials from your env vars.
 | `SMTP_PASS` | For emails | Run | SMTP password |
 | `EMAIL_FROM` | No | Run | From address (defaults to `SMTP_USER`) |
 | `EMAIL_FROM_NAME` | No | Run | Display name (default: `AMC FNFAO`) |
+| `SPACES_ENDPOINT` | For file storage | Run | Regional endpoint only, e.g. `https://tor1.digitaloceanspaces.com` |
+| `SPACES_BUCKET` | For file storage | Run | **Dedicated** FNFAO Space name (e.g. `amc-fnfao-attachments`) |
+| `SPACES_ACCESS_KEY_ID` | For file storage | Run | Access key for this Space (create new keys in DO → API → Spaces Keys) |
+| `SPACES_SECRET_ACCESS_KEY` | For file storage | Run | Secret for that key |
+| `SPACES_REGION` | No | Run | Region slug (e.g. `tor1`); inferred from endpoint if omitted |
+| `SPACES_ATTACHMENTS_PREFIX` | No | Run | Folder inside bucket (default: `attachments`) |
+
+Without `SPACES_*` vars, note attachments are stored on the app container disk and are **lost on redeploy**. Use a dedicated Space in production.
+
+### Create a dedicated FNFAO Space
+
+1. In [DigitalOcean](https://cloud.digitalocean.com/spaces), click **Create Space**.
+2. Pick the **same region** as your FNFAO app database if possible (e.g. Toronto → `tor1`).
+3. Name it something unique, e.g. **`amc-fnfao-attachments`** (names are global across DO).
+4. **Create new Spaces access keys** (API → Spaces access keys → Generate New Key). Use these only on the FNFAO app — not the constitution app keys.
+5. On the FNFAO App Platform app, set the `SPACES_*` variables above (**Run** scope). Use the regional endpoint, not the bucket URL.
+6. Redeploy. Logs should show: `DigitalOcean Spaces ready (bucket: amc-fnfao-attachments, prefix: attachments).`
+
+Files are stored as `attachments/client_{id}/{uuid}-{filename}` inside your new bucket. The constitution app is unaffected.
 
 4. Deploy the app. The **start command** runs `scripts/seed.mjs` automatically before the server starts (creates tables + first admin if missing).
 5. Verify: open `https://your-app.ondigitalocean.app/api/health`
