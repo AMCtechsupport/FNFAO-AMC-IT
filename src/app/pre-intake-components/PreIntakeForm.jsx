@@ -18,6 +18,16 @@ import ToastNotification from "../../../components/ToastNotification";
 
 const TABS = ["General", "Children", "Health & Wellness", "Child & Family Services", "Case Notes", "Legal Notes"];
 
+function tabHasFieldError(errors, field) {
+  if (field === "children") {
+    return (
+      Array.isArray(errors.children) &&
+      errors.children.some((child) => child && Object.keys(child).length > 0)
+    );
+  }
+  return Boolean(errors[field]);
+}
+
 // Fields belonging to each tab that can produce validation errors
 const TAB_ERROR_FIELDS = [
   // Tab 0: General
@@ -54,7 +64,7 @@ export default function PreIntakeForm() {
           {/* Page Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Pre-Intake Form</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Client Pre-Intake Form</h1>
               <p className="text-sm text-gray-500 mt-1">Complete all sections and submit when ready</p>
             </div>
             <div className="w-72">
@@ -73,7 +83,7 @@ export default function PreIntakeForm() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
             <div className="flex flex-wrap border-b border-gray-200 overflow-x-auto">
               {TABS.map((tab, i) => {
-                const tabHasError = submitCount > 0 && TAB_ERROR_FIELDS[i]?.some(field => errors[field]);
+                const tabHasError = submitCount > 0 && TAB_ERROR_FIELDS[i]?.some((field) => tabHasFieldError(errors, field));
                 return (
                   <button
                     key={tab}

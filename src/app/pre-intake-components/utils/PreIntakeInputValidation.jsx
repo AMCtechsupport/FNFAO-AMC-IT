@@ -43,7 +43,12 @@ const PreIntakeInputValidation=
         errors.dateOfBirth = "Invalid date format";
         } else if (birthDate > today) {
         errors.dateOfBirth = "Date of birth cannot be in the future";
-        } 
+        } else {
+            const oldestAllowed = new Date(today.getFullYear() - 120, today.getMonth(), today.getDate());
+            if (birthDate < oldestAllowed) {
+                errors.dateOfBirth = "Please enter a valid birth date";
+            }
+        }
     }
 
     if (!values.relationshipToChildren) {
@@ -82,6 +87,15 @@ const PreIntakeInputValidation=
         if (!errors.children) errors.children = [];
         if (!errors.children[index]) errors.children[index] = {};
         errors.children[index].childCfsAgentNumber = childCfsAgentNumberError;
+        }
+
+        const childCfsSupervisorNumberError = validatePhoneNumber(
+        child.childCfsSupervisorNumber
+        );
+        if (childCfsSupervisorNumberError) {
+        if (!errors.children) errors.children = [];
+        if (!errors.children[index]) errors.children[index] = {};
+        errors.children[index].childCfsSupervisorNumber = childCfsSupervisorNumberError;
         }
 
         // Validate Birth Date only if provided

@@ -7,14 +7,17 @@ import StatusCFSFileSelect from "@/components/StatusCFSFileSelect";
 import FirstNationSelect from "@/components/FirstNationSelect";
 import GenderSelect from "@/components/GenderSelect";
 import ManageCfsAgencies from "@/components/ManageCfsAgencies";
+import { getMinChildBirthDate, getTodayInputDate } from "../../lib/date-input-bounds";
 
-const today = new Date().toISOString().split("T")[0]; //get the current date
+const today = getTodayInputDate();
+const minChildBirthDate = getMinChildBirthDate();
 
 const ChildrenPartition = ({
     childrenData,
     values,
     isEditing,
-    errors
+    errors,
+    setFieldValue,
 }) => {
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
@@ -23,45 +26,42 @@ const ChildrenPartition = ({
             </div>
             <div className="p-5">
 
-                {values.children.length === 0 ? (
-                    <p>No children found for this client.</p>
-                ) : (
-                    <>
-                        <div className="grid grid-cols-12 gap-4 mb-4">
-                            <div className="col-span-4">
-                                <RelationshipToChildrenSelect name="relationshipToChildren" label="What is your relationship to the child(ren)?" error={errors.relationshipToChildren} disabled={!isEditing} />
+                <div className="grid grid-cols-12 gap-4 mb-4">
+                    <div className="col-span-4">
+                        <RelationshipToChildrenSelect name="relationshipToChildren" label="What is your relationship to the child(ren)?" error={errors.relationshipToChildren} disabled={!isEditing} />
+                    </div>
+                </div>
+                <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mb-4">
+                    <div className="grid grid-cols-12 gap-4">
+                        <div className="col-span-5">
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Are there any other adults involved in your matter?</label>
+                            <div className="flex gap-4 mt-1">
+                                <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                    <Field type="radio" name="otherAdultsInvolved" value="yes" checked={values.otherAdultsInvolved === "yes"} disabled={!isEditing} className="accent-purple-600/80" /> Yes
+                                </label>
+                                <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                    <Field type="radio" name="otherAdultsInvolved" value="no" checked={values.otherAdultsInvolved === "no"} disabled={!isEditing} className="accent-purple-600/80" /> No
+                                </label>
                             </div>
+                            <ErrorMessage name="otherAdultsInvolved" component="div" className="text-xs text-red-500 mt-1" />
                         </div>
-                        <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mb-4">
-                            <div className="grid grid-cols-12 gap-4">
-                                <div className="col-span-5">
-                                    <label className="block text-xs font-medium text-gray-600 mb-1">Are there any other adults involved in your matter?</label>
-                                    <div className="flex gap-4 mt-1">
-                                        <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                            <Field type="radio" name="otherAdultsInvolved" value="yes" checked={values.otherAdultsInvolved === "yes"} disabled={!isEditing} className="accent-purple-600/80" /> Yes
-                                        </label>
-                                        <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                                            <Field type="radio" name="otherAdultsInvolved" value="no" checked={values.otherAdultsInvolved === "no"} disabled={!isEditing} className="accent-purple-600/80" /> No
-                                        </label>
-                                    </div>
-                                    <ErrorMessage name="otherAdultsInvolved" component="div" className="text-xs text-red-500 mt-1" />
-                                </div>
-                                {values.otherAdultsInvolved === "yes" && (
-                                    <div className="col-span-12">
-                                        <label className="block text-xs font-medium text-gray-600 mb-1">Please specify:</label>
-                                        <Field as="textarea" name="otherAdultsInvolvedExplained" placeholder="e.g., grandparent, step-parent..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white resize-none" disabled={!isEditing} />
-                                        <ErrorMessage name="otherAdultsInvolvedExplained" component="div" className="text-xs text-red-500 mt-1" />
-                                    </div>
-                                )}
+                        {values.otherAdultsInvolved === "yes" && (
+                            <div className="col-span-12">
+                                <label className="block text-xs font-medium text-gray-600 mb-1">Please specify:</label>
+                                <Field as="textarea" name="otherAdultsInvolvedExplained" placeholder="e.g., grandparent, step-parent..." className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white resize-none" disabled={!isEditing} />
+                                <ErrorMessage name="otherAdultsInvolvedExplained" component="div" className="text-xs text-red-500 mt-1" />
                             </div>
-                        </div>
-                    </>
-                )}
+                        )}
+                    </div>
+                </div>
 
                 {/* list of children */}
                 <h5 className="text-sm font-semibold text-gray-700 mb-1">List of Children</h5>
                 <label className="block text-xs font-medium text-gray-600 mb-3">(List all children, including those at home or in care):</label>
 
+                {values.children.length === 0 && (
+                    <p className="text-sm text-gray-500 mb-3">No children added yet. Use the button below if you need to list children.</p>
+                )}
                 <FieldArray name="children">
                     {({ push, remove }) => (
                         <div>
@@ -96,6 +96,7 @@ const ChildrenPartition = ({
                                                     name={`children.${originalIndex}.birthDate`}
                                                     disabled={!isEditing}
                                                     className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400/80 bg-white"
+                                                    min={minChildBirthDate}
                                                     max={today}
                                                 />
                                                 <ErrorMessage

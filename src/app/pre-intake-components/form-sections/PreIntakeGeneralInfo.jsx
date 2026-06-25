@@ -6,9 +6,11 @@ import PhoneNumberInput from "@/components/ValidPhoneNumber";
 import InputField from "@/components/InputField";
 import ReferredBySelect from "@/components/ReferredBySelect";
 import ProvincesSelect from "@/components/ProvincesSelect";
+import { getMinAdultBirthDate, getTodayInputDate } from "../../lib/date-input-bounds";
 
 const labelCls = "block text-xs font-medium text-gray-600 mb-1";
-const today = new Date().toISOString().split("T")[0]; //get the current date
+const today = getTodayInputDate();
+const minAdultBirthDate = getMinAdultBirthDate();
 
 const PreIntakeGeneralInfo = ({ errors }) => {
   return (
@@ -38,7 +40,7 @@ const PreIntakeGeneralInfo = ({ errors }) => {
             </div>
             <div className="col-span-3">
               <label className={labelCls} htmlFor="dateOfBirth">Date of Birth:*</label>
-              <Field type="date" id="dateOfBirth" name="dateOfBirth" className={styles.input} max={today} />
+              <Field type="date" id="dateOfBirth" name="dateOfBirth" className={styles.input} min={minAdultBirthDate} max={today} />
               <ErrorMessage name="dateOfBirth" component={() => <p className={styles.errorText}>{errors.dateOfBirth}</p>} />
             </div>
           </div>
