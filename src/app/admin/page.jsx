@@ -1,6 +1,5 @@
 import { fetchClientsAndAdvocates } from "../lib/assign-advocate";
-import AssignAdvocate from "../../../components/assign-advocate-client";
-import AssignClientSelector from "../../../components/assigned-client-selector";
+import AdminAssignWorkspace from "../../../components/admin-assign-workspace";
 import UserHome from "../user-home/page";
 
 export const dynamic = "force-dynamic";
@@ -13,17 +12,14 @@ export default async function AssignPage() {
       <main className="min-h-screen bg-gray-100 p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Admin</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Assign Clients</h1>
             <p className="text-sm text-gray-500 mt-1">
               Assign advocates to clients and manage assignments
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <AssignAdvocate clients={clientsData} advocates={advocatesData} />
-          <AssignClientSelector advocates={advocatesData} />
-        </div>
+        <AdminAssignWorkspace clientsData={clientsData} advocatesData={advocatesData} />
       </main>
     </UserHome>
   );

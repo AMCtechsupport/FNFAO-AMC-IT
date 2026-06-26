@@ -213,7 +213,11 @@ const PendingAdvocates = ({ refreshTrigger }) => {
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       {/* Header */}
       <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
-        Pending User Request
+        New Users (Last 30 Days)
+      </div>
+
+      <div className="px-5 py-3 bg-amber-50 border-b border-amber-100 text-sm text-amber-900">
+        Advocates created in the last 30 days who may not have signed in yet. Resend the welcome email or remove accounts that are no longer needed.
       </div>
 
       <div className="p-4 space-y-3">

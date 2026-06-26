@@ -6,6 +6,7 @@ import Link from "next/link";
 import supabase from "../../../lib/supabase";
 
 import YouthIntakeForm from "../../../youth-intake-components/YouthIntakeForm";
+import ClientAdvocateAssign from "../../../../../components/client-advocate-assign";
 
 export default function YouthClientView() {
   const params = useParams();
@@ -85,6 +86,8 @@ export default function YouthClientView() {
             </Link>
           </div>
         </div>
+
+        <ClientAdvocateAssign clientId={client_id} />
 
         {/* View-only notice */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 mb-6 text-sm text-blue-800">

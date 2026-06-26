@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { deleteClient } from "../src/app/lib/delete-client-server";
 import Pagination from "./report/pages-pagination";
 import DeleteConfirmModal from "./DeleteConfirmModal";
@@ -36,6 +37,7 @@ function ClientTable({
   activeClientId,
   deletingClientId,
   emptyMessage,
+  advocateByClientId = {},
 }) {
   return (
     <div className="flex flex-col gap-4 h-full">
@@ -54,13 +56,14 @@ function ClientTable({
           <thead>
             <tr className="text-white" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
               <th className="py-3 px-4 font-semibold text-xs uppercase tracking-wider text-center">Name</th>
+              <th className="py-3 px-4 font-semibold text-xs uppercase tracking-wider text-center">Advocate</th>
               <th className="py-3 px-4 font-semibold text-xs uppercase tracking-wider text-center">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {paginated.length === 0 ? (
               <tr>
-                <td colSpan="2" className="text-center py-12 px-4">
+                <td colSpan="3" className="text-center py-12 px-4">
                   <div className="flex flex-col items-center text-gray-400">
                     <svg className="w-10 h-10 mb-3 text-gray-300" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
@@ -89,6 +92,15 @@ function ClientTable({
                       <div className="text-xs text-gray-500 mt-1">
                         Status: {client.clientStatus || "—"}
                       </div>
+                    </td>
+                    <td className="py-3 px-4 text-center text-sm text-gray-600">
+                      {advocateByClientId[client.client_id] ? (
+                        <span className="inline-block text-xs font-medium px-2.5 py-1 rounded-full bg-purple-50 text-purple-800 border border-purple-200">
+                          {advocateByClientId[client.client_id]}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-400 italic">Unassigned</span>
+                      )}
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
                       <div className="flex items-center justify-center gap-1.5">
@@ -140,8 +152,12 @@ function ClientTable({
 }
 
 export default function ClientsList() {
+  const { data: session } = useSession();
+  const userRole = session?.user?.role;
+  const myAdvocateId = session?.user?.advocateId;
   const [allYouthClients, setAllYouthClients] = useState([]);
   const [allAdultClients, setAllAdultClients] = useState([]);
+  const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [deletingClientId, setDeletingClientId] = useState(null);
@@ -156,18 +172,35 @@ export default function ClientsList() {
   // default = newest clients first
   const [sortOption, setSortOption] = useState("newest");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [scopeFilter, setScopeFilter] = useState("all");
+  const [firstNationFilter, setFirstNationFilter] = useState("all");
+  const [advocateByClientId, setAdvocateByClientId] = useState({});
 
   useEffect(() => {
     const fetchAll = async () => {
       setLoading(true);
       try {
-        const [yRes, aRes] = await Promise.all([
+        const [yRes, aRes, assignRes] = await Promise.all([
           fetch(`/api/clients?clientType=Youth+Intake&page=1&pageSize=9999`),
           fetch(`/api/clients?clientType=Pre-Intake&page=1&pageSize=9999`),
+          fetch(`/api/client-assignments`),
         ]);
-        const [yJson, aJson] = await Promise.all([yRes.json(), aRes.json()]);
+        const [yJson, aJson, assignJson] = await Promise.all([
+          yRes.json(),
+          aRes.json(),
+          assignRes.json(),
+        ]);
         setAllYouthClients(yJson.data || []);
         setAllAdultClients(aJson.data || []);
+        setAssignments(assignJson.assignments || []);
+
+        const map = {};
+        for (const row of assignJson.assignments || []) {
+          if (row.client_id && !map[row.client_id]) {
+            map[row.client_id] = row.advocateName;
+          }
+        }
+        setAdvocateByClientId(map);
       } catch (err) {
         console.error("Error fetching all clients:", err);
       } finally {
@@ -182,17 +215,52 @@ export default function ClientsList() {
     setTimeout(() => setToast(null), 4000);
   };
 
-  const filteredYouth = getFilteredAndSortedClients(
-    allYouthClients,
-    searchQuery,
-    statusFilter,
-    sortOption,
+  const myClientIds = useMemo(() => {
+    if (!myAdvocateId) return new Set();
+    return new Set(
+      assignments
+        .filter((row) => Number(row.advocate_id) === Number(myAdvocateId))
+        .map((row) => row.client_id),
+    );
+  }, [assignments, myAdvocateId]);
+
+  const firstNationOptions = useMemo(() => {
+    const nations = new Set();
+    for (const client of [...allYouthClients, ...allAdultClients]) {
+      const nation = client.firstNationMembership?.trim();
+      if (nation) nations.add(nation);
+    }
+    return [...nations].sort((a, b) => a.localeCompare(b));
+  }, [allYouthClients, allAdultClients]);
+
+  const applyExtraFilters = (clients) => {
+    let result = clients;
+    if (scopeFilter === "mine") {
+      result = result.filter((client) => myClientIds.has(client.client_id));
+    }
+    if (firstNationFilter !== "all") {
+      result = result.filter(
+        (client) => client.firstNationMembership === firstNationFilter,
+      );
+    }
+    return result;
+  };
+
+  const filteredYouth = applyExtraFilters(
+    getFilteredAndSortedClients(
+      allYouthClients,
+      searchQuery,
+      statusFilter,
+      sortOption,
+    ),
   );
-  const filteredAdult = getFilteredAndSortedClients(
-    allAdultClients,
-    searchQuery,
-    statusFilter,
-    sortOption,
+  const filteredAdult = applyExtraFilters(
+    getFilteredAndSortedClients(
+      allAdultClients,
+      searchQuery,
+      statusFilter,
+      sortOption,
+    ),
   );
 
   const totalYouthPages = Math.max(1, Math.ceil(filteredYouth.length / clientsPerPage));
@@ -258,7 +326,38 @@ export default function ClientsList() {
       </div>
 
       {/* Filter + Sort */}
-      <div className="flex justify-end gap-3 pb-4">
+      <div className="flex flex-wrap justify-end gap-3 pb-4">
+        {userRole === "advocate" && (
+          <select
+            value={scopeFilter}
+            onChange={(e) => {
+              setScopeFilter(e.target.value);
+              setCurrentYouthPage(1);
+              setCurrentAdultPage(1);
+            }}
+            className="text-sm px-3 py-2 border border-gray-200 rounded-lg bg-white text-gray-700"
+          >
+            <option value="all">All clients</option>
+            <option value="mine">My clients only</option>
+          </select>
+        )}
+
+        <select
+          value={firstNationFilter}
+          onChange={(e) => {
+            setFirstNationFilter(e.target.value);
+            setCurrentYouthPage(1);
+            setCurrentAdultPage(1);
+          }}
+          className="text-sm px-3 py-2 border border-gray-200 rounded-lg bg-white text-gray-700 max-w-[220px]"
+        >
+          <option value="all">All First Nations</option>
+          {firstNationOptions.map((nation) => (
+            <option key={nation} value={nation}>
+              {nation}
+            </option>
+          ))}
+        </select>
 
         {/* Status Filter */}
         <FilterStatus
@@ -327,6 +426,7 @@ export default function ClientsList() {
             activeClientId={activeClientId}
             deletingClientId={deletingClientId}
             emptyMessage="No adult clients found"
+            advocateByClientId={advocateByClientId}
           />
           
           {/* Youth Clients */}
@@ -342,6 +442,7 @@ export default function ClientsList() {
             activeClientId={activeClientId}
             deletingClientId={deletingClientId}
             emptyMessage="No youth clients found"
+            advocateByClientId={advocateByClientId}
           />
         </div>
       )}

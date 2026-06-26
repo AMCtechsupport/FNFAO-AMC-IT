@@ -223,10 +223,19 @@ export default function AssignedClientsList({ advocateId }) {
                             d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
                           />
                         </svg>
-                        <p className="text-sm font-medium">No clients found</p>
-                        <p className="text-xs mt-1">
-                          Try adjusting your search
-                        </p>
+                        {allClients.length === 0 ? (
+                          <>
+                            <p className="text-sm font-medium">No clients assigned to you yet</p>
+                            <p className="text-xs mt-1 max-w-sm text-center">
+                              When an admin assigns you a client, it will appear here. You can still view all clients from Client List.
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <p className="text-sm font-medium">No clients found</p>
+                            <p className="text-xs mt-1">Try adjusting your search</p>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import AssignedClientsToAdvocate from "./assigned-clients";
 
-export default function AssignClientSelector({ advocates }) {
+export default function AssignClientSelector({ advocates, refreshKey = 0 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredAdvocates, setFilteredAdvocates] = useState(advocates);
   const [selectedAdvocate, setSelectedAdvocate] = useState(null);
@@ -92,7 +92,10 @@ export default function AssignClientSelector({ advocates }) {
 
         {/* Assigned clients for selected advocate */}
         {selectedAdvocate && (
-          <AssignedClientsToAdvocate advocateId={selectedAdvocate} />
+          <AssignedClientsToAdvocate
+            key={`${selectedAdvocate}-${refreshKey}`}
+            advocateId={selectedAdvocate}
+          />
         )}
 
       </div>

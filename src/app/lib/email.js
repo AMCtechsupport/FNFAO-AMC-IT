@@ -162,3 +162,66 @@ export async function sendAdvocateWelcomeEmail({
     return { sent: false, error: message };
   }
 }
+
+export async function sendClientAssignmentEmail({
+  advocateEmail,
+  advocateFirstName,
+  advocateLastName,
+  clientFirstName,
+  clientLastName,
+}) {
+  const trans = getTransporter();
+  if (!trans) {
+    return { sent: false, skipped: true };
+  }
+
+  const config = getEmailConfig();
+  const appUrl = getAppPublicUrl();
+  const loginUrl = getLoginUrl();
+  const advocateName = [advocateFirstName, advocateLastName].filter(Boolean).join(" ").trim();
+  const clientName = [clientFirstName, clientLastName].filter(Boolean).join(" ").trim() || "a client";
+  const greet = advocateName ? `Hello ${escapeHtml(advocateName)},` : "Hello,";
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; padding: 32px; background-color: #f9f9f9;">
+      <div style="background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+        <h1 style="color: #1a1a1a; font-size: 24px; margin-bottom: 8px;">New client assignment</h1>
+        <p style="color: #555555; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">${greet}</p>
+        <p style="color: #555555; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
+          You have been assigned to <strong>${escapeHtml(clientName)}</strong> in the AMC FNFAO system.
+        </p>
+        <p style="margin-top: 32px; margin-bottom: 24px;">
+          <a href="${escapeHtml(loginUrl)}" style="display: inline-block; background-color: #7504ff; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-size: 16px; font-weight: 600;">
+            Open dashboard
+          </a>
+        </p>
+        <p style="color: #aaaaaa; font-size: 13px;">— ${escapeHtml(config.fromName)}</p>
+      </div>
+    </div>
+  `;
+
+  const text = [
+    greet.replace(/<[^>]+>/g, ""),
+    "",
+    `You have been assigned to ${clientName} in AMC FNFAO.`,
+    "",
+    `Sign in at: ${loginUrl || appUrl}`,
+    "",
+    `— ${config.fromName}`,
+  ].join("\n");
+
+  try {
+    await trans.sendMail({
+      from: `"${config.fromName}" <${config.from}>`,
+      to: advocateEmail,
+      subject: `AMC FNFAO — assigned to ${clientName}`,
+      html,
+      text,
+    });
+    return { sent: true };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[email] Failed to send assignment email to", advocateEmail, message);
+    return { sent: false, error: message };
+  }
+}

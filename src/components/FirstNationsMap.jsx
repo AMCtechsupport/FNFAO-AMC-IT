@@ -58,7 +58,7 @@ function buildPopupHtml(nation, clients) {
         .map((client) => {
           const name = [client.firstName, client.lastName].filter(Boolean).join(" ") || "Unnamed client";
           const href = clientViewPath(client);
-          return `<li><a href="${href}" class="fn-map-client-link">${escapeHtml(name)}</a></li>`;
+          return `<li><a href="${href}" class="fn-map-client-link">${escapeHtml(name)} <span class="fn-map-open-label">→ Open</span></a></li>`;
         })
         .join("")
     : '<li class="fn-map-muted">No clients on file</li>';
@@ -313,6 +313,11 @@ export default function FirstNationsMap() {
         }
         .fn-map-client-link:hover {
           text-decoration: underline;
+        }
+        .fn-map-open-label {
+          font-size: 11px;
+          color: #7c3aed;
+          font-weight: 600;
         }
         .fn-map-muted {
           color: #6b7280;

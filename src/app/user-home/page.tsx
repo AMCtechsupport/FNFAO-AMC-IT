@@ -10,13 +10,21 @@ export default function UserHome(props: { children: ReactNode }) {
   const { data: session, status } = useSession();
   const userRole = session?.user?.role as AppRole;
 
-  if (status === "loading") return null;
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#cccccc" }}>
+        <span className="text-sm text-gray-600">Loading...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex [--sidebar-width:14rem]" style={{ backgroundColor: "#cccccc" }}>
       <aside className="w-56 h-screen sticky top-0 flex-shrink-0 bg-black px-2 py-3 flex flex-col">
         <nav className="flex flex-col gap-0.5 flex-1 min-h-0 overflow-y-auto">
-          {userRole === "admin" && <UserHomeLink name="Admin" path="admin" />}
+          {userRole === "admin" && (
+            <UserHomeLink name="Assign Clients" path="admin" />
+          )}
           {userRole === "advocate" && (
             <UserHomeLink name="Dashboard" path="user-dashboard" />
           )}

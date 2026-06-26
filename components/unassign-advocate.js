@@ -47,19 +47,15 @@ export default function UnassignClient({ advocateId, clientId, initialStatus, on
     setError(null);
 
     try {
-      const { error: unassignError } = await supabase
-        .from("Assigned Advocates")
-        .delete()
-        .eq("advocate_id", advocateId)
-        .eq("client_id", clientId);
-
-      if (unassignError) throw new Error(unassignError.message);
-
-      // Revert client status to Inactive when unassigned
-      await supabase
-        .from("Clients")
-        .update({ clientStatus: "Inactive" })
-        .eq("client_id", clientId);
+      const res = await fetch("/api/assigned-advocate", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ client_id: clientId }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        throw new Error(json.error || "Failed to unassign client");
+      }
 
       onUnassign(clientId);
       router.refresh();

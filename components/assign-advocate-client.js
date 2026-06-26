@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from "react";
 export default function AssignAdvocate({
   clients: initialClients = [],
   advocates: initialAdvocates = [],
+  onAssignmentChange,
 }) {
   const [allClients, setAllClients] = useState([]);
   const [filteredClients, setFilteredClients] = useState([]);
@@ -227,6 +228,8 @@ export default function AssignAdvocate({
 
       // Update client status to 'Active' after successful assignment
       await updateClientStatus(selectedClient.client_id, "Active");
+
+      onAssignmentChange?.();
 
       // Reset selection and fetch fresh data
       setSelectedClient(null);

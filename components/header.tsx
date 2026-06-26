@@ -31,9 +31,16 @@ export default function Header() {
         <div className="flex items-center space-x-6">
           {status === "authenticated" ? (
             <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-300 hidden sm:inline">
-                {session.user?.name || session.user?.email}
-              </span>
+              <div className="text-right hidden sm:block">
+                <span className="text-sm text-gray-200 block">
+                  {session.user?.name || session.user?.email}
+                </span>
+                {session.user?.role && (
+                  <span className="text-xs text-gray-400 capitalize">
+                    {session.user.role}
+                  </span>
+                )}
+              </div>
               <SignOutButton
                 className="rounded-md bg-[#7504ff] px-4 py-2 text-sm font-semibold text-white border border-[#6a04e6] hover:bg-[#6700ea] transition-colors"
               />

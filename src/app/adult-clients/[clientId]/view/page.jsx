@@ -6,6 +6,7 @@ import Link from "next/link";
 import supabase from "../../../lib/supabase";
 
 import FullIntakeForm from "../../../full-intake-components/fullIntakeForm";
+import ClientAdvocateAssign from "../../../../../components/client-advocate-assign";
 
 export default function AdultClientView() {
   const params = useParams();
@@ -87,6 +88,8 @@ export default function AdultClientView() {
         </div>
 
         {/* View-only notice */}
+        <ClientAdvocateAssign clientId={client_id} />
+
         <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 mb-6 text-sm text-blue-800">
           <strong>Read-Only:</strong> You are viewing an adult client record. Switch to Edit to make changes.
         </div>
