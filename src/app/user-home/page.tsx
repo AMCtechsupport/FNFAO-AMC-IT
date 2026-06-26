@@ -29,7 +29,7 @@ export default function UserHome(props: { children: ReactNode }) {
             <UserHomeLink name="Dashboard" path="user-dashboard" />
           )}
           {userRole !== "advocate" && (
-            <UserHomeLink name="Profile" path="profile" />
+            <UserHomeLink name="User Management" path="profile" />
           )}
 
           <p className="px-3 pt-4 pb-1 text-xs font-semibold uppercase tracking-wider text-gray-500">

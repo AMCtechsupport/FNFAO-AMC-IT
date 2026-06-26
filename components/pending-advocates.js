@@ -200,7 +200,7 @@ const PendingAdvocates = ({ refreshTrigger }) => {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
-          Pending Requests
+          List All Users
         </div>
         <div className="p-6">
           <p className="text-gray-600">Loading pending advocates…</p>
@@ -213,7 +213,7 @@ const PendingAdvocates = ({ refreshTrigger }) => {
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       {/* Header */}
       <div className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider" style={{ backgroundColor: "rgba(97, 0, 215, 0.8)" }}>
-        New Users (Last 30 Days)
+        List All Users
       </div>
 
       <div className="px-5 py-3 bg-amber-50 border-b border-amber-100 text-sm text-amber-900">
