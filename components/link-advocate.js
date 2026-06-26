@@ -46,7 +46,10 @@ const LinkAdvocate = ({ onAdvocateCreated }) => {
       if (!response.ok) {
         resetNameState();
         setManualNames(true);
-        setError(json.error || "Could not look up this email address.");
+        setError(
+          json.error ||
+            "Could not look up this email address. Enter the name manually.",
+        );
         return;
       }
 
