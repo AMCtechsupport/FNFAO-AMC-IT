@@ -39,3 +39,13 @@ ADMIN_PASSWORD=your-secure-backdoor-password
 4. **Emergency admin**: hidden form on login page uses `ADMIN_EMAIL` + `ADMIN_PASSWORD` only.
 
 No AD security group is required.
+
+## Auto-fill name when creating a user
+
+When an admin enters a work email on **Create New User**, the app looks up the person in **Microsoft 365** and fills in first and last name automatically.
+
+In Azure Portal → your app registration → **API permissions**, add this **Application** permission and grant admin consent:
+
+- **Microsoft Graph** → `User.Read.All`
+
+The app uses the same `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, and `AZURE_CLIENT_SECRET` as SSO. If Graph lookup is unavailable, the app may suggest a name from the email address (for example `first.last@manitobachiefs.com`) or ask the admin to enter the name manually.
