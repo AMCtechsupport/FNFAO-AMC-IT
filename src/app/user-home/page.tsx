@@ -50,11 +50,8 @@ export default function UserHome(props: { children: ReactNode }) {
           )}
           {userRole === "admin" && <UserHomeLink name="Export" path="export" />}
           {userRole === "admin" && <UserHomeLink name="Report" path="report" />}
-        </nav>
-
-        <div className="pt-3 mt-auto border-t border-gray-800 flex-shrink-0">
           <UserHomeLink name="Map" path="map" />
-        </div>
+        </nav>
       </aside>
 
       <main className="flex-1 p-6">{props.children}</main>
