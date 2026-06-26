@@ -18,7 +18,7 @@ export async function GET(request) {
     return NextResponse.json(
       {
         found: false,
-        error: "Email must be on the organization login domain for Microsoft sign-in.",
+        error: "Email address not recognized by AMC. Please check the email address and try again.",
       },
       { status: 400 },
     );

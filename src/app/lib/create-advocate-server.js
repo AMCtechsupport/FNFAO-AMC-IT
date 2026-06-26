@@ -13,7 +13,7 @@ export const createAdvocate = async ({ firstName, lastName, email, role = "advoc
 
   if (isAzureSsoConfigured() && !emailEligibleForMicrosoftSso(normalizedEmail)) {
     throw new Error(
-      "User email must be on the organization login domain (e.g. @manitobachiefs.com) for Microsoft sign-in.",
+      "Email address not recognized by AMC. Please check the email address and try again.",
     );
   }
 
